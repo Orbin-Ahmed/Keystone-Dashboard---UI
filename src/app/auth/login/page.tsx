@@ -1,10 +1,47 @@
+"use client";
 import CustomButton from "@/components/CustomButton";
 import InputField from "@/components/InputField";
+import { Spinner } from "@radix-ui/themes";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import { login } from "@/api";
 
 const Login = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [formData, setFormData] = useState({
+    username: "",
+    password: "",
+  });
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [event.target.name]: event.target.value,
+    });
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const { username, password } = formData;
+
+    setIsLoading(true);
+    setError(null);
+    const data = await login({ username, password });
+
+    if (data?.error) {
+      setError(data.error);
+    }
+
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    toast.error(error);
+  }, [error]);
+
   return (
     <div className="m-auto h-screen">
       <div className="flex flex-col items-center justify-center py-8">
@@ -26,7 +63,7 @@ const Login = () => {
               </h4>
             </div>
             {/* Form input  */}
-            <form>
+            <form onSubmit={handleSubmit}>
               <p className="mb-4">Please login to your account</p>
               {/* <!--Username input--> */}
               <div className="mb-4">
@@ -36,6 +73,7 @@ const Login = () => {
                   name="username"
                   id="username"
                   placeholder="Username"
+                  onChange={handleChange}
                   required
                 />
               </div>
@@ -48,6 +86,7 @@ const Login = () => {
                   name="password"
                   id="password"
                   placeholder="Password"
+                  onChange={handleChange}
                   required
                 />
               </div>
@@ -58,8 +97,12 @@ const Login = () => {
                   type="submit"
                   variant="primary"
                   className="w-full uppercase"
+                  disabled={isLoading}
                 >
-                  Log in
+                  <div className="flex items-center justify-center">
+                    <span className="mr-2">Log in</span>
+                    <Spinner loading={isLoading}></Spinner>
+                  </div>
                 </CustomButton>
 
                 {/* <!--Forgot password link--> */}
@@ -77,6 +120,13 @@ const Login = () => {
             {/* Form input end*/}
           </div>
         </div>
+        {/* Toast area start */}
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          theme="light"
+        />{" "}
+        {/* Toast area end */}
       </div>
     </div>
   );

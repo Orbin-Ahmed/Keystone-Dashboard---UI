@@ -1,8 +1,10 @@
-const BASE_URL = process.env.BASE_URL;
+import { storeSessionStorage } from "@/utils";
 
-type RegisterFormData = {
+const API_BASE_URL = "http://127.0.0.1:8000/";
+
+type RegisterLoginFormData = {
   username: string;
-  email: string;
+  email?: string;
   password: string;
 };
 
@@ -10,8 +12,8 @@ export const register = async ({
   username,
   email,
   password,
-}: RegisterFormData) => {
-  const url = `http://127.0.0.1:8000/api/register/`;
+}: RegisterLoginFormData) => {
+  const url = `${API_BASE_URL}/api/register/`;
 
   try {
     const response = await fetch(url, {
@@ -21,7 +23,6 @@ export const register = async ({
     });
     if (response.ok) {
       const data = await response.json();
-      console.log(data);
       window.location.href = "/auth/login/";
     } else {
       const errorMessage = await response.json();
@@ -30,6 +31,29 @@ export const register = async ({
           return { error: errorMessage[key][0] };
         }
       }
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+};
+
+export const login = async ({ username, password }: RegisterLoginFormData) => {
+  const url = `${API_BASE_URL}/api/login/`;
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+    if (response.ok) {
+      const data = await response.json();
+      storeSessionStorage("Token", `Token ${data.Token}`);
+      window.location.href = "/dashboard";
+    } else {
+      const errorMessage = await response.json();
+      console.log(errorMessage);
+      return { error: errorMessage };
     }
   } catch (error) {
     console.error("Error:", error);

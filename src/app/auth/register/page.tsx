@@ -7,7 +7,6 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -154,7 +153,12 @@ const Register = () => {
             {/* Form input end*/}
           </div>
         </div>
-        <ToastContainer position="top-right" autoClose={5000} theme="light" />{" "}
+        {/* Toast area start */}
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          theme="light"
+        />{" "}
         {/* Toast area end */}
       </div>
     </div>
