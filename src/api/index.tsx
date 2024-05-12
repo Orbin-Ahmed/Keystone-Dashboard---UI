@@ -48,11 +48,10 @@ export const login = async ({ username, password }: RegisterLoginFormData) => {
     });
     if (response.ok) {
       const data = await response.json();
-      storeSessionStorage("Token", `Token ${data.Token}`);
+      storeSessionStorage("Token", data.Token);
       window.location.href = "/dashboard";
     } else {
       const errorMessage = await response.json();
-      console.log(errorMessage);
       return { error: errorMessage };
     }
   } catch (error) {
