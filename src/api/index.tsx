@@ -1,4 +1,4 @@
-import { storeSessionStorage } from "@/utils";
+import { getSessionStorage, storeSessionStorage } from "@/utils";
 
 const API_BASE_URL = "http://127.0.0.1:8000/";
 
@@ -49,6 +49,7 @@ export const login = async ({ username, password }: RegisterLoginFormData) => {
     if (response.ok) {
       const data = await response.json();
       storeSessionStorage("Token", data.Token);
+      await fetchUserData();
       window.location.href = "/dashboard";
     } else {
       const errorMessage = await response.json();
@@ -56,5 +57,26 @@ export const login = async ({ username, password }: RegisterLoginFormData) => {
     }
   } catch (error) {
     console.error("Error:", error);
+  }
+};
+
+const fetchUserData = async () => {
+  const token = getSessionStorage("Token");
+  try {
+    const response = await fetch(`${API_BASE_URL}api/token/`, {
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      const responseData = await response.json();
+      storeSessionStorage("name", responseData?.username);
+      storeSessionStorage("role", String(responseData?.role));
+    } else {
+      console.log(response);
+    }
+  } catch (error) {
+    console.log(error);
   }
 };

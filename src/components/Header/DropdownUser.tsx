@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { getSessionStorage } from "@/utils";
-import { redirect } from "next/navigation";
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [data, setData] = useState({ username: "Username", role: 0 });
+  const name = getSessionStorage("name");
+  const role = getSessionStorage("role");
 
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
@@ -35,30 +34,6 @@ const DropdownUser = () => {
     return () => document.removeEventListener("keydown", keyHandler);
   });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const API_BASE_URL = "http://127.0.0.1:8000/";
-      const token = getSessionStorage("Token");
-      try {
-        const response = await fetch(`${API_BASE_URL}api/token/`, {
-          headers: {
-            Authorization: `Token ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          console.log(response);
-        }
-        const responseData = await response.json();
-        setData(responseData);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
   return (
     <div className="relative">
       <Link
@@ -69,10 +44,10 @@ const DropdownUser = () => {
       >
         <span className="hidden text-right lg:block">
           <span className="block text-sm font-medium text-black dark:text-white">
-            {data ? data.username : "Username"}
+            {name ? name : "Username"}
           </span>
           <span className="block text-xs">
-            {data?.role == 1 ? "Admin" : "Designer"}
+            {role == "1" ? "Admin" : "Designer"}
           </span>
         </span>
 
