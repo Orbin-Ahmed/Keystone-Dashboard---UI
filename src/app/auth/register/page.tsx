@@ -1,18 +1,57 @@
+"use client";
+import { register } from "@/api";
 import CustomButton from "@/components/CustomButton";
 import InputField from "@/components/InputField";
-import { Metadata } from "next";
+import { Spinner } from "@radix-ui/themes";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
-
-export const metadata: Metadata = {
-  title: "Register || Keystone Engineering Consultant",
-  description: "This is the admin dashbooard Authentication Page.",
-};
+import React, { useEffect, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Register = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+    re_password: "",
+  });
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [event.target.name]: event.target.value,
+    });
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const { username, email, password, re_password } = formData;
+
+    if (password !== re_password) {
+      toast.error("Passwords do not match!");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    const data = await register({ username, email, password });
+
+    if (data?.error) {
+      setError(data.error);
+    }
+
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    toast.error(error);
+  }, [error]);
+
   return (
-    <div className="m-auto h-screen">
+    <div className="m-auto h-full">
       <div className="flex flex-col items-center justify-center py-8">
         <div className="px-4 md:px-0 lg:w-6/12">
           <div className="rounded-lg bg-white shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] md:mx-6 md:p-12">
@@ -32,7 +71,7 @@ const Register = () => {
               </h4>
             </div>
             {/* Form input  */}
-            <form>
+            <form onSubmit={handleSubmit}>
               <p className="mb-4">Please Register with your info</p>
               {/* <!--Username input--> */}
               <div className="mb-4">
@@ -42,6 +81,7 @@ const Register = () => {
                   name="username"
                   id="username"
                   placeholder="Username"
+                  onChange={handleChange}
                   required
                 />
               </div>
@@ -54,6 +94,7 @@ const Register = () => {
                   name="email"
                   id="email"
                   placeholder="Email"
+                  onChange={handleChange}
                   required
                 />
               </div>
@@ -66,6 +107,7 @@ const Register = () => {
                   name="password"
                   id="password"
                   placeholder="Password"
+                  onChange={handleChange}
                   required
                 />
               </div>
@@ -78,14 +120,23 @@ const Register = () => {
                   name="re_password"
                   id="re_password"
                   placeholder="Re-type Password"
+                  onChange={handleChange}
                   required
                 />
               </div>
 
               {/* <!--Submit button--> */}
               <div className="mb-8 mt-6 text-center">
-                <CustomButton variant="primary" className="w-full uppercase">
-                  Register
+                <CustomButton
+                  type="submit"
+                  variant="primary"
+                  className="w-full uppercase"
+                  disabled={isLoading}
+                >
+                  <div className="flex items-center justify-center">
+                    <span className="mr-2">Register</span>
+                    <Spinner loading={isLoading}></Spinner>
+                  </div>
                 </CustomButton>
 
                 {/* <!--Forgot password link--> */}
@@ -103,6 +154,8 @@ const Register = () => {
             {/* Form input end*/}
           </div>
         </div>
+        <ToastContainer position="top-right" autoClose={5000} theme="light" />{" "}
+        {/* Toast area end */}
       </div>
     </div>
   );

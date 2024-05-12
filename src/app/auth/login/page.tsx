@@ -1,14 +1,8 @@
 import CustomButton from "@/components/CustomButton";
 import InputField from "@/components/InputField";
-import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-
-export const metadata: Metadata = {
-  title: "Login || Keystone Engineering Consultant",
-  description: "This is the admin dashbooard Authentication Page.",
-};
 
 const Login = () => {
   return (
@@ -60,11 +54,13 @@ const Login = () => {
 
               {/* <!--Submit button--> */}
               <div className="mb-8 mt-6 text-center">
-                <Link href="/dashboard">
-                  <CustomButton variant="primary" className="w-full uppercase">
-                    Log in
-                  </CustomButton>
-                </Link>
+                <CustomButton
+                  type="submit"
+                  variant="primary"
+                  className="w-full uppercase"
+                >
+                  Log in
+                </CustomButton>
 
                 {/* <!--Forgot password link--> */}
                 {/* <a href="#!">Forgot password?</a> */}
