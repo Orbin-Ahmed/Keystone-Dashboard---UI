@@ -1,9 +1,47 @@
+"use client";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import Image from "next/image";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { getSessionStorage } from "@/utils";
 
 const Profile = () => {
+  const API_BASE_URL = "http://127.0.0.1:8000/";
+  const [userData, setUserData] = useState({
+    id: 0,
+    username: "Username",
+    email: "email",
+    role: 0,
+    is_active: false,
+    full_name: null,
+    phone: null,
+    bio: null,
+    photo: null,
+  });
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const token = getSessionStorage("Token");
+      try {
+        const response = await fetch(`${API_BASE_URL}api/token/`, {
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const responseData = await response.json();
+          setUserData(responseData);
+        } else {
+          console.log(response);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchUserData();
+  }, []);
   return (
     <DefaultLayout>
       <div className="mx-auto max-w-242.5">
@@ -22,7 +60,7 @@ const Profile = () => {
                 height: "auto",
               }}
             />
-            <div className="absolute bottom-1 right-1 z-10 xsm:bottom-4 xsm:right-4">
+            {/* <div className="absolute bottom-1 right-1 z-10 xsm:bottom-4 xsm:right-4">
               <label
                 htmlFor="cover"
                 className="flex cursor-pointer items-center justify-center gap-2 rounded bg-primary px-2 py-1 text-sm font-medium text-white hover:bg-opacity-80 xsm:px-4"
@@ -58,13 +96,17 @@ const Profile = () => {
                 </span>
                 <span>Edit</span>
               </label>
-            </div>
+            </div> */}
           </div>
           <div className="px-4 pb-6 text-center lg:pb-8 xl:pb-11.5">
             <div className="relative z-30 mx-auto -mt-22 h-30 w-full max-w-30 rounded-full bg-white/20 p-1 backdrop-blur sm:h-44 sm:max-w-44 sm:p-3">
               <div className="relative drop-shadow-2">
-                <img
-                  src="https://avatar.iran.liara.run/public/boy"
+                <Image
+                  src={
+                    userData.photo
+                      ? userData.photo
+                      : "https://avatar.iran.liara.run/public/boy"
+                  }
                   width={160}
                   height={160}
                   style={{
@@ -109,28 +151,20 @@ const Profile = () => {
             </div>
             <div className="mt-4">
               <h3 className="mb-1.5 text-2xl font-semibold text-black dark:text-white">
-                Orbin Ahmed Acanto
+                {userData.full_name ? userData.full_name : "Your Full Name"}
               </h3>
-              <p className="font-medium">Server Admin</p>
+              <p className="font-medium">
+                {userData.role == 1 ? "Admin" : "Designer"}
+              </p>
 
               <div className="mx-auto max-w-180">
                 <p className="mt-4.5">
-                  As a software engineer with a computer science degree from
-                  BRAC University, I am passionate about creating innovative and
-                  impactful solutions using cutting-edge technologies. I have
-                  experience in developing web applications using React,
-                  Typescript and Django as well as conducting research on
-                  Computer Vision and edge intelligence. Most recently, I worked
-                  as a software engineer at Increments Inc, where I contributed
-                  to the design, development, and testing of a web-based
-                  platform of Saas product and customised ERP solution. I also
-                  collaborated with researchers to implement and evaluate
-                  various Computer Vision and image processing algorithms. I am
-                  committed to utilizing my skills to further the mission of the
-                  company and to advance my professional growth.
+                  {userData.full_name
+                    ? userData.full_name
+                    : "As a software engineer with a computer science degree from BRAC University, I am passionate about creating innovative and impactful solutions using cutting-edge technologies. I have experience in developing web applications using React, Typescript and Django as well as conducting research on Computer Vision and edge intelligence. Most recently, I worked as a software engineer at Increments Inc, where I contributed to the design, development, and testing of a web-based platform of Saas product and customised ERP solution. I also collaborated with researchers to implement and evaluate various Computer Vision and image processing algorithms. I am committed to utilizing my skills to further the mission of the company and to advance my professional growth."}
                 </p>
               </div>
-
+              {/* Social Media Link  */}
               <div className="mt-6.5">
                 <h4 className="mb-3.5 font-medium text-black dark:text-white">
                   Follow me on
