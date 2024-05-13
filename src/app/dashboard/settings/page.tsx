@@ -268,6 +268,137 @@ const Settings = () => {
                 </form>
               </div>
             </div>
+            <div className="mt-6 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+              <div className="border-b border-stroke px-7 py-4 dark:border-strokedark">
+                <h3 className="font-medium text-black dark:text-white">
+                  Company Information
+                </h3>
+              </div>
+              <div className="p-7">
+                <form action="#">
+                  {/* License and phone field  */}
+                  <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
+                    {/* Company License Field */}
+                    <div className="mb-5.5 w-full sm:w-1/2">
+                      <label
+                        className="mb-3 block text-sm font-medium text-black dark:text-white"
+                        htmlFor="clicense"
+                      >
+                        Comapany License
+                      </label>
+                      <InputField
+                        className="px-4.5 py-3"
+                        type="text"
+                        name="clicense"
+                        id="clicense"
+                        placeholder="Company License"
+                        defaultValue="LNO879952"
+                      />
+                    </div>
+                    {/* Company License Field end */}
+
+                    {/* Company Phone Field  */}
+                    <div className="mb-5.5 w-full sm:w-1/2">
+                      <label
+                        className="mb-3 block text-sm font-medium text-black dark:text-white"
+                        htmlFor="cphone"
+                      >
+                        Company Phone Number
+                      </label>
+                      <InputField
+                        className="px-4.5 py-3"
+                        type="text"
+                        name="cphone"
+                        id="cphone"
+                        placeholder="Your Phone No."
+                        defaultValue="+971 56 891-4066"
+                      />
+                    </div>
+                    {/* Company Phone Field end */}
+                  </div>
+
+                  {/* Email Field  */}
+                  <div className="mb-5.5">
+                    <label
+                      className="mb-3 block text-sm font-medium text-black dark:text-white"
+                      htmlFor="cemail"
+                    >
+                      Company Email Address
+                    </label>
+                    <InputField
+                      className="px-4.5 py-3"
+                      type="email"
+                      name="cemail"
+                      id="cemail"
+                      placeholder="Your Company Email"
+                      defaultValue="support@idealhomeuae.com"
+                    />
+                  </div>
+                  {/* Email Field end */}
+
+                  {/* Company Name Field */}
+                  <div className="mb-5.5">
+                    <label
+                      className="mb-3 block text-sm font-medium text-black dark:text-white"
+                      htmlFor="cname"
+                    >
+                      Comapany Name
+                    </label>
+                    <InputField
+                      className="px-4.5 py-3"
+                      type="text"
+                      name="cname"
+                      id="cname"
+                      placeholder="Company Name"
+                      defaultValue="Keystone Engineering Consultant"
+                    />
+                  </div>
+                  {/* Company Name Field end */}
+
+                  {/* Comapny Intro Field */}
+                  <div className="mb-5.5">
+                    <label
+                      className="mb-3 block text-sm font-medium text-black dark:text-white"
+                      htmlFor="cbio"
+                    >
+                      Company Intro
+                    </label>
+
+                    <textarea
+                      className="w-full rounded border border-stroke bg-gray px-4.5 py-3 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                      name="cbio"
+                      id="cbio"
+                      rows={8}
+                      placeholder="Write your comapny introduction here"
+                      defaultValue="In the early 1990s, the inception of our company was rooted in a personal experience. The founder, while selecting windows for his first home, was not guided by quality standards or specifications. This led to a series of issues, including poor insulation against heat, dust, and noise. The shortcomings of these windows were felt deeply by the founder and his family. Fast forward to 2010, while planning his second villa, the founder made a pivotal decision. He chose German uPVC windows and doors over the typical aluminum windows. This choice was not only aesthetically pleasing, adding a touch of elegance to the villa, but it also significantly improved the comfort of the home. The insulation quality of these German uPVC windows and doors far surpassed that of the locally made aluminum or uPVC counterparts. Inspired by his personal journey and the transformation he experienced, the founder took a leap in 2019. He established Keystone uPVC windows with a clear objective in mind – to provide his fellow citizens with superior quality windows and doors. His mission was to answer a crucial question that arises when building a dream home: 'How can I make the interiors of my home dust-free, quiet, cool, and elegant'"
+                    ></textarea>
+                  </div>
+                  {/* Comapny Intro end */}
+
+                  {/* Comapny Logo Field */}
+                  <div className="mb-5.5">
+                    <label
+                      className="mb-3 block text-sm font-medium text-black dark:text-white"
+                      htmlFor="clogo"
+                    >
+                      Logo
+                    </label>
+                    <InputField
+                      className="px-4.5 py-3"
+                      type="file"
+                      accept="image/*"
+                      name="clogo"
+                      id="clogo"
+                    />
+                  </div>
+                  {/* Comapny Logo end */}
+                  <div className="flex justify-end gap-4.5">
+                    <CustomButton variant="tertiary">Cancel</CustomButton>
+                    <CustomButton>Save</CustomButton>
+                  </div>
+                </form>
+              </div>
+            </div>
           </div>
           {/* Right Card Start  */}
           <div className="col-span-5 xl:col-span-2">
@@ -396,6 +527,102 @@ const Settings = () => {
                 </div>
               </div>
             </div>
+            {/* Social Media Link  */}
+            <div className="mt-6 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+              <div className="border-b border-stroke px-7 py-4 dark:border-strokedark">
+                <h3 className="font-medium text-black dark:text-white">
+                  Social Media Link
+                </h3>
+              </div>
+              <div className="p-7">
+                <form action="#">
+                  {/* Facebook */}
+                  <div className="mb-5.5">
+                    <label
+                      className="mb-3 block text-sm font-medium text-black dark:text-white"
+                      htmlFor="fb_link"
+                    >
+                      Facebook Link
+                    </label>
+                    <InputField
+                      className="px-4.5 py-3"
+                      type="text"
+                      name="fb_link"
+                      id="fb_link"
+                      placeholder="Facebook Profile Link"
+                    />
+                  </div>
+                  {/* Twitter */}
+                  <div className="mb-5.5">
+                    <label
+                      className="mb-3 block text-sm font-medium text-black dark:text-white"
+                      htmlFor="tw_link"
+                    >
+                      Twitter Link
+                    </label>
+                    <InputField
+                      className="px-4.5 py-3"
+                      type="text"
+                      name="tw_link"
+                      id="tw_link"
+                      placeholder="Twitter Profile Link"
+                    />
+                  </div>
+                  {/* LinkdIN */}
+                  <div className="mb-5.5">
+                    <label
+                      className="mb-3 block text-sm font-medium text-black dark:text-white"
+                      htmlFor="ld_link"
+                    >
+                      LinkdIN Link
+                    </label>
+                    <InputField
+                      className="px-4.5 py-3"
+                      type="text"
+                      name="ld_link"
+                      id="ld_link"
+                      placeholder="LinkdIN Profile Link"
+                    />
+                  </div>
+                  {/* Website */}
+                  <div className="mb-5.5">
+                    <label
+                      className="mb-3 block text-sm font-medium text-black dark:text-white"
+                      htmlFor="web_link"
+                    >
+                      Website Link
+                    </label>
+                    <InputField
+                      className="px-4.5 py-3"
+                      type="text"
+                      name="web_link"
+                      id="web_link"
+                      placeholder="Personal Website Link"
+                    />
+                  </div>
+                  {/* Github */}
+                  <div className="mb-5.5">
+                    <label
+                      className="mb-3 block text-sm font-medium text-black dark:text-white"
+                      htmlFor="git_link"
+                    >
+                      Github Link
+                    </label>
+                    <InputField
+                      className="px-4.5 py-3"
+                      type="text"
+                      name="git_link"
+                      id="git_link"
+                      placeholder="Github Profile Link"
+                    />
+                  </div>
+                </form>
+                <div className="flex justify-end gap-4.5">
+                  <CustomButton>Save</CustomButton>
+                </div>
+              </div>
+            </div>
+            {/* Social Media Link end */}
           </div>
           {/* Right Card end  */}
         </div>

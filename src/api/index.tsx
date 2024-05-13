@@ -1,6 +1,7 @@
 import { getSessionStorage, storeSessionStorage } from "@/utils";
 
-const API_BASE_URL = "http://127.0.0.1:8000/";
+// const API_BASE_URL = "http://127.0.0.1:8000/";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 type RegisterLoginFormData = {
   username: string;
@@ -38,7 +39,8 @@ export const register = async ({
 };
 
 export const login = async ({ username, password }: RegisterLoginFormData) => {
-  const url = `${API_BASE_URL}/api/login/`;
+  const url = `${API_BASE_URL}api/login/`;
+  console.log(url)
 
   try {
     const response = await fetch(url, {

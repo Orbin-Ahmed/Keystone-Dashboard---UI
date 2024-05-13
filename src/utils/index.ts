@@ -1,6 +1,6 @@
 import CryptoJS from "crypto-js";
 
-const secretKey = process.env.CRYPTO_SERET_KEY || "123456";
+const secretKey = process.env.NEXT_PUBLIC_CRYPTO_SERET_KEY || "123456";
 
 const storeSessionStorage = (name: string, token: string) => {
   token = encryptData(token, secretKey);
