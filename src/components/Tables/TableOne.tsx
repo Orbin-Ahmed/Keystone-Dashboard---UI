@@ -3,8 +3,8 @@ import Image from "next/image";
 
 const brandData: BRAND[] = [
   {
-    logo: "/images/brand/brand-01.svg",
-    name: "Google",
+    logo: "/images/brand/pexels.png",
+    name: "Pexels",
     category: "Living Room",
     target_images: 5768,
     current_images: 580,
@@ -25,6 +25,22 @@ const brandData: BRAND[] = [
     target_images: 4290,
     current_images: 900,
     percentage: 3.7,
+  },
+  {
+    logo: "/images/brand/pinterest.png",
+    name: "Pinterest",
+    category: "Living Room",
+    target_images: 2500,
+    current_images: 500,
+    percentage: 20,
+  },
+  {
+    logo: "/images/brand/pixabay.svg",
+    name: "Pixabay",
+    category: "Kids Room",
+    target_images: 2000,
+    current_images: 645,
+    percentage: 35,
   },
 ];
 
