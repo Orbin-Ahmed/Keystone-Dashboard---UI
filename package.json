@@ -20,7 +20,8 @@
     "react-apexcharts": "^1.4.1",
     "react-dom": "^18",
     "react-toastify": "^10.0.5",
-    "tailwind-merge": "^2.3.0"
+    "tailwind-merge": "^2.3.0",
+    "yet-another-react-lightbox": "^3.18.0"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.2.2",

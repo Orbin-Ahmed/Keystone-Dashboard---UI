@@ -5,6 +5,7 @@ import React, { useState } from "react";
 export interface ImageObject {
   id: string;
   url: string;
+  lightBoxUrl: string;
 }
 
 type SearchBarProps = {
@@ -37,6 +38,8 @@ const SearchBar = ({ handleSetImagesSrc, imageSource }: SearchBarProps) => {
         processedImages = results.map((result: any) => ({
           id: result.id,
           url: imageSource === "Pexels" ? result.src.medium : result.urls.small,
+          lightBoxUrl:
+            imageSource === "Pexels" ? result.src.large2x : result.urls.regular,
         }));
       }
       handleSetImagesSrc(processedImages);
