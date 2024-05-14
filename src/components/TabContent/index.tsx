@@ -14,20 +14,16 @@ const TabContents = ({ value, imagesSrc }: TabContentsProps) => {
   return (
     <>
       <Tabs.Content value={value} className="mt-6">
-        {imagesSrc ? (
-          <div className="mainContainer">
-            {imagesWithValues.map((imgObject) => (
-              <Pin
-                pinSize="small"
-                key={imgObject.id}
-                imgSrc={imgObject.url}
-                id={imgObject.id}
-              />
-            ))}
-          </div>
-        ) : (
-          <p>{value}</p>
-        )}
+        <div className="mainContainer">
+          {imagesWithValues.map((imgObject) => (
+            <Pin
+              pinSize="small"
+              key={imgObject.id}
+              imgSrc={imgObject.url}
+              id={imgObject.id}
+            />
+          ))}
+        </div>
       </Tabs.Content>
     </>
   );
