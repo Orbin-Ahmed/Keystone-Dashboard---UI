@@ -2,9 +2,16 @@
 import { unsplashImageData } from "@/api";
 import React, { useState } from "react";
 
-type SearchBarProps = {};
+export interface ImageObject {
+  id: string;
+  url: string;
+}
 
-const SearchBar = ({}: SearchBarProps) => {
+type SearchBarProps = {
+  handleSetImagesSrc: (images: ImageObject[]) => void;
+};
+
+const SearchBar = ({ handleSetImagesSrc }: SearchBarProps) => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -17,13 +24,21 @@ const SearchBar = ({}: SearchBarProps) => {
     if (!searchTerm) {
       return;
     } else {
-      const result = await unsplashImageData(searchTerm, 1);
-      console.log(result);
+      const results = await unsplashImageData(searchTerm, 1);
+      const parsedResults = JSON.parse(results);
+
+      const processedImages: ImageObject[] = parsedResults.results.map(
+        (result: any) => ({
+          id: result.id,
+          url: result.urls.full,
+        }),
+      );
+      handleSetImagesSrc(processedImages);
     }
   };
   return (
     <>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="my-4">
         <div className="relative">
           <button
             className="absolute left-0 top-1/2 -translate-y-1/2"

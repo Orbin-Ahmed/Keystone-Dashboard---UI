@@ -1,22 +1,24 @@
+"use client";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Tab from "@/components/Tab";
-import SearchBar from "@/components/SearchBar";
-
-export const metadata: Metadata = {
-  title: "Dream Space || Keystone Engineering Consultant",
-  description: "This is the edit image page",
-};
+import SearchBar, { ImageObject } from "@/components/SearchBar";
+import { useState } from "react";
 
 type Props = {};
 
 const AddImage = (props: Props) => {
+  const [imagesSrc, setImagesSrc] = useState<ImageObject[]>([]);
+
+  const handleSetImagesSrc = (images: ImageObject[]) => {
+    setImagesSrc(images);
+  };
+
   return (
     <DefaultLayout>
       <div className="mx-auto">
         <Breadcrumb pageName="Dream Space" />
-        <SearchBar />
+        <SearchBar handleSetImagesSrc={handleSetImagesSrc} />
         <div>
           <Tab />
         </div>
