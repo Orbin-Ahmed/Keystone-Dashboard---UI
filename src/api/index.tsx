@@ -40,7 +40,7 @@ export const register = async ({
 
 export const login = async ({ username, password }: RegisterLoginFormData) => {
   const url = `${API_BASE_URL}api/login/`;
-  console.log(url)
+  console.log(url);
 
   try {
     const response = await fetch(url, {
@@ -80,5 +80,25 @@ const fetchUserData = async () => {
     }
   } catch (error) {
     console.log(error);
+  }
+};
+
+export const unsplashImageData = async (searchTerm: string, page: Number) => {
+  const url = "https://api.unsplash.com";
+  const access_key = process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY;
+
+  try {
+    const response = await fetch(
+      `${url}/search/photos?page=${page}&query=${searchTerm}&per_page=20&client_id=${access_key}`,
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      console.log(response);
+    }
+  } catch (error) {
+    console.error("Error fetching data:", error);
   }
 };

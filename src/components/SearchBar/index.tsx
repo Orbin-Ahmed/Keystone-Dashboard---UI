@@ -1,10 +1,10 @@
 "use client";
+import { unsplashImageData } from "@/api";
 import React, { useState } from "react";
 
 type SearchBarProps = {};
 
 const SearchBar = ({}: SearchBarProps) => {
-  const url = "https://api.unsplash.com";
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -16,27 +16,19 @@ const SearchBar = ({}: SearchBarProps) => {
 
     if (!searchTerm) {
       return;
-    }
-
-    try {
-      const response = await fetch(
-        `/search/photos?page=1&query=${searchTerm}&per_page=20`,
-      );
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Search results:", data);
-      } else {
-        console.log(response);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
+    } else {
+      const result = await unsplashImageData(searchTerm, 1);
+      console.log(result);
     }
   };
   return (
     <>
-      <form>
+      <form onSubmit={handleSubmit}>
         <div className="relative">
-          <button className="absolute left-0 top-1/2 -translate-y-1/2">
+          <button
+            className="absolute left-0 top-1/2 -translate-y-1/2"
+            type="submit"
+          >
             <svg
               className="fill-body hover:fill-primary dark:fill-bodydark dark:hover:fill-primary"
               width="20"
@@ -64,6 +56,7 @@ const SearchBar = ({}: SearchBarProps) => {
             type="text"
             placeholder="Type to search..."
             className="w-full bg-transparent pl-9 pr-4 font-medium focus:outline-none xl:w-125"
+            onChange={handleInputChange}
           />
         </div>
       </form>
