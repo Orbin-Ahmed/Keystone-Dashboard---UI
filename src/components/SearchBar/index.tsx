@@ -16,7 +16,7 @@ const SearchBar = ({ handleSetImagesSrc, imageSource }: SearchBarProps) => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
+    setSearchTerm(event.target.value.trim());
   };
 
   const handleSubmit = async (event: React.ChangeEvent<HTMLFormElement>) => {
