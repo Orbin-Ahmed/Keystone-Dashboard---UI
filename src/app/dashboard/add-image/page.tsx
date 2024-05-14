@@ -11,6 +11,10 @@ const AddImage = (props: Props) => {
   const [imageSource, setImageSource] = useState("Pinterest");
   const [pexelsImagesSrc, setPexelsImagesSrc] = useState<ImageObject[]>([]);
   const [unsplashImagesSrc, setUnsplashImagesSrc] = useState<ImageObject[]>([]);
+  const [pinterestImagesSrc, setPinterestImagesSrc] = useState<ImageObject[]>(
+    [],
+  );
+  const [pixabayImagesSrc, setPixabayImagesSrc] = useState<ImageObject[]>([]);
 
   const handleSourceChange = (newValue: string) => {
     if (
@@ -26,17 +30,35 @@ const AddImage = (props: Props) => {
   };
 
   const handleImagesSrc = (images: ImageObject[]) => {
-    setPexelsImagesSrc(images);
+    if (imageSource === "Pexels") {
+      setPexelsImagesSrc(images);
+    } else if (imageSource === "Unsplash") {
+      setUnsplashImagesSrc(images);
+    } else {
+      console.log("hi");
+    }
   };
+
+  // useEffect(() => {
+  //   console.log(unsplashImagesSrc);
+  //   console.log(pexelsImagesSrc);
+  // }, [pexelsImagesSrc, unsplashImagesSrc]);
 
   return (
     <DefaultLayout>
       <div className="mx-auto">
         <Breadcrumb pageName="Dream Space" />
-        <SearchBar handleSetImagesSrc={handleImagesSrc} />
+        <SearchBar
+          handleSetImagesSrc={handleImagesSrc}
+          imageSource={imageSource}
+        />
         <div>
           <Tab
-            imagesSrc={pexelsImagesSrc}
+            pinterestImagesSrc={pinterestImagesSrc}
+            unsplashImagesSrc={unsplashImagesSrc}
+            pexelsImagesSrc={pexelsImagesSrc}
+            pixabayImagesSrc={pixabayImagesSrc}
+            imageSource={imageSource}
             handleSourceChange={handleSourceChange}
           />
         </div>

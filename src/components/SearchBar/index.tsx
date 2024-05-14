@@ -9,9 +9,10 @@ export interface ImageObject {
 
 type SearchBarProps = {
   handleSetImagesSrc: (images: ImageObject[]) => void;
+  imageSource: string;
 };
 
-const SearchBar = ({ handleSetImagesSrc }: SearchBarProps) => {
+const SearchBar = ({ handleSetImagesSrc, imageSource }: SearchBarProps) => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,19 +25,20 @@ const SearchBar = ({ handleSetImagesSrc }: SearchBarProps) => {
     if (!searchTerm) {
       return;
     } else {
-      // const results = await unsplashImageData(searchTerm, 1);
-
-      // const processedImages: ImageObject[] = results.map((result: any) => ({
-      //   id: result.id,
-      //   url: result.urls.small,
-      // }));
-
-      const results = await pexelsImageData(searchTerm, 1);
-
-      const processedImages: ImageObject[] = results.map((result: any) => ({
-        id: result.id,
-        url: result.src.medium,
-      }));
+      let processedImages: ImageObject[] = [];
+      let results;
+      if (imageSource === "Pexels") {
+        results = await pexelsImageData(searchTerm, 1);
+      } else if (imageSource === "Unsplash") {
+        results = await unsplashImageData(searchTerm, 1);
+      } else {
+      }
+      if (results) {
+        processedImages = results.map((result: any) => ({
+          id: result.id,
+          url: imageSource === "Pexels" ? result.src.medium : result.urls.small,
+        }));
+      }
       handleSetImagesSrc(processedImages);
     }
   };

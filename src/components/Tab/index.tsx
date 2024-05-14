@@ -8,11 +8,14 @@ type TabListProps = {
   id: number;
   value: string;
   logo: string;
-  api: string;
 };
 
 type TabProps = {
-  imagesSrc: ImageObject[];
+  pinterestImagesSrc: ImageObject[];
+  unsplashImagesSrc: ImageObject[];
+  pexelsImagesSrc: ImageObject[];
+  pixabayImagesSrc: ImageObject[];
+  imageSource: string;
   handleSourceChange: (val: string) => void;
 };
 
@@ -21,29 +24,49 @@ const tabList: TabListProps[] = [
     id: 1,
     value: "Pinterest",
     logo: "/images/brand/pinterest.png",
-    api: "",
   },
   {
     id: 2,
     value: "Unsplash",
     logo: "/images/brand/unsplash.png",
-    api: "",
   },
   {
     id: 3,
     value: "Pexels",
     logo: "/images/brand/pexels.png",
-    api: "",
   },
   {
     id: 4,
     value: "Pixabay",
     logo: "/images/brand/pixabay.svg",
-    api: "",
   },
 ];
 
-const Tab = ({ imagesSrc, handleSourceChange }: TabProps) => {
+const Tab = ({
+  pinterestImagesSrc,
+  unsplashImagesSrc,
+  pexelsImagesSrc,
+  pixabayImagesSrc,
+  imageSource,
+  handleSourceChange,
+}: TabProps) => {
+  const getImageSrc = () => {
+    switch (imageSource) {
+      case "Pinterest":
+        return pinterestImagesSrc;
+      case "Unsplash":
+        return unsplashImagesSrc;
+      case "Pexels":
+        return pexelsImagesSrc;
+      case "Pixabay":
+        return pixabayImagesSrc;
+      default:
+        return unsplashImagesSrc;
+    }
+  };
+
+  const imagesSrc = getImageSrc();
+
   return (
     <>
       <Tabs.Root defaultValue="Pinterest">
@@ -66,13 +89,14 @@ const Tab = ({ imagesSrc, handleSourceChange }: TabProps) => {
           ))}
         </Tabs.List>
         <div>
-          {tabList.map((element) => (
+          {/* {tabList.map((element) => (
             <TabContents
               key={element.id}
               value={element.value}
               imagesSrc={imagesSrc}
             />
-          ))}
+          ))} */}
+          <TabContents value={imageSource} imagesSrc={imagesSrc} />
         </div>
       </Tabs.Root>
     </>
