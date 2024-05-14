@@ -2,6 +2,7 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Tab from "@/components/Tab";
+import SearchBar from "@/components/SearchBar";
 
 export const metadata: Metadata = {
   title: "Dream Space || Keystone Engineering Consultant",
@@ -13,8 +14,9 @@ type Props = {};
 const AddImage = (props: Props) => {
   return (
     <DefaultLayout>
-      <div className="mx-auto max-w-242.5">
+      <div className="mx-auto">
         <Breadcrumb pageName="Dream Space" />
+        <SearchBar />
         <div>
           <Tab />
         </div>

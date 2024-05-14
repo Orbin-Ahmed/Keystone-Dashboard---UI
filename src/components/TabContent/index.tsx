@@ -8,9 +8,7 @@ type TabContentsProps = {
 const TabContents = ({ value }: TabContentsProps) => {
   return (
     <>
-      <Tabs.Content value={value}>
-        <p>Make changes to your {value}.</p>
-      </Tabs.Content>
+      <Tabs.Content value={value}></Tabs.Content>
     </>
   );
 };
