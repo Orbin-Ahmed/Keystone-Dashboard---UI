@@ -16,7 +16,8 @@ const TabContents = ({ value, imagesSrc }: TabContentsProps) => {
     <>
       <Tabs.Content value={value} className="mt-6">
         {imagesWithValues?.length > 0 ? (
-          <div className="grid h-80 grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+          //  <div className="grid h-80 grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3"></div>
+          <div className="mainContainer">
             {imagesWithValues.map((imgObject) => (
               <Pin
                 pinSize="small"
