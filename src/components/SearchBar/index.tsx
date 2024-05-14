@@ -1,5 +1,5 @@
 "use client";
-import { unsplashImageData } from "@/api";
+import { pexelsImageData, unsplashImageData } from "@/api";
 import React, { useState } from "react";
 
 export interface ImageObject {
@@ -24,15 +24,19 @@ const SearchBar = ({ handleSetImagesSrc }: SearchBarProps) => {
     if (!searchTerm) {
       return;
     } else {
-      const results = await unsplashImageData(searchTerm, 1);
-      const parsedResults = JSON.parse(results);
+      // const results = await unsplashImageData(searchTerm, 1);
 
-      const processedImages: ImageObject[] = parsedResults.results.map(
-        (result: any) => ({
-          id: result.id,
-          url: result.urls.full,
-        }),
-      );
+      // const processedImages: ImageObject[] = results.map((result: any) => ({
+      //   id: result.id,
+      //   url: result.urls.small,
+      // }));
+
+      const results = await pexelsImageData(searchTerm, 1);
+
+      const processedImages: ImageObject[] = results.map((result: any) => ({
+        id: result.id,
+        url: result.src.medium,
+      }));
       handleSetImagesSrc(processedImages);
     }
   };

@@ -94,7 +94,32 @@ export const unsplashImageData = async (searchTerm: string, page: Number) => {
 
     if (response.ok) {
       const data = await response.json();
-      return data;
+      return data.results;
+    } else {
+      console.log(response);
+    }
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+};
+
+export const pexelsImageData = async (searchTerm: string, page: Number) => {
+  const url = "https://api.pexels.com/v1";
+  const access_key = process.env.NEXT_PUBLIC_PEXELS_ACCESS_KEY;
+
+  try {
+    const response = await fetch(
+      `${url}/search?page=${page}&query=${searchTerm}&per_page=20`,
+      {
+        headers: {
+          Authorization: `${access_key}`,
+        },
+      },
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+      return data.photos;
     } else {
       console.log(response);
     }

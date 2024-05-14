@@ -3,6 +3,7 @@ import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import InputField from "@/components/InputField";
 import CustomButton from "@/components/CustomButton";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "Settings || Keystone Engineering Consultant",
@@ -413,10 +414,14 @@ const Settings = () => {
                 <form action="#">
                   <div className="mb-4 flex items-center gap-3">
                     <div className="h-14 w-14 rounded-full">
-                      <img
+                      <Image
+                        width={112}
+                        height={112}
                         src="https://avatar.iran.liara.run/public/boy"
-                        width={55}
-                        height={55}
+                        style={{
+                          width: "auto",
+                          height: "auto",
+                        }}
                         alt="User"
                       />
                     </div>

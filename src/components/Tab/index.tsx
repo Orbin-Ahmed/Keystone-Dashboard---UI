@@ -2,6 +2,7 @@ import { Tabs } from "@radix-ui/themes";
 import React from "react";
 import TabContents from "../TabContent";
 import Image from "next/image";
+import { ImageObject } from "../SearchBar";
 
 type TabListProps = {
   id: number;
@@ -10,10 +11,12 @@ type TabListProps = {
   api: string;
 };
 
-type TabProps = {};
+type TabProps = {
+  imagesSrc: ImageObject[];
+  handleSourceChange: (val: string) => void;
+};
 
 const tabList: TabListProps[] = [
-  // Ensure type compatibility
   {
     id: 1,
     value: "Pinterest",
@@ -40,13 +43,17 @@ const tabList: TabListProps[] = [
   },
 ];
 
-const Tab = (props: TabProps) => {
+const Tab = ({ imagesSrc, handleSourceChange }: TabProps) => {
   return (
     <>
       <Tabs.Root defaultValue="Pinterest">
         <Tabs.List justify="center" color="gray" highContrast>
           {tabList.map((element) => (
-            <Tabs.Trigger key={element.id} value={element.value}>
+            <Tabs.Trigger
+              key={element.id}
+              value={element.value}
+              onClick={() => handleSourceChange(element.value)}
+            >
               <Image
                 src={element.logo}
                 alt={`${element.value} Logo`}
@@ -58,9 +65,13 @@ const Tab = (props: TabProps) => {
             </Tabs.Trigger>
           ))}
         </Tabs.List>
-        <div className="pt-3">
+        <div>
           {tabList.map((element) => (
-            <TabContents key={element.id} value={element.value} />
+            <TabContents
+              key={element.id}
+              value={element.value}
+              imagesSrc={imagesSrc}
+            />
           ))}
         </div>
       </Tabs.Root>
