@@ -149,3 +149,27 @@ export const pixabayImageData = async (searchTerm: string, page: Number) => {
     console.error("Error fetching data:", error);
   }
 };
+
+export const getAllUser = async () => {
+  const url = `${API_BASE_URL}/api/register/`;
+  const token = getSessionStorage("Token");
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${token}`,
+      },
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      const errorMessage = await response.json();
+      console.log(errorMessage);
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+};

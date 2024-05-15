@@ -20,7 +20,7 @@ const CustomDialog = ({
   isDisabled = false,
 }: CustomDialogProps) => {
   const roles: { [key: string]: string[] } = {
-    "Server Admin": ["Moderator", "Designer"],
+    Admin: ["Moderator", "Designer"],
     Moderator: ["Server Admin", "Designer"],
     Designer: ["Moderator", "Server Admin"],
   };

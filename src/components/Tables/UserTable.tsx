@@ -1,35 +1,29 @@
-import { USER } from "@/types/user";
+"use client";
+import { Role, USER } from "@/types/user";
 import { AlertDialog, Dialog } from "@radix-ui/themes";
 import Image from "next/image";
 import Alert from "../ui/Alert";
 import CustomButton from "../CustomButton";
 import CustomDialog from "../ui/CustomDialog";
-
-const userData: USER[] = [
-  {
-    image: "https://avatar.iran.liara.run/public/boy",
-    username: "Orbin23",
-    email: "acantoahmed67@gmail.com",
-    status: "active",
-    role: "Server Admin",
-  },
-  {
-    image: "https://avatar.iran.liara.run/public/boy",
-    username: "Amir",
-    email: "amir@gmail.com",
-    status: "active",
-    role: "Moderator",
-  },
-  {
-    image: "https://avatar.iran.liara.run/public/boy",
-    username: "Isacc",
-    email: "isacc@gmail.com",
-    status: "active",
-    role: "Designer",
-  },
-];
+import { useEffect, useState } from "react";
+import { getAllUser } from "@/api";
 
 const UserTable = () => {
+  const [userData, setUserData] = useState<USER[]>([]);
+
+  useEffect(() => {
+    const getUserData = async () => {
+      try {
+        const response = await getAllUser();
+        setUserData(response);
+        console.log(response);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getUserData();
+  }, []);
+
   return (
     <div className="rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
       <h4 className="mb-6 text-xl font-semibold text-black dark:text-white">
@@ -79,7 +73,16 @@ const UserTable = () => {
           >
             <div className="flex items-center gap-3 p-2.5 xl:p-5">
               <div className="flex-shrink-0">
-                <Image src={user.image} alt="Brand" width={48} height={48} />
+                <Image
+                  src={
+                    user.image
+                      ? user.image
+                      : "https://avatar.iran.liara.run/public/boy"
+                  }
+                  alt="Brand"
+                  width={48}
+                  height={48}
+                />
               </div>
               <p className="hidden text-black dark:text-white sm:block">
                 {user.username}
@@ -91,32 +94,52 @@ const UserTable = () => {
             </div>
 
             <div className="flex items-center justify-center p-2.5 xl:p-5">
-              <p className="text-meta-3">{user.status}</p>
+              <p className={user.is_active ? "text-meta-3" : "text-danger"}>
+                {user.is_active ? "active" : "disabled"}
+              </p>
             </div>
 
             <div className="hidden items-center justify-center p-2.5 sm:flex xl:p-5">
-              <p className="text-black dark:text-white">{user.role}</p>
+              <p className="text-black dark:text-white">
+                {user.role === Role.SuperUser
+                  ? "Super User"
+                  : user.role === Role.Admin
+                    ? "Admin"
+                    : user.role === Role.Moderator
+                      ? "Moderator"
+                      : "Designer"}
+              </p>
             </div>
 
             {/* Button area  */}
             <div className="hidden items-center justify-center p-2.5 sm:flex xl:p-5">
               <Dialog.Root>
                 <Dialog.Trigger>
-                  <CustomButton className="mr-2">View</CustomButton>
+                  <CustomButton disabled={user.role == 0} className="mr-2">
+                    View
+                  </CustomButton>
                 </Dialog.Trigger>
                 <CustomDialog
                   title="User"
                   description="The following user have access to this system."
                   name={user.username}
                   email={user.email}
-                  role={user.role}
+                  role={
+                    user.role === Role.Admin
+                      ? "Admin"
+                      : user.role === Role.Moderator
+                        ? "Moderator"
+                        : "Designer"
+                  }
                   isDisabled={false}
                 />
               </Dialog.Root>
 
               <AlertDialog.Root>
                 <AlertDialog.Trigger>
-                  <CustomButton className="bg-danger">Disable</CustomButton>
+                  <CustomButton disabled={user.role == 0} className="bg-danger">
+                    Disable
+                  </CustomButton>
                 </AlertDialog.Trigger>
                 <Alert
                   title="Revoke access"
