@@ -18,7 +18,6 @@ const TabContents = ({ value, imagesSrc }: TabContentsProps) => {
   const lightboxUrlList = imagesWithValues.map((item) => ({
     src: item.lightBoxUrl,
   }));
-  console.log(imagesWithValues);
   return (
     <>
       <Tabs.Content value={value} className="mt-6">

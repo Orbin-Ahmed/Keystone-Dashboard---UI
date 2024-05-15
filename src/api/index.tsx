@@ -1,6 +1,5 @@
 import { getSessionStorage, storeSessionStorage } from "@/utils";
 
-// const API_BASE_URL = "http://127.0.0.1:8000/";
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 type RegisterLoginFormData = {
@@ -120,6 +119,28 @@ export const pexelsImageData = async (searchTerm: string, page: Number) => {
     if (response.ok) {
       const data = await response.json();
       return data.photos;
+    } else {
+      console.log(response);
+    }
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+};
+
+export const pixabayImageData = async (searchTerm: string, page: Number) => {
+  const access_key = process.env.NEXT_PUBLIC_PIXABAY_ACCESS_KEY;
+  const url =
+    "https://corsproxy.io/?" +
+    encodeURIComponent(
+      `https://pixabay.com/api?key=${access_key}&q=${searchTerm}&image_type=photo&page=${page}`,
+    );
+
+  try {
+    const response = await fetch(url);
+
+    if (response.ok) {
+      const data = await response.json();
+      return data.hits;
     } else {
       console.log(response);
     }

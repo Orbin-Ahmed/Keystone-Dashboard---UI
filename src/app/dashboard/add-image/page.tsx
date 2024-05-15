@@ -34,6 +34,8 @@ const AddImage = (props: Props) => {
       setPexelsImagesSrc(images);
     } else if (imageSource === "Unsplash") {
       setUnsplashImagesSrc(images);
+    } else if (imageSource === "Pixabay") {
+      setPixabayImagesSrc(images);
     } else {
       console.log("hi");
     }

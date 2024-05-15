@@ -1,5 +1,5 @@
 "use client";
-import { pexelsImageData, unsplashImageData } from "@/api";
+import { pexelsImageData, pixabayImageData, unsplashImageData } from "@/api";
 import React, { useState } from "react";
 
 export interface ImageObject {
@@ -30,17 +30,29 @@ const SearchBar = ({ handleSetImagesSrc, imageSource }: SearchBarProps) => {
       let results;
       if (imageSource === "Pexels") {
         results = await pexelsImageData(searchTerm, 1);
-      } else if (imageSource === "Unsplash") {
-        results = await unsplashImageData(searchTerm, 1);
-      } else {
-      }
-      if (results) {
+
         processedImages = results.map((result: any) => ({
           id: result.id,
-          url: imageSource === "Pexels" ? result.src.medium : result.urls.small,
-          lightBoxUrl:
-            imageSource === "Pexels" ? result.src.large2x : result.urls.regular,
+          url: result.src.medium,
+          lightBoxUrl: result.src.large2x,
         }));
+      } else if (imageSource === "Unsplash") {
+        results = await unsplashImageData(searchTerm, 1);
+
+        processedImages = results.map((result: any) => ({
+          id: result.id,
+          url: result.urls.small,
+          lightBoxUrl: result.urls.regular,
+        }));
+      } else if (imageSource === "Pixabay") {
+        results = await pixabayImageData(searchTerm, 1);
+
+        processedImages = results.map((result: any) => ({
+          id: result.id,
+          url: result.webformatURL,
+          lightBoxUrl: result.largeImageURL,
+        }));
+      } else {
       }
       handleSetImagesSrc(processedImages);
     }
