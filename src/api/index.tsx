@@ -61,7 +61,7 @@ export const login = async ({ username, password }: RegisterLoginFormData) => {
   }
 };
 
-const fetchUserData = async () => {
+export const fetchUserData = async () => {
   const token = getSessionStorage("Token");
   try {
     const response = await fetch(`${API_BASE_URL}api/token/`, {
@@ -74,6 +74,7 @@ const fetchUserData = async () => {
       const responseData = await response.json();
       storeSessionStorage("name", responseData?.username);
       storeSessionStorage("role", String(responseData?.role));
+      return responseData;
     } else {
       console.log(response);
     }

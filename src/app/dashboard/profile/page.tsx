@@ -5,11 +5,12 @@ import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getSessionStorage } from "@/utils";
+import { fetchUserData } from "@/api";
 
 const Profile = () => {
   // const API_BASE_URL = "http://127.0.0.1:8000/";
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-  
+
   const [userData, setUserData] = useState({
     id: 0,
     username: "Username",
@@ -23,26 +24,15 @@ const Profile = () => {
   });
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      const token = getSessionStorage("Token");
+    const getProfileData = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}api/token/`, {
-          headers: {
-            Authorization: `Token ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          const responseData = await response.json();
-          setUserData(responseData);
-        } else {
-          console.log(response);
-        }
+        const response = await fetchUserData();
+        setUserData(response);
       } catch (error) {
         console.log(error);
       }
     };
-    fetchUserData();
+    getProfileData();
   }, []);
   return (
     <DefaultLayout>
@@ -161,9 +151,9 @@ const Profile = () => {
 
               <div className="mx-auto max-w-180">
                 <p className="mt-4.5">
-                  {userData.full_name
-                    ? userData.full_name
-                    : "As a software engineer with a computer science degree from BRAC University, I am passionate about creating innovative and impactful solutions using cutting-edge technologies. I have experience in developing web applications using React, Typescript and Django as well as conducting research on Computer Vision and edge intelligence. Most recently, I worked as a software engineer at Increments Inc, where I contributed to the design, development, and testing of a web-based platform of Saas product and customised ERP solution. I also collaborated with researchers to implement and evaluate various Computer Vision and image processing algorithms. I am committed to utilizing my skills to further the mission of the company and to advance my professional growth."}
+                  {userData.bio
+                    ? userData.bio
+                    : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam luctus elementum dolor id interdum. Curabitur non purus nunc. Fusce auctor ullamcorper neque at lobortis. Aenean at nulla ac dui tempus luctus. Nam porttitor arcu molestie, congue sem quis, sagittis dolor. Vivamus pulvinar dolor quis erat condimentum interdum. Nunc auctor semper justo, aliquet imperdiet tellus fringilla vel. Vestibulum at nunc malesuada, pellentesque nisi lacinia, fermentum odio. Nam scelerisque, tellus vel ultrices malesuada, tortor mauris lobortis enim, vel aliquet ipsum eros non magna. Nunc in tellus id urna elementum laoreet. Fusce eget ullamcorper metus. Integer vehicula massa eget posuere egestas. Praesent sodales."}
                 </p>
               </div>
               {/* Social Media Link  */}
