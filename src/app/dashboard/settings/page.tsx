@@ -1,16 +1,74 @@
+"use client";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import InputField from "@/components/InputField";
 import CustomButton from "@/components/CustomButton";
 import Image from "next/image";
-
-export const metadata: Metadata = {
-  title: "Settings || Keystone Engineering Consultant",
-  description: "This is the setting page.",
-};
+import { useEffect, useState } from "react";
+import { UpdateUserDataWithID, fetchUserData } from "@/api";
+import { ToastContainer, toast } from "react-toastify";
+import { Spinner } from "@radix-ui/themes";
 
 const Settings = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [formData, setFormData] = useState({});
+  const [userData, setUserData] = useState({
+    id: 0,
+    username: "",
+    email: "",
+    role: 0,
+    is_active: false,
+    full_name: null,
+    phone: null,
+    bio: null,
+    photo: null,
+  });
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [event.target.name]: event.target.value,
+    });
+  };
+
+  const handleTextChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setFormData({
+      ...formData,
+      [event.target.name]: event.target.value,
+    });
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    setIsLoading(true);
+    setError(null);
+    const data = await UpdateUserDataWithID({ id: userData.id, ...formData });
+
+    if (data?.error) {
+      setError(data.error);
+    }
+
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    toast.error(error);
+  }, [error]);
+
+  useEffect(() => {
+    const getProfileData = async () => {
+      try {
+        const response = await fetchUserData();
+        setUserData(response);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getProfileData();
+  }, []);
+
   return (
     <DefaultLayout>
       <div className="mx-auto max-w-270">
@@ -25,7 +83,7 @@ const Settings = () => {
                 </h3>
               </div>
               <div className="p-7">
-                <form action="#">
+                <form onSubmit={handleSubmit}>
                   <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
                     {/* Full Name Field */}
                     <div className="w-full sm:w-1/2">
@@ -63,10 +121,13 @@ const Settings = () => {
                         </span>
                         <InputField
                           type="text"
-                          name="fname"
-                          id="fname"
+                          name="full_name"
+                          id="full_name"
                           placeholder="Your Full Name"
-                          defaultValue="Orbin Ahmed Acanto"
+                          onChange={handleChange}
+                          defaultValue={
+                            userData.full_name ? userData.full_name : ""
+                          }
                         />
                       </div>
                     </div>
@@ -111,10 +172,11 @@ const Settings = () => {
                         </span>
                         <InputField
                           type="text"
-                          name="phoneNumber"
-                          id="phoneNumber"
+                          name="phone"
+                          id="phone"
                           placeholder="Your Phone No."
-                          defaultValue="+971 56 891-4066"
+                          onChange={handleChange}
+                          defaultValue={userData.phone ? userData.phone : ""}
                         />
                       </div>
                     </div>
@@ -157,10 +219,11 @@ const Settings = () => {
                       </span>
                       <InputField
                         type="email"
-                        name="emailAddress"
-                        id="emailAddress"
+                        name="email"
+                        id="email"
                         placeholder="Your Email"
-                        defaultValue="acantoahmed67@gmail.com"
+                        onChange={handleChange}
+                        defaultValue={userData.email ? userData.email : ""}
                       />
                     </div>
                   </div>
@@ -202,10 +265,13 @@ const Settings = () => {
                       </span>
                       <InputField
                         type="text"
-                        name="Username"
-                        id="Username"
+                        name="username"
+                        id="username"
                         placeholder="Your Username"
-                        defaultValue="orbin23"
+                        onChange={handleChange}
+                        defaultValue={
+                          userData.username ? userData.username : ""
+                        }
                       />
                     </div>
                   </div>
@@ -257,14 +323,22 @@ const Settings = () => {
                         id="bio"
                         rows={6}
                         placeholder="Write your bio here"
-                        defaultValue="As a software engineer with a computer science degree from BRAC University, I am passionate about creating innovative and impactful solutions using cutting-edge technologies. I have experience in developing web applications using React, Typescript and Django as well as conducting research on Computer Vision and edge intelligence. Most recently, I worked as a software engineer at Increments Inc, where I contributed to the design, development, and testing of a web-based platform of Saas product and customised ERP solution. I also collaborated with researchers to implement and evaluate various Computer Vision and image processing algorithms. I am committed to utilizing my skills to further the mission of the company and to advance my professional growth."
+                        onChange={handleTextChange}
+                        defaultValue={userData.bio ? userData.bio : ""}
                       ></textarea>
                     </div>
                   </div>
                   {/* Bio Field end */}
                   <div className="flex justify-end gap-4.5">
-                    <CustomButton variant="tertiary">Cancel</CustomButton>
-                    <CustomButton>Save</CustomButton>
+                    <CustomButton type="button" variant="tertiary">
+                      Cancel
+                    </CustomButton>
+                    <CustomButton type="submit" disabled={isLoading}>
+                      <div className="flex items-center justify-center">
+                        <span className="mr-2">Save</span>
+                        <Spinner loading={isLoading}></Spinner>
+                      </div>
+                    </CustomButton>
                   </div>
                 </form>
               </div>
@@ -417,7 +491,11 @@ const Settings = () => {
                       <Image
                         width={112}
                         height={112}
-                        src="https://avatar.iran.liara.run/public/boy"
+                        src={
+                          userData.photo
+                            ? userData.photo
+                            : "https://avatar.iran.liara.run/public/boy"
+                        }
                         style={{
                           width: "auto",
                           height: "auto",
@@ -630,6 +708,13 @@ const Settings = () => {
             {/* Social Media Link end */}
           </div>
           {/* Right Card end  */}
+          {/* Toast area start */}
+          <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            theme="light"
+          />{" "}
+          {/* Toast area end */}
         </div>
       </div>
     </DefaultLayout>

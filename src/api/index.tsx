@@ -8,12 +8,21 @@ type RegisterLoginFormData = {
   password: string;
 };
 
+interface User {
+  id: number;
+  username?: string;
+  email?: string;
+  full_name?: string | null;
+  phone?: string | null;
+  bio?: string | null;
+}
+
 export const register = async ({
   username,
   email,
   password,
 }: RegisterLoginFormData) => {
-  const url = `${API_BASE_URL}/api/register/`;
+  const url = `${API_BASE_URL}api/register/`;
 
   try {
     const response = await fetch(url, {
@@ -151,7 +160,7 @@ export const pixabayImageData = async (searchTerm: string, page: Number) => {
 };
 
 export const getAllUser = async () => {
-  const url = `${API_BASE_URL}/api/register/`;
+  const url = `${API_BASE_URL}api/register/`;
   const token = getSessionStorage("Token");
 
   try {
@@ -171,5 +180,35 @@ export const getAllUser = async () => {
     }
   } catch (error) {
     console.error("Error:", error);
+  }
+};
+
+export const UpdateUserDataWithID = async ({
+  id,
+  username,
+  full_name,
+  email,
+  bio,
+  phone,
+}: User) => {
+  const token = getSessionStorage("Token");
+  try {
+    const response = await fetch(`${API_BASE_URL}api/register/${id}/`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${token}`,
+      },
+      body: JSON.stringify({ username, email, full_name, bio, phone }),
+    });
+
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    } else {
+      console.log(response);
+    }
+  } catch (error) {
+    console.log(error);
   }
 };
