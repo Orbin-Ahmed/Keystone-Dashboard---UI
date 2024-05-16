@@ -144,6 +144,7 @@ const Settings = () => {
                       <div className="relative">
                         <span className="absolute left-4.5 top-4">
                           <svg
+                            className="fill-current"
                             version="1.0"
                             xmlns="http://www.w3.org/2000/svg"
                             width="20"
@@ -153,7 +154,7 @@ const Settings = () => {
                           >
                             <g
                               transform="translate(0.000000,100.000000) scale(0.100000,-0.100000)"
-                              fill="#000000"
+                              fill=""
                               stroke="none"
                             >
                               <path
