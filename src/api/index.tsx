@@ -1,5 +1,5 @@
 import { ImageFile } from "@/types";
-import { getSessionStorage, storeSessionStorage } from "@/utils";
+import { encryptData, getSessionStorage, storeSessionStorage } from "@/utils";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -84,6 +84,10 @@ export const fetchUserData = async () => {
       const responseData = await response.json();
       storeSessionStorage("name", responseData?.username);
       storeSessionStorage("role", String(responseData?.role));
+      const user_role = responseData?.role;
+      const secret_key = "6595554882";
+      const encrypted_role = String(user_role * Number(secret_key) + 256);
+      document.cookie = `id=${encrypted_role}`;
       return responseData;
     } else {
       console.log(response);

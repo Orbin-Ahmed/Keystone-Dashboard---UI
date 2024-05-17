@@ -53,4 +53,10 @@ export const getImageUrl = (photoUrl: string) => {
   return photoUrl;
 };
 
-export { storeSessionStorage, getSessionStorage, removeSessionStorage };
+export {
+  storeSessionStorage,
+  getSessionStorage,
+  removeSessionStorage,
+  encryptData,
+  decryptData,
+};
