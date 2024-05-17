@@ -86,8 +86,8 @@ export const fetchUserData = async () => {
       storeSessionStorage("role", String(responseData?.role));
       const user_role = responseData?.role;
       const secret_key = "6595554882";
-      const encrypted_role = String(user_role * Number(secret_key) + 256);
-      document.cookie = `id=${encrypted_role}`;
+      const encrypted_role = String(user_role * Number(secret_key));
+      document.cookie = `id=${encrypted_role}; path=/`;
       return responseData;
     } else {
       console.log(response);
