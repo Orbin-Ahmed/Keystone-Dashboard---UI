@@ -4,7 +4,7 @@ import Image from "next/image";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { getSessionStorage } from "@/utils";
+import { getImageUrl, getSessionStorage } from "@/utils";
 import { fetchUserData } from "@/api";
 
 const Profile = () => {
@@ -88,20 +88,17 @@ const Profile = () => {
             </div> */}
           </div>
           <div className="px-4 pb-6 text-center lg:pb-8 xl:pb-11.5">
-            <div className="relative z-30 mx-auto -mt-22 h-30 w-full max-w-30 rounded-full bg-white/20 p-1 backdrop-blur sm:h-44 sm:max-w-44 sm:p-3">
+            <div className="relative z-30 mx-auto -mt-22 mb-8 h-30 w-full max-w-30 rounded-full bg-white/20 p-1 backdrop-blur sm:mb-0 sm:h-44 sm:max-w-44 sm:p-3">
               <div className="relative drop-shadow-2">
                 <Image
                   src={
                     userData.photo
-                      ? userData.photo
+                      ? getImageUrl(userData.photo)
                       : "https://avatar.iran.liara.run/public/boy"
                   }
                   width={160}
                   height={160}
-                  style={{
-                    width: "auto",
-                    height: "auto",
-                  }}
+                  className="h-36 rounded-full"
                   alt="profile"
                 />
                 <label

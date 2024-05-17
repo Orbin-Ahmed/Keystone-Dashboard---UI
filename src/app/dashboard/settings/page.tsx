@@ -517,6 +517,7 @@ const Settings = () => {
                       <Image
                         height={122}
                         width={122}
+                        className="h-14"
                         src={
                           userData.photo
                             ? getImageUrl(userData.photo)

@@ -84,6 +84,7 @@ export const fetchUserData = async () => {
       const responseData = await response.json();
       storeSessionStorage("name", responseData?.username);
       storeSessionStorage("role", String(responseData?.role));
+      storeSessionStorage("photo", String(responseData?.photo));
       const user_role = responseData?.role;
       const secret_key = "6595554882";
       const encrypted_role = String(user_role * Number(secret_key));
@@ -209,6 +210,7 @@ export const UpdateUserDataWithID = async ({
 
     if (response.ok) {
       const responseData = await response.json();
+      storeSessionStorage("name", responseData?.username);
       return responseData;
     } else {
       console.log(response);

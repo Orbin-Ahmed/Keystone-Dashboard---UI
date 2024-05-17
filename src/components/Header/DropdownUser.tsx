@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { getSessionStorage } from "@/utils";
+import { getImageUrl, getSessionStorage } from "@/utils";
 import Image from "next/image";
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [photo, setPhoto] = useState(
+    "https://avatar.iran.liara.run/public/boy",
+  );
   const name = getSessionStorage("name");
   const role = getSessionStorage("role");
 
@@ -24,6 +27,21 @@ const DropdownUser = () => {
     };
     document.addEventListener("click", clickHandler);
     return () => document.removeEventListener("click", clickHandler);
+  });
+
+  useEffect(() => {
+    try {
+      const photoUrl = getSessionStorage("photo");
+
+      if (photoUrl !== null && photoUrl !== "null") {
+        const trimmedPhotoUrl = photoUrl.trim();
+        setPhoto(trimmedPhotoUrl);
+      } else {
+        setPhoto("https://avatar.iran.liara.run/public/boy");
+      }
+    } catch (e) {
+      console.error("Error retrieving photo URL from session storage:", e);
+    }
   });
 
   useEffect(() => {
@@ -56,11 +74,13 @@ const DropdownUser = () => {
           <Image
             width={112}
             height={112}
-            src="https://avatar.iran.liara.run/public/boy"
-            style={{
-              width: "auto",
-              height: "auto",
-            }}
+            className="h-12"
+            src={
+              photo
+                ? getImageUrl(photo)
+                : "https://avatar.iran.liara.run/public/boy"
+            }
+            style={{ borderRadius: "50%" }}
             alt="User"
           />
         </span>
