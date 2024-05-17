@@ -1,6 +1,7 @@
 import CryptoJS from "crypto-js";
 
-const secretKey = process.env.NEXT_PUBLIC_CRYPTO_SERET_KEY || "123456";
+const secretKey =
+  process.env.NEXT_PUBLIC_CRYPTO_SERET_KEY || "4cfv416fdc474vcf7v4fcfd7vv4cd6c";
 
 const storeSessionStorage = (name: string, token: string) => {
   token = encryptData(token, secretKey);
@@ -41,5 +42,15 @@ function decryptData(encryptedData: string, secretKey: string): string {
   const plaintext = bytes.toString(CryptoJS.enc.Utf8);
   return plaintext;
 }
+
+export const getImageUrl = (photoUrl: string) => {
+  if (!photoUrl) return "https://avatar.iran.liara.run/public/boy";
+  if (photoUrl.startsWith("/")) {
+    return process.env.NEXT_PUBLIC_API_MEDIA_URL
+      ? `${process.env.NEXT_PUBLIC_API_MEDIA_URL}${photoUrl}`
+      : photoUrl;
+  }
+  return photoUrl;
+};
 
 export { storeSessionStorage, getSessionStorage, removeSessionStorage };

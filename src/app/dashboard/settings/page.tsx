@@ -5,9 +5,16 @@ import InputField from "@/components/InputField";
 import CustomButton from "@/components/CustomButton";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { UpdateUserDataWithID, fetchUserData } from "@/api";
+import {
+  UpdateUserDataWithID,
+  fetchUserData,
+  updateUserProfilePicture,
+} from "@/api";
 import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { Spinner } from "@radix-ui/themes";
+import { ImageFile } from "@/types";
+import { getImageUrl } from "@/utils";
 
 const Settings = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -39,6 +46,28 @@ const Settings = () => {
     });
   };
 
+  const handleProfilePictureChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const selectedFile = event.target.files?.[0];
+    if (!selectedFile) return;
+
+    const userId = userData.id;
+
+    const imageFile: ImageFile = {
+      file: selectedFile,
+      filename: selectedFile.name,
+    };
+
+    const response = await updateUserProfilePicture(userId, imageFile);
+    if (response) {
+      setUserData(response);
+      toast.success("Profile photo updated sucessfully!");
+    } else {
+      toast.error("Profile photo could not be updated!");
+    }
+  };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -52,10 +81,6 @@ const Settings = () => {
 
     setIsLoading(false);
   };
-
-  useEffect(() => {
-    toast.error(error);
-  }, [error]);
 
   useEffect(() => {
     const getProfileData = async () => {
@@ -488,19 +513,16 @@ const Settings = () => {
               <div className="p-7">
                 <form action="#">
                   <div className="mb-4 flex items-center gap-3">
-                    <div className="h-14 w-14 rounded-full">
+                    <div className="mb-6 h-14 w-14 rounded-full">
                       <Image
-                        width={112}
-                        height={112}
+                        height={122}
+                        width={122}
                         src={
                           userData.photo
-                            ? userData.photo
+                            ? getImageUrl(userData.photo)
                             : "https://avatar.iran.liara.run/public/boy"
                         }
-                        style={{
-                          width: "auto",
-                          height: "auto",
-                        }}
+                        style={{ borderRadius: "50%" }}
                         alt="User"
                       />
                     </div>
@@ -517,7 +539,8 @@ const Settings = () => {
                   >
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/jpeg,image/png"
+                      onChange={handleProfilePictureChange}
                       className="absolute inset-0 z-50 m-0 h-full w-full cursor-pointer p-0 opacity-0 outline-none"
                     />
                     <div className="flex flex-col items-center justify-center space-y-3">
@@ -557,10 +580,10 @@ const Settings = () => {
                     </div>
                   </div>
 
-                  <div className="flex justify-end gap-4.5">
+                  {/* <div className="flex justify-end gap-4.5">
                     <CustomButton variant="tertiary">Cancel</CustomButton>
                     <CustomButton>Save</CustomButton>
-                  </div>
+                  </div> */}
                 </form>
               </div>
             </div>

@@ -1,3 +1,4 @@
+import { ImageFile } from "@/types";
 import { getSessionStorage, storeSessionStorage } from "@/utils";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -210,5 +211,34 @@ export const UpdateUserDataWithID = async ({
     }
   } catch (error) {
     console.log(error);
+  }
+};
+
+export const updateUserProfilePicture = async (
+  userId: number,
+  imageFile: ImageFile,
+) => {
+  const token = getSessionStorage("Token");
+
+  const formData = new FormData();
+  formData.append("photo", imageFile.file);
+
+  try {
+    const response = await fetch(`${API_BASE_URL}api/register/${userId}/`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+      body: formData,
+    });
+
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    } else {
+      console.error("Error updating profile picture:", response);
+    }
+  } catch (error) {
+    console.error("Error updating profile picture:", error);
   }
 };
