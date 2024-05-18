@@ -11,6 +11,7 @@ type TabListProps = {
 };
 
 type TabProps = {
+  setSelectedImage: (selected: string[]) => void;
   pinterestImagesSrc: ImageObject[];
   unsplashImagesSrc: ImageObject[];
   pexelsImagesSrc: ImageObject[];
@@ -43,6 +44,7 @@ const tabList: TabListProps[] = [
 ];
 
 const Tab = ({
+  setSelectedImage,
   pinterestImagesSrc,
   unsplashImagesSrc,
   pexelsImagesSrc,
@@ -96,7 +98,11 @@ const Tab = ({
               imagesSrc={imagesSrc}
             />
           ))} */}
-          <TabContents value={imageSource} imagesSrc={imagesSrc} />
+          <TabContents
+            value={imageSource}
+            imagesSrc={imagesSrc}
+            setSelectedImage={setSelectedImage}
+          />
         </div>
       </Tabs.Root>
     </>

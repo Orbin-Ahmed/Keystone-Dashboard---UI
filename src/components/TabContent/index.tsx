@@ -1,5 +1,5 @@
 import { Tabs } from "@radix-ui/themes";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ImagePin from "../ImagePin";
 import { ImageObject } from "../SearchBar";
 import IndexBox from "../ImageBox";
@@ -10,19 +10,56 @@ import NextLightbox from "../NextLightbox";
 type TabContentsProps = {
   value: string;
   imagesSrc?: ImageObject[];
+  setSelectedImage: (selected: string[]) => void;
 };
 
-const TabContents = ({ value, imagesSrc }: TabContentsProps) => {
+const TabContents = ({
+  value,
+  imagesSrc,
+  setSelectedImage,
+}: TabContentsProps) => {
   const imagesWithValues: ImageObject[] = imagesSrc as ImageObject[];
   const [index, setIndex] = React.useState(-1);
+  const [checkedState, setCheckedState] = useState<boolean[]>([]);
+
+  useEffect(() => {
+    if (imagesWithValues.length > 0) {
+      setCheckedState(imagesWithValues.map(() => false));
+    }
+  }, [imagesWithValues]);
+
+  const handleCheck = (idx: number) => {
+    const newCheckedState = checkedState.map((checked, i) =>
+      i === idx ? !checked : checked,
+    );
+    setCheckedState(newCheckedState);
+
+    const selectedUrls = newCheckedState.reduce<string[]>(
+      (urls, checked, i) => {
+        if (checked) {
+          urls.push(imagesWithValues[i].lightBoxUrl);
+        }
+        return urls;
+      },
+      [],
+    );
+
+    setSelectedImage(selectedUrls);
+  };
+
   const lightboxUrlList = imagesWithValues.map((item) => ({
     src: item.lightBoxUrl,
   }));
+
+  // useEffect(() => {
+  //   console.log(checkedState);
+  // }, [checkedState]);
+
   return (
     <>
       <Tabs.Content value={value} className="mt-6">
         {imagesWithValues?.length > 0 ? (
-          //  <div className="grid h-80 grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3"></div>
+          //  <div className="grid h-80 grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
           <div className="mainContainer">
             {imagesWithValues.map((imgObject, i) => (
               <ImagePin
@@ -31,6 +68,8 @@ const TabContents = ({ value, imagesSrc }: TabContentsProps) => {
                 imgSrc={imgObject.url}
                 id={imgObject.id}
                 idx={i}
+                checked={checkedState[i]}
+                onCheckboxChange={() => handleCheck(i)}
                 setIndex={setIndex}
               />
             ))}

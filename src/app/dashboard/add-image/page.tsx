@@ -3,11 +3,12 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Tab from "@/components/Tab";
 import SearchBar, { ImageObject } from "@/components/SearchBar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Props = {};
 
 const AddImage = (props: Props) => {
+  const [selectedImage, setSelectedImage] = useState<string[]>([]);
   const [imageSource, setImageSource] = useState("Pinterest");
   const [pexelsImagesSrc, setPexelsImagesSrc] = useState<ImageObject[]>([]);
   const [unsplashImagesSrc, setUnsplashImagesSrc] = useState<ImageObject[]>([]);
@@ -41,10 +42,9 @@ const AddImage = (props: Props) => {
     }
   };
 
-  // useEffect(() => {
-  //   console.log(unsplashImagesSrc);
-  //   console.log(pexelsImagesSrc);
-  // }, [pexelsImagesSrc, unsplashImagesSrc]);
+  useEffect(() => {
+    console.log(selectedImage);
+  }, [selectedImage]);
 
   return (
     <DefaultLayout>
@@ -56,6 +56,7 @@ const AddImage = (props: Props) => {
         />
         <div>
           <Tab
+            setSelectedImage={setSelectedImage}
             pinterestImagesSrc={pinterestImagesSrc}
             unsplashImagesSrc={unsplashImagesSrc}
             pexelsImagesSrc={pexelsImagesSrc}
