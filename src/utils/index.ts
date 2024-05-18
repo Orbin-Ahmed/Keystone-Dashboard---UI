@@ -53,10 +53,19 @@ export const getImageUrl = (photoUrl: string) => {
   return photoUrl;
 };
 
+const clearSessionData = (name: string) => {
+  try {
+    removeSessionStorage(name);
+  } catch (error) {
+    console.error("Error clearing session data:", error);
+  }
+};
+
 export {
   storeSessionStorage,
   getSessionStorage,
   removeSessionStorage,
   encryptData,
   decryptData,
+  clearSessionData,
 };

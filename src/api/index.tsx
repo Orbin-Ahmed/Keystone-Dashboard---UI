@@ -16,6 +16,7 @@ interface User {
   full_name?: string | null;
   phone?: string | null;
   bio?: string | null;
+  password?: string | null;
 }
 
 export const register = async ({
@@ -196,6 +197,7 @@ export const UpdateUserDataWithID = async ({
   email,
   bio,
   phone,
+  password,
 }: User) => {
   const token = getSessionStorage("Token");
   try {
@@ -205,7 +207,14 @@ export const UpdateUserDataWithID = async ({
         "Content-Type": "application/json",
         Authorization: `Token ${token}`,
       },
-      body: JSON.stringify({ username, email, full_name, bio, phone }),
+      body: JSON.stringify({
+        username,
+        email,
+        full_name,
+        bio,
+        phone,
+        password,
+      }),
     });
 
     if (response.ok) {
