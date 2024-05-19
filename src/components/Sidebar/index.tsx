@@ -4,11 +4,16 @@ import React, { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { getSessionStorage } from "@/utils";
+import { getImageUrl, getSessionStorage } from "@/utils";
+import { getCompanyInfo } from "@/api";
 
 interface SidebarProps {
   sidebarOpen: boolean;
   setSidebarOpen: (arg: boolean) => void;
+}
+
+interface CompanyData {
+  logo?: string | null;
 }
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
@@ -24,12 +29,20 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   );
 
   const [role, setRole] = useState<number | undefined>();
+  const [companyData, setCompanyData] = useState<CompanyData>({});
 
   useEffect(() => {
     const storedRole = getSessionStorage("role");
     const parsedRole =
       storedRole !== null ? parseInt(storedRole, 10) : undefined;
     setRole(parsedRole);
+
+    // Fetch company data
+    async function fetchCompanyData() {
+      const response = await getCompanyInfo();
+      setCompanyData(response);
+    }
+    fetchCompanyData();
   }, []);
 
   // close on click outside
@@ -67,6 +80,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     }
   }, [sidebarExpanded]);
 
+  const logoSrc =
+    companyData && companyData.logo
+      ? getImageUrl(companyData.logo)
+      : "/images/logo/logo.png";
+
   return (
     <aside
       ref={sidebar}
@@ -81,7 +99,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             className="object-cover"
             width={150}
             height={32}
-            src={"/images/logo/logo.png"}
+            src={logoSrc}
             alt="Logo"
             priority
           />

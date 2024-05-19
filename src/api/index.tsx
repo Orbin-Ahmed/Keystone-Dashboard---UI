@@ -19,7 +19,7 @@ interface User {
   password?: string | null;
 }
 
-interface CompanyData {
+export interface CompanyData {
   id: number;
   name?: string;
   email?: string;
@@ -270,14 +270,12 @@ export const updateUserProfilePicture = async (
 
 export const getCompanyInfo = async () => {
   const url = `${API_BASE_URL}api/company/1/`;
-  const token = getSessionStorage("Token");
 
   try {
     const response = await fetch(url, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Token ${token}`,
       },
     });
     if (response.ok) {
@@ -334,7 +332,6 @@ export const updateCompanyInfo = async ({
     });
     if (response.ok) {
       const data = await response.json();
-      console.log(data);
       return data;
     } else {
       const errorMessage = await response.json();

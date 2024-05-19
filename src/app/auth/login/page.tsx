@@ -6,11 +6,20 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
-import { login } from "@/api";
+import { getCompanyInfo, login } from "@/api";
+import { getImageUrl } from "@/utils";
+
+interface CompanyData {
+  name: string;
+  logo?: string | null;
+}
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [companyData, setCompanyData] = useState<CompanyData>({
+    name: "Keystone Engineering Consultant",
+  });
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -42,6 +51,22 @@ const Login = () => {
     toast.error(error);
   }, [error]);
 
+  useEffect(() => {
+    // Fetch company data
+    async function fetchCompanyData() {
+      const response = await getCompanyInfo();
+      setCompanyData(response);
+    }
+    fetchCompanyData();
+  }, []);
+
+  const logoSrc =
+    companyData && companyData.logo
+      ? getImageUrl(companyData.logo)
+      : "/images/logo/logo.png";
+
+  const companyName = companyData?.name ?? "Keystone Engineering Consultant";
+
   return (
     <div className="m-auto h-full">
       <div className="flex flex-col items-center justify-center py-8">
@@ -53,13 +78,13 @@ const Login = () => {
                 <Image
                   width={54}
                   height={32}
-                  src={"/images/logo/logo.png"}
+                  src={logoSrc}
                   alt="Logo"
                   priority
                 />
               </Link>
               <h4 className="mb-8 mt-1 pb-1 text-xl font-semibold">
-                Keystone Engineering Consultant
+                {companyName}
               </h4>
             </div>
             {/* Form input  */}

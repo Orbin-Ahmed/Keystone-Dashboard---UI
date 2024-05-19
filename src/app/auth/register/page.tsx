@@ -1,12 +1,18 @@
 "use client";
-import { register } from "@/api";
+import { getCompanyInfo, register } from "@/api";
 import CustomButton from "@/components/CustomButton";
 import InputField from "@/components/InputField";
+import { getImageUrl } from "@/utils";
 import { Spinner } from "@radix-ui/themes";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
+
+interface CompanyData {
+  name: string;
+  logo?: string | null;
+}
 
 const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -16,6 +22,9 @@ const Register = () => {
     email: "",
     password: "",
     re_password: "",
+  });
+  const [companyData, setCompanyData] = useState<CompanyData>({
+    name: "Keystone Engineering Consultant",
   });
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,6 +58,22 @@ const Register = () => {
     toast.error(error);
   }, [error]);
 
+  useEffect(() => {
+    // Fetch company data
+    async function fetchCompanyData() {
+      const response = await getCompanyInfo();
+      setCompanyData(response);
+    }
+    fetchCompanyData();
+  }, []);
+
+  const logoSrc =
+    companyData && companyData.logo
+      ? getImageUrl(companyData.logo)
+      : "/images/logo/logo.png";
+
+  const companyName = companyData?.name ?? "Keystone Engineering Consultant";
+
   return (
     <div className="m-auto h-full">
       <div className="flex flex-col items-center justify-center py-8">
@@ -60,13 +85,13 @@ const Register = () => {
                 <Image
                   width={54}
                   height={32}
-                  src={"/images/logo/logo.png"}
+                  src={logoSrc}
                   alt="Logo"
                   priority
                 />
               </Link>
               <h4 className="mb-8 mt-1 pb-1 text-xl font-semibold">
-                Keystone Engineering Consultant
+                {companyName}
               </h4>
             </div>
             {/* Form input  */}
