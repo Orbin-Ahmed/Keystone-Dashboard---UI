@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import CustomButton from "../CustomButton";
 
 type Props = {
@@ -41,6 +41,18 @@ const Pagination = ({
       setCurrentPage(currentPage - 1);
     }
   };
+
+  useEffect(() => {
+    const keyHandler = ({ keyCode }: KeyboardEvent) => {
+      if (total > 1 && keyCode === 37) {
+        handlePrev();
+      } else if (total > 1 && keyCode === 39) {
+        handleNext();
+      }
+    };
+    document.addEventListener("keydown", keyHandler);
+    return () => document.removeEventListener("keydown", keyHandler);
+  });
 
   return (
     <>
