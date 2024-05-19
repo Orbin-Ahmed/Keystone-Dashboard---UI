@@ -1,6 +1,6 @@
 "use client";
 import { pexelsImageData, pixabayImageData, unsplashImageData } from "@/api";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CustomButton from "../CustomButton";
 import { Dialog } from "@radix-ui/themes";
 import AddImageDialogue from "../ui/AddImageDialogue";
@@ -15,12 +15,16 @@ type SearchBarProps = {
   handleSetImagesSrc: (images: ImageObject[]) => void;
   imageSource: string;
   selectedImage?: string[];
+  setTotalImage: (val: number) => void;
+  currentPage: number;
 };
 
 const SearchBar = ({
   handleSetImagesSrc,
   imageSource,
   selectedImage,
+  setTotalImage,
+  currentPage,
 }: SearchBarProps) => {
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -31,31 +35,45 @@ const SearchBar = ({
   const handleSubmit = async (event: React.ChangeEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    fetchImage();
+  };
+
+  const fetchImage = async () => {
     if (!searchTerm) {
       return;
     } else {
       let processedImages: ImageObject[] = [];
       let results;
+      let data;
       if (imageSource === "Pexels") {
-        results = await pexelsImageData(searchTerm, 1);
+        results = await pexelsImageData(searchTerm, currentPage);
+        data = results.photos;
+        // total_results
+        setTotalImage(results.total_results);
 
-        processedImages = results.map((result: any) => ({
+        processedImages = data.map((result: any) => ({
           id: result.id,
           url: result.src.medium,
           lightBoxUrl: result.src.large2x,
         }));
       } else if (imageSource === "Unsplash") {
-        results = await unsplashImageData(searchTerm, 1);
+        results = await unsplashImageData(searchTerm, currentPage);
+        data = results.results;
+        // total
+        setTotalImage(results.total);
 
-        processedImages = results.map((result: any) => ({
+        processedImages = data.map((result: any) => ({
           id: result.id,
           url: result.urls.small,
           lightBoxUrl: result.urls.regular,
         }));
       } else if (imageSource === "Pixabay") {
-        results = await pixabayImageData(searchTerm, 1);
+        results = await pixabayImageData(searchTerm, currentPage);
+        data = results.hits;
+        // total
+        setTotalImage(results.total);
 
-        processedImages = results.map((result: any) => ({
+        processedImages = data.map((result: any) => ({
           id: result.id,
           url: result.webformatURL,
           lightBoxUrl: result.largeImageURL,
@@ -65,6 +83,11 @@ const SearchBar = ({
       handleSetImagesSrc(processedImages);
     }
   };
+
+  useEffect(() => {
+    fetchImage();
+  }, [currentPage]);
+
   return (
     <>
       <form

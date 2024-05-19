@@ -124,12 +124,12 @@ export const unsplashImageData = async (searchTerm: string, page: Number) => {
 
   try {
     const response = await fetch(
-      `${url}/search/photos?page=${page}&query=${searchTerm}&per_page=20&client_id=${access_key}`,
+      `${url}/search/photos?page=${page}&query=${searchTerm}&per_page=30&client_id=${access_key}`,
     );
 
     if (response.ok) {
       const data = await response.json();
-      return data.results;
+      return data;
     } else {
       console.log(response);
     }
@@ -144,7 +144,7 @@ export const pexelsImageData = async (searchTerm: string, page: Number) => {
 
   try {
     const response = await fetch(
-      `${url}/search?page=${page}&query=${searchTerm}&per_page=20`,
+      `${url}/search?page=${page}&query=${searchTerm}&per_page=30`,
       {
         headers: {
           Authorization: `${access_key}`,
@@ -154,7 +154,7 @@ export const pexelsImageData = async (searchTerm: string, page: Number) => {
 
     if (response.ok) {
       const data = await response.json();
-      return data.photos;
+      return data;
     } else {
       console.log(response);
     }
@@ -168,7 +168,7 @@ export const pixabayImageData = async (searchTerm: string, page: Number) => {
   const url =
     "https://corsproxy.io/?" +
     encodeURIComponent(
-      `https://pixabay.com/api?key=${access_key}&q=${searchTerm}&image_type=photo&page=${page}`,
+      `https://pixabay.com/api?key=${access_key}&q=${searchTerm}&image_type=photo&page=${page}&per_page=30`,
     );
 
   try {
@@ -176,7 +176,7 @@ export const pixabayImageData = async (searchTerm: string, page: Number) => {
 
     if (response.ok) {
       const data = await response.json();
-      return data.hits;
+      return data;
     } else {
       console.log(response);
     }
