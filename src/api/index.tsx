@@ -19,6 +19,16 @@ interface User {
   password?: string | null;
 }
 
+interface CompanyData {
+  id: number;
+  name?: string;
+  email?: string;
+  phone?: string;
+  company_intro?: string;
+  license?: string;
+  logo?: ImageFile;
+}
+
 export const register = async ({
   username,
   email,
@@ -255,5 +265,82 @@ export const updateUserProfilePicture = async (
     }
   } catch (error) {
     console.error("Error updating profile picture:", error);
+  }
+};
+
+export const getCompanyInfo = async () => {
+  const url = `${API_BASE_URL}api/company/1/`;
+  const token = getSessionStorage("Token");
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${token}`,
+      },
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      const errorMessage = await response.json();
+      console.log(errorMessage);
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+};
+
+export const updateCompanyInfo = async ({
+  id,
+  name,
+  email,
+  phone,
+  company_intro,
+  license,
+  logo,
+}: CompanyData) => {
+  const url = `${API_BASE_URL}api/company/${id}/`;
+  const token = getSessionStorage("Token");
+
+  const formData = new FormData();
+
+  if (logo && logo.file) {
+    formData.append("logo", logo.file);
+  }
+
+  const updateData = {
+    name,
+    email,
+    phone,
+    company_intro,
+    license,
+  };
+
+  Object.entries(updateData).forEach(([key, value]) => {
+    if (value) {
+      formData.append(key, value);
+    }
+  });
+
+  try {
+    const response = await fetch(url, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+      body: formData,
+    });
+    if (response.ok) {
+      const data = await response.json();
+      console.log(data);
+      return data;
+    } else {
+      const errorMessage = await response.json();
+      console.error("Error:", errorMessage);
+    }
+  } catch (error) {
+    console.error("Error:", error);
   }
 };

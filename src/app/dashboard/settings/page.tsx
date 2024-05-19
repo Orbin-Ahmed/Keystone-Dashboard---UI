@@ -8,6 +8,8 @@ import { useEffect, useState } from "react";
 import {
   UpdateUserDataWithID,
   fetchUserData,
+  getCompanyInfo,
+  updateCompanyInfo,
   updateUserProfilePicture,
 } from "@/api";
 import { ToastContainer, toast } from "react-toastify";
@@ -20,6 +22,7 @@ const Settings = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({});
+  const [companyForm, setCompanyForm] = useState({});
   const [passwordData, setPasswordData] = useState({
     password: "",
     password1: "",
@@ -34,6 +37,16 @@ const Settings = () => {
     phone: null,
     bio: null,
     photo: null,
+  });
+
+  const [companyData, setCompanyData] = useState({
+    id: 1,
+    name: "",
+    email: "",
+    phone: "",
+    company_intro: "",
+    license: "",
+    logo: null,
   });
   const [role, setRole] = useState<number | undefined>();
 
@@ -128,6 +141,52 @@ const Settings = () => {
     setIsLoading(false);
   };
 
+  const handleCompanyChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, files } = event.target;
+
+    if (name === "logo" && files && files.length > 0) {
+      const selectedFile = files[0];
+      setCompanyForm((prevForm) => ({
+        ...prevForm,
+        logo: { file: selectedFile },
+      }));
+    } else {
+      setCompanyForm((prevForm) => ({
+        ...prevForm,
+        [name]: value,
+      }));
+    }
+  };
+
+  const handleCompanyTextChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>,
+  ) => {
+    setCompanyForm({
+      ...companyForm,
+      [event.target.name]: event.target.value,
+    });
+  };
+
+  const handleCompanySubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+
+    setIsLoading(true);
+    setError(null);
+
+    const data = await updateCompanyInfo({
+      id: companyData.id,
+      ...companyForm,
+    });
+
+    if (data?.error) {
+      setError(data.error);
+    }
+
+    setIsLoading(false);
+  };
+
   useEffect(() => {
     const getProfileData = async () => {
       try {
@@ -138,6 +197,18 @@ const Settings = () => {
       }
     };
     getProfileData();
+  }, []);
+
+  useEffect(() => {
+    const getCompanyData = async () => {
+      try {
+        const response = await getCompanyInfo();
+        setCompanyData(response);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getCompanyData();
   }, []);
 
   return (
@@ -423,7 +494,7 @@ const Settings = () => {
                   </h3>
                 </div>
                 <div className="p-7">
-                  <form action="#">
+                  <form onSubmit={handleCompanySubmit}>
                     {/* License and phone field  */}
                     <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
                       {/* Company License Field */}
@@ -437,10 +508,13 @@ const Settings = () => {
                         <InputField
                           className="px-4.5 py-3"
                           type="text"
-                          name="clicense"
-                          id="clicense"
+                          name="license"
+                          id="license"
                           placeholder="Company License"
-                          defaultValue="LNO879952"
+                          onChange={handleCompanyChange}
+                          defaultValue={
+                            companyData.license ? companyData.license : ""
+                          }
                         />
                       </div>
                       {/* Company License Field end */}
@@ -459,7 +533,9 @@ const Settings = () => {
                           name="cphone"
                           id="cphone"
                           placeholder="Your Phone No."
-                          defaultValue="+971 56 891-4066"
+                          defaultValue={
+                            companyData.phone ? companyData.phone : ""
+                          }
                         />
                       </div>
                       {/* Company Phone Field end */}
@@ -476,10 +552,13 @@ const Settings = () => {
                       <InputField
                         className="px-4.5 py-3"
                         type="email"
-                        name="cemail"
-                        id="cemail"
+                        name="email"
+                        id="email"
                         placeholder="Your Company Email"
-                        defaultValue="support@idealhomeuae.com"
+                        onChange={handleCompanyChange}
+                        defaultValue={
+                          companyData.email ? companyData.email : ""
+                        }
                       />
                     </div>
                     {/* Email Field end */}
@@ -495,10 +574,11 @@ const Settings = () => {
                       <InputField
                         className="px-4.5 py-3"
                         type="text"
-                        name="cname"
-                        id="cname"
+                        name="name"
+                        id="name"
                         placeholder="Company Name"
-                        defaultValue="Keystone Engineering Consultant"
+                        onChange={handleCompanyChange}
+                        defaultValue={companyData.name ? companyData.name : ""}
                       />
                     </div>
                     {/* Company Name Field end */}
@@ -514,11 +594,16 @@ const Settings = () => {
 
                       <textarea
                         className="w-full rounded border border-stroke bg-gray px-4.5 py-3 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                        name="cbio"
-                        id="cbio"
+                        name="company_intro"
+                        id="company_intro"
                         rows={8}
+                        onChange={handleCompanyTextChange}
                         placeholder="Write your comapny introduction here"
-                        defaultValue="In the early 1990s, the inception of our company was rooted in a personal experience. The founder, while selecting windows for his first home, was not guided by quality standards or specifications. This led to a series of issues, including poor insulation against heat, dust, and noise. The shortcomings of these windows were felt deeply by the founder and his family. Fast forward to 2010, while planning his second villa, the founder made a pivotal decision. He chose German uPVC windows and doors over the typical aluminum windows. This choice was not only aesthetically pleasing, adding a touch of elegance to the villa, but it also significantly improved the comfort of the home. The insulation quality of these German uPVC windows and doors far surpassed that of the locally made aluminum or uPVC counterparts. Inspired by his personal journey and the transformation he experienced, the founder took a leap in 2019. He established Keystone uPVC windows with a clear objective in mind – to provide his fellow citizens with superior quality windows and doors. His mission was to answer a crucial question that arises when building a dream home: 'How can I make the interiors of my home dust-free, quiet, cool, and elegant'"
+                        defaultValue={
+                          companyData.company_intro
+                            ? companyData.company_intro
+                            : ""
+                        }
                       ></textarea>
                     </div>
                     {/* Comapny Intro end */}
@@ -535,8 +620,9 @@ const Settings = () => {
                         className="px-4.5 py-3"
                         type="file"
                         accept="image/*"
-                        name="clogo"
-                        id="clogo"
+                        onChange={handleCompanyChange}
+                        name="logo"
+                        id="logo"
                       />
                     </div>
                     {/* Comapny Logo end */}
