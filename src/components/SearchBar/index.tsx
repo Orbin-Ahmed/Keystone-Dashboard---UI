@@ -14,9 +14,14 @@ export interface ImageObject {
 type SearchBarProps = {
   handleSetImagesSrc: (images: ImageObject[]) => void;
   imageSource: string;
+  selectedImage?: string[];
 };
 
-const SearchBar = ({ handleSetImagesSrc, imageSource }: SearchBarProps) => {
+const SearchBar = ({
+  handleSetImagesSrc,
+  imageSource,
+  selectedImage,
+}: SearchBarProps) => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -107,8 +112,10 @@ const SearchBar = ({ handleSetImagesSrc, imageSource }: SearchBarProps) => {
               <CustomButton className="mr-2">Submit</CustomButton>
             </Dialog.Trigger>
             <AddImageDialogue
-              title="Add Selected Image"
-              description="You have selected 10 images"
+              title="Add Selected Image To Database"
+              total={selectedImage?.length}
+              source={imageSource}
+              selectedImage={selectedImage}
             />
           </Dialog.Root>
         </div>

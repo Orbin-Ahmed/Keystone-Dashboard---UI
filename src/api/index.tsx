@@ -29,6 +29,15 @@ export interface CompanyData {
   logo?: ImageFile;
 }
 
+export interface ImageData {
+  img_url: string;
+  source?: string;
+  nationality?: string;
+  room_type?: string;
+  temperature?: string;
+  theme?: string;
+}
+
 export const register = async ({
   username,
   email,
@@ -339,5 +348,34 @@ export const updateCompanyInfo = async ({
     }
   } catch (error) {
     console.error("Error:", error);
+  }
+};
+
+export const postImage = async (images: ImageData[]) => {
+  const url = `${API_BASE_URL}api/image/`;
+  const token = getSessionStorage("Token");
+
+  try {
+    // const response = await fetch(url, {
+    //   method: "POST",
+    //   headers: {
+    //     Authorization: `Token ${token}`,
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify(images),
+    // });
+
+    // if (response.ok) {
+    //   const data = await response.json();
+    //   return data;
+    // } else {
+    //   const errorMessage = await response.json();
+    //   console.error("Error:", errorMessage);
+    //   throw new Error(errorMessage);
+    // }
+    console.log(images);
+  } catch (error) {
+    console.error("Error:", error);
+    throw error;
   }
 };

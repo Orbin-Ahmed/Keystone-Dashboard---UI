@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 
 type Props = {};
 
-const AddImage = (props: Props) => {
+const AddImage = ({}: Props) => {
   const [selectedImage, setSelectedImage] = useState<string[]>([]);
   const [imageSource, setImageSource] = useState("Pinterest");
   const [pexelsImagesSrc, setPexelsImagesSrc] = useState<ImageObject[]>([]);
@@ -42,10 +42,6 @@ const AddImage = (props: Props) => {
     }
   };
 
-  // useEffect(() => {
-  //   console.log(selectedImage);
-  // }, [selectedImage]);
-
   return (
     <DefaultLayout>
       <div className="mx-auto">
@@ -53,6 +49,7 @@ const AddImage = (props: Props) => {
         <SearchBar
           handleSetImagesSrc={handleImagesSrc}
           imageSource={imageSource}
+          selectedImage={selectedImage}
         />
         <div>
           <Tab
