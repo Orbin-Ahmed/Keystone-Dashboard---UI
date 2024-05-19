@@ -84,7 +84,9 @@ const Pagination = ({
             </svg>
             Prev
           </CustomButton>
-          <p className="mx-4">{currentPage}</p>
+          <p className="mx-4 rounded-md border border-gray p-2.5 shadow-2">
+            {currentPage}
+          </p>
           <CustomButton
             variant="tertiary"
             className="flex items-center"
