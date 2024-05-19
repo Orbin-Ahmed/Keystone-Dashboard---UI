@@ -16,7 +16,6 @@ const UserTable = () => {
       try {
         const response = await getAllUser();
         setUserData(response);
-        console.log(response);
       } catch (error) {
         console.log(error);
       }

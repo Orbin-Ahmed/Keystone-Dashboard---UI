@@ -1,6 +1,9 @@
 "use client";
 import { pexelsImageData, pixabayImageData, unsplashImageData } from "@/api";
 import React, { useState } from "react";
+import CustomButton from "../CustomButton";
+import { Dialog } from "@radix-ui/themes";
+import AddImageDialogue from "../ui/AddImageDialogue";
 
 export interface ImageObject {
   id: string;
@@ -59,7 +62,10 @@ const SearchBar = ({ handleSetImagesSrc, imageSource }: SearchBarProps) => {
   };
   return (
     <>
-      <form onSubmit={handleSubmit} className="my-4">
+      <form
+        onSubmit={handleSubmit}
+        className="my-4 flex items-center justify-center gap-4"
+      >
         <div className="relative">
           <button
             className="absolute left-0 top-1/2 -translate-y-1/2"
@@ -94,6 +100,17 @@ const SearchBar = ({ handleSetImagesSrc, imageSource }: SearchBarProps) => {
             className="w-full bg-transparent pl-9 pr-4 font-medium focus:outline-none xl:w-125"
             onChange={handleInputChange}
           />
+        </div>
+        <div>
+          <Dialog.Root>
+            <Dialog.Trigger>
+              <CustomButton className="mr-2">Submit</CustomButton>
+            </Dialog.Trigger>
+            <AddImageDialogue
+              title="Add Selected Image"
+              description="You have selected 10 images"
+            />
+          </Dialog.Root>
         </div>
       </form>
     </>

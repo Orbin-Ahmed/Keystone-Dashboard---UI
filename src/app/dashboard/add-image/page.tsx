@@ -42,9 +42,9 @@ const AddImage = (props: Props) => {
     }
   };
 
-  useEffect(() => {
-    console.log(selectedImage);
-  }, [selectedImage]);
+  // useEffect(() => {
+  //   console.log(selectedImage);
+  // }, [selectedImage]);
 
   return (
     <DefaultLayout>
