@@ -6,6 +6,7 @@ import IndexBox from "../ImageBox";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import NextLightbox from "../NextLightbox";
+import Download from "yet-another-react-lightbox/plugins/download";
 
 type TabContentsProps = {
   value: string;
@@ -49,6 +50,7 @@ const TabContents = ({
 
   const lightboxUrlList = imagesWithValues.map((item) => ({
     src: item.lightBoxUrl,
+    download: `https://corsproxy.io/?${item.url}`,
   }));
 
   // useEffect(() => {
@@ -84,6 +86,7 @@ const TabContents = ({
         open={index >= 0}
         close={() => setIndex(-1)}
         render={{ slide: NextLightbox }}
+        plugins={[Download]}
       />
     </>
   );
