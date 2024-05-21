@@ -9,6 +9,7 @@ import React, { useEffect, useState } from "react";
 import CustomButton from "../CustomButton";
 import { Dialog } from "@radix-ui/themes";
 import AddImageDialogue from "../ui/AddImageDialogue";
+import UploadImageDialogue from "../ui/UploadImageDialogue";
 
 export interface ImageObject {
   id: string;
@@ -102,7 +103,7 @@ const SearchBar = ({
   }, [currentPage]);
 
   return (
-    <>
+    <div className="flex items-center justify-between gap-4">
       <form
         onSubmit={handleSubmit}
         className="my-4 flex items-center justify-center gap-4"
@@ -142,6 +143,18 @@ const SearchBar = ({
             onChange={handleInputChange}
           />
         </div>
+      </form>
+      <div className="flex">
+        {/* Upload Button Area  */}
+        <div>
+          <Dialog.Root>
+            <Dialog.Trigger>
+              <CustomButton className="mr-2">Upload</CustomButton>
+            </Dialog.Trigger>
+            <UploadImageDialogue title="Upload Your Own Image To Database" />
+          </Dialog.Root>
+        </div>
+        {/* Submit Button Area  */}
         <div>
           <Dialog.Root>
             <Dialog.Trigger>
@@ -155,8 +168,8 @@ const SearchBar = ({
             />
           </Dialog.Root>
         </div>
-      </form>
-    </>
+      </div>
+    </div>
   );
 };
 
