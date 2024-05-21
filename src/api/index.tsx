@@ -185,6 +185,29 @@ export const pixabayImageData = async (searchTerm: string, page: Number) => {
   }
 };
 
+export const pinterestImageData = async (searchTerm: string, page: Number) => {
+  const url = `${API_BASE_URL}api/images/search?query=${searchTerm}&page_size=30&page_number=${page}`;
+  const token = getSessionStorage("Token");
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      console.log(response);
+    }
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+};
+
 export const getAllUser = async () => {
   const url = `${API_BASE_URL}api/register/`;
   const token = getSessionStorage("Token");

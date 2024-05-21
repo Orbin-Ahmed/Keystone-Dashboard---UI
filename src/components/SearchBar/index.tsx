@@ -1,5 +1,10 @@
 "use client";
-import { pexelsImageData, pixabayImageData, unsplashImageData } from "@/api";
+import {
+  pexelsImageData,
+  pinterestImageData,
+  pixabayImageData,
+  unsplashImageData,
+} from "@/api";
 import React, { useEffect, useState } from "react";
 import CustomButton from "../CustomButton";
 import { Dialog } from "@radix-ui/themes";
@@ -79,6 +84,14 @@ const SearchBar = ({
           lightBoxUrl: result.largeImageURL,
         }));
       } else {
+        results = await pinterestImageData(searchTerm, currentPage);
+        setTotalImage(1000);
+
+        processedImages = results.map((result: any) => ({
+          id: result.id,
+          url: result.images.thumb,
+          lightBoxUrl: result.images.full,
+        }));
       }
       handleSetImagesSrc(processedImages);
     }

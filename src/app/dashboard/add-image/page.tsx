@@ -47,7 +47,7 @@ const AddImage = ({}: Props) => {
     } else if (imageSource === "Pixabay") {
       setPixabayImagesSrc(images);
     } else {
-      console.log("hi");
+      setPinterestImagesSrc(images);
     }
   };
 
