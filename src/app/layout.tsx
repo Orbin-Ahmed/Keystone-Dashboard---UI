@@ -9,6 +9,7 @@ import "@radix-ui/themes/styles.css";
 import "@radix-ui/themes/styles.css";
 import { Theme } from "@radix-ui/themes";
 import "react-toastify/dist/ReactToastify.css";
+import "yet-another-react-lightbox/styles.css";
 
 export default function RootLayout({
   children,

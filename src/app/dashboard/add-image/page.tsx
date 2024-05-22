@@ -3,7 +3,7 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Tab from "@/components/Tab";
 import SearchBar, { ImageObject } from "@/components/SearchBar";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Pagination from "@/components/Pagination";
 
 type Props = {};

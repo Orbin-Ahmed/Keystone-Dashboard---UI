@@ -1,5 +1,5 @@
 import { ImageFile } from "@/types";
-import { encryptData, getSessionStorage, storeSessionStorage } from "@/utils";
+import { getSessionStorage, storeSessionStorage } from "@/utils";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -30,6 +30,7 @@ export interface CompanyData {
 }
 
 export interface ImageData {
+  id?: number;
   photo: string;
   source?: string;
   nationality?: string;
@@ -468,4 +469,26 @@ export const postImageFile = async (imageFiles: ImageFiles[]) => {
   }
 };
 
-export const getAllImage = async () => {};
+export const getAllImage = async () => {
+  const url = `${API_BASE_URL}api/images/`;
+  const token = getSessionStorage("Token");
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${token}`,
+      },
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      const errorMessage = await response.json();
+      console.log(errorMessage);
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};

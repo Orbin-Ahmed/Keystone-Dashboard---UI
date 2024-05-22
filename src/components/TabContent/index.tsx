@@ -2,11 +2,11 @@ import { Tabs } from "@radix-ui/themes";
 import React, { useEffect, useState } from "react";
 import ImagePin from "../ImagePin";
 import { ImageObject } from "../SearchBar";
-import IndexBox from "../ImageBox";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import NextLightbox from "../NextLightbox";
 import Download from "yet-another-react-lightbox/plugins/download";
+import ImageBox from "../ImageBox";
 
 type TabContentsProps = {
   value: string;
@@ -77,7 +77,7 @@ const TabContents = ({
             ))}
           </div>
         ) : (
-          <IndexBox />
+          <ImageBox />
         )}
       </Tabs.Content>
       <Lightbox
