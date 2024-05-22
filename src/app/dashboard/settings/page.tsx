@@ -90,7 +90,6 @@ const Settings = () => {
       file: selectedFile,
       filename: selectedFile.name,
     };
-
     const response = await updateUserProfilePicture(userId, imageFile);
     if (response) {
       setUserData(response);
