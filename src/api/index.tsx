@@ -30,13 +30,25 @@ export interface CompanyData {
 }
 
 export interface ImageData {
-  img_url: string;
+  photo: string;
   source?: string;
   nationality?: string;
   room_type?: string;
   temperature?: string;
   theme?: string;
+  is_url: string;
 }
+
+export type ImageFiles = {
+  photo: File;
+  nationality: string;
+  room_type: string;
+  source: string;
+  temperature: string;
+  theme: string;
+  color: string;
+  is_url: string;
+};
 
 export const register = async ({
   username,
@@ -374,31 +386,86 @@ export const updateCompanyInfo = async ({
   }
 };
 
-export const postImage = async (images: ImageData[]) => {
-  const url = `${API_BASE_URL}api/image/`;
+export const postImagesURL = async (images: ImageData[]) => {
+  const url = `${API_BASE_URL}api/images/url/`;
   const token = getSessionStorage("Token");
 
   try {
-    // const response = await fetch(url, {
-    //   method: "POST",
-    //   headers: {
-    //     Authorization: `Token ${token}`,
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(images),
-    // });
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Token ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(images),
+    });
 
-    // if (response.ok) {
-    //   const data = await response.json();
-    //   return data;
-    // } else {
-    //   const errorMessage = await response.json();
-    //   console.error("Error:", errorMessage);
-    //   throw new Error(errorMessage);
-    // }
-    console.log(images);
+    if (response.ok) {
+      return { data: "Image Successfully submitted!", success: true };
+    } else {
+      const errorMessage = await response.json();
+      console.error("Error:", errorMessage);
+      return { data: "Failed to submit images!", success: false };
+    }
   } catch (error) {
     console.error("Error:", error);
     throw error;
   }
 };
+
+export const postImageFile = async (imageFiles: ImageFiles[]) => {
+  const url = `${API_BASE_URL}api/images/file/`;
+  const token = getSessionStorage("Token");
+
+  try {
+    const uploadResults = [];
+
+    for (const imageFile of imageFiles) {
+      const formData = new FormData();
+      formData.append("photo", imageFile.photo);
+      formData.append("nationality", imageFile.nationality);
+      formData.append("room_type", imageFile.room_type);
+      formData.append("source", imageFile.source);
+      formData.append("temperature", imageFile.temperature);
+      formData.append("theme", imageFile.theme);
+      formData.append("color", imageFile.color);
+      formData.append("is_url", imageFile.is_url);
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        uploadResults.push({
+          data: "Image Successfully uploaded!",
+          success: true,
+        });
+      } else {
+        const errorMessage = await response.json();
+        console.error("Error:", errorMessage);
+        uploadResults.push({
+          data: `Failed to upload image!`,
+          success: false,
+        });
+      }
+    }
+
+    const allSuccessful = uploadResults.every((result) => result.success);
+
+    return {
+      success: allSuccessful,
+      data: allSuccessful
+        ? "All images uploaded successfully!"
+        : uploadResults.map((result) => result.data).join("\n"),
+    };
+  } catch (error) {
+    console.error("Error uploading images:", error);
+    return { success: false, data: "Failed to upload images!" };
+  }
+};
+
+export const getAllImage = async () => {};
