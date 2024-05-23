@@ -469,8 +469,9 @@ export const postImageFile = async (imageFiles: ImageFiles[]) => {
   }
 };
 
-export const getAllImage = async () => {
-  const url = `${API_BASE_URL}api/images/`;
+export const getAllImage = async (params?: { [key: string]: string }) => {
+  const query = params ? "?" + new URLSearchParams(params).toString() : "";
+  const url = `${API_BASE_URL}api/images/${query}`;
   const token = getSessionStorage("Token");
 
   try {

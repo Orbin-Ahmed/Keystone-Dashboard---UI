@@ -2,16 +2,41 @@
 import { getAllImage, ImageData } from "@/api";
 import { Select, TextField } from "@radix-ui/themes";
 import Image from "next/image";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import CustomButton from "../CustomButton";
 
 type FilterProps = {
   onAddImage: (newImages: ImageData[]) => void;
 };
 
 const Filter = ({ onAddImage }: FilterProps) => {
-  const getData = async () => {
+  const [roomType, setRoomType] = useState("");
+  const [source, setSource] = useState("");
+
+  const handleRoomTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setRoomType(e.target.value);
+  };
+
+  const handleSourceChange = (value: string) => {
+    setSource(value);
+  };
+
+  const handleFilter = () => {
+    const params: { [key: string]: string } = {};
+    if (roomType) params.room_type = roomType.toLowerCase();
+    if (source) params.source = source;
+    getData(params);
+  };
+
+  const handleReset = () => {
+    setRoomType("");
+    setSource("");
+    getData();
+  };
+
+  const getData = async (params?: { [key: string]: string }) => {
     try {
-      const response = await getAllImage();
+      const response = await getAllImage(params);
       onAddImage(response);
     } catch (e) {
       console.log(e);
@@ -22,16 +47,26 @@ const Filter = ({ onAddImage }: FilterProps) => {
     getData();
   }, []);
 
+  useEffect(() => {
+    handleFilter();
+  }, [source]);
+
   return (
     <>
       <div className="mb-8 mt-4 flex items-center justify-end gap-4">
         <div>
           <TextField.Root
-            placeholder="Search the docs…"
+            placeholder="Room Type"
             color="gray"
             radius="full"
+            value={roomType}
+            onChange={handleRoomTypeChange}
           >
-            <TextField.Slot color="gray">
+            <TextField.Slot
+              color="gray"
+              onClick={handleFilter}
+              className="cursor-pointer"
+            >
               <Image
                 src={"/images/search.png"}
                 alt={"magnifying glass"}
@@ -43,15 +78,21 @@ const Filter = ({ onAddImage }: FilterProps) => {
           </TextField.Root>
         </div>
         <div>
-          <Select.Root defaultValue="pinterest">
-            <Select.Trigger variant="soft" />
+          <Select.Root value={source} onValueChange={handleSourceChange}>
+            <Select.Trigger variant="soft" placeholder="ALL" />
             <Select.Content position="popper">
-              <Select.Item value="pinterest">Pinterest</Select.Item>
-              <Select.Item value="pexels">pexels</Select.Item>
-              <Select.Item value="unsplash">Unsplash</Select.Item>
-              <Select.Item value="pixabay">Pixabay</Select.Item>
+              <Select.Item value="Pinterest">Pinterest</Select.Item>
+              <Select.Item value="Pexels">Pexels</Select.Item>
+              <Select.Item value="Unsplash">Unsplash</Select.Item>
+              <Select.Item value="Pixabay">Pixabay</Select.Item>
+              <Select.Item value="Designer">Designer</Select.Item>
             </Select.Content>
           </Select.Root>
+        </div>
+        <div>
+          <CustomButton type="button" onClick={handleReset}>
+            Reset
+          </CustomButton>
         </div>
       </div>
     </>
