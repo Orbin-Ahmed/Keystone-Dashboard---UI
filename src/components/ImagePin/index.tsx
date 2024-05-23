@@ -2,12 +2,14 @@
 import {
   Button,
   Checkbox,
+  Dialog,
   DropdownMenu,
   Popover,
   Separator,
 } from "@radix-ui/themes";
 import Image from "next/image";
 import React from "react";
+import RemoveObject from "../ui/ImageEditDialogue/RemoveObject";
 
 interface PinClickEvent {
   index: number;
@@ -69,16 +71,91 @@ function ImagePin({
                 />
               </Button>
             </Popover.Trigger>
-            <Popover.Content size="1" maxWidth="300px" className="p-0">
-              <p className="cursor-pointer p-2 hover:bg-gray">Add Object</p>
+            <Popover.Content className="p-0">
+              {/* Add object start  */}
+              <Dialog.Root>
+                <Dialog.Trigger>
+                  <Button
+                    variant="soft"
+                    className="w-full cursor-pointer p-2 text-black hover:bg-gray dark:text-white"
+                  >
+                    Add Object
+                  </Button>
+                </Dialog.Trigger>
+                <RemoveObject
+                  title="Add Object"
+                  description="Please provide the image and select the area where you want to add the object from."
+                />
+              </Dialog.Root>
+              {/* Add object end  */}
               <Separator className="w-full" />
-              <p className="cursor-pointer p-2 hover:bg-gray">Remove Object</p>
+              {/* Remove object start  */}
+              <Dialog.Root>
+                <Dialog.Trigger>
+                  <Button
+                    variant="soft"
+                    className="w-full cursor-pointer p-2 text-black hover:bg-gray dark:text-white"
+                  >
+                    Remove Object
+                  </Button>
+                </Dialog.Trigger>
+                <RemoveObject
+                  title="Remove Object"
+                  description="Please provide the image and select the area where you want to remove the object from."
+                />
+              </Dialog.Root>
+              {/* Remove object end  */}
               <Separator className="w-full" />
-              <p className="cursor-pointer p-2 hover:bg-gray">Chat With AI</p>
+              {/* Chat With AI start  */}
+              <Dialog.Root>
+                <Dialog.Trigger>
+                  <Button
+                    variant="soft"
+                    className="w-full cursor-pointer p-2 text-black hover:bg-gray dark:text-white"
+                  >
+                    Chat With AI
+                  </Button>
+                </Dialog.Trigger>
+                <RemoveObject
+                  title="Chat With AI"
+                  description="Please provide the image and select the area where you want to remove the object from."
+                />
+              </Dialog.Root>
+              {/* Chat With AI start  */}
               <Separator className="w-full" />
-              <p className="cursor-pointer p-2 hover:bg-gray">Light Fix</p>
+              {/*  Fix Lighting start  */}
+              <Dialog.Root>
+                <Dialog.Trigger>
+                  <Button
+                    variant="soft"
+                    className="w-full cursor-pointer p-2 text-black hover:bg-gray dark:text-white"
+                  >
+                    Fix Lighting
+                  </Button>
+                </Dialog.Trigger>
+                <RemoveObject
+                  title=" Fix Lighting"
+                  description="Please provide the image and select the area where you want to remove the object from."
+                />
+              </Dialog.Root>
+              {/*  Fix Lighting start  */}
               <Separator className="w-full" />
-              <p className="cursor-pointer p-2 hover:bg-gray">Extend Image</p>
+              {/*  Extend Image start  */}
+              <Dialog.Root>
+                <Dialog.Trigger>
+                  <Button
+                    variant="soft"
+                    className="w-full cursor-pointer p-2 text-black hover:bg-gray dark:text-white"
+                  >
+                    Extend Image
+                  </Button>
+                </Dialog.Trigger>
+                <RemoveObject
+                  title=" Fix Lighting"
+                  description="Please provide the image and select the area where you want to remove the object from."
+                />
+              </Dialog.Root>
+              {/*  Extend Image start  */}
             </Popover.Content>
           </Popover.Root>
         </div>
