@@ -11,14 +11,17 @@
   "dependencies": {
     "@radix-ui/themes": "^3.0.3",
     "apexcharts": "^3.45.2",
+    "canvas": "^2.11.2",
     "class-variance-authority": "^0.7.0",
     "crypto-js": "^4.2.0",
     "flatpickr": "^4.6.13",
     "jsvectormap": "^1.5.3",
+    "konva": "^9.3.11",
     "next": "^14.2.3",
     "react": "^18",
     "react-apexcharts": "^1.4.1",
     "react-dom": "^18",
+    "react-konva": "^18.2.10",
     "react-toastify": "^10.0.5",
     "tailwind-merge": "^2.3.0",
     "yet-another-react-lightbox": "^3.18.0"

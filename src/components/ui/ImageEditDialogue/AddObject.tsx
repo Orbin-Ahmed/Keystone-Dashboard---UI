@@ -1,9 +1,8 @@
 "use client";
-import React, { useState, useRef } from "react";
 import CustomButton from "@/components/CustomButton";
 import { Dialog } from "@radix-ui/themes";
 import Image from "next/image";
-import { Stage, Layer, Line } from "react-konva";
+import React, { useState } from "react";
 
 type Props = {
   title: string;
@@ -13,9 +12,33 @@ type Props = {
 function RemoveObject({ title, description }: Props) {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string>("/images/ph.png");
-  const [lines, setLines] = useState<any[]>([]);
-  const isDrawing = useRef(false);
-  const stageRef = useRef<any>(null);
+  const { canvasRef, getDataUrl, clear } = useCanvasDraw();
+  const [maskData, setMaskData] = useState({ points: [] });
+  const [maskImage, setMaskImage] = useState(null); // State to store base64 encoded mask image
+
+  const handleDraw = (data) => {
+    setMaskData(data); // Update mask data based on drawing library events
+  };
+
+  const downloadMask = async () => {
+    if (maskData.points.length === 0) {
+      alert("Please draw a mask on the image!");
+      return;
+    }
+
+    const maskCanvas = canvasRef.current; // Get the canvas element
+    const maskDataURL = await getDataUrl(); // Get mask image data from library
+
+    // Convert maskDataURL to base64 encoded PNG image
+    const maskImage = await html2canvas(maskCanvas, {
+      allowTaint: true, // Enable capturing of canvas content
+      scale: 2, // Optional: Increase resolution for clearer mask
+    }).then((canvas) => {
+      return canvas.toDataURL("image/png");
+    });
+
+    setMaskImage(maskImage); // Update mask image state
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -25,75 +48,28 @@ function RemoveObject({ title, description }: Props) {
     }
   };
 
-  const handleMouseDown = () => {
-    isDrawing.current = true;
-    setLines([...lines, []]);
+  const handleRemoveImage = () => {
+    setSelectedImage(null);
+    setPreview("");
   };
-
-  const handleMouseMove = (e: any) => {
-    if (!isDrawing.current) return;
-
-    const stage = e.target.getStage();
-    const point = stage.getPointerPosition();
-    let lastLine = lines[lines.length - 1];
-    lastLine = lastLine.concat([point.x, point.y]);
-    lines.splice(lines.length - 1, 1, lastLine);
-    setLines(lines.concat());
-  };
-
-  const handleMouseUp = () => {
-    isDrawing.current = false;
-  };
-
-  const handleSaveMask = () => {
-    const stage = stageRef.current;
-    const dataURL = stage.toDataURL({ mimeType: "image/jpeg" });
-    console.log("Mask Image Data URL:", dataURL);
-  };
-
   return (
     <>
-      <Dialog.Content maxWidth="800px">
+      <Dialog.Content>
         <Dialog.Title>{title}</Dialog.Title>
         <Dialog.Description>{description}</Dialog.Description>
         <div className="flex items-center justify-center gap-4">
-          {/* Your Image */}
+          {/* Your Image  */}
           <div className="my-4 flex basis-2/5 flex-col items-center justify-center">
             <h3 className="mb-2 font-bold">Your Image</h3>
             {preview && (
-              <div
-                className="relative mb-2"
-                style={{ width: 300, height: 300, overflow: "hidden" }}
-              >
+              <div className="mb-2">
                 <Image
                   src={preview}
                   alt="Selected"
-                  layout="fill"
-                  objectFit="contain"
+                  width={200}
+                  height={200}
+                  className="object-contain"
                 />
-                <Stage
-                  width={300}
-                  height={300}
-                  onMouseDown={handleMouseDown}
-                  onMouseMove={handleMouseMove}
-                  onMouseUp={handleMouseUp}
-                  ref={stageRef}
-                  style={{ position: "absolute", top: 0, left: 0 }}
-                >
-                  <Layer>
-                    {lines.map((line, i) => (
-                      <Line
-                        key={i}
-                        points={line}
-                        stroke="red"
-                        strokeWidth={5}
-                        tension={0.5}
-                        lineCap="round"
-                        globalCompositeOperation="source-over"
-                      />
-                    ))}
-                  </Layer>
-                </Stage>
               </div>
             )}
             <input
@@ -101,12 +77,11 @@ function RemoveObject({ title, description }: Props) {
               type="file"
               accept="image/*"
               onChange={handleImageChange}
-              style={{ zIndex: 1 }}
             />
           </div>
-          {/* Your Image end */}
+          {/* Your Image end  */}
           <div>
-            <CustomButton className="pl-4" onClick={handleSaveMask}>
+            <CustomButton className="pl-4">
               <svg
                 className="ms-2 h-3.5 w-3.5 rtl:rotate-180"
                 aria-hidden="true"
@@ -131,8 +106,8 @@ function RemoveObject({ title, description }: Props) {
               <Image
                 src={preview}
                 alt="Selected"
-                width={300}
-                height={300}
+                width={200}
+                height={200}
                 className="object-contain"
               />
             </div>
@@ -140,7 +115,7 @@ function RemoveObject({ title, description }: Props) {
               <CustomButton className="m-0 py-1.5">Save</CustomButton>
             </Dialog.Close>
           </div>
-          {/* AI Response end */}
+          {/* AI Response end*/}
         </div>
       </Dialog.Content>
     </>
