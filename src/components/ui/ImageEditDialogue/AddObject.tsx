@@ -1,43 +1,29 @@
 "use client";
+import React, { useState, useRef } from "react";
 import CustomButton from "@/components/CustomButton";
-import { Dialog } from "@radix-ui/themes";
+import { Dialog, Slider } from "@radix-ui/themes";
 import Image from "next/image";
-import React, { useState } from "react";
+import { Stage, Layer, Line } from "react-konva";
 
 type Props = {
   title: string;
   description: string;
 };
 
-function RemoveObject({ title, description }: Props) {
+function AddObject({ title, description }: Props) {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string>("/images/ph.png");
-  const { canvasRef, getDataUrl, clear } = useCanvasDraw();
-  const [maskData, setMaskData] = useState({ points: [] });
-  const [maskImage, setMaskImage] = useState(null); // State to store base64 encoded mask image
+  const [lines, setLines] = useState<any[]>([]);
+  const [strokeWidth, setStrokeWidth] = useState<number>(15);
+  const isDrawing = useRef(false);
+  const stageRef = useRef<any>(null);
 
-  const handleDraw = (data) => {
-    setMaskData(data); // Update mask data based on drawing library events
+  const handleStrokeWidthChange = (value: number[]) => {
+    setStrokeWidth(value[0]);
   };
 
-  const downloadMask = async () => {
-    if (maskData.points.length === 0) {
-      alert("Please draw a mask on the image!");
-      return;
-    }
-
-    const maskCanvas = canvasRef.current; // Get the canvas element
-    const maskDataURL = await getDataUrl(); // Get mask image data from library
-
-    // Convert maskDataURL to base64 encoded PNG image
-    const maskImage = await html2canvas(maskCanvas, {
-      allowTaint: true, // Enable capturing of canvas content
-      scale: 2, // Optional: Increase resolution for clearer mask
-    }).then((canvas) => {
-      return canvas.toDataURL("image/png");
-    });
-
-    setMaskImage(maskImage); // Update mask image state
+  const handleResetLines = () => {
+    setLines([]);
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,40 +34,105 @@ function RemoveObject({ title, description }: Props) {
     }
   };
 
-  const handleRemoveImage = () => {
-    setSelectedImage(null);
-    setPreview("");
+  const handleMouseDown = () => {
+    isDrawing.current = true;
+    setLines([...lines, []]);
   };
+
+  const handleMouseMove = (e: any) => {
+    if (!isDrawing.current) return;
+
+    const stage = e.target.getStage();
+    const point = stage.getPointerPosition();
+    let lastLine = lines[lines.length - 1];
+    lastLine = lastLine.concat([point.x, point.y]);
+    lines.splice(lines.length - 1, 1, lastLine);
+    setLines(lines.concat());
+  };
+
+  const handleMouseUp = () => {
+    isDrawing.current = false;
+  };
+
+  const handleSaveMask = () => {
+    const stage = stageRef.current;
+    const dataURL = stage.toDataURL({ mimeType: "image/jpeg" });
+    console.log("Mask Image Data URL:", dataURL);
+  };
+
   return (
     <>
-      <Dialog.Content>
+      <Dialog.Content maxWidth="800px">
         <Dialog.Title>{title}</Dialog.Title>
         <Dialog.Description>{description}</Dialog.Description>
+        <div className="flex items-center justify-between gap-6">
+          <div className="mb-4">
+            <h3 className="mb-2 font-bold">Adjust Brush Size</h3>
+            <Slider
+              defaultValue={[15]}
+              color="gray"
+              onValueChange={handleStrokeWidthChange}
+            />
+          </div>
+          <div>
+            <CustomButton className="pl-4" onClick={handleResetLines}>
+              Reset
+            </CustomButton>
+          </div>
+        </div>
         <div className="flex items-center justify-center gap-4">
-          {/* Your Image  */}
+          {/* Your Image */}
           <div className="my-4 flex basis-2/5 flex-col items-center justify-center">
             <h3 className="mb-2 font-bold">Your Image</h3>
             {preview && (
-              <div className="mb-2">
+              <div
+                className="relative mb-2"
+                style={{ width: 300, height: 300, overflow: "hidden" }}
+              >
                 <Image
                   src={preview}
                   alt="Selected"
-                  width={200}
-                  height={200}
-                  className="object-contain"
+                  layout="fill"
+                  objectFit="contain"
                 />
+                <Stage
+                  width={300}
+                  height={300}
+                  onMouseDown={handleMouseDown}
+                  onMouseMove={handleMouseMove}
+                  onMouseUp={handleMouseUp}
+                  ref={stageRef}
+                  style={{ position: "absolute", top: 0, left: 0 }}
+                >
+                  <Layer>
+                    {lines.map((line, i) => (
+                      <Line
+                        key={i}
+                        points={line}
+                        stroke="red"
+                        strokeWidth={strokeWidth}
+                        tension={0.5}
+                        lineCap="round"
+                        globalCompositeOperation="source-over"
+                      />
+                    ))}
+                  </Layer>
+                </Stage>
               </div>
             )}
-            <input
-              className="w-full cursor-pointer rounded border border-stroke bg-white text-sm font-medium text-graydark file:mr-4 file:cursor-pointer file:border-0 file:bg-primary file:px-4 file:py-1.5 file:text-white file:hover:bg-primary"
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-            />
+            <div>
+              <input
+                className="mt-2 w-full cursor-pointer rounded border border-stroke bg-white text-sm font-medium text-graydark file:mr-4 file:cursor-pointer file:border-0 file:bg-primary file:px-4 file:py-1.5 file:text-white file:hover:bg-primary"
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                style={{ zIndex: 1 }}
+              />
+            </div>
           </div>
-          {/* Your Image end  */}
+          {/* Your Image end */}
           <div>
-            <CustomButton className="pl-4">
+            <CustomButton className="pl-4" onClick={handleSaveMask}>
               <svg
                 className="ms-2 h-3.5 w-3.5 rtl:rotate-180"
                 aria-hidden="true"
@@ -106,8 +157,8 @@ function RemoveObject({ title, description }: Props) {
               <Image
                 src={preview}
                 alt="Selected"
-                width={200}
-                height={200}
+                width={300}
+                height={300}
                 className="object-contain"
               />
             </div>
@@ -115,11 +166,11 @@ function RemoveObject({ title, description }: Props) {
               <CustomButton className="m-0 py-1.5">Save</CustomButton>
             </Dialog.Close>
           </div>
-          {/* AI Response end*/}
+          {/* AI Response end */}
         </div>
       </Dialog.Content>
     </>
   );
 }
 
-export default RemoveObject;
+export default AddObject;

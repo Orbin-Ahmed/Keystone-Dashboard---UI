@@ -10,6 +10,7 @@ import {
 import Image from "next/image";
 import React from "react";
 import RemoveObject from "../ui/ImageEditDialogue/RemoveObject";
+import AddObject from "../ui/ImageEditDialogue/AddObject";
 
 interface PinClickEvent {
   index: number;
@@ -82,7 +83,7 @@ function ImagePin({
                     Add Object
                   </Button>
                 </Dialog.Trigger>
-                <RemoveObject
+                <AddObject
                   title="Add Object"
                   description="Please provide the image and select the area where you want to add the object from."
                 />
@@ -102,6 +103,7 @@ function ImagePin({
                 <RemoveObject
                   title="Remove Object"
                   description="Please provide the image and select the area where you want to remove the object from."
+                  src={imgSrc}
                 />
               </Dialog.Root>
               {/* Remove object end  */}
@@ -116,7 +118,7 @@ function ImagePin({
                     Chat With AI
                   </Button>
                 </Dialog.Trigger>
-                <RemoveObject
+                <AddObject
                   title="Chat With AI"
                   description="Please provide the image and select the area where you want to remove the object from."
                 />
@@ -133,7 +135,7 @@ function ImagePin({
                     Fix Lighting
                   </Button>
                 </Dialog.Trigger>
-                <RemoveObject
+                <AddObject
                   title=" Fix Lighting"
                   description="Please provide the image and select the area where you want to remove the object from."
                 />
@@ -150,7 +152,7 @@ function ImagePin({
                     Extend Image
                   </Button>
                 </Dialog.Trigger>
-                <RemoveObject
+                <AddObject
                   title=" Fix Lighting"
                   description="Please provide the image and select the area where you want to remove the object from."
                 />
