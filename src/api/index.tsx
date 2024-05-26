@@ -494,6 +494,7 @@ export const getAllImage = async (params?: { [key: string]: string }) => {
   }
 };
 
+// AI Editor
 export const removeObject = async (
   inputImageLink: string,
   maskImage: string,
@@ -549,6 +550,43 @@ export const fixLight = async (inputImageLink: string) => {
 
   const data = {
     input_image_link: inputImageLink,
+  };
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    } else {
+      const errorMessage = await response.json();
+      console.error(errorMessage);
+      throw new Error(errorMessage.message || "Something went wrong");
+    }
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const extendImage = async (inputImageLink: string) => {
+  const url = "https://prodapi.phot.ai/external/api/v2/user_activity/outpaint";
+  const apiKey = process.env.NEXT_PUBLIC_PHOT_AI_API_KEY;
+
+  if (!apiKey) {
+    throw new Error("API key is not defined");
+  }
+
+  const data = {
+    input_image_link: inputImageLink,
+    aspect_ratio: "LANDSCAPE",
   };
 
   try {

@@ -3,7 +3,7 @@ import React, { useState, useRef } from "react";
 import CustomButton from "@/components/CustomButton";
 import { Dialog, Spinner } from "@radix-ui/themes";
 import Image from "next/image";
-import { fixLight } from "@/api";
+import { extendImage } from "@/api";
 
 type Props = {
   title: string;
@@ -11,11 +11,11 @@ type Props = {
   src: string;
 };
 
-function FixLight({ title, description, src }: Props) {
+function ExtendImage({ title, description, src }: Props) {
   const [preview, setPreview] = useState<string>("/images/ph.png");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLightFix = async () => {
+  const handleImageExtend = async () => {
     setIsLoading(true);
 
     if (!src) {
@@ -27,9 +27,9 @@ function FixLight({ title, description, src }: Props) {
     const inputImageLink = src;
 
     try {
-      const response = await fixLight(inputImageLink);
-      if (response.data && response.data["2k"] && response.data["2k"].url) {
-        const outputUrl = response.data["2k"].url;
+      const response = await extendImage(inputImageLink);
+      if (response.data && response.data.url) {
+        const outputUrl = response.data.url;
         setPreview(outputUrl);
       } else {
         console.error("Error in response:", response);
@@ -75,7 +75,7 @@ function FixLight({ title, description, src }: Props) {
           <div>
             <CustomButton
               className={isLoading ? "" : "pl-4"}
-              onClick={handleLightFix}
+              onClick={handleImageExtend}
               disabled={isLoading}
             >
               {isLoading ? (
@@ -122,4 +122,4 @@ function FixLight({ title, description, src }: Props) {
   );
 }
 
-export default FixLight;
+export default ExtendImage;

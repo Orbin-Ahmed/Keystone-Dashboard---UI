@@ -12,6 +12,7 @@ import React from "react";
 import RemoveObject from "../ui/ImageEditDialogue/RemoveObject";
 import AddObject from "../ui/ImageEditDialogue/AddObject";
 import FixLight from "../ui/ImageEditDialogue/FixLight";
+import ExtendImage from "../ui/ImageEditDialogue/ExtendImage";
 
 interface PinClickEvent {
   index: number;
@@ -154,9 +155,10 @@ function ImagePin({
                     Extend Image
                   </Button>
                 </Dialog.Trigger>
-                <AddObject
+                <ExtendImage
                   title=" Fix Lighting"
                   description="Please provide the image and select the area where you want to remove the object from."
+                  src={imgSrc}
                 />
               </Dialog.Root>
               {/*  Extend Image start  */}
