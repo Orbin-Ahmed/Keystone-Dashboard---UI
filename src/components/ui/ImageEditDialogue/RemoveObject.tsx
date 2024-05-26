@@ -12,6 +12,8 @@ type Props = {
   src: string;
 };
 
+type Base64String = string;
+
 function RemoveObject({ title, description, src }: Props) {
   const [result, setResult] = useState<string>("/images/ph.png");
   const [lines, setLines] = useState<any[]>([]);
@@ -24,13 +26,11 @@ function RemoveObject({ title, description, src }: Props) {
   };
 
   // Brush Area Reset
-
   const handleResetLines = () => {
     setLines([]);
   };
 
   // brush Handle Function Area
-
   const handleMouseDown = () => {
     isDrawing.current = true;
     setLines([...lines, []]);
@@ -59,13 +59,17 @@ function RemoveObject({ title, description, src }: Props) {
       const inputImageLink = src;
 
       try {
-        const response = await removeObject(inputImageLink, dataURL);
-        if (response.status === "success" && response.output_urls.length > 0) {
-          const outputUrl = response.output_urls[0];
-          setResult(outputUrl);
-        } else {
-          console.error("Error in response:", response);
-        }
+        let resizedDataURL;
+        getImageDimensions(inputImageLink).then(async ({ width, height }) => {
+          resizedDataURL = await resizeBase64Img(dataURL, width, height);
+          const response = await removeObject(inputImageLink, resizedDataURL);
+        });
+        // if (response.status === "success" && response.output_urls.length > 0) {
+        //   const outputUrl = response.output_urls[0];
+        //   setResult(outputUrl);
+        // } else {
+        //   console.error("Error in response:", response);
+        // }
       } catch (error) {
         console.error("Error in object replacement:", error);
       }
@@ -73,6 +77,42 @@ function RemoveObject({ title, description, src }: Props) {
       console.error("No image source provided");
     }
   };
+
+  // Resized the Base64 String
+  function resizeBase64Img(
+    base64: string,
+    width: number,
+    height: number,
+  ): Promise<Base64String> {
+    return new Promise((resolve, reject) => {
+      const img = new window.Image();
+      img.src = base64;
+      img.onload = function () {
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx?.drawImage(img, 0, 0, width, height);
+        const resizedBase64 = canvas.toDataURL("image/jpeg");
+        resolve(resizedBase64);
+      };
+      img.onerror = reject;
+    });
+  }
+
+  // Get the image height and width
+  function getImageDimensions(
+    url: string,
+  ): Promise<{ width: number; height: number }> {
+    return new Promise((resolve, reject) => {
+      const img = new window.Image();
+      img.onload = () => {
+        resolve({ width: img.naturalWidth, height: img.naturalHeight });
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
+  }
 
   return (
     <>
