@@ -32,7 +32,7 @@ function FixLight({ title, description, src, id, is_url }: Props) {
     try {
       const response = await fixLight(inputImageLink);
       if (response.data && response.data["2k"] && response.data["2k"].url) {
-        const outputUrl = response.data["2k"].url;
+        let outputUrl = response.data["2k"].url;
         setPreview(outputUrl);
       } else {
         console.error("Error in response:", response);

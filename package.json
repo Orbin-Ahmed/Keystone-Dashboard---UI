@@ -22,6 +22,7 @@
     "react-apexcharts": "^1.4.1",
     "react-dom": "^18",
     "react-konva": "^18.2.10",
+    "react-sketch-canvas": "^6.2.0",
     "react-toastify": "^10.0.5",
     "tailwind-merge": "^2.3.0",
     "yet-another-react-lightbox": "^3.18.0"

@@ -49,8 +49,15 @@ function ExtendImage({ title, description, src, id, is_url }: Props) {
       return;
     }
 
+    let downloadUrl = preview;
     const urlParts = preview.split("/");
-    const fileName = urlParts[urlParts.length - 1];
+    let fileName = urlParts[urlParts.length - 1];
+
+    // Check if the URL ends with '.null' and replace it with '.jpg'
+    if (fileName.endsWith(".null")) {
+      fileName = fileName.replace(".null", ".jpg");
+      downloadUrl = downloadUrl.replace(".null", ".jpg");
+    }
 
     const link = document.createElement("a");
     link.href = preview;
