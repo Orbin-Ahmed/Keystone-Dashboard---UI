@@ -41,6 +41,23 @@ function ExtendImage({ title, description, src }: Props) {
     }
   };
 
+  const handleDownload = () => {
+    if (!preview || preview === "/images/ph.png") {
+      console.error("No image to download");
+      return;
+    }
+
+    const urlParts = preview.split("/");
+    const fileName = urlParts[urlParts.length - 1];
+
+    const link = document.createElement("a");
+    link.href = preview;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <>
       <Dialog.Content maxWidth="800px">
@@ -111,9 +128,16 @@ function ExtendImage({ title, description, src }: Props) {
                 className="object-contain"
               />
             </div>
-            <Dialog.Close>
+            <div className="flex items-center justify-between gap-4">
+              <CustomButton
+                variant="secondary"
+                className="m-0 py-1.5"
+                onClick={handleDownload}
+              >
+                Download
+              </CustomButton>
               <CustomButton className="m-0 py-1.5">Save</CustomButton>
-            </Dialog.Close>
+            </div>
           </div>
           {/* AI Response end */}
         </div>
