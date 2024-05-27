@@ -13,6 +13,7 @@ import RemoveObject from "../ui/ImageEditDialogue/RemoveObject";
 import AddObject from "../ui/ImageEditDialogue/AddObject";
 import FixLight from "../ui/ImageEditDialogue/FixLight";
 import ExtendImage from "../ui/ImageEditDialogue/ExtendImage";
+import ChatWithAI from "../ui/ImageEditDialogue/ChatWithAI";
 
 interface PinClickEvent {
   index: number;
@@ -120,9 +121,10 @@ function ImagePin({
                     Chat With AI
                   </Button>
                 </Dialog.Trigger>
-                <AddObject
+                <ChatWithAI
                   title="Chat With AI"
                   description="Please provide the image and select the area where you want to remove the object from."
+                  src={imgSrc}
                 />
               </Dialog.Root>
               {/* Chat With AI start  */}
