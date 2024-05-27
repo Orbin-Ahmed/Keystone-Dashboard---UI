@@ -550,6 +550,7 @@ export const fixLight = async (inputImageLink: string) => {
 
   const data = {
     input_image_link: inputImageLink,
+    file_name: "fix_light.jpg",
   };
 
   try {
@@ -648,5 +649,34 @@ export const chatWithAI = async (inputImageLink: string, prompt: string) => {
   } catch (error) {
     console.error(error);
     throw error;
+  }
+};
+
+export const patchImage = async (photo: string, id: string, is_url: string) => {
+  const url = `${API_BASE_URL}api/images/`;
+  const token = getSessionStorage("Token");
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${token}`,
+      },
+      body: JSON.stringify({
+        photo,
+        id,
+        is_url,
+      }),
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      const errorMessage = await response.json();
+      console.log(errorMessage);
+    }
+  } catch (e) {
+    console.log(e);
   }
 };

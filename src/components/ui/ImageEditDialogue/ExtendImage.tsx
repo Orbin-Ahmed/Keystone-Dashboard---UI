@@ -3,15 +3,17 @@ import React, { useState, useRef } from "react";
 import CustomButton from "@/components/CustomButton";
 import { Dialog, Spinner } from "@radix-ui/themes";
 import Image from "next/image";
-import { extendImage } from "@/api";
+import { extendImage, patchImage } from "@/api";
 
 type Props = {
   title: string;
   description: string;
   src: string;
+  id: string;
+  is_url: string;
 };
 
-function ExtendImage({ title, description, src }: Props) {
+function ExtendImage({ title, description, src, id, is_url }: Props) {
   const [preview, setPreview] = useState<string>("/images/ph.png");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -56,6 +58,21 @@ function ExtendImage({ title, description, src }: Props) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleSave = async () => {
+    try {
+      setIsLoading(true);
+      const response = await patchImage(preview, id, is_url);
+      if (response.ok) {
+      } else {
+        console.log(response);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -136,7 +153,16 @@ function ExtendImage({ title, description, src }: Props) {
               >
                 Download
               </CustomButton>
-              <CustomButton className="m-0 py-1.5">Save</CustomButton>
+              <CustomButton
+                className="m-0 py-1.5"
+                disabled={isLoading}
+                onClick={handleSave}
+              >
+                <div className="flex items-center justify-center">
+                  <span className="mr-2">Save</span>
+                  <Spinner loading={isLoading}></Spinner>
+                </div>
+              </CustomButton>
             </div>
           </div>
           {/* AI Response end */}

@@ -23,10 +23,11 @@ type ImagePinProps = {
   pinSize: string;
   imgSrc: string;
   name?: string;
-  id?: string;
+  id: string;
   idx: number;
   checked?: boolean;
   getPage?: boolean;
+  is_url: string;
   onCheckboxChange?: () => void;
   onClick?: (event: PinClickEvent) => void;
   setIndex: (index: number) => void;
@@ -40,6 +41,8 @@ function ImagePin({
   idx,
   checked,
   getPage,
+  id,
+  is_url,
 }: ImagePinProps) {
   return (
     <div className={`pin ${pinSize}`}>
@@ -141,8 +144,10 @@ function ImagePin({
                 </Dialog.Trigger>
                 <FixLight
                   title=" Fix Lighting"
-                  description="Please provide the image and select the area where you want to remove the object from."
+                  description="Please Click the arrow key to apply AI to fix the light in the image."
                   src={imgSrc}
+                  id={id}
+                  is_url={is_url}
                 />
               </Dialog.Root>
               {/*  Fix Lighting start  */}
@@ -158,9 +163,11 @@ function ImagePin({
                   </Button>
                 </Dialog.Trigger>
                 <ExtendImage
-                  title=" Fix Lighting"
-                  description="Please provide the image and select the area where you want to remove the object from."
+                  title=" Extend Image"
+                  description="Please Click the arrow key to apply AI to extend the image to widescreen ratio."
                   src={imgSrc}
+                  id={id}
+                  is_url={is_url}
                 />
               </Dialog.Root>
               {/*  Extend Image start  */}

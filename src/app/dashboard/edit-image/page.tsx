@@ -42,6 +42,7 @@ const EditImage = ({}: Props) => {
                 idx={i}
                 setIndex={setIndex}
                 getPage={true}
+                is_url={imgObject.is_url}
               />
             ))}
           </div>
