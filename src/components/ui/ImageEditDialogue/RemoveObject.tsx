@@ -59,10 +59,9 @@ function RemoveObject({ title, description, src }: Props) {
       const inputImageLink = src;
 
       try {
-        let resizedDataURL;
         getImageDimensions(inputImageLink).then(async ({ width, height }) => {
-          resizedDataURL = await resizeBase64Img(dataURL, width, height);
-          const response = await removeObject(inputImageLink, dataURL);
+          const resizedDataURL = await resizeBase64Img(dataURL, width, height);
+          const response = await removeObject(inputImageLink, resizedDataURL);
         });
         // if (response.status === "success" && response.output_urls.length > 0) {
         //   const outputUrl = response.output_urls[0];
