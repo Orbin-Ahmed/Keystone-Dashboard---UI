@@ -1,11 +1,12 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import CustomButton from "@/components/CustomButton";
 import { Dialog, Slider, Spinner } from "@radix-ui/themes";
 import Image from "next/image";
 import { Stage, Layer, Line } from "react-konva";
 import { patchImage, removeObject } from "@/api";
 import pica from "pica";
+import { getSessionStorage } from "@/utils";
 
 type Props = {
   title: string;
@@ -24,6 +25,7 @@ function RemoveObject({ title, description, src, id, is_url }: Props) {
   const isDrawing = useRef(false);
   const stageRef = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [creds, setCreds] = useState<number>(0);
 
   const handleStrokeWidthChange = (value: number[]) => {
     setStrokeWidth(value[0]);
@@ -164,10 +166,18 @@ function RemoveObject({ title, description, src, id, is_url }: Props) {
     }
   };
 
+  useEffect(() => {
+    const credit = getSessionStorage("Creds");
+    if (credit) {
+      setCreds(parseInt(credit));
+    }
+  }, [creds]);
   return (
     <>
       <Dialog.Content maxWidth="800px">
-        <Dialog.Title>{title}</Dialog.Title>
+        <Dialog.Title>
+          {title} (Credits: {creds})
+        </Dialog.Title>
         <Dialog.Description>{description}</Dialog.Description>
         <div className="flex items-center justify-between gap-6">
           <div className="mb-4">

@@ -92,6 +92,9 @@ function ImagePin({
                 <AddObject
                   title="Add Object"
                   description="Please provide the image and select the area where you want to add the object from."
+                  src={imgSrc}
+                  id={id}
+                  is_url={is_url}
                 />
               </Dialog.Root>
               {/* Add object end  */}

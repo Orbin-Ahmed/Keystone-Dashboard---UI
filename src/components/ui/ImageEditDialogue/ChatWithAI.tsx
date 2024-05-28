@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import CustomButton from "@/components/CustomButton";
 import { Dialog, Spinner } from "@radix-ui/themes";
 import Image from "next/image";
 import { ChatData, chatWithAI, patchImage } from "@/api";
 import InputField from "@/components/InputField";
+import { getSessionStorage } from "@/utils";
 
 type Props = {
   title: string;
@@ -20,6 +21,7 @@ function ChatWithAI({ title, description, src, id, is_url }: Props) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [prompt, setPrompt] = useState<string>("");
   const [style, setStyle] = useState<string>("");
+  const [creds, setCreds] = useState<number>(0);
 
   const handlePromptChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPrompt(event.target.value);
@@ -98,10 +100,19 @@ function ChatWithAI({ title, description, src, id, is_url }: Props) {
     }
   };
 
+  useEffect(() => {
+    const credit = getSessionStorage("Creds");
+    if (credit) {
+      setCreds(parseInt(credit));
+    }
+  }, [creds]);
+
   return (
     <>
       <Dialog.Content maxWidth="800px">
-        <Dialog.Title>{title}</Dialog.Title>
+        <Dialog.Title>
+          {title} (Credits: {creds})
+        </Dialog.Title>
         <Dialog.Description>{description}</Dialog.Description>
         <div className="mt-4 flex w-full items-center justify-around gap-4">
           <div className="mb-2">

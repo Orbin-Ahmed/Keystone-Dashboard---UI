@@ -1,9 +1,10 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import CustomButton from "@/components/CustomButton";
 import { Dialog, Spinner } from "@radix-ui/themes";
 import Image from "next/image";
 import { extendImage, patchImage } from "@/api";
+import { getSessionStorage } from "@/utils";
 
 type Props = {
   title: string;
@@ -16,6 +17,7 @@ type Props = {
 function ExtendImage({ title, description, src, id, is_url }: Props) {
   const [preview, setPreview] = useState<string>("/images/ph.png");
   const [isLoading, setIsLoading] = useState(false);
+  const [creds, setCreds] = useState<number>(0);
 
   const handleImageExtend = async () => {
     setIsLoading(true);
@@ -82,10 +84,19 @@ function ExtendImage({ title, description, src, id, is_url }: Props) {
     }
   };
 
+  useEffect(() => {
+    const credit = getSessionStorage("Creds");
+    if (credit) {
+      setCreds(parseInt(credit));
+    }
+  }, [creds]);
+
   return (
     <>
       <Dialog.Content maxWidth="800px">
-        <Dialog.Title>{title}</Dialog.Title>
+        <Dialog.Title>
+          {title} (Credits: {creds})
+        </Dialog.Title>
         <Dialog.Description>{description}</Dialog.Description>
         <div className="flex items-center justify-center gap-4">
           {/* Your Image */}

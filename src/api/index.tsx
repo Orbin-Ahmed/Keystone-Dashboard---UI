@@ -504,7 +504,10 @@ export const getAllImage = async (params?: { [key: string]: string }) => {
 };
 
 // AI Editor
-export const removeObject = async (inputImageLink: string, maskImage: any) => {
+export const removeObject = async (
+  inputImageLink: string,
+  maskImage: string,
+) => {
   const url =
     "https://prodapi.phot.ai/external/api/v2/user_activity/object-replacer";
   const apiKey = process.env.NEXT_PUBLIC_PHOT_AI_API_KEY;
@@ -531,6 +534,8 @@ export const removeObject = async (inputImageLink: string, maskImage: any) => {
 
     if (response.ok) {
       const responseData = await response.json();
+      const credits = responseData.remainingCredits;
+      storeSessionStorage("Creds", String(credits));
       return responseData;
     } else {
       const errorMessage = await response.json();
@@ -569,6 +574,8 @@ export const fixLight = async (inputImageLink: string) => {
 
     if (response.ok) {
       const responseData = await response.json();
+      const credits = responseData.remainingCredits;
+      storeSessionStorage("Creds", String(credits));
       return responseData;
     } else {
       const errorMessage = await response.json();
@@ -606,6 +613,8 @@ export const extendImage = async (inputImageLink: string) => {
 
     if (response.ok) {
       const responseData = await response.json();
+      const credits = responseData.remainingCredits;
+      storeSessionStorage("Creds", String(credits));
       return responseData;
     } else {
       const errorMessage = await response.json();
@@ -639,6 +648,8 @@ export const chatWithAI = async (chatData: ChatData) => {
 
     if (response.ok) {
       const responseData = await response.json();
+      const credits = responseData.remainingCredits;
+      storeSessionStorage("Creds", String(credits));
       return responseData;
     } else {
       const errorMessage = await response.json();
@@ -649,6 +660,103 @@ export const chatWithAI = async (chatData: ChatData) => {
     console.error(error);
     throw error;
   }
+};
+
+export const addObject = async (
+  inputImageLink: string,
+  maskImage: string,
+  prompt: string,
+) => {
+  const url =
+    "https://prodapi.phot.ai/external/api/v2/user_activity/object-replacer";
+  const apiKey = process.env.NEXT_PUBLIC_PHOT_AI_API_KEY;
+
+  if (!apiKey) {
+    throw new Error("API key is not defined");
+  }
+
+  const data = {
+    input_image_link: inputImageLink,
+    mask_image: maskImage,
+    file_name: "add_object.jpeg",
+    prompt: `add ${prompt}`,
+  };
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (response.ok) {
+      const responseData = await response.json();
+      const credits = responseData.remainingCredits;
+      storeSessionStorage("Creds", String(credits));
+      const object_id = responseData.order_id;
+      const result = await getObjectWhenReady(object_id);
+      return result;
+    } else {
+      const errorMessage = await response.json();
+      console.error(errorMessage);
+      throw new Error(errorMessage.message || "Something went wrong");
+    }
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const getObject = async (order_id: string) => {
+  const url = `https://prodapi.phot.ai/external/api/v2/user_activity/order-status?order_id=${order_id}`;
+  const apiKey = process.env.NEXT_PUBLIC_PHOT_AI_API_KEY;
+
+  if (!apiKey) {
+    throw new Error("API key is not defined");
+  }
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "x-api-key": apiKey,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    } else {
+      const errorMessage = await response.json();
+      console.error(errorMessage);
+      throw new Error(errorMessage.message || "Something went wrong");
+    }
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+const delay = async (ms: number) => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
+const getObjectWhenReady = async (order_id: string) => {
+  let responseData;
+
+  await delay(3000);
+
+  do {
+    responseData = await getObject(order_id);
+    if (responseData.order_status_code === 200) {
+      return responseData;
+    }
+    await delay(3000);
+  } while (responseData.order_status_code !== 200);
 };
 
 export const patchImage = async (photo: string, id: string, is_url: string) => {
