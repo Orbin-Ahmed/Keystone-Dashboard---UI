@@ -128,6 +128,8 @@ function ImagePin({
                   title="Chat With AI"
                   description="Please provide the image and select the area where you want to remove the object from."
                   src={imgSrc}
+                  id={id}
+                  is_url={is_url}
                 />
               </Dialog.Root>
               {/* Chat With AI start  */}

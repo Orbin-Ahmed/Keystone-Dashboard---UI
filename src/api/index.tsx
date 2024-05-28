@@ -51,6 +51,16 @@ export type ImageFiles = {
   is_url: string;
 };
 
+export interface ChatData {
+  prompt: string;
+  input_image_link: string;
+  num_outputs: number;
+  aspect_ratio: string;
+  studio_options: {
+    style: string[];
+  };
+}
+
 export const register = async ({
   username,
   email,
@@ -611,19 +621,14 @@ export const extendImage = async (inputImageLink: string) => {
   }
 };
 
-export const chatWithAI = async (inputImageLink: string, prompt: string) => {
+export const chatWithAI = async (chatData: ChatData) => {
   const url =
-    "https://prodapi.phot.ai/external/api/v2/user_activity/edit-photo";
+    "https://prodapi.phot.ai/external/api/v2/user_activity/create-art";
   const apiKey = process.env.NEXT_PUBLIC_PHOT_AI_API_KEY;
 
   if (!apiKey) {
     throw new Error("API key is not defined");
   }
-
-  const data = {
-    input_image_link: inputImageLink,
-    prompt: prompt,
-  };
 
   try {
     const response = await fetch(url, {
@@ -632,7 +637,7 @@ export const chatWithAI = async (inputImageLink: string, prompt: string) => {
         "x-api-key": apiKey,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(chatData),
     });
 
     if (response.ok) {
