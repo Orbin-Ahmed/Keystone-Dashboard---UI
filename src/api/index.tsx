@@ -520,29 +520,29 @@ export const removeObject = async (inputImageLink: string, maskImage: any) => {
 
   console.log(data);
 
-  // try {
-  //   const response = await fetch(url, {
-  //     method: "POST",
-  //     headers: {
-  //       "x-api-key": apiKey,
-  //       "Content-Type": "application/json",
-  //     },
-  //     body: JSON.stringify(data),
-  //   });
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
 
-  //   if (response.ok) {
-  //     const responseData = await response.json();
-  //     console.log(responseData);
-  //     return responseData;
-  //   } else {
-  //     const errorMessage = await response.json();
-  //     console.error(errorMessage);
-  //     throw new Error(errorMessage.message || "Something went wrong");
-  //   }
-  // } catch (error) {
-  //   console.error(error);
-  //   throw error;
-  // }
+    if (response.ok) {
+      const responseData = await response.json();
+      console.log(responseData);
+      return responseData;
+    } else {
+      const errorMessage = await response.json();
+      console.error(errorMessage);
+      throw new Error(errorMessage.message || "Something went wrong");
+    }
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
 };
 
 export const fixLight = async (inputImageLink: string) => {

@@ -59,25 +59,22 @@ function RemoveObject({ title, description, src, id, is_url }: Props) {
   const handleSaveMask = async () => {
     const stage = stageRef.current;
     const dataURL = stage.toDataURL({ mimeType: "image/jpeg" });
+    setIsLoading(true);
 
     if (src) {
-      setIsLoading(true);
       const inputImageLink = src;
 
       try {
-        getImageDimensions(inputImageLink).then(async ({ width, height }) => {
-          const resizedDataURL = await resizeBase64Img(dataURL, width, height);
-          const response = await removeObject(inputImageLink, resizedDataURL);
-          // if (
-          //   response.status === "success" &&
-          //   response.output_urls.length > 0
-          // ) {
-          //   const outputUrl = response.output_urls[0];
-          //   setResult(outputUrl);
-          // } else {
-          //   console.error("Error in response:", response);
-          // }
-        });
+        const { width, height } = await getImageDimensions(inputImageLink);
+        const resizedDataURL = await resizeBase64Img(dataURL, width, height);
+        const response = await removeObject(inputImageLink, resizedDataURL);
+
+        if (response.status === "success" && response.output_urls.length > 0) {
+          const outputUrl = response.output_urls[0];
+          setResult(outputUrl);
+        } else {
+          console.error("Error in response:", response);
+        }
       } catch (error) {
         console.error("Error in object replacement:", error);
       } finally {
@@ -85,6 +82,7 @@ function RemoveObject({ title, description, src, id, is_url }: Props) {
       }
     } else {
       console.error("No image source provided");
+      setIsLoading(false);
     }
   };
 
@@ -202,7 +200,7 @@ function RemoveObject({ title, description, src, id, is_url }: Props) {
                         points={line}
                         stroke="white"
                         strokeWidth={strokeWidth}
-                        tension={0.5}
+                        tension={0.1}
                         lineCap="round"
                         globalCompositeOperation="source-over"
                       />
@@ -221,22 +219,30 @@ function RemoveObject({ title, description, src, id, is_url }: Props) {
           </div>
           {/* Your Image end */}
           <div>
-            <CustomButton className="pl-4" onClick={handleSaveMask}>
-              <svg
-                className="ms-2 h-3.5 w-3.5 rtl:rotate-180"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 14 10"
-              >
-                <path
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M1 5h12m0 0L9 1m4 4L9 9"
-                />
-              </svg>
+            <CustomButton
+              className={isLoading ? "" : "pl-4"}
+              onClick={handleSaveMask}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Spinner loading={isLoading}></Spinner>
+              ) : (
+                <svg
+                  className="ms-2 h-3.5 w-3.5 rtl:rotate-180"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 14 10"
+                >
+                  <path
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M1 5h12m0 0L9 1m4 4L9 9"
+                  />
+                </svg>
+              )}
             </CustomButton>
           </div>
           {/* AI Response */}
