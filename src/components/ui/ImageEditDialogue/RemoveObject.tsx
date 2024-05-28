@@ -143,12 +143,7 @@ function RemoveObject({ title, description, src }: Props) {
                 className="relative mb-2"
                 style={{ width: 300, height: 300, overflow: "hidden" }}
               >
-                <Image
-                  src={src}
-                  alt="Selected"
-                  layout="fill"
-                  objectFit="contain"
-                />
+                <Image src={src} alt="Selected" layout="fill" />
                 <Stage
                   width={300}
                   height={300}
@@ -174,6 +169,13 @@ function RemoveObject({ title, description, src }: Props) {
                 </Stage>
               </div>
             )}
+            <div>
+              <Dialog.Close>
+                <CustomButton variant="tertiary" className="m-0 py-1.5">
+                  Cancel
+                </CustomButton>
+              </Dialog.Close>
+            </div>
           </div>
           {/* Your Image end */}
           <div>
