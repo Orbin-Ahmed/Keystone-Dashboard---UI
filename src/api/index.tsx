@@ -516,9 +516,8 @@ export const removeObject = async (inputImageLink: string, maskImage: any) => {
   const data = {
     input_image_link: inputImageLink,
     mask_image: maskImage,
+    file_name: "removed_object.jpeg",
   };
-
-  console.log(data);
 
   try {
     const response = await fetch(url, {
@@ -532,7 +531,6 @@ export const removeObject = async (inputImageLink: string, maskImage: any) => {
 
     if (response.ok) {
       const responseData = await response.json();
-      console.log(responseData);
       return responseData;
     } else {
       const errorMessage = await response.json();
