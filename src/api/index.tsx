@@ -92,7 +92,6 @@ export const register = async ({
 
 export const login = async ({ username, password }: RegisterLoginFormData) => {
   const url = `${API_BASE_URL}api/login/`;
-  console.log(url);
 
   try {
     const response = await fetch(url, {
