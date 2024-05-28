@@ -1,25 +1,29 @@
 "use client";
 import React, { useState, useRef } from "react";
 import CustomButton from "@/components/CustomButton";
-import { Dialog, Slider } from "@radix-ui/themes";
+import { Dialog, Slider, Spinner } from "@radix-ui/themes";
 import Image from "next/image";
 import { Stage, Layer, Line } from "react-konva";
-import { removeObject } from "@/api";
+import { patchImage, removeObject } from "@/api";
+import pica from "pica";
 
 type Props = {
   title: string;
   description: string;
   src: string;
+  id: string;
+  is_url: string;
 };
 
 type Base64String = string;
 
-function RemoveObject({ title, description, src }: Props) {
+function RemoveObject({ title, description, src, id, is_url }: Props) {
   const [result, setResult] = useState<string>("/images/ph.png");
   const [lines, setLines] = useState<any[]>([]);
   const [strokeWidth, setStrokeWidth] = useState<number>(15);
   const isDrawing = useRef(false);
   const stageRef = useRef<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleStrokeWidthChange = (value: number[]) => {
     setStrokeWidth(value[0]);
@@ -51,26 +55,33 @@ function RemoveObject({ title, description, src }: Props) {
     isDrawing.current = false;
   };
 
+  // API Calling
   const handleSaveMask = async () => {
     const stage = stageRef.current;
     const dataURL = stage.toDataURL({ mimeType: "image/jpeg" });
 
     if (src) {
+      setIsLoading(true);
       const inputImageLink = src;
 
       try {
         getImageDimensions(inputImageLink).then(async ({ width, height }) => {
           const resizedDataURL = await resizeBase64Img(dataURL, width, height);
           const response = await removeObject(inputImageLink, resizedDataURL);
+          // if (
+          //   response.status === "success" &&
+          //   response.output_urls.length > 0
+          // ) {
+          //   const outputUrl = response.output_urls[0];
+          //   setResult(outputUrl);
+          // } else {
+          //   console.error("Error in response:", response);
+          // }
         });
-        // if (response.status === "success" && response.output_urls.length > 0) {
-        //   const outputUrl = response.output_urls[0];
-        //   setResult(outputUrl);
-        // } else {
-        //   console.error("Error in response:", response);
-        // }
       } catch (error) {
         console.error("Error in object replacement:", error);
+      } finally {
+        setIsLoading(false);
       }
     } else {
       console.error("No image source provided");
@@ -86,13 +97,13 @@ function RemoveObject({ title, description, src }: Props) {
     return new Promise((resolve, reject) => {
       const img = new window.Image();
       img.src = base64;
-      img.onload = function () {
+      img.onload = async function () {
+        const picaInstance = new pica();
         const canvas = document.createElement("canvas");
         canvas.width = width;
         canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        ctx?.drawImage(img, 0, 0, width, height);
-        const resizedBase64 = canvas.toDataURL("image/jpeg");
+        const resizedImage = await picaInstance.resize(img, canvas);
+        const resizedBase64 = resizedImage.toDataURL("image/jpeg", 1);
         resolve(resizedBase64);
       };
       img.onerror = reject;
@@ -112,6 +123,38 @@ function RemoveObject({ title, description, src }: Props) {
       img.src = url;
     });
   }
+
+  const handleDownload = () => {
+    if (!result || result === "/images/ph.png") {
+      console.error("No image to download");
+      return;
+    }
+
+    const urlParts = result.split("/");
+    const fileName = urlParts[urlParts.length - 1];
+
+    const link = document.createElement("a");
+    link.href = result;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleSave = async () => {
+    try {
+      setIsLoading(true);
+      const response = await patchImage(result, id, is_url);
+      if (response.ok) {
+      } else {
+        console.log(response);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <>
@@ -157,7 +200,7 @@ function RemoveObject({ title, description, src }: Props) {
                       <Line
                         key={i}
                         points={line}
-                        stroke="red"
+                        stroke="white"
                         strokeWidth={strokeWidth}
                         tension={0.5}
                         lineCap="round"
@@ -208,9 +251,25 @@ function RemoveObject({ title, description, src }: Props) {
                 className="object-contain"
               />
             </div>
-            <Dialog.Close>
-              <CustomButton className="m-0 py-1.5">Save</CustomButton>
-            </Dialog.Close>
+            <div className="flex items-center justify-between gap-4">
+              <CustomButton
+                variant="secondary"
+                className="m-0 py-1.5"
+                onClick={handleDownload}
+              >
+                Download
+              </CustomButton>
+              <CustomButton
+                className="m-0 py-1.5"
+                disabled={isLoading}
+                onClick={handleSave}
+              >
+                <div className="flex items-center justify-center">
+                  <span className="mr-2">Save</span>
+                  <Spinner loading={isLoading}></Spinner>
+                </div>
+              </CustomButton>
+            </div>
           </div>
           {/* AI Response end */}
         </div>

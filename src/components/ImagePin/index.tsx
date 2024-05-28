@@ -110,6 +110,8 @@ function ImagePin({
                   title="Remove Object"
                   description="Please provide the image and select the area where you want to remove the object from."
                   src={imgSrc}
+                  id={id}
+                  is_url={is_url}
                 />
               </Dialog.Root>
               {/* Remove object end  */}
