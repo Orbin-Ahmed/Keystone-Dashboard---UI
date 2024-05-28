@@ -86,7 +86,7 @@ function RemoveObject({ title, description, src, id, is_url }: Props) {
     }
   };
 
-  // Resized the Base64 String
+  // Resize the Base64 String
   function resizeBase64Img(
     base64: string,
     width: number,
@@ -100,9 +100,19 @@ function RemoveObject({ title, description, src, id, is_url }: Props) {
         const canvas = document.createElement("canvas");
         canvas.width = width;
         canvas.height = height;
-        const resizedImage = await picaInstance.resize(img, canvas);
-        const resizedBase64 = resizedImage.toDataURL("image/jpeg", 1);
-        resolve(resizedBase64);
+
+        try {
+          const resizedImage = await picaInstance.resize(img, canvas, {
+            quality: 3,
+            unsharpAmount: 120,
+            unsharpRadius: 0.6,
+            unsharpThreshold: 2,
+          });
+          const resizedBase64 = resizedImage.toDataURL("image/jpeg", 1);
+          resolve(resizedBase64);
+        } catch (error) {
+          reject(error);
+        }
       };
       img.onerror = reject;
     });
@@ -164,7 +174,7 @@ function RemoveObject({ title, description, src, id, is_url }: Props) {
             <h3 className="mb-2 font-bold">Adjust Brush Size</h3>
             <Slider
               defaultValue={[15]}
-              color="gray"
+              color="lime"
               onValueChange={handleStrokeWidthChange}
             />
           </div>

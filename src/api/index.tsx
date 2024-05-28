@@ -518,6 +518,7 @@ export const removeObject = async (inputImageLink: string, maskImage: any) => {
     mask_image: maskImage,
     file_name: "removed_object.jpeg",
   };
+  console.log(data);
 
   try {
     const response = await fetch(url, {
