@@ -3,7 +3,8 @@ import React, { useEffect, useState } from "react";
 import { Dialog, Flex, Select, Spinner, TextField } from "@radix-ui/themes";
 import CustomButton from "../CustomButton";
 import { ToastContainer, toast } from "react-toastify";
-import { ImageFiles, postImageFile } from "@/api";
+import { postImageFile } from "@/api";
+import { ImageFiles } from "@/types";
 
 type CustomDialogProps = {
   title: string;

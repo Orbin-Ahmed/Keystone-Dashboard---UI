@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import TableOne from "../Tables/TableOne";
+import SourceTable from "../Tables/SourceTable";
 import CardDataStats from "../CardDataStats";
 import { getSessionStorage } from "@/utils";
 import Link from "next/link";
@@ -68,7 +68,7 @@ const Dashboard: React.FC = () => {
 
       <div className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5">
         <div className="col-span-12">
-          <TableOne />
+          <SourceTable />
         </div>
       </div>
     </>

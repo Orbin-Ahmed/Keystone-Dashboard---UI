@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import CustomButton from "../CustomButton";
 
-type Props = {
+type PaginationProps = {
   total: number;
   currentPage: number;
   setCurrentPage: (val: number) => void;
@@ -19,7 +19,7 @@ const Pagination = ({
   setShowingNumberFrom,
   showingNumberTo,
   setShowingNumberTo,
-}: Props) => {
+}: PaginationProps) => {
   const handleNext = () => {
     const newShowingNumberFrom = showingNumberFrom + 30;
     const newShowingNumberTo = Math.min(showingNumberTo + 30, total);

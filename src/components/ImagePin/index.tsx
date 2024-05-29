@@ -14,10 +14,7 @@ import AddObject from "../ui/ImageEditDialogue/AddObject";
 import FixLight from "../ui/ImageEditDialogue/FixLight";
 import ExtendImage from "../ui/ImageEditDialogue/ExtendImage";
 import ChatWithAI from "../ui/ImageEditDialogue/ChatWithAI";
-
-interface PinClickEvent {
-  index: number;
-}
+import { PinClickEvent } from "@/types";
 
 type ImagePinProps = {
   pinSize: string;
@@ -27,7 +24,7 @@ type ImagePinProps = {
   idx: number;
   checked?: boolean;
   getPage?: boolean;
-  is_url: string;
+  is_url?: string;
   onCheckboxChange?: () => void;
   onClick?: (event: PinClickEvent) => void;
   setIndex: (index: number) => void;

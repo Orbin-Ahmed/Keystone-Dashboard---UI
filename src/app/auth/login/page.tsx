@@ -8,16 +8,12 @@ import React, { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { getCompanyInfo, login } from "@/api";
 import { getImageUrl } from "@/utils";
-
-interface CompanyData {
-  name: string;
-  logo?: string | null;
-}
+import { CompanyLogoData } from "@/types";
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [companyData, setCompanyData] = useState<CompanyData>({
+  const [companyData, setCompanyData] = useState<CompanyLogoData>({
     name: "Keystone Engineering Consultant",
   });
   const [formData, setFormData] = useState({

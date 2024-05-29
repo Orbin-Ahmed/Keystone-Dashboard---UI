@@ -4,16 +4,14 @@ import Filter from "@/components/Filter";
 import ImageBox from "@/components/ImageBox";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import React, { useState } from "react";
-import { ImageData } from "@/api";
 import ImagePin from "@/components/ImagePin";
 import Lightbox from "yet-another-react-lightbox";
 import NextLightbox from "@/components/NextLightbox";
 import { Download } from "yet-another-react-lightbox/plugins";
 import { getImageUrl } from "@/utils";
+import { ImageData } from "@/types";
 
-type Props = {};
-
-const EditImage = ({}: Props) => {
+const EditImage = () => {
   const [images, setImages] = useState<ImageData[]>([]);
   const [index, setIndex] = React.useState(-1);
 

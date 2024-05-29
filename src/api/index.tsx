@@ -1,74 +1,16 @@
-import { ImageFile } from "@/types";
+import {
+  ChatData,
+  CompanyData,
+  ImageData,
+  ImageFile,
+  ImageFiles,
+  RegisterLoginFormData,
+  UpdateSocialLinkParams,
+  User,
+} from "@/types";
 import { getSessionStorage, storeSessionStorage } from "@/utils";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-
-type RegisterLoginFormData = {
-  username: string;
-  email?: string;
-  password: string;
-};
-
-export type SocialLink = {
-  platform: string;
-  link: string;
-};
-
-type UpdateSocialLinkParams = {
-  social_link: SocialLink[];
-};
-
-interface User {
-  id: number;
-  username?: string;
-  email?: string;
-  full_name?: string | null;
-  phone?: string | null;
-  bio?: string | null;
-  password?: string | null;
-}
-
-export interface CompanyData {
-  id: number;
-  name?: string;
-  email?: string;
-  phone?: string;
-  company_intro?: string;
-  license?: string;
-  logo?: ImageFile;
-}
-
-export interface ImageData {
-  id?: number;
-  photo: string;
-  source?: string;
-  nationality?: string;
-  room_type?: string;
-  temperature?: string;
-  theme?: string;
-  is_url: string;
-}
-
-export type ImageFiles = {
-  photo: File;
-  nationality: string;
-  room_type: string;
-  source: string;
-  temperature: string;
-  theme: string;
-  color: string;
-  is_url: string;
-};
-
-export interface ChatData {
-  prompt: string;
-  input_image_link: string;
-  num_outputs: number;
-  aspect_ratio: string;
-  studio_options: {
-    style: string[];
-  };
-}
 
 export const register = async ({
   username,
@@ -119,6 +61,19 @@ export const login = async ({ username, password }: RegisterLoginFormData) => {
     }
   } catch (error) {
     console.error("Error:", error);
+  }
+};
+
+export const logout = async () => {
+  const token = getSessionStorage("Token");
+  try {
+    const response = await fetch(`${API_BASE_URL}api/logout/`, {
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+    });
+  } catch (error) {
+    console.log(error);
   }
 };
 

@@ -10,12 +10,7 @@ import CustomButton from "../CustomButton";
 import { Dialog } from "@radix-ui/themes";
 import AddImageDialogue from "../ui/AddImageDialogue";
 import UploadImageDialogue from "../ui/UploadImageDialogue";
-
-export interface ImageObject {
-  id: string;
-  url: string;
-  lightBoxUrl: string;
-}
+import { ImageObject } from "@/types";
 
 type SearchBarProps = {
   handleSetImagesSrc: (images: ImageObject[]) => void;

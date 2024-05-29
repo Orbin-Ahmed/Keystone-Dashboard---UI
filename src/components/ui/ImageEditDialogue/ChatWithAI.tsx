@@ -4,19 +4,20 @@ import React, { useState, useRef, useEffect } from "react";
 import CustomButton from "@/components/CustomButton";
 import { Dialog, Spinner } from "@radix-ui/themes";
 import Image from "next/image";
-import { ChatData, chatWithAI, patchImage } from "@/api";
+import { chatWithAI, patchImage } from "@/api";
 import InputField from "@/components/InputField";
 import { getSessionStorage } from "@/utils";
+import { ChatData } from "@/types";
 
 type Props = {
   title: string;
   description: string;
   src: string;
   id: string;
-  is_url: string;
+  is_url?: string;
 };
 
-function ChatWithAI({ title, description, src, id, is_url }: Props) {
+function ChatWithAI({ title, description, src, id, is_url = "false" }: Props) {
   const [preview, setPreview] = useState<string>("/images/ph.png");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [prompt, setPrompt] = useState<string>("");

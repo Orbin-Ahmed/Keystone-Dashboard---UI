@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { clearSessionData, getImageUrl, getSessionStorage } from "@/utils";
 import Image from "next/image";
+import { logout } from "@/api";
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -19,6 +20,7 @@ const DropdownUser = () => {
     try {
       keys.forEach((key) => clearSessionData(key));
       document.cookie = "id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      logout();
     } catch (e) {
       console.log(e);
     } finally {

@@ -2,17 +2,13 @@
 import { getCompanyInfo, register } from "@/api";
 import CustomButton from "@/components/CustomButton";
 import InputField from "@/components/InputField";
+import { CompanyLogoData } from "@/types";
 import { getImageUrl } from "@/utils";
 import { Spinner } from "@radix-ui/themes";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
-
-interface CompanyData {
-  name: string;
-  logo?: string | null;
-}
 
 const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -23,7 +19,7 @@ const Register = () => {
     password: "",
     re_password: "",
   });
-  const [companyData, setCompanyData] = useState<CompanyData>({
+  const [companyData, setCompanyData] = useState<CompanyLogoData>({
     name: "Keystone Engineering Consultant",
   });
 
@@ -59,7 +55,6 @@ const Register = () => {
   }, [error]);
 
   useEffect(() => {
-    // Fetch company data
     async function fetchCompanyData() {
       const response = await getCompanyInfo();
       setCompanyData(response);

@@ -17,13 +17,8 @@ import {
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Spinner } from "@radix-ui/themes";
-import { ImageFile } from "@/types";
+import { ImageFile, SocialLink } from "@/types";
 import { getImageUrl, getSessionStorage } from "@/utils";
-
-type SocialLink = {
-  platform: "facebook" | "twitter" | "linkedin" | "website" | "github";
-  link: string;
-};
 
 const Settings = () => {
   const [isLoading, setIsLoading] = useState(false);

@@ -13,12 +13,18 @@ type Props = {
   description: string;
   src: string;
   id: string;
-  is_url: string;
+  is_url?: string;
 };
 
 type Base64String = string;
 
-function RemoveObject({ title, description, src, id, is_url }: Props) {
+function RemoveObject({
+  title,
+  description,
+  src,
+  id,
+  is_url = "false",
+}: Props) {
   const [result, setResult] = useState<string>("/images/ph.png");
   const [lines, setLines] = useState<any[]>([]);
   const [strokeWidth, setStrokeWidth] = useState<number>(15);

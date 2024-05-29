@@ -14,12 +14,12 @@ type Props = {
   description: string;
   src: string;
   id: string;
-  is_url: string;
+  is_url?: string;
 };
 
 type Base64String = string;
 
-function AddObject({ title, description, src, is_url, id }: Props) {
+function AddObject({ title, description, src, is_url = "false", id }: Props) {
   const [preview, setPreview] = useState<string>("/images/ph.png");
   const [lines, setLines] = useState<any[]>([]);
   const [strokeWidth, setStrokeWidth] = useState<number>(15);

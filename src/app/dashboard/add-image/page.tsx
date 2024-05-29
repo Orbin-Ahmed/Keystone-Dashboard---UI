@@ -2,13 +2,12 @@
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Tab from "@/components/Tab";
-import SearchBar, { ImageObject } from "@/components/SearchBar";
+import SearchBar from "@/components/SearchBar";
 import { useState } from "react";
 import Pagination from "@/components/Pagination";
+import { ImageObject } from "@/types";
 
-type Props = {};
-
-const AddImage = ({}: Props) => {
+const AddImage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedImage, setSelectedImage] = useState<string[]>([]);
   const [totalImage, setTotalImage] = useState<number>(0);

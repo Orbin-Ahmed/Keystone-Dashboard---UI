@@ -2,13 +2,7 @@ import { Tabs } from "@radix-ui/themes";
 import React from "react";
 import TabContents from "../TabContent";
 import Image from "next/image";
-import { ImageObject } from "../SearchBar";
-
-type TabListProps = {
-  id: number;
-  value: string;
-  logo: string;
-};
+import { ImageObject, TabListProps } from "@/types";
 
 type TabProps = {
   setSelectedImage: (selected: string[]) => void;

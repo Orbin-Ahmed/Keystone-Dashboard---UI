@@ -4,8 +4,9 @@ import Image from "next/image";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { getImageUrl, getSessionStorage } from "@/utils";
-import { fetchUserData } from "@/api";
+import { getImageUrl } from "@/utils";
+import { fetchUserData, getSocialLinkInfo } from "@/api";
+import { SocialLink } from "@/types";
 
 const Profile = () => {
   const [userData, setUserData] = useState({
@@ -20,6 +21,14 @@ const Profile = () => {
     photo: null,
   });
 
+  const [socialLinks, setSocialLinks] = useState({
+    fb_link: "",
+    tw_link: "",
+    ld_link: "",
+    web_link: "",
+    git_link: "",
+  });
+
   useEffect(() => {
     const getProfileData = async () => {
       try {
@@ -31,6 +40,43 @@ const Profile = () => {
     };
     getProfileData();
   }, []);
+
+  useEffect(() => {
+    const getSocialLinkData = async () => {
+      try {
+        const response: SocialLink[] = await getSocialLinkInfo(userData.id);
+        const linkMap: {
+          [key in SocialLink["platform"]]: keyof typeof socialLinks;
+        } = {
+          facebook: "fb_link",
+          twitter: "tw_link",
+          linkedin: "ld_link",
+          website: "web_link",
+          github: "git_link",
+        };
+        const links = response.reduce(
+          (acc, link) => {
+            const key = linkMap[link.platform];
+            if (key) {
+              acc[key] = link.link;
+            }
+            return acc;
+          },
+          {} as typeof socialLinks,
+        );
+        setSocialLinks((prevLinks) => ({
+          ...prevLinks,
+          ...links,
+        }));
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    if (userData.id != 0) {
+      getSocialLinkData();
+    }
+  }, [userData.id]);
+
   return (
     <DefaultLayout>
       <div className="mx-auto max-w-242.5">
@@ -101,7 +147,7 @@ const Profile = () => {
                   className="h-36 rounded-full"
                   alt="profile"
                 />
-                <label
+                {/* <label
                   htmlFor="profile"
                   className="absolute bottom-0 right-0 flex h-8.5 w-8.5 cursor-pointer items-center justify-center rounded-full bg-primary text-white hover:bg-opacity-90 sm:bottom-2 sm:right-2"
                 >
@@ -132,7 +178,7 @@ const Profile = () => {
                     id="profile"
                     className="sr-only"
                   />
-                </label>
+                </label> */}
               </div>
             </div>
             <div className="mt-4">
@@ -157,7 +203,7 @@ const Profile = () => {
                 </h4>
                 <div className="flex items-center justify-center gap-3.5">
                   <Link
-                    href="#"
+                    href={socialLinks.fb_link}
                     className="hover:text-primary"
                     aria-label="social-icon"
                   >
@@ -183,7 +229,7 @@ const Profile = () => {
                     </svg>
                   </Link>
                   <Link
-                    href="#"
+                    href={socialLinks.tw_link}
                     className="hover:text-primary"
                     aria-label="social-icon"
                   >
@@ -214,7 +260,7 @@ const Profile = () => {
                     </svg>
                   </Link>
                   <Link
-                    href="#"
+                    href={socialLinks.ld_link}
                     className="hover:text-primary"
                     aria-label="social-icon"
                   >
@@ -245,7 +291,7 @@ const Profile = () => {
                     </svg>
                   </Link>
                   <Link
-                    href="#"
+                    href={socialLinks.web_link}
                     className="hover:text-primary"
                     aria-label="social-icon"
                   >
@@ -271,7 +317,7 @@ const Profile = () => {
                     </svg>
                   </Link>
                   <Link
-                    href="#"
+                    href={socialLinks.git_link}
                     className="hover:text-primary"
                     aria-label="social-icon"
                   >

@@ -1,5 +1,4 @@
 "use client";
-import { Role, USER } from "@/types/user";
 import { AlertDialog, Dialog } from "@radix-ui/themes";
 import Image from "next/image";
 import Alert from "../ui/Alert";
@@ -7,6 +6,7 @@ import CustomButton from "../CustomButton";
 import CustomDialog from "../ui/CustomDialog";
 import { useEffect, useState } from "react";
 import { getAllUser } from "@/api";
+import { Role, USER } from "@/types";
 
 const UserTable = () => {
   const [userData, setUserData] = useState<USER[]>([]);

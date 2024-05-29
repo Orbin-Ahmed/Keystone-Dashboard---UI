@@ -1,12 +1,12 @@
 import { Tabs } from "@radix-ui/themes";
 import React, { useEffect, useState } from "react";
-import ImagePin from "../ImagePin";
-import { ImageObject } from "../SearchBar";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import NextLightbox from "../NextLightbox";
 import Download from "yet-another-react-lightbox/plugins/download";
 import ImageBox from "../ImageBox";
+import { ImageObject } from "@/types";
+import ImagePin from "../ImagePin";
 
 type TabContentsProps = {
   value: string;
@@ -52,10 +52,6 @@ const TabContents = ({
     src: item.lightBoxUrl,
     download: `https://corsproxy.io/?${item.url}`,
   }));
-
-  // useEffect(() => {
-  //   console.log(checkedState);
-  // }, [checkedState]);
 
   return (
     <>

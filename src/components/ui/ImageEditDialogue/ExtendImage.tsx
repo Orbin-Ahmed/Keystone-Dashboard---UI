@@ -11,10 +11,10 @@ type Props = {
   description: string;
   src: string;
   id: string;
-  is_url: string;
+  is_url?: string;
 };
 
-function ExtendImage({ title, description, src, id, is_url }: Props) {
+function ExtendImage({ title, description, src, id, is_url = "false" }: Props) {
   const [preview, setPreview] = useState<string>("/images/ph.png");
   const [isLoading, setIsLoading] = useState(false);
   const [creds, setCreds] = useState<number>(0);

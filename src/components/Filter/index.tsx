@@ -1,9 +1,10 @@
 "use client";
-import { getAllImage, ImageData } from "@/api";
+import { getAllImage } from "@/api";
 import { Select, TextField } from "@radix-ui/themes";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import CustomButton from "../CustomButton";
+import { ImageData } from "@/types";
 
 type FilterProps = {
   onAddImage: (newImages: ImageData[]) => void;
