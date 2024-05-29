@@ -10,6 +10,7 @@ type InputFieldProps = {
   defaultValue?: string;
   required?: boolean;
   accept?: string;
+  value?: string;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 };
 

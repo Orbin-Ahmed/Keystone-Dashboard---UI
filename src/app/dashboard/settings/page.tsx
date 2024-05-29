@@ -10,6 +10,7 @@ import {
   UpdateUserDataWithID,
   fetchUserData,
   getCompanyInfo,
+  getSocialLinkInfo,
   updateCompanyInfo,
   updateUserProfilePicture,
 } from "@/api";
@@ -18,6 +19,11 @@ import "react-toastify/dist/ReactToastify.css";
 import { Spinner } from "@radix-ui/themes";
 import { ImageFile } from "@/types";
 import { getImageUrl, getSessionStorage } from "@/utils";
+
+type SocialLink = {
+  platform: "facebook" | "twitter" | "linkedin" | "website" | "github";
+  link: string;
+};
 
 const Settings = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -209,24 +215,23 @@ const Settings = () => {
     event.preventDefault();
 
     const socialLinkBody = [
-      { user: userData.id, platform: "facebook", link: socialLinks.fb_link },
-      { user: userData.id, platform: "twitter", link: socialLinks.tw_link },
-      { user: userData.id, platform: "linkedin", link: socialLinks.ld_link },
-      { user: userData.id, platform: "website", link: socialLinks.web_link },
-      { user: userData.id, platform: "github", link: socialLinks.git_link },
+      { platform: "facebook", link: socialLinks.fb_link },
+      { platform: "twitter", link: socialLinks.tw_link },
+      { platform: "linkedin", link: socialLinks.ld_link },
+      { platform: "website", link: socialLinks.web_link },
+      { platform: "github", link: socialLinks.git_link },
     ];
 
     setIsLoading(true);
     setError(null);
 
     const data = await UpdateSocialLink({
-      id: userData.id,
       social_link: socialLinkBody,
     });
 
-    // if (data?.error) {
-    //   setError(data.error);
-    // }
+    if (data?.error) {
+      setError(data.error);
+    }
 
     setIsLoading(false);
   };
@@ -254,6 +259,42 @@ const Settings = () => {
     };
     getCompanyData();
   }, []);
+
+  useEffect(() => {
+    const getSocialLinkData = async () => {
+      try {
+        const response: SocialLink[] = await getSocialLinkInfo(userData.id);
+        const linkMap: {
+          [key in SocialLink["platform"]]: keyof typeof socialLinks;
+        } = {
+          facebook: "fb_link",
+          twitter: "tw_link",
+          linkedin: "ld_link",
+          website: "web_link",
+          github: "git_link",
+        };
+        const links = response.reduce(
+          (acc, link) => {
+            const key = linkMap[link.platform];
+            if (key) {
+              acc[key] = link.link;
+            }
+            return acc;
+          },
+          {} as typeof socialLinks,
+        );
+        setSocialLinks((prevLinks) => ({
+          ...prevLinks,
+          ...links,
+        }));
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    if (userData.id != 0) {
+      getSocialLinkData();
+    }
+  }, [userData.id]);
 
   return (
     <DefaultLayout>
@@ -847,6 +888,7 @@ const Settings = () => {
                       type="text"
                       name="fb_link"
                       id="fb_link"
+                      value={socialLinks.fb_link}
                       onChange={handleSocialChange}
                       placeholder="Facebook Profile Link"
                     />
@@ -864,6 +906,7 @@ const Settings = () => {
                       type="text"
                       name="tw_link"
                       id="tw_link"
+                      value={socialLinks.tw_link}
                       onChange={handleSocialChange}
                       placeholder="Twitter Profile Link"
                     />
@@ -881,6 +924,7 @@ const Settings = () => {
                       type="text"
                       name="ld_link"
                       id="ld_link"
+                      value={socialLinks.ld_link}
                       onChange={handleSocialChange}
                       placeholder="LinkdIN Profile Link"
                     />
@@ -898,6 +942,7 @@ const Settings = () => {
                       type="text"
                       name="web_link"
                       id="web_link"
+                      value={socialLinks.web_link}
                       onChange={handleSocialChange}
                       placeholder="Personal Website Link"
                     />
@@ -915,12 +960,18 @@ const Settings = () => {
                       type="text"
                       name="git_link"
                       id="git_link"
+                      value={socialLinks.git_link}
                       onChange={handleSocialChange}
                       placeholder="Github Profile Link"
                     />
                   </div>
                   <div className="flex justify-end gap-4.5">
-                    <CustomButton type="submit">Save</CustomButton>
+                    <CustomButton type="submit" disabled={isLoading}>
+                      <div className="flex items-center justify-center">
+                        <span className="mr-2">Save</span>
+                        <Spinner loading={isLoading}></Spinner>
+                      </div>
+                    </CustomButton>
                   </div>
                 </form>
               </div>

@@ -10,13 +10,11 @@ type RegisterLoginFormData = {
 };
 
 export type SocialLink = {
-  user: number;
   platform: string;
   link: string;
 };
 
 type UpdateSocialLinkParams = {
-  id: number;
   social_link: SocialLink[];
 };
 
@@ -544,32 +542,51 @@ export const patchImage = async (photo: string, id: string, is_url: string) => {
 };
 
 export const UpdateSocialLink = async ({
-  id,
   social_link,
 }: UpdateSocialLinkParams) => {
   const token = getSessionStorage("Token");
 
-  console.log(social_link);
-  // try {
-  //   const response = await fetch(`${API_BASE_URL}api/social/`, {
-  //     method: "PATCH",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       Authorization: `Token ${token}`,
-  //     },
-  //     body: JSON.stringify({ social_link }),
-  //   });
+  try {
+    const response = await fetch(`${API_BASE_URL}api/social/update/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${token}`,
+      },
+      body: JSON.stringify(social_link),
+    });
 
-  //   if (response.ok) {
-  //     const responseData = await response.json();
-  //     return responseData;
-  //   } else {
-  //     const errorData = await response.json();
-  //     return { error: errorData };
-  //   }
-  // } catch (error) {
-  //   return error;
-  // }
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    } else {
+      const errorData = await response.json();
+      return { error: errorData };
+    }
+  } catch (error) {
+    return error;
+  }
+};
+
+export const getSocialLinkInfo = async (id: number) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}api/social/${id}`, {
+      method: "Get",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.ok) {
+      const responseData = await response.json();
+      return responseData;
+    } else {
+      const errorData = await response.json();
+      return { error: errorData };
+    }
+  } catch (error) {
+    return error;
+  }
 };
 
 // AI Editor
