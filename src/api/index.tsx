@@ -66,9 +66,13 @@ export const login = async ({ username, password }: RegisterLoginFormData) => {
 
 export const logout = async () => {
   const token = getSessionStorage("Token");
+  const url = `${API_BASE_URL}api/logout/`;
+
   try {
-    const response = await fetch(`${API_BASE_URL}api/logout/`, {
+    const response = await fetch(url, {
+      method: "GET",
       headers: {
+        "Content-Type": "application/json",
         Authorization: `Token ${token}`,
       },
     });

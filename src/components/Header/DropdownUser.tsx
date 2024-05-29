@@ -18,9 +18,9 @@ const DropdownUser = () => {
   const clearBrowserData = () => {
     const keys = ["Token", "name", "role", "photo"];
     try {
+      logout();
       keys.forEach((key) => clearSessionData(key));
       document.cookie = "id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-      logout();
     } catch (e) {
       console.log(e);
     } finally {
