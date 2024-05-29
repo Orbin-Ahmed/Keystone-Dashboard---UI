@@ -6,6 +6,7 @@ import CustomButton from "@/components/CustomButton";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import {
+  UpdateSocialLink,
   UpdateUserDataWithID,
   fetchUserData,
   getCompanyInfo,
@@ -49,6 +50,14 @@ const Settings = () => {
     logo: null,
   });
   const [role, setRole] = useState<number | undefined>();
+
+  const [socialLinks, setSocialLinks] = useState({
+    fb_link: "",
+    tw_link: "",
+    ld_link: "",
+    web_link: "",
+    git_link: "",
+  });
 
   useEffect(() => {
     const storedRole = getSessionStorage("role");
@@ -182,6 +191,42 @@ const Settings = () => {
     if (data?.error) {
       setError(data.error);
     }
+
+    setIsLoading(false);
+  };
+
+  const handleSocialChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setSocialLinks((prevLinks) => ({
+      ...prevLinks,
+      [name]: value,
+    }));
+  };
+
+  const handleSocialLinkSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+
+    const socialLinkBody = [
+      { user: userData.id, platform: "facebook", link: socialLinks.fb_link },
+      { user: userData.id, platform: "twitter", link: socialLinks.tw_link },
+      { user: userData.id, platform: "linkedin", link: socialLinks.ld_link },
+      { user: userData.id, platform: "website", link: socialLinks.web_link },
+      { user: userData.id, platform: "github", link: socialLinks.git_link },
+    ];
+
+    setIsLoading(true);
+    setError(null);
+
+    const data = await UpdateSocialLink({
+      id: userData.id,
+      social_link: socialLinkBody,
+    });
+
+    // if (data?.error) {
+    //   setError(data.error);
+    // }
 
     setIsLoading(false);
   };
@@ -788,7 +833,7 @@ const Settings = () => {
                 </h3>
               </div>
               <div className="p-7">
-                <form action="#">
+                <form onSubmit={handleSocialLinkSubmit}>
                   {/* Facebook */}
                   <div className="mb-5.5">
                     <label
@@ -802,6 +847,7 @@ const Settings = () => {
                       type="text"
                       name="fb_link"
                       id="fb_link"
+                      onChange={handleSocialChange}
                       placeholder="Facebook Profile Link"
                     />
                   </div>
@@ -818,6 +864,7 @@ const Settings = () => {
                       type="text"
                       name="tw_link"
                       id="tw_link"
+                      onChange={handleSocialChange}
                       placeholder="Twitter Profile Link"
                     />
                   </div>
@@ -834,6 +881,7 @@ const Settings = () => {
                       type="text"
                       name="ld_link"
                       id="ld_link"
+                      onChange={handleSocialChange}
                       placeholder="LinkdIN Profile Link"
                     />
                   </div>
@@ -850,6 +898,7 @@ const Settings = () => {
                       type="text"
                       name="web_link"
                       id="web_link"
+                      onChange={handleSocialChange}
                       placeholder="Personal Website Link"
                     />
                   </div>
@@ -866,13 +915,14 @@ const Settings = () => {
                       type="text"
                       name="git_link"
                       id="git_link"
+                      onChange={handleSocialChange}
                       placeholder="Github Profile Link"
                     />
                   </div>
+                  <div className="flex justify-end gap-4.5">
+                    <CustomButton type="submit">Save</CustomButton>
+                  </div>
                 </form>
-                <div className="flex justify-end gap-4.5">
-                  <CustomButton>Save</CustomButton>
-                </div>
               </div>
             </div>
             {/* Social Media Link end */}

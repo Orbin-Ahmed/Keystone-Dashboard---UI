@@ -9,6 +9,17 @@ type RegisterLoginFormData = {
   password: string;
 };
 
+export type SocialLink = {
+  user: number;
+  platform: string;
+  link: string;
+};
+
+type UpdateSocialLinkParams = {
+  id: number;
+  social_link: SocialLink[];
+};
+
 interface User {
   id: number;
   username?: string;
@@ -503,6 +514,64 @@ export const getAllImage = async (params?: { [key: string]: string }) => {
   }
 };
 
+export const patchImage = async (photo: string, id: string, is_url: string) => {
+  const url = `${API_BASE_URL}api/images/`;
+  const token = getSessionStorage("Token");
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${token}`,
+      },
+      body: JSON.stringify({
+        photo,
+        id,
+        is_url,
+      }),
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      const errorMessage = await response.json();
+      console.log(errorMessage);
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+export const UpdateSocialLink = async ({
+  id,
+  social_link,
+}: UpdateSocialLinkParams) => {
+  const token = getSessionStorage("Token");
+
+  console.log(social_link);
+  // try {
+  //   const response = await fetch(`${API_BASE_URL}api/social/`, {
+  //     method: "PATCH",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       Authorization: `Token ${token}`,
+  //     },
+  //     body: JSON.stringify({ social_link }),
+  //   });
+
+  //   if (response.ok) {
+  //     const responseData = await response.json();
+  //     return responseData;
+  //   } else {
+  //     const errorData = await response.json();
+  //     return { error: errorData };
+  //   }
+  // } catch (error) {
+  //   return error;
+  // }
+};
+
 // AI Editor
 export const removeObject = async (
   inputImageLink: string,
@@ -757,33 +826,4 @@ const getObjectWhenReady = async (order_id: string) => {
     }
     await delay(3000);
   } while (responseData.order_status_code !== 200);
-};
-
-export const patchImage = async (photo: string, id: string, is_url: string) => {
-  const url = `${API_BASE_URL}api/images/`;
-  const token = getSessionStorage("Token");
-
-  try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Token ${token}`,
-      },
-      body: JSON.stringify({
-        photo,
-        id,
-        is_url,
-      }),
-    });
-    if (response.ok) {
-      const data = await response.json();
-      return data;
-    } else {
-      const errorMessage = await response.json();
-      console.log(errorMessage);
-    }
-  } catch (e) {
-    console.log(e);
-  }
 };
