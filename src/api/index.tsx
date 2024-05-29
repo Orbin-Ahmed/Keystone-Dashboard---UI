@@ -548,6 +548,30 @@ export const getSocialLinkInfo = async (id: number) => {
   }
 };
 
+export const getAllImageCount = async () => {
+  const url = `${API_BASE_URL}api/total/images/`;
+  const token = getSessionStorage("Token");
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${token}`,
+      },
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      const errorMessage = await response.json();
+      console.log(errorMessage);
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // AI Editor
 export const removeObject = async (
   inputImageLink: string,

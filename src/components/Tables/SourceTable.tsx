@@ -1,50 +1,51 @@
-import { BRAND } from "@/types";
+"use client";
+import { useEffect, useState } from "react";
 import Image from "next/image";
+import { getAllImageCount } from "@/api";
+import { ApiResponse, BrandData } from "@/types";
 
-const brandData: BRAND[] = [
-  {
-    logo: "/images/brand/pexels.png",
-    name: "Pexels",
-    category: "Living Room",
-    target_images: 5768,
-    current_images: 580,
-    percentage: 4.8,
-  },
-  {
-    logo: "/images/brand/pinterest.png",
-    name: "Pinterest",
-    category: "Kitchen",
-    target_images: 4635,
-    current_images: 267,
-    percentage: 4.3,
-  },
-  {
-    logo: "/images/brand/unsplash.png",
-    name: "Unsplash",
-    category: "Bed Room",
-    target_images: 4290,
-    current_images: 900,
-    percentage: 3.7,
-  },
-  {
-    logo: "/images/brand/pinterest.png",
-    name: "Pinterest",
-    category: "Living Room",
-    target_images: 2500,
-    current_images: 500,
-    percentage: 20,
-  },
-  {
-    logo: "/images/brand/pixabay.svg",
-    name: "Pixabay",
-    category: "Kids Room",
-    target_images: 2000,
-    current_images: 645,
-    percentage: 35,
-  },
-];
+const brandLogos: { [key: string]: string } = {
+  Designer: "/images/brand/designer.png",
+  Pinterest: "/images/brand/pinterest.png",
+  Unsplash: "/images/brand/unsplash.png",
+  Pixabay: "/images/brand/pixabay.svg",
+  Pexels: "/images/brand/pexels.png",
+};
 
-const SourceTable = () => {
+type SourceTableProps = {
+  setCount: (value: string) => void;
+};
+
+const SourceTable = ({ setCount }: SourceTableProps) => {
+  const [brandData, setBrandData] = useState<BrandData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const data: ApiResponse = await getAllImageCount();
+        setCount(String(data.count));
+        const targeImage = 100;
+        const formattedData: BrandData[] = data.values.map((item) => ({
+          logo: brandLogos[item.source] || "/images/brand/default.png",
+          name: item.source,
+          category: item.room_type || "Unknown",
+          target_images: targeImage,
+          current_images: item.count,
+          percentage: (item.count / targeImage) * 100,
+        }));
+        setBrandData(formattedData);
+      } catch (e) {
+        console.log(e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <div className="rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
       <h4 className="mb-6 text-xl font-semibold text-black dark:text-white">

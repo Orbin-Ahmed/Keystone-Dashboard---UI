@@ -7,6 +7,7 @@ import Link from "next/link";
 
 const Dashboard: React.FC = () => {
   const [role, setRole] = useState<number | undefined>();
+  const [count, setCount] = useState("_ _");
 
   useEffect(() => {
     const storedRole = getSessionStorage("role");
@@ -18,7 +19,7 @@ const Dashboard: React.FC = () => {
   return (
     <>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
-        <CardDataStats title="Total Images" total="2,450">
+        <CardDataStats title="Total Images" total={count}>
           <svg
             className="fill-primary dark:fill-white"
             width="22"
@@ -68,7 +69,7 @@ const Dashboard: React.FC = () => {
 
       <div className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5">
         <div className="col-span-12">
-          <SourceTable />
+          <SourceTable setCount={setCount} />
         </div>
       </div>
     </>
