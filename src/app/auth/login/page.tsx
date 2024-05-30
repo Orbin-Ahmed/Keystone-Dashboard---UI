@@ -67,7 +67,7 @@ const Login = () => {
     <div className="m-auto h-full">
       <div className="flex flex-col items-center justify-center py-8">
         <div className="px-4 md:px-0 lg:w-6/12">
-          <div className="rounded-lg bg-white shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] md:mx-6 md:p-12">
+          <div className="rounded-lg bg-white p-6 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] md:mx-6 md:p-12">
             {/* Logo and company name */}
             <div className="text-center">
               <Link href="/" className="flex justify-center">
