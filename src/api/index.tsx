@@ -155,12 +155,12 @@ export const pexelsImageData = async (searchTerm: string, page: Number) => {
 
 export const pixabayImageData = async (searchTerm: string, page: Number) => {
   const access_key = process.env.NEXT_PUBLIC_PIXABAY_ACCESS_KEY;
-  // const url =
-  //   "https://corsproxy.io/?" +
-  //   encodeURIComponent(
-  //     `https://pixabay.com/api?key=${access_key}&q=${searchTerm}&image_type=photo&page=${page}&per_page=30`,
-  //   );
-  const url = `https://pixabay.com/api?key=${access_key}&q=${searchTerm}&image_type=photo&page=${page}&per_page=30`;
+  const url =
+    "https://corsproxy.io/?" +
+    encodeURIComponent(
+      `https://pixabay.com/api?key=${access_key}&q=${searchTerm}&image_type=photo&page=${page}&per_page=30`,
+    );
+  // const url = `https://pixabay.com/api?key=${access_key}&q=${searchTerm}&image_type=photo&page=${page}&per_page=30`;
 
   try {
     const response = await fetch(url);
