@@ -1,13 +1,13 @@
 "use client";
 import "jsvectormap/dist/css/jsvectormap.css";
 import "flatpickr/dist/flatpickr.min.css";
-import "@/css/satoshi.css";
-import "@/css/style.css";
 import React, { useEffect, useState } from "react";
 import Loader from "@/components/common/Loader";
 import "@radix-ui/themes/styles.css";
 import "@radix-ui/themes/styles.css";
 import { Theme } from "@radix-ui/themes";
+import "@/css/satoshi.css";
+import "@/css/style.css";
 import "yet-another-react-lightbox/styles.css";
 
 export default function RootLayout({
