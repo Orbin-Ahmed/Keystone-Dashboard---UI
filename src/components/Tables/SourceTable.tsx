@@ -33,7 +33,7 @@ const SourceTable = ({ setCount }: SourceTableProps) => {
           category: item.room_type || "Unknown",
           target_images: targeImage,
           current_images: item.count,
-          percentage: (item.count / targeImage) * 100,
+          percentage: Math.round((item.count / targeImage) * 100),
         }));
         setBrandData(formattedData);
       } catch (e) {
