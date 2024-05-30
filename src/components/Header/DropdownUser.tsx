@@ -56,7 +56,7 @@ const DropdownUser = () => {
     } catch (e) {
       console.error("Error retrieving photo URL from session storage:", e);
     }
-  });
+  }, []);
 
   useEffect(() => {
     const keyHandler = ({ keyCode }: KeyboardEvent) => {

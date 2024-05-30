@@ -43,9 +43,12 @@ function ImagePin({
 }: ImagePinProps) {
   return (
     <div className={`pin ${pinSize}`}>
-      <img
+      <Image
         src={imgSrc}
         alt=""
+        width={0}
+        height={0}
+        sizes="100vw"
         className="mainPic"
         onClick={() => setIndex(idx)}
       />
