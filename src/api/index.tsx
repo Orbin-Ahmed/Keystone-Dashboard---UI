@@ -11,6 +11,7 @@ import {
 import { getSessionStorage, storeSessionStorage } from "@/utils";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const Frontend_BASE_URL = process.env.NEXT_PUBLIC_FRONTEND_URL;
 
 export const register = async ({
   username,
@@ -53,6 +54,8 @@ export const login = async ({ username, password }: RegisterLoginFormData) => {
     if (response.ok) {
       const data = await response.json();
       storeSessionStorage("Token", data.Token);
+      const tokenCookie = `data=${data.Token}; Path=/; Secure; SameSite=Lax;`;
+      document.cookie = tokenCookie;
       await fetchUserData();
       window.location.href = "/dashboard";
     } else {
@@ -65,7 +68,11 @@ export const login = async ({ username, password }: RegisterLoginFormData) => {
 };
 
 export const logout = async () => {
-  const token = getSessionStorage("Token");
+  const token = getToken();
+
+  if (!token) {
+    window.location.href = `${Frontend_BASE_URL}/auth/login`;
+  }
   const url = `${API_BASE_URL}api/logout/`;
 
   try {
@@ -82,7 +89,11 @@ export const logout = async () => {
 };
 
 export const fetchUserData = async () => {
-  const token = getSessionStorage("Token");
+  const token = getToken();
+
+  if (!token) {
+    window.location.href = `${Frontend_BASE_URL}/auth/login`;
+  }
   try {
     const response = await fetch(`${API_BASE_URL}api/token/`, {
       headers: {
@@ -98,7 +109,7 @@ export const fetchUserData = async () => {
       const user_role = responseData?.role;
       const secret_key = "6595554882";
       const encrypted_role = String(user_role * Number(secret_key));
-      document.cookie = `id=${encrypted_role}; path=/`;
+      document.cookie = `id=${encrypted_role}; path=/; Secure; SameSite=Lax;`;
       return responseData;
     } else {
       console.log(response);
@@ -177,8 +188,13 @@ export const pixabayImageData = async (searchTerm: string, page: Number) => {
 };
 
 export const pinterestImageData = async (searchTerm: string, page: Number) => {
+  const token = getToken();
+
+  if (!token) {
+    window.location.href = `${Frontend_BASE_URL}/auth/login`;
+  }
+
   const url = `${API_BASE_URL}api/images/search?query=${searchTerm}&page_size=30&page_number=${page}`;
-  const token = getSessionStorage("Token");
 
   try {
     const response = await fetch(url, {
@@ -200,8 +216,13 @@ export const pinterestImageData = async (searchTerm: string, page: Number) => {
 };
 
 export const getAllUser = async () => {
+  const token = getToken();
+
+  if (!token) {
+    window.location.href = `${Frontend_BASE_URL}/auth/login`;
+  }
+
   const url = `${API_BASE_URL}api/register/`;
-  const token = getSessionStorage("Token");
 
   try {
     const response = await fetch(url, {
@@ -232,7 +253,12 @@ export const UpdateUserDataWithID = async ({
   phone,
   password,
 }: User) => {
-  const token = getSessionStorage("Token");
+  const token = getToken();
+
+  if (!token) {
+    window.location.href = `${Frontend_BASE_URL}/auth/login`;
+  }
+
   try {
     const response = await fetch(`${API_BASE_URL}api/register/${id}/`, {
       method: "PATCH",
@@ -266,7 +292,11 @@ export const updateUserProfilePicture = async (
   userId: number,
   imageFile: ImageFile,
 ) => {
-  const token = getSessionStorage("Token");
+  const token = getToken();
+
+  if (!token) {
+    window.location.href = `${Frontend_BASE_URL}/auth/login`;
+  }
 
   const formData = new FormData();
   formData.append("photo", imageFile.file);
@@ -322,8 +352,13 @@ export const updateCompanyInfo = async ({
   license,
   logo,
 }: CompanyData) => {
+  const token = getToken();
+
+  if (!token) {
+    window.location.href = `${Frontend_BASE_URL}/auth/login`;
+  }
+
   const url = `${API_BASE_URL}api/company/${id}/`;
-  const token = getSessionStorage("Token");
 
   const formData = new FormData();
 
@@ -366,8 +401,13 @@ export const updateCompanyInfo = async ({
 };
 
 export const postImagesURL = async (images: ImageData[]) => {
+  const token = getToken();
+
+  if (!token) {
+    window.location.href = `${Frontend_BASE_URL}/auth/login`;
+  }
+
   const url = `${API_BASE_URL}api/images/url/`;
-  const token = getSessionStorage("Token");
 
   try {
     const response = await fetch(url, {
@@ -393,8 +433,13 @@ export const postImagesURL = async (images: ImageData[]) => {
 };
 
 export const postImageFile = async (imageFiles: ImageFiles[]) => {
+  const token = getToken();
+
+  if (!token) {
+    window.location.href = `${Frontend_BASE_URL}/auth/login`;
+  }
+
   const url = `${API_BASE_URL}api/images/file/`;
-  const token = getSessionStorage("Token");
 
   try {
     const uploadResults = [];
@@ -448,9 +493,14 @@ export const postImageFile = async (imageFiles: ImageFiles[]) => {
 };
 
 export const getAllImage = async (params?: { [key: string]: string }) => {
+  const token = getToken();
+
+  if (!token) {
+    window.location.href = `${Frontend_BASE_URL}/auth/login`;
+  }
+
   const query = params ? "?" + new URLSearchParams(params).toString() : "";
   const url = `${API_BASE_URL}api/images/${query}`;
-  const token = getSessionStorage("Token");
 
   try {
     const response = await fetch(url, {
@@ -473,8 +523,13 @@ export const getAllImage = async (params?: { [key: string]: string }) => {
 };
 
 export const patchImage = async (photo: string, id: string, is_url: string) => {
+  const token = getToken();
+
+  if (!token) {
+    window.location.href = `${Frontend_BASE_URL}/auth/login`;
+  }
+
   const url = `${API_BASE_URL}api/images/`;
-  const token = getSessionStorage("Token");
 
   try {
     const response = await fetch(url, {
@@ -504,7 +559,11 @@ export const patchImage = async (photo: string, id: string, is_url: string) => {
 export const UpdateSocialLink = async ({
   social_link,
 }: UpdateSocialLinkParams) => {
-  const token = getSessionStorage("Token");
+  const token = getToken();
+
+  if (!token) {
+    window.location.href = `${Frontend_BASE_URL}/auth/login`;
+  }
 
   try {
     const response = await fetch(`${API_BASE_URL}api/social/update/`, {
@@ -550,8 +609,13 @@ export const getSocialLinkInfo = async (id: number) => {
 };
 
 export const getAllImageCount = async () => {
+  const token = getToken();
+
+  if (!token) {
+    window.location.href = `${Frontend_BASE_URL}/auth/login`;
+  }
+
   const url = `${API_BASE_URL}api/total/images/`;
-  const token = getSessionStorage("Token");
 
   try {
     const response = await fetch(url, {
@@ -828,3 +892,24 @@ const getObjectWhenReady = async (order_id: string) => {
     await delay(3000);
   } while (responseData.order_status_code !== 200);
 };
+
+function getToken() {
+  let token = getSessionStorage("Token");
+  if (!token) {
+    token = getCookie("data");
+  }
+  return token;
+}
+
+function getCookie(name: string) {
+  const decodedCookie = decodeURIComponent(document.cookie);
+  const cookieParts = decodedCookie.split(";");
+
+  for (let i = 0; i < cookieParts.length; i++) {
+    const currentCookie = cookieParts[i].trim();
+    if (currentCookie.startsWith(name + "=")) {
+      return currentCookie.substring(name.length + 1);
+    }
+  }
+  return null;
+}
