@@ -23,6 +23,7 @@ const DropdownUser = () => {
       fetchUser();
       storedName = getSessionStorage("name");
       storedRole = getSessionStorage("role");
+      console.log(storedName);
       if (storedName && storedRole) {
         setName(storedName);
         setRole(storedRole);
