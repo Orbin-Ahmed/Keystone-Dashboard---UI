@@ -9,8 +9,18 @@ const DropdownUser = () => {
   const [photo, setPhoto] = useState(
     "https://avatar.iran.liara.run/public/boy",
   );
-  const name = getSessionStorage("name");
-  const role = getSessionStorage("role");
+  const [name, setName] = useState("Username");
+  const [role, setRole] = useState("Designer");
+
+  useEffect(() => {
+    const storedName = getSessionStorage("name");
+    const storedRole = getSessionStorage("role");
+
+    if (storedName && storedRole) {
+      setName(storedName);
+      setRole(storedRole);
+    }
+  }, []);
 
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
