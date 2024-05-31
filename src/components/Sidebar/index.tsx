@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { getImageUrl, getSessionStorage } from "@/utils";
-import { getCompanyInfo, getCookie } from "@/api";
+import { fetchUserData, getCompanyInfo, getCookie } from "@/api";
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -39,7 +39,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       parsedRole = parseInt(storedRole, 10);
       setRole(parsedRole);
     } else {
-      fetchUserData();
+      fetchUser();
       const cookieValue = getCookie("id");
 
       if (cookieValue) {
@@ -53,7 +53,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       }
     }
 
-    async function fetchUserData() {
+    async function fetchUser() {
       await fetchUserData();
     }
 
