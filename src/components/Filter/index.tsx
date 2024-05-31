@@ -54,7 +54,7 @@ const Filter = ({ onAddImage }: FilterProps) => {
 
   return (
     <>
-      <div className="mb-8 mt-4 flex items-center justify-end gap-4">
+      <div className="mb-4 mt-4 flex flex-col items-center justify-end gap-4 2xsm:flex-row">
         <div>
           <TextField.Root
             placeholder="Room Type"
@@ -78,22 +78,28 @@ const Filter = ({ onAddImage }: FilterProps) => {
             </TextField.Slot>
           </TextField.Root>
         </div>
-        <div>
-          <Select.Root value={source} onValueChange={handleSourceChange}>
-            <Select.Trigger variant="soft" placeholder="ALL" />
-            <Select.Content position="popper">
-              <Select.Item value="Pinterest">Pinterest</Select.Item>
-              <Select.Item value="Pexels">Pexels</Select.Item>
-              <Select.Item value="Unsplash">Unsplash</Select.Item>
-              <Select.Item value="Pixabay">Pixabay</Select.Item>
-              <Select.Item value="Designer">Designer</Select.Item>
-            </Select.Content>
-          </Select.Root>
-        </div>
-        <div>
-          <CustomButton type="button" onClick={handleReset}>
-            Reset
-          </CustomButton>
+        <div className="flex items-center justify-center gap-4">
+          <div>
+            <Select.Root value={source} onValueChange={handleSourceChange}>
+              <Select.Trigger variant="soft" placeholder="ALL" />
+              <Select.Content position="popper">
+                <Select.Item value="Pinterest">Pinterest</Select.Item>
+                <Select.Item value="Pexels">Pexels</Select.Item>
+                <Select.Item value="Unsplash">Unsplash</Select.Item>
+                <Select.Item value="Pixabay">Pixabay</Select.Item>
+                <Select.Item value="Designer">Designer</Select.Item>
+              </Select.Content>
+            </Select.Root>
+          </div>
+          <div>
+            <CustomButton
+              type="button"
+              onClick={handleReset}
+              className="px-4 py-1"
+            >
+              Reset
+            </CustomButton>
+          </div>
         </div>
       </div>
     </>

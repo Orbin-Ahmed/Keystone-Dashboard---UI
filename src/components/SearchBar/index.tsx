@@ -98,7 +98,7 @@ const SearchBar = ({
   }, [currentPage]);
 
   return (
-    <div className="flex items-center justify-between gap-4">
+    <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
       <form
         onSubmit={handleSubmit}
         className="my-4 flex items-center justify-center gap-4"
@@ -139,12 +139,12 @@ const SearchBar = ({
           />
         </div>
       </form>
-      <div className="flex">
+      <div className="mb-4 flex">
         {/* Upload Button Area  */}
         <div>
           <Dialog.Root>
             <Dialog.Trigger>
-              <CustomButton className="mr-2">Upload</CustomButton>
+              <CustomButton className="mr-2 px-4 py-1">Upload</CustomButton>
             </Dialog.Trigger>
             <UploadImageDialogue title="Upload Your Own Image To Database" />
           </Dialog.Root>
@@ -153,7 +153,7 @@ const SearchBar = ({
         <div>
           <Dialog.Root>
             <Dialog.Trigger>
-              <CustomButton className="mr-2">Submit</CustomButton>
+              <CustomButton className="mr-2 px-4 py-1">Submit</CustomButton>
             </Dialog.Trigger>
             <AddImageDialogue
               title="Add Selected Image To Database"
