@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { clearSessionData, getImageUrl, getSessionStorage } from "@/utils";
 import Image from "next/image";
-import { logout } from "@/api";
+import { fetchUserData, logout } from "@/api";
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -13,12 +13,23 @@ const DropdownUser = () => {
   const [role, setRole] = useState("Designer");
 
   useEffect(() => {
-    const storedName = getSessionStorage("name");
-    const storedRole = getSessionStorage("role");
+    let storedName = getSessionStorage("name");
+    let storedRole = getSessionStorage("role");
 
     if (storedName && storedRole) {
       setName(storedName);
       setRole(storedRole);
+    } else {
+      fetchUser();
+      storedName = getSessionStorage("name");
+      storedRole = getSessionStorage("role");
+      if (storedName && storedRole) {
+        setName(storedName);
+        setRole(storedRole);
+      }
+    }
+    async function fetchUser() {
+      await fetchUserData();
     }
   }, []);
 
