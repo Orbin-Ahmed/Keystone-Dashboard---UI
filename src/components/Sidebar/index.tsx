@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { getImageUrl, getSessionStorage } from "@/utils";
-import { getCompanyInfo } from "@/api";
+import { getCompanyInfo, getCookie } from "@/api";
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -33,9 +33,29 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 
   useEffect(() => {
     const storedRole = getSessionStorage("role");
-    const parsedRole =
-      storedRole !== null ? parseInt(storedRole, 10) : undefined;
-    setRole(parsedRole);
+    let parsedRole;
+
+    if (storedRole !== null && storedRole !== undefined) {
+      parsedRole = parseInt(storedRole, 10);
+      setRole(parsedRole);
+    } else {
+      fetchUserData();
+      const cookieValue = getCookie("id");
+
+      if (cookieValue) {
+        const encryptedRole = parseInt(cookieValue, 10);
+        const secretKey = 6595554882;
+        parsedRole = encryptedRole / secretKey;
+        setRole(parsedRole);
+      } else {
+        const Frontend_BASE_URL = process.env.NEXT_PUBLIC_FRONTEND_URL;
+        window.location.href = `${Frontend_BASE_URL}/auth/login`;
+      }
+    }
+
+    async function fetchUserData() {
+      await fetchUserData();
+    }
 
     // Fetch company data
     async function fetchCompanyData() {

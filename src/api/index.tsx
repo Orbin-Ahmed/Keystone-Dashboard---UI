@@ -901,7 +901,7 @@ function getToken() {
   return token;
 }
 
-function getCookie(name: string) {
+export function getCookie(name: string) {
   const decodedCookie = decodeURIComponent(document.cookie);
   const cookieParts = decodedCookie.split(";");
 
