@@ -21,16 +21,15 @@ const DropdownUser = () => {
       setRole(storedRole);
     } else {
       fetchUser();
+    }
+    async function fetchUser() {
+      await fetchUserData();
       storedName = getSessionStorage("name");
       storedRole = getSessionStorage("role");
-      console.log(storedName);
       if (storedName && storedRole) {
         setName(storedName);
         setRole(storedRole);
       }
-    }
-    async function fetchUser() {
-      await fetchUserData();
     }
   }, []);
 

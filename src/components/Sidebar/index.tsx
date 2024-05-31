@@ -39,7 +39,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       parsedRole = parseInt(storedRole, 10);
       setRole(parsedRole);
     } else {
-      fetchUser();
       const cookieValue = getCookie("id");
 
       if (cookieValue) {
@@ -51,10 +50,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         const Frontend_BASE_URL = process.env.NEXT_PUBLIC_FRONTEND_URL;
         window.location.href = `${Frontend_BASE_URL}/auth/login`;
       }
-    }
-
-    async function fetchUser() {
-      await fetchUserData();
     }
 
     // Fetch company data
