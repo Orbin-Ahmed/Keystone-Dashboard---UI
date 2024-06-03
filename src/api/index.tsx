@@ -882,7 +882,7 @@ const delay = async (ms: number) => {
 const getObjectWhenReady = async (order_id: string) => {
   let responseData;
 
-  await delay(3000);
+  await delay(10000);
 
   do {
     responseData = await getObject(order_id);
