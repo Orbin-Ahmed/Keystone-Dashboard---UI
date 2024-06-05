@@ -14,18 +14,18 @@ const nextConfig = {
         port: "",
         pathname: "**",
       },
-      // {
-      //   protocol: "http",
-      //   hostname: "127.0.0.1",
-      //   port: "8000",
-      //   pathname: "/media/photo/**",
-      // },
-      // {
-      //   protocol: "http",
-      //   hostname: "127.0.0.1",
-      //   port: "8000",
-      //   pathname: "/media/pin/**",
-      // },
+      {
+        protocol: "http",
+        hostname: "127.0.0.1",
+        port: "8000",
+        pathname: "/media/photo/**",
+      },
+      {
+        protocol: "http",
+        hostname: "127.0.0.1",
+        port: "8000",
+        pathname: "/media/pin/**",
+      },
     ],
   },
 };

@@ -507,7 +507,7 @@ export const getAllImage = async (params?: { [key: string]: string }) => {
     Object.keys(queryParams).length > 0
       ? "&" + new URLSearchParams(queryParams).toString()
       : "";
-  const url = `${API_BASE_URL}api/images/?limit=10&offset=${offset}${query}`;
+  const url = `${API_BASE_URL}api/images/?limit=30&offset=${offset}${query}`;
 
   try {
     const response = await fetch(url, {

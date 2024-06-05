@@ -16,7 +16,7 @@ const PaginateButton = ({
   offset,
   setOffset,
 }: PaginationProps) => {
-  const pageSize = 10;
+  const pageSize = 30;
 
   const handleNext = () => {
     if (offset + pageSize < total) {
@@ -77,7 +77,7 @@ const PaginateButton = ({
           variant="tertiary"
           className="flex items-center"
           onClick={handleNext}
-          disabled={currentPage * 10 >= total}
+          disabled={currentPage * 30 >= total}
         >
           Next
           <svg
