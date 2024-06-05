@@ -499,8 +499,15 @@ export const getAllImage = async (params?: { [key: string]: string }) => {
     window.location.href = `${Frontend_BASE_URL}/auth/login`;
   }
 
-  const query = params ? "?" + new URLSearchParams(params).toString() : "";
-  const url = `${API_BASE_URL}api/images/${query}`;
+  const offset = params?.offset || "0";
+  const queryParams = { ...params };
+  delete queryParams.offset;
+
+  const query =
+    Object.keys(queryParams).length > 0
+      ? "&" + new URLSearchParams(queryParams).toString()
+      : "";
+  const url = `${API_BASE_URL}api/images/?limit=10&offset=${offset}${query}`;
 
   try {
     const response = await fetch(url, {

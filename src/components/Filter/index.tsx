@@ -7,10 +7,18 @@ import CustomButton from "../CustomButton";
 import { ImageData } from "@/types";
 
 type FilterProps = {
-  onAddImage: (newImages: ImageData[]) => void;
+  onAddImage: (newImages: ImageData[], totalImages: number) => void;
+  offset: number;
+  setOffset: (val: number) => void;
+  setCurrentPage: (val: number) => void;
 };
 
-const Filter = ({ onAddImage }: FilterProps) => {
+const Filter = ({
+  onAddImage,
+  offset,
+  setOffset,
+  setCurrentPage,
+}: FilterProps) => {
   const [roomType, setRoomType] = useState("");
   const [source, setSource] = useState("");
 
@@ -23,7 +31,7 @@ const Filter = ({ onAddImage }: FilterProps) => {
   };
 
   const handleFilter = () => {
-    const params: { [key: string]: string } = {};
+    const params: { [key: string]: string } = { offset: offset.toString() };
     if (roomType) params.room_type = roomType.toLowerCase();
     if (source) params.source = source;
     getData(params);
@@ -32,25 +40,30 @@ const Filter = ({ onAddImage }: FilterProps) => {
   const handleReset = () => {
     setRoomType("");
     setSource("");
-    getData();
+    setOffset(0);
+    setCurrentPage(1);
+    getData({ offset: "0" });
   };
 
   const getData = async (params?: { [key: string]: string }) => {
     try {
       const response = await getAllImage(params);
-      onAddImage(response);
+      onAddImage(response.data, response.total);
     } catch (e) {
       console.log(e);
     }
   };
 
   useEffect(() => {
-    getData();
-  }, []);
-
-  useEffect(() => {
     handleFilter();
   }, [source]);
+
+  useEffect(() => {
+    const params: { [key: string]: string } = { offset: offset.toString() };
+    if (roomType) params.room_type = roomType.toLowerCase();
+    if (source) params.source = source;
+    getData(params);
+  }, [offset]);
 
   return (
     <>
