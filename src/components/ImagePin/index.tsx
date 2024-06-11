@@ -15,6 +15,7 @@ import FixLight from "../ui/ImageEditDialogue/FixLight";
 import ExtendImage from "../ui/ImageEditDialogue/ExtendImage";
 import ChatWithAI from "../ui/ImageEditDialogue/ChatWithAI";
 import { PinClickEvent } from "@/types";
+import AddVariants from "../ui/AddVariants";
 
 type ImagePinProps = {
   pinSize: string;
@@ -80,7 +81,7 @@ function ImagePin({
             </Popover.Trigger>
             <Popover.Content className="p-0">
               {/* Add object start  */}
-              <Dialog.Root>
+              {/* <Dialog.Root>
                 <Dialog.Trigger>
                   <Button
                     variant="soft"
@@ -96,11 +97,11 @@ function ImagePin({
                   id={id}
                   is_url={is_url}
                 />
-              </Dialog.Root>
+              </Dialog.Root> */}
               {/* Add object end  */}
               <Separator className="w-full" />
               {/* Remove object start  */}
-              <Dialog.Root>
+              {/* <Dialog.Root>
                 <Dialog.Trigger>
                   <Button
                     variant="soft"
@@ -116,11 +117,11 @@ function ImagePin({
                   id={id}
                   is_url={is_url}
                 />
-              </Dialog.Root>
+              </Dialog.Root> */}
               {/* Remove object end  */}
               <Separator className="w-full" />
               {/* Chat With AI start  */}
-              <Dialog.Root>
+              {/* <Dialog.Root>
                 <Dialog.Trigger>
                   <Button
                     variant="soft"
@@ -136,11 +137,11 @@ function ImagePin({
                   id={id}
                   is_url={is_url}
                 />
-              </Dialog.Root>
-              {/* Chat With AI start  */}
+              </Dialog.Root> */}
+              {/* Chat With AI end  */}
               <Separator className="w-full" />
               {/*  Fix Lighting start  */}
-              <Dialog.Root>
+              {/* <Dialog.Root>
                 <Dialog.Trigger>
                   <Button
                     variant="soft"
@@ -156,11 +157,11 @@ function ImagePin({
                   id={id}
                   is_url={is_url}
                 />
-              </Dialog.Root>
-              {/*  Fix Lighting start  */}
+              </Dialog.Root> */}
+              {/*  Fix Lighting end  */}
               <Separator className="w-full" />
               {/*  Extend Image start  */}
-              <Dialog.Root>
+              {/* <Dialog.Root>
                 <Dialog.Trigger>
                   <Button
                     variant="soft"
@@ -176,8 +177,25 @@ function ImagePin({
                   id={id}
                   is_url={is_url}
                 />
+              </Dialog.Root> */}
+              {/*  Extend Image end  */}
+              <Separator className="w-full" />
+              {/*  Add Variants start  */}
+              <Dialog.Root>
+                <Dialog.Trigger>
+                  <Button
+                    variant="soft"
+                    className="w-full cursor-pointer p-2 text-black hover:bg-gray dark:text-white"
+                  >
+                    Add Variants
+                  </Button>
+                </Dialog.Trigger>
+                <AddVariants
+                  title=" Add Variants"
+                  description="Please upload the variant image and it's corresponding tag."
+                />
               </Dialog.Root>
-              {/*  Extend Image start  */}
+              {/*  Add Variants end  */}
             </Popover.Content>
           </Popover.Root>
         </div>
