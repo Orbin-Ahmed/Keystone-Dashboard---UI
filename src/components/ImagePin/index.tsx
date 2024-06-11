@@ -99,7 +99,7 @@ function ImagePin({
                 />
               </Dialog.Root> */}
               {/* Add object end  */}
-              <Separator className="w-full" />
+              {/* <Separator className="w-full" /> */}
               {/* Remove object start  */}
               {/* <Dialog.Root>
                 <Dialog.Trigger>
@@ -119,7 +119,7 @@ function ImagePin({
                 />
               </Dialog.Root> */}
               {/* Remove object end  */}
-              <Separator className="w-full" />
+              {/* <Separator className="w-full" /> */}
               {/* Chat With AI start  */}
               {/* <Dialog.Root>
                 <Dialog.Trigger>
@@ -139,7 +139,7 @@ function ImagePin({
                 />
               </Dialog.Root> */}
               {/* Chat With AI end  */}
-              <Separator className="w-full" />
+              {/* <Separator className="w-full" /> */}
               {/*  Fix Lighting start  */}
               {/* <Dialog.Root>
                 <Dialog.Trigger>
@@ -159,7 +159,7 @@ function ImagePin({
                 />
               </Dialog.Root> */}
               {/*  Fix Lighting end  */}
-              <Separator className="w-full" />
+              {/* <Separator className="w-full" /> */}
               {/*  Extend Image start  */}
               {/* <Dialog.Root>
                 <Dialog.Trigger>
@@ -179,7 +179,7 @@ function ImagePin({
                 />
               </Dialog.Root> */}
               {/*  Extend Image end  */}
-              <Separator className="w-full" />
+              {/* <Separator className="w-full" /> */}
               {/*  Add Variants start  */}
               <Dialog.Root>
                 <Dialog.Trigger>
