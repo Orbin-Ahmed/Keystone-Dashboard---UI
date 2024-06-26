@@ -192,6 +192,7 @@ function ImagePin({
                 </Dialog.Trigger>
                 <AddVariants
                   title=" Add Variants"
+                  id={id}
                   description="Please upload the variant image and it's corresponding tag."
                 />
               </Dialog.Root>

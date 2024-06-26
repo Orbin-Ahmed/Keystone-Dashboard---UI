@@ -644,6 +644,37 @@ export const getAllImageCount = async () => {
   }
 };
 
+export const postVariant = async (formData: FormData): Promise<any> => {
+  const token = getToken();
+
+  if (!token) {
+    window.location.href = `${Frontend_BASE_URL}/auth/login`;
+    return;
+  }
+
+  const url = `${API_BASE_URL}api/variants/`;
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+      body: formData,
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      const errorMessage = await response.json();
+      console.log(errorMessage);
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // AI Editor
 export const removeObject = async (
   inputImageLink: string,
@@ -899,6 +930,8 @@ const getObjectWhenReady = async (order_id: string) => {
     await delay(3000);
   } while (responseData.order_status_code !== 200);
 };
+
+// AI Editor End
 
 function getToken() {
   let token = getSessionStorage("Token");
