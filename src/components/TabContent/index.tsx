@@ -51,7 +51,7 @@ const TabContents = ({
   const lightboxUrlList = imagesWithValues.map((item) => ({
     src: item.lightBoxUrl,
     // download: `https://corsproxy.io/?${item.url}`,
-    download: `${item.url}`,
+    download: `${item.url}?download`,
   }));
 
   return (
