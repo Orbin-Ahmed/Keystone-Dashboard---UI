@@ -10,6 +10,7 @@ const brandLogos: { [key: string]: string } = {
   Unsplash: "/images/brand/unsplash.png",
   Pixabay: "/images/brand/pixabay.svg",
   Pexels: "/images/brand/pexels.png",
+  Houzz: "/images/brand/houzz.png",
 };
 
 type SourceTableProps = {

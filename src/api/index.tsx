@@ -125,7 +125,7 @@ export const unsplashImageData = async (searchTerm: string, page: Number) => {
 
   try {
     const response = await fetch(
-      `${url}/search/photos?page=${page}&query=${searchTerm}&per_page=30&client_id=${access_key}`,
+      `${url}/search/photos?page=${page}&query=${searchTerm}&per_page=20&client_id=${access_key}`,
     );
 
     if (response.ok) {
@@ -145,7 +145,7 @@ export const pexelsImageData = async (searchTerm: string, page: Number) => {
 
   try {
     const response = await fetch(
-      `${url}/search?page=${page}&query=${searchTerm}&per_page=30`,
+      `${url}/search?page=${page}&query=${searchTerm}&per_page=20`,
       {
         headers: {
           Authorization: `${access_key}`,
@@ -169,7 +169,7 @@ export const pixabayImageData = async (searchTerm: string, page: Number) => {
   const url =
     "https://corsproxy.io/?" +
     encodeURIComponent(
-      `https://pixabay.com/api/?key=${access_key}&q=${searchTerm}&image_type=photo&page=${page}&per_page=30`,
+      `https://pixabay.com/api/?key=${access_key}&q=${searchTerm}&image_type=photo&page=${page}&per_page=20`,
     );
   // const url = `https://pixabay.com/api/?key=${access_key}&q=${searchTerm}&image_type=photo&page=${page}&per_page=30`;
 
@@ -194,7 +194,35 @@ export const pinterestImageData = async (searchTerm: string, page: Number) => {
     window.location.href = `${Frontend_BASE_URL}/auth/login`;
   }
 
-  const url = `${API_BASE_URL}api/images/search?query=${searchTerm}&page_size=30&page_number=${page}`;
+  const url = `${API_BASE_URL}api/images/search?query=${searchTerm}&page_size=20&page_number=${page}`;
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      console.log(response);
+    }
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+};
+
+export const houzzImageData = async (searchTerm: string, page: Number) => {
+  const token = getToken();
+
+  if (!token) {
+    window.location.href = `${Frontend_BASE_URL}/auth/login`;
+  }
+
+  const url = `${API_BASE_URL}api/images/houzz/?query=${searchTerm}&page_number=${page}`;
 
   try {
     const response = await fetch(url, {

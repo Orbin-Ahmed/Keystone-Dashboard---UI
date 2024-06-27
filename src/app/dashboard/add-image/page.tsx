@@ -12,10 +12,11 @@ const AddImage = () => {
   const [selectedImage, setSelectedImage] = useState<string[]>([]);
   const [totalImage, setTotalImage] = useState<number>(0);
   const [showingNumberFrom, setShowingNumberFrom] = useState(1);
-  const [showingNumberTo, setShowingNumberTo] = useState(30);
+  const [showingNumberTo, setShowingNumberTo] = useState(20);
   const [imageSource, setImageSource] = useState("Pinterest");
   const [pexelsImagesSrc, setPexelsImagesSrc] = useState<ImageObject[]>([]);
   const [unsplashImagesSrc, setUnsplashImagesSrc] = useState<ImageObject[]>([]);
+  const [houzzImageSrc, setHouzzImageSrc] = useState<ImageObject[]>([]);
   const [pinterestImagesSrc, setPinterestImagesSrc] = useState<ImageObject[]>(
     [],
   );
@@ -26,13 +27,14 @@ const AddImage = () => {
       newValue === "Pexels" ||
       newValue === "Unsplash" ||
       newValue === "Pinterest" ||
-      newValue === "Pixabay"
+      newValue === "Pixabay" ||
+      newValue === "Houzz"
     ) {
       setImageSource(newValue);
       setCurrentPage(1);
       setTotalImage(0);
       setShowingNumberFrom(1);
-      setShowingNumberTo(30);
+      setShowingNumberTo(20);
     } else {
       console.error("Invalid source value");
     }
@@ -45,6 +47,8 @@ const AddImage = () => {
       setUnsplashImagesSrc(images);
     } else if (imageSource === "Pixabay") {
       setPixabayImagesSrc(images);
+    } else if (imageSource === "Houzz") {
+      setHouzzImageSrc(images);
     } else {
       setPinterestImagesSrc(images);
     }
@@ -69,6 +73,7 @@ const AddImage = () => {
             pexelsImagesSrc={pexelsImagesSrc}
             pixabayImagesSrc={pixabayImagesSrc}
             imageSource={imageSource}
+            houzzImageSrc={houzzImageSrc}
             handleSourceChange={handleSourceChange}
           />
         </div>

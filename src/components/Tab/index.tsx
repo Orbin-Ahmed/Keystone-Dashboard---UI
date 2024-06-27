@@ -10,6 +10,7 @@ type TabProps = {
   unsplashImagesSrc: ImageObject[];
   pexelsImagesSrc: ImageObject[];
   pixabayImagesSrc: ImageObject[];
+  houzzImageSrc: ImageObject[];
   imageSource: string;
   handleSourceChange: (val: string) => void;
 };
@@ -22,16 +23,21 @@ const tabList: TabListProps[] = [
   },
   {
     id: 2,
+    value: "Houzz",
+    logo: "/images/brand/houzz.png",
+  },
+  {
+    id: 3,
     value: "Unsplash",
     logo: "/images/brand/unsplash.png",
   },
   {
-    id: 3,
+    id: 4,
     value: "Pexels",
     logo: "/images/brand/pexels.png",
   },
   {
-    id: 4,
+    id: 5,
     value: "Pixabay",
     logo: "/images/brand/pixabay.svg",
   },
@@ -44,6 +50,7 @@ const Tab = ({
   pexelsImagesSrc,
   pixabayImagesSrc,
   imageSource,
+  houzzImageSrc,
   handleSourceChange,
 }: TabProps) => {
   const getImageSrc = () => {
@@ -56,6 +63,8 @@ const Tab = ({
         return pexelsImagesSrc;
       case "Pixabay":
         return pixabayImagesSrc;
+      case "Houzz":
+        return houzzImageSrc;
       default:
         return unsplashImagesSrc;
     }

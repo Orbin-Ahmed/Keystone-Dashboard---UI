@@ -1,5 +1,6 @@
 "use client";
 import {
+  houzzImageData,
   pexelsImageData,
   pinterestImageData,
   pixabayImageData,
@@ -78,6 +79,17 @@ const SearchBar = ({
           id: result.id,
           url: result.webformatURL,
           lightBoxUrl: result.largeImageURL,
+        }));
+      } else if (imageSource === "Houzz") {
+        results = await houzzImageData(searchTerm, currentPage);
+        data = results.images;
+        // images
+        setTotalImage(1000);
+
+        processedImages = data.map((url: string, index: number) => ({
+          id: index,
+          url: url,
+          lightBoxUrl: url,
         }));
       } else {
         results = await pinterestImageData(searchTerm, currentPage);

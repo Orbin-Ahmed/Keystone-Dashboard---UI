@@ -21,19 +21,19 @@ const Pagination = ({
   setShowingNumberTo,
 }: PaginationProps) => {
   const handleNext = () => {
-    const newShowingNumberFrom = showingNumberFrom + 30;
-    const newShowingNumberTo = Math.min(showingNumberTo + 30, total);
+    const newShowingNumberFrom = showingNumberFrom + 20;
+    const newShowingNumberTo = Math.min(showingNumberTo + 20, total);
 
     setShowingNumberFrom(newShowingNumberFrom);
     setShowingNumberTo(newShowingNumberTo);
-    if (currentPage * 30 < total) {
+    if (currentPage * 20 < total) {
       setCurrentPage(currentPage + 1);
     }
   };
 
   const handlePrev = () => {
-    const newShowingNumberFrom = Math.max(showingNumberFrom - 30, 1);
-    const newShowingNumberTo = newShowingNumberFrom + 29;
+    const newShowingNumberFrom = Math.max(showingNumberFrom - 20, 1);
+    const newShowingNumberTo = newShowingNumberFrom + 19;
 
     setShowingNumberFrom(newShowingNumberFrom);
     setShowingNumberTo(newShowingNumberTo);
