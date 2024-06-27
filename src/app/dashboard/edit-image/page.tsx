@@ -26,8 +26,8 @@ const EditImage = () => {
 
   const lightboxUrlList = images.map((item) => ({
     src: getImageUrl(item.photo),
-    // download: `https://corsproxy.io/?${getImageUrl(item.photo)}`,
-    download: `${getImageUrl(item.photo)}?download`,
+    download: `https://corsproxy.io/?${getImageUrl(item.photo)}`,
+    // download: `${getImageUrl(item.photo)}?download`,
   }));
 
   return (
