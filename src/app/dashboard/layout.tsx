@@ -15,10 +15,8 @@ export default function DashboardLayout({
   }, []);
 
   return (
-    <main lang="en">
-      <div className="dark:bg-boxdark-2 dark:text-bodydark">
+      <>
         {loading ? <Loader /> : children}
-      </div>
-    </main>
+      </>
   );
 }
