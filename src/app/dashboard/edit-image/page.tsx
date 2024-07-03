@@ -32,7 +32,7 @@ const EditImage = () => {
 
   return (
     <DefaultLayout>
-      <div className="mx-auto max-w-242.5">
+      <div className="mx-auto">
         <Breadcrumb pageName="Design Studio" />
         <Filter
           onAddImage={handleAddImage}

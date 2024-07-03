@@ -1,3 +1,4 @@
+import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import React from "react";
 
@@ -7,7 +8,9 @@ const Revamp = ({}: RevampProps) => {
   return (
     <>
       <DefaultLayout>
-        <div>Hello world</div>
+        <div className="mx-auto">
+          <Breadcrumb pageName="Revamp" />
+        </div>
       </DefaultLayout>
     </>
   );
