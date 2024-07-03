@@ -3,8 +3,6 @@ import "jsvectormap/dist/css/jsvectormap.css";
 import "flatpickr/dist/flatpickr.min.css";
 import React, { useEffect, useState } from "react";
 import Loader from "@/components/common/Loader";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import "@radix-ui/themes/styles.css";
 import { Theme } from "@radix-ui/themes";
 import "yet-another-react-lightbox/styles.css";
@@ -25,8 +23,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body suppressHydrationWarning={true}>
-        <Analytics />
-        <SpeedInsights />
         <Theme>
           <div className="dark:bg-boxdark-2 dark:text-bodydark">
             {loading ? <Loader /> : children}
