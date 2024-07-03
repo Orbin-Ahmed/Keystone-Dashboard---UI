@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getImageUrl, getSessionStorage } from "@/utils";
 import { fetchUserData, getCompanyInfo, getCookie } from "@/api";
+import SidebarSubItem from "./SidebarSubItem";
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -21,7 +22,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 
   const trigger = useRef<any>(null);
   const sidebar = useRef<any>(null);
-
+  const items = [
+    { route: "/dashboard/edit-image/revamp", label: "Room Revamp" },
+    { route: "/dashboard/edit-image/variant", label: "View Variant" },
+  ];
   let storedSidebarExpanded = "true";
 
   const [sidebarExpanded, setSidebarExpanded] = useState(
@@ -320,6 +324,9 @@ l-212 -210 2 1139 3 1140 25 50 c31 64 91 124 155 155 l50 25 1575 0 1575 0
                     </svg>
                     Design Studio
                   </Link>
+                  <div className={`translate transform overflow-hidden`}>
+                    <SidebarSubItem itemList={items} />
+                  </div>
                 </li>
               )}
               {/* <!-- Menu Item Edit Image --> */}
