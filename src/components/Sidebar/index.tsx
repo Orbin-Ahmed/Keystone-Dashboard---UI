@@ -23,8 +23,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const trigger = useRef<any>(null);
   const sidebar = useRef<any>(null);
   const items = [
-    { route: "/dashboard/edit-image/revamp", label: "Room Revamp" },
-    { route: "/dashboard/edit-image/variant", label: "View Variant" },
+    { route: "/dashboard/revamp", label: "Room Revamp" },
+    { route: "/dashboard/variant", label: "View Variant" },
   ];
   let storedSidebarExpanded = "true";
 
