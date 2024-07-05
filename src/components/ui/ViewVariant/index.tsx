@@ -39,7 +39,7 @@ const ViewVariant = ({ images }: ViewVariantProps) => {
   };
 
   return (
-    <Dialog.Content maxWidth="800px">
+    <Dialog.Content maxWidth="830px">
       <div>
         <Dialog.Title>Variants</Dialog.Title>
         <Dialog.Description>
