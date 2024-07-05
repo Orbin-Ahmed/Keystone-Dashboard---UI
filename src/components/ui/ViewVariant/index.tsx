@@ -39,7 +39,7 @@ const ViewVariant = ({ images }: ViewVariantProps) => {
   };
 
   return (
-    <Dialog.Content>
+    <Dialog.Content size="4">
       <div>
         <Dialog.Title>Variants</Dialog.Title>
         <Dialog.Description>
