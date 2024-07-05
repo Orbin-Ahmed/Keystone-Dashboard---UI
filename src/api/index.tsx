@@ -557,6 +557,64 @@ export const getAllImage = async (params?: { [key: string]: string }) => {
   }
 };
 
+export const getVariantBaseImage = async () => {
+  const token = getToken();
+
+  if (!token) {
+    window.location.href = `${Frontend_BASE_URL}/auth/login`;
+  }
+
+  const url = `${API_BASE_URL}api/variants/image/`;
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${token}`,
+      },
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      const errorMessage = await response.json();
+      console.log(errorMessage);
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+export const getVariantImageByBaseID = async (id: string) => {
+  const token = getToken();
+
+  if (!token) {
+    window.location.href = `${Frontend_BASE_URL}/auth/login`;
+  }
+
+  const url = `${API_BASE_URL}api/variants/${id}`;
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${token}`,
+      },
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      const errorMessage = await response.json();
+      console.log(errorMessage);
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 export const patchImage = async (photo: string, id: string, is_url: string) => {
   const token = getToken();
 

@@ -310,3 +310,11 @@ input[type="search"]::-webkit-search-cancel-button {
   font-weight: 500;
 }
 /* Image Pin Style end */
+
+.group:hover .group-hover\:blur-sm {
+  filter: blur(4px);
+}
+
+.group:hover .group-hover\:opacity-100 {
+  opacity: 1;
+}

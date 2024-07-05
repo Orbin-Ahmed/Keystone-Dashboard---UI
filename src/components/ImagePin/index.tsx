@@ -1,19 +1,12 @@
 "use client";
-import {
-  Button,
-  Checkbox,
-  Dialog,
-  DropdownMenu,
-  Popover,
-  Separator,
-} from "@radix-ui/themes";
+import { Button, Checkbox, Dialog, Popover } from "@radix-ui/themes";
 import Image from "next/image";
 import React from "react";
-import RemoveObject from "../ui/ImageEditDialogue/RemoveObject";
-import AddObject from "../ui/ImageEditDialogue/AddObject";
-import FixLight from "../ui/ImageEditDialogue/FixLight";
-import ExtendImage from "../ui/ImageEditDialogue/ExtendImage";
-import ChatWithAI from "../ui/ImageEditDialogue/ChatWithAI";
+// import RemoveObject from "../ui/ImageEditDialogue/RemoveObject";
+// import AddObject from "../ui/ImageEditDialogue/AddObject";
+// import FixLight from "../ui/ImageEditDialogue/FixLight";
+// import ExtendImage from "../ui/ImageEditDialogue/ExtendImage";
+// import ChatWithAI from "../ui/ImageEditDialogue/ChatWithAI";
 import { PinClickEvent } from "@/types";
 import AddVariants from "../ui/AddVariants";
 

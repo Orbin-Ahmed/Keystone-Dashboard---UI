@@ -61,8 +61,15 @@ export interface ImageData {
   nationality?: string;
   room_type?: string;
   temperature?: string;
+  color?: string;
   theme?: string;
   is_url: string;
+}
+
+export interface VariantData {
+  base_image: number;
+  data: any;
+  variant_image: string;
 }
 
 export type ImageFiles = {

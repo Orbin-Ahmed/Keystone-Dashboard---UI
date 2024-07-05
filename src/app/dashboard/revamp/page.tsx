@@ -9,7 +9,7 @@ const Revamp = ({}: RevampProps) => {
     <>
       <DefaultLayout>
         <div className="mx-auto">
-          <Breadcrumb pageName="Revamp" />
+          <Breadcrumb pageName="Design Studio / Revamp" />
         </div>
       </DefaultLayout>
     </>
