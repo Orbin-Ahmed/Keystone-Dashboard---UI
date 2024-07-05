@@ -14,10 +14,10 @@ type ViewVariantProps = {
 const ViewVariant = ({ images }: ViewVariantProps) => {
   const renderRows = () => {
     const rows = [];
-    for (let i = 0; i < images.length; i += 2) {
+    for (let i = 0; i < images.length; i += 3) {
       rows.push(
         <div key={i} className="mb-4 flex justify-start gap-4 space-x-4">
-          {images.slice(i, i + 2).map((imgObject, index) => (
+          {images.slice(i, i + 3).map((imgObject, index) => (
             <div key={index} className="group relative h-60 w-60">
               <Image
                 src={imgObject.variant_image}
