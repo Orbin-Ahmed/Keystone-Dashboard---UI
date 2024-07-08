@@ -94,7 +94,7 @@ export default function About() {
                   alt=""
                   className="mx-auto rounded-full "
                 />
-                <h2 className="py-4 text-2xl font-semibold ">Aya Imam</h2>
+                <h2 className="py-4 text-2xl font-semibold ">Person Two</h2>
                 <p className="text-gray-400 text-sm">
                   Creativity is the ability to generate, create, or discover new
                   ideas, solutions, and possibilities.
