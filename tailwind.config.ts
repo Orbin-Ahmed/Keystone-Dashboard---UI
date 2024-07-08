@@ -340,6 +340,16 @@ const config: Config = {
         line3: "line 7s infinite linear",
       },
     },
+    container: {
+      center: true,
+      padding: {
+        DEFAULT: "1rem",
+        md: "2rem",
+        lg: "3rem",
+        xl: "4rem",
+        "2xl": "5rem",
+      },
+    },
   },
   plugins: [],
 };

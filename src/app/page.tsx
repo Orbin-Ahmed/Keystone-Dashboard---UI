@@ -1,23 +1,29 @@
 import { Metadata } from "next";
-import Link from "next/link";
+import HeroSection from "@/components/Client/HeroSection";
+import AboutComponent from "@/components/Client/AboutComponent";
+import CatalogueSection from "@/components/Client/CatalogueSection";
+import CatalogSwiperSection from "@/components/Client/CatalogSwiperCection";
+import ContactSection from "@/components/Client/ContactSection";
+import CompanySection from "@/components/Client/CompanySection";
+import Header from "@/components/Client/Header";
+import Footer from "@/components/Client/Footer";
 
 export const metadata: Metadata = {
-  title: "Home || Keystone Engineering Consultant",
+  title: "Home || Ideal Home Interior",
   description: "This is the Home Page.",
 };
 
 export default function Home() {
   return (
     <>
-      <div className="flex h-screen w-full flex-col items-center justify-center">
-        <h1>This is the Home page.</h1>
-        <p>
-          <Link href="/auth/login/" className="text-primary">
-            Login
-          </Link>{" "}
-          to admin dashboard
-        </p>
-      </div>
+      <Header />
+      <HeroSection />
+      <CompanySection />
+      <AboutComponent />
+      <CatalogueSection />
+      <CatalogSwiperSection />
+      <ContactSection />
+      <Footer />
     </>
   );
 }

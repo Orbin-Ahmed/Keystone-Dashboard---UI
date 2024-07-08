@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { getImageUrl, getSessionStorage } from "@/utils";
-import { fetchUserData, getCompanyInfo, getCookie } from "@/api";
+import { getCompanyInfo, getCookie } from "@/api";
 import SidebarSubItem from "./SidebarSubItem";
 
 interface SidebarProps {

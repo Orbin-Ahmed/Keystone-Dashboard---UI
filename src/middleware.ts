@@ -12,7 +12,7 @@ export async function middleware(request: NextRequest) {
     const secret_key = "6595554882";
     role = role / Number(secret_key);
   } else {
-    role = 4;
+    role = 4; // Default to role 4 if no cookie is found
   }
 
   const commonRoutes = [
@@ -23,29 +23,35 @@ export async function middleware(request: NextRequest) {
     "/dashboard/profile",
     "/dashboard/settings",
   ];
-  // Define the routes based on role
+
   const designerRoutes = ["/dashboard/add-image", "/dashboard/edit-image"];
-
   const adminRoutes = ["/dashboard/users"];
-
   const superUserRoutes = [...commonRoutes, ...adminRoutes, ...designerRoutes];
 
-  if (role) {
-    url.pathname = "/auth/login/";
+  // Allow access to the landing page for all users
+  if (pathname === "/") {
+    return NextResponse.next();
+  }
 
+  if (role) {
     if (role !== 1 && adminRoutes.includes(pathname)) {
+      url.pathname = "/auth/login/";
       return NextResponse.redirect(url);
     }
 
     if (role !== 3 && designerRoutes.includes(pathname)) {
+      url.pathname = "/auth/login/";
       return NextResponse.redirect(url);
     }
 
     if (!(role === 3 || role === 1) && commonRoutes.includes(pathname)) {
+      url.pathname = "/auth/login/";
       return NextResponse.redirect(url);
     }
   } else {
     url.pathname = "/auth/login/";
     return NextResponse.redirect(url);
   }
+
+  return NextResponse.next();
 }
