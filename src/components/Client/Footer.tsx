@@ -12,8 +12,8 @@ export default function Footer() {
               <Link className="py-1 hover:underline" href="/view/about">
                 About Us
               </Link>
-              <Link className="py-1 hover:underline" href="/press">
-                Press
+              <Link className="py-1 hover:underline" href="/dashboard">
+                Dashboard
               </Link>
               <Link className="py-1 hover:underline" href="/careers">
                 Careers
