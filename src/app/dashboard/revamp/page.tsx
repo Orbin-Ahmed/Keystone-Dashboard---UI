@@ -49,7 +49,6 @@ const Revamp = ({}: RevampProps) => {
     if (parseInt(seed) !== 0) {
       input.seed = parseInt(seed);
     }
-    console.log(input);
 
     try {
       const output = await runInteriorDesignModel(input);
