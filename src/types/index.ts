@@ -145,3 +145,13 @@ export type BrandData = {
   current_images: number;
   percentage: number;
 };
+
+export interface InteriorDesignInput {
+  image: File;
+  prompt: string;
+  guidance_scale: number;
+  negative_prompt: string;
+  prompt_strength: number;
+  num_inference_steps: number;
+  seed?: number;
+}

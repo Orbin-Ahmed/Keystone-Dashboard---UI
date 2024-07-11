@@ -91,7 +91,7 @@ export default function About() {
                   src="/images/client_interface/profile1.jpg"
                   width={200}
                   height={200}
-                  alt=""
+                  alt="p-2"
                   className="mx-auto rounded-full "
                 />
                 <h2 className="py-4 text-2xl font-semibold ">Person Two</h2>
