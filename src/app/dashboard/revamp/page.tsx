@@ -172,7 +172,7 @@ const Revamp = ({}: RevampProps) => {
                       <p className="text-sm font-medium">Drawing Room</p>
                     </RadioCards.Item>
                     <RadioCards.Item value="Kid Room">
-                      <p className="text-sm font-medium">Kid's Room</p>
+                      <p className="text-sm font-medium">Kid Room</p>
                     </RadioCards.Item>
                     <RadioCards.Item value="Bathroom">
                       <p className="text-sm font-medium">Bathroom</p>
