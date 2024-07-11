@@ -1048,7 +1048,9 @@ export const runInteriorDesignModel = async (
 ): Promise<any> => {
   const model =
     "adirik/interior-design:76604baddc85b1b4616e1c6475eca080da339c8875bd4996705440484a6eac38";
-  const replicate = new Replicate();
+  const replicate = new Replicate({
+    auth: process.env.NEXT_PUBLIC_REPLICATE_API_TOKEN,
+  });
   const formData = new FormData();
   formData.append("image", input.image);
   formData.append("prompt", input.prompt);

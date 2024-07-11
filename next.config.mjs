@@ -26,6 +26,14 @@ const nextConfig = {
         port: "8000",
         pathname: "/media/pin/**",
       },
+      {
+        protocol: "https",
+        hostname: "replicate.com",
+      },
+      {
+        protocol: "https",
+        hostname: "replicate.delivery",
+      },
     ],
   },
 };
