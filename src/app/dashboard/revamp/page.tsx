@@ -44,6 +44,8 @@ const Revamp = ({}: RevampProps) => {
   };
 
   const handleSubmit = async () => {
+    setIsLoading(true);
+
     const extraPrompt =
       "sunny, real, realistic, 4k, 2k, 8k, ultra-detailed, photorealistic, high-definition, professional, vibrant colors, natural lighting, hyper-realistic, balanced light, eye soothing, ";
     const input: InteriorDesignInput = {
@@ -93,11 +95,11 @@ const Revamp = ({}: RevampProps) => {
           );
         }
       }
-
-      console.log("All model outputs:", results);
       setDesignResults(results);
     } catch (error) {
       console.error("Error running model:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
