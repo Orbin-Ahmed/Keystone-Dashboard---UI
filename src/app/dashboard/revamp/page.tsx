@@ -6,7 +6,7 @@ import InputField from "@/components/InputField";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import NextLightbox from "@/components/NextLightbox";
 import { InteriorDesignInput } from "@/types";
-import { RadioCards, TextArea } from "@radix-ui/themes";
+import { RadioCards, Spinner, TextArea } from "@radix-ui/themes";
 import Image from "next/image";
 import React, { useState } from "react";
 import Lightbox from "yet-another-react-lightbox";
@@ -17,6 +17,7 @@ type RevampProps = {};
 
 const Revamp = ({}: RevampProps) => {
   const [index, setIndex] = React.useState(-1);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [seed, setSeed] = useState<string>("0");
@@ -270,8 +271,13 @@ const Revamp = ({}: RevampProps) => {
                 variant="primary"
                 className="mt-4 inline-flex w-full items-center justify-center gap-1 rounded-lg"
                 onClick={handleSubmit}
+                disabled={isLoading}
               >
-                Generate <TbArrowUpRight className="text-xl" />
+                <div className="flex items-center justify-center">
+                  <span className="mr-2">Generate </span>{" "}
+                  {isLoading && <Spinner loading={isLoading}></Spinner>}
+                  {!isLoading && <TbArrowUpRight className="text-xl" />}
+                </div>
               </CustomButton>
             </div>
             {/* Left Layout end  */}
