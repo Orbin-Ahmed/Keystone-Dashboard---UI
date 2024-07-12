@@ -284,8 +284,8 @@ const Revamp = ({}: RevampProps) => {
             </div>
             {/* Left Layout end  */}
             {/* Right layout */}
-            <div className="border-gray-300 mt-8 flex basis-3/5 flex-col items-start justify-center border-l">
-              <p className="flex w-full justify-center text-lg font-bold">
+            <div className="border-gray-300 mt-8 flex basis-3/5 flex-col items-start justify-start border-l">
+              <p className="ml-4 flex w-full justify-center text-lg font-bold">
                 Generated Design
               </p>
               <div className="flex flex-wrap">
