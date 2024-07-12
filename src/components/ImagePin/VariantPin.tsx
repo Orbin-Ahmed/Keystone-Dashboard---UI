@@ -10,6 +10,7 @@ type VariantPinProps = {
   pinSize: string;
   id: string;
   idx: number;
+  is_variant?: boolean;
   setIndex: (index: number) => void;
 };
 
@@ -19,6 +20,7 @@ const VariantPin = ({
   id,
   idx,
   setIndex,
+  is_variant = true,
 }: VariantPinProps) => {
   const [images, setImages] = useState<VariantData[]>([]);
   const handleGetBaseImage = async () => {
@@ -42,26 +44,28 @@ const VariantPin = ({
           className="mainPic"
           onClick={() => setIndex(idx)}
         />
-        <div className="content_1 absolute right-0 top-0 flex h-[50px] w-full cursor-auto items-center justify-end bg-transparent px-4">
-          <Dialog.Root>
-            <Dialog.Trigger>
-              <Button
-                variant="soft"
-                className="cursor-pointer bg-white bg-opacity-75 dark:bg-black dark:bg-opacity-25"
-                onClick={handleGetBaseImage}
-              >
-                <Image
-                  src={"/images/icon/view.png"}
-                  alt={"menu"}
-                  width={20}
-                  height={20}
-                  className="object-contain"
-                />
-              </Button>
-            </Dialog.Trigger>
-            <ViewVariant idx={idx} images={images} />
-          </Dialog.Root>
-        </div>
+        {is_variant && (
+          <div className="content_1 absolute right-0 top-0 flex h-[50px] w-full cursor-auto items-center justify-end bg-transparent px-4">
+            <Dialog.Root>
+              <Dialog.Trigger>
+                <Button
+                  variant="soft"
+                  className="cursor-pointer bg-white bg-opacity-75 dark:bg-black dark:bg-opacity-25"
+                  onClick={handleGetBaseImage}
+                >
+                  <Image
+                    src={"/images/icon/view.png"}
+                    alt={"menu"}
+                    width={20}
+                    height={20}
+                    className="object-contain"
+                  />
+                </Button>
+              </Dialog.Trigger>
+              <ViewVariant idx={idx} images={images} />
+            </Dialog.Root>
+          </div>
+        )}
       </div>
     </>
   );

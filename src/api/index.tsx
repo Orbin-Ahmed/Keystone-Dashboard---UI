@@ -10,7 +10,6 @@ import {
   User,
 } from "@/types";
 import { getSessionStorage, storeSessionStorage } from "@/utils";
-import Replicate from "replicate";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const Frontend_BASE_URL = process.env.NEXT_PUBLIC_FRONTEND_URL;
@@ -1041,30 +1040,3 @@ export function getCookie(name: string) {
   }
   return null;
 }
-
-// Replicate
-export const runInteriorDesignModel = async (
-  input: InteriorDesignInput,
-): Promise<any> => {
-  const formData = new FormData();
-  formData.append("image", input.image);
-  formData.append("prompt", input.prompt);
-  formData.append("guidance_scale", input.guidance_scale.toString());
-  formData.append("negative_prompt", input.negative_prompt);
-  formData.append("prompt_strength", input.prompt_strength.toString());
-  formData.append("num_inference_steps", input.num_inference_steps.toString());
-  if (input.seed !== undefined) {
-    formData.append("seed", input.seed.toString());
-  }
-
-  const response = await fetch("/api/revamp", {
-    method: "POST",
-    body: formData,
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to run interior design model");
-  }
-
-  return response.json();
-};

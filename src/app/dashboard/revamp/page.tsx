@@ -1,30 +1,38 @@
 "use client";
-import { runInteriorDesignModel } from "@/api";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import CustomButton from "@/components/CustomButton";
+import VariantPin from "@/components/ImagePin/VariantPin";
 import InputField from "@/components/InputField";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
+import NextLightbox from "@/components/NextLightbox";
 import { InteriorDesignInput } from "@/types";
 import { RadioCards, TextArea } from "@radix-ui/themes";
 import Image from "next/image";
 import React, { useState } from "react";
+import Lightbox from "yet-another-react-lightbox";
+import { Download } from "yet-another-react-lightbox/plugins";
+import { TbArrowUpRight } from "react-icons/tb";
 
 type RevampProps = {};
 
 const Revamp = ({}: RevampProps) => {
+  const [index, setIndex] = React.useState(-1);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [seed, setSeed] = useState<string>("0");
   const [prompt, setPrompt] = useState<string>("");
   const [guidanceScale, setGuidanceScale] = useState<number>(15);
   const [negativePrompt, setNegativePrompt] = useState<string>(
-    "lowres, watermark, banner, logo, contactinfo, text, deformed, blurry, blur, out of focus, out of frame, surreal, extra, ugly, upholstered walls, fabric walls, plush walls, mirror, mirrored, unrealistic, cartoon, anime, sketch, drawing, semi-realistic, worst quality, low quality, jpeg artifacts, over-saturation",
+    "lowres, watermark, banner, logo, contactinfo, text, deformed, blurry, blur, out of focus, out of frame, surreal, extra, ugly, upholstered walls, fabric walls, plush walls, mirror, mirrored, unrealistic, cartoon, anime, sketch, drawing, semi-realistic, worst quality, low quality, jpeg artifacts, over-saturation, over-exposed, unbalanced light",
   );
   const [promptStrength, setPromptStrength] = useState<number>(0.8);
   const [numInferenceSteps, setNumInferenceSteps] = useState<number>(40);
   const [theme, setTheme] = useState<string>("Contemporary");
   const [roomType, setRoomType] = useState<string>("Living Room");
   const [numDesigns, setNumDesigns] = useState<string>("1");
+  const [designResults, setDesignResults] = useState<{ [key: string]: any }>(
+    {},
+  );
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -36,7 +44,7 @@ const Revamp = ({}: RevampProps) => {
 
   const handleSubmit = async () => {
     const extraPrompt =
-      "sunny, real, realistic, 4k, 2k, 8k, ultra-detailed, photorealistic, high-definition, professional, vibrant colors, natural lighting, hyper-realistic,";
+      "sunny, real, realistic, 4k, 2k, 8k, ultra-detailed, photorealistic, high-definition, professional, vibrant colors, natural lighting, hyper-realistic, balanced light, eye soothing, ";
     const input: InteriorDesignInput = {
       image: selectedImage as File,
       prompt: `A ${theme} themed ${roomType} with ${prompt}, ${extraPrompt}`,
@@ -50,13 +58,52 @@ const Revamp = ({}: RevampProps) => {
       input.seed = parseInt(seed);
     }
 
+    const results: { [key: string]: any } = {};
+
     try {
-      const output = await runInteriorDesignModel(input);
-      console.log("Model output:", output);
+      for (let i = 1; i <= parseInt(numDesigns); i++) {
+        const formData = new FormData();
+        formData.append("image", input.image);
+        formData.append("prompt", input.prompt);
+        formData.append("guidance_scale", input.guidance_scale.toString());
+        formData.append("negative_prompt", input.negative_prompt);
+        formData.append("prompt_strength", input.prompt_strength.toString());
+        formData.append(
+          "num_inference_steps",
+          input.num_inference_steps.toString(),
+        );
+
+        if (input.seed !== undefined) {
+          formData.append("seed", input.seed.toString());
+        }
+
+        const response = await fetch("/api/revamp", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (response.ok) {
+          const responseData = await response.json();
+          results[`image${i}`] = responseData;
+        } else {
+          console.error(
+            `Error running model for image${i}:`,
+            response.statusText,
+          );
+        }
+      }
+
+      console.log("All model outputs:", results);
+      setDesignResults(results);
     } catch (error) {
       console.error("Error running model:", error);
     }
   };
+
+  const lightboxUrlList = Object.keys(designResults).map((key) => ({
+    src: designResults[key],
+    download: `https://corsproxy.io/?${designResults[key]}`,
+  }));
 
   return (
     <>
@@ -221,18 +268,43 @@ const Revamp = ({}: RevampProps) => {
 
               <CustomButton
                 variant="primary"
-                className="mt-4 w-full rounded-lg"
+                className="mt-4 inline-flex w-full items-center justify-center gap-1 rounded-lg"
                 onClick={handleSubmit}
               >
-                Generate
+                Generate <TbArrowUpRight className="text-xl" />
               </CustomButton>
             </div>
             {/* Left Layout end  */}
             {/* Right layout */}
-            <div className="border-gray-300 flex basis-3/5 items-center justify-center border-l"></div>
-            {/* Right layout end*/}
+            <div className="border-gray-300 mt-8 flex basis-3/5 flex-col items-start justify-center border-l">
+              <p className="flex w-full justify-center text-lg font-bold">
+                Generated Design
+              </p>
+              <div className="flex flex-wrap">
+                {Object.keys(designResults).map((key, index) => (
+                  <div key={index} className="flex basis-1/2 p-2">
+                    <VariantPin
+                      imgSrc={designResults[key]}
+                      idx={index}
+                      setIndex={setIndex}
+                      id={key}
+                      pinSize="medium"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Right layout end */}
           </div>
         </div>
+        <Lightbox
+          index={index}
+          slides={lightboxUrlList}
+          open={index >= 0}
+          close={() => setIndex(-1)}
+          render={{ slide: NextLightbox }}
+          plugins={[Download]}
+        />
       </DefaultLayout>
     </>
   );
