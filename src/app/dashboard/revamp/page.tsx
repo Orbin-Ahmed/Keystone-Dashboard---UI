@@ -297,6 +297,7 @@ const Revamp = ({}: RevampProps) => {
                       setIndex={setIndex}
                       id={key}
                       pinSize="medium"
+                      is_variant={false}
                     />
                   </div>
                 ))}
