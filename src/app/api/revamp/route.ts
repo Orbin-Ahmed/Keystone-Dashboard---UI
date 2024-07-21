@@ -8,7 +8,8 @@ export async function POST(req: Request) {
   try {
     const formData = await req.formData();
 
-    const image = formData.get("image");
+    const imageFile = formData.get("image") as File;
+    const imageBuffer = Buffer.from(await imageFile.arrayBuffer());
     const prompt = formData.get("prompt") as string;
     const guidance_scale = parseFloat(
       (formData.get("guidance_scale") ?? "15").toString(),
@@ -22,12 +23,8 @@ export async function POST(req: Request) {
     );
     const seed = formData.get("seed");
 
-    if (!(image instanceof File)) {
-      throw new Error("Invalid image file");
-    }
-
     const input: any = {
-      image: image,
+      image: imageBuffer,
       prompt: prompt,
       guidance_scale: guidance_scale,
       negative_prompt: negative_prompt,
