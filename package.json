@@ -27,6 +27,7 @@
     "react-konva": "^18.2.10",
     "react-toastify": "^10.0.5",
     "replicate": "^0.31.1",
+    "sharp": "^0.33.4",
     "swiper": "^11.1.4",
     "tailwind-merge": "^2.3.0",
     "yet-another-react-lightbox": "^3.18.0"
