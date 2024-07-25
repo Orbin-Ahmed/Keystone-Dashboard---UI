@@ -68,6 +68,7 @@ const UploadImageDialogue = ({
 
     try {
       await postImageFile(imageFiles);
+      setImageFiles([]);
     } catch (error) {
       console.error("Error posting images:", error);
     } finally {
