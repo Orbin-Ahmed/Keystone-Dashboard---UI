@@ -197,38 +197,22 @@ export const pinterestImageData = async (searchTerm: string, page: Number) => {
 
   const url = `${API_BASE_URL}api/images/search?query=${searchTerm}&page_size=20&page_number=${page}`;
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 10000);
-
   try {
     const response = await fetch(url, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Token ${token}`,
       },
-      signal: controller.signal,
     });
-
-    clearTimeout(timeoutId);
 
     if (response.ok) {
       const data = await response.json();
       return data;
     } else {
-      console.error("Response error:", response.status, response.statusText);
-      const errorData = await response.json();
-      console.error("Error data:", errorData);
+      console.log(response);
     }
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      if (error.name === "AbortError") {
-        console.error("Fetch request timed out");
-      } else {
-        console.error("Error fetching data:", error.message);
-      }
-    } else {
-      console.error("An unknown error occurred:", error);
-    }
+  } catch (error) {
+    console.error("Error fetching data:", error);
   }
 };
 
