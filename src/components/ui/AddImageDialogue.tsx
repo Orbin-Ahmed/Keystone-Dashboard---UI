@@ -23,9 +23,8 @@ const AddImageDialogue = ({
   const [shouldClose, setShouldClose] = useState(false);
   const [nationality, setNationality] = useState("emirati");
   const [roomType, setRoomType] = useState("");
-  const [temperature, setTemperature] = useState("");
+  const [style, setStyle] = useState("");
   const [theme, setTheme] = useState("");
-  const [color, setColor] = useState("");
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -41,9 +40,8 @@ const AddImageDialogue = ({
       source,
       nationality,
       room_type: roomType,
-      temperature,
+      style,
       theme,
-      color,
       is_url: "true",
     }));
 
@@ -106,7 +104,7 @@ const AddImageDialogue = ({
         </Dialog.Description>
 
         <form onSubmit={handleSubmit}>
-          <div className="mt-4 flex items-center justify-between">
+          <div className="mb-8 mt-4 flex items-center justify-between">
             <TextField.Root
               radius="large"
               variant="surface"
@@ -123,7 +121,7 @@ const AddImageDialogue = ({
               placeholder="Temperature"
               name="temperature"
               id="temperature"
-              onChange={(e) => setTemperature(e.target.value)}
+              onChange={(e) => setStyle(e.target.value)}
               required
             />
 
@@ -135,17 +133,6 @@ const AddImageDialogue = ({
               id="theme"
               onChange={(e) => setTheme(e.target.value)}
               required
-            />
-          </div>
-
-          <div className="mt-4 flex items-center justify-start">
-            <TextField.Root
-              radius="large"
-              variant="surface"
-              placeholder="Room Color"
-              name="color"
-              id="color"
-              onChange={(e) => setColor(e.target.value)}
             />
           </div>
 

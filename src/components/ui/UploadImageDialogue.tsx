@@ -8,32 +8,50 @@ import { ImageFiles } from "@/types";
 
 type CustomDialogProps = {
   title: string;
+  objectFlag?: boolean;
 };
 
-const UploadImageDialogue = ({ title }: CustomDialogProps) => {
+const UploadImageDialogue = ({
+  title,
+  objectFlag = false,
+}: CustomDialogProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [shouldClose, setShouldClose] = useState(false);
   const [nationality, setNationality] = useState("emirati");
+  const [objectType, setObjectType] = useState("door");
   const [roomType, setRoomType] = useState("");
-  const [temperature, setTemperature] = useState("");
+  const [style, setStyle] = useState("");
   const [theme, setTheme] = useState("");
-  const [color, setColor] = useState("");
   const [imageFiles, setImageFiles] = useState<ImageFiles[]>([]);
 
   const handleImageUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const selectedFiles = Array.from(event.target.files || []);
-    const newImageFiles = selectedFiles.map((file) => ({
-      photo: file,
-      nationality,
-      room_type: roomType,
-      source: "Designer",
-      temperature,
-      theme,
-      color,
-      is_url: "false",
-    }));
+
+    const newImageFiles: ImageFiles[] = selectedFiles.map((file) => {
+      const commonFields: ImageFiles = {
+        photo: file,
+        style,
+        source: "Designer",
+        is_url: "false",
+        is_object: objectFlag ? "true" : "false",
+      };
+
+      if (objectFlag) {
+        return {
+          ...commonFields,
+          object_type: objectType,
+        };
+      } else {
+        return {
+          ...commonFields,
+          nationality,
+          room_type: roomType,
+          theme,
+        };
+      }
+    });
 
     setImageFiles((prevFiles) => [...prevFiles, ...newImageFiles]);
   };
@@ -87,49 +105,72 @@ const UploadImageDialogue = ({ title }: CustomDialogProps) => {
         <Dialog.Title>{title}</Dialog.Title>
 
         <form onSubmit={handleSubmit}>
-          <div className="mt-4 flex items-center justify-between">
-            <TextField.Root
-              radius="large"
-              variant="surface"
-              placeholder="Room Type"
-              name="room_type"
-              id="room_type"
-              onChange={(e) => setRoomType(e.target.value)}
-              required
-            />
+          <div className="my-4 flex items-center justify-between">
+            {objectFlag && (
+              <Select.Root
+                defaultValue="door"
+                onValueChange={setObjectType}
+                required
+              >
+                <Select.Trigger color="gray" radius="large" />
+                <Select.Content color="gray" variant="solid">
+                  <Select.Item value="door">Door</Select.Item>
+                  <Select.Item value="window">window</Select.Item>
+                  <Select.Item value="floor cabinets">
+                    Floor Cabinets
+                  </Select.Item>
+                  <Select.Item value="top cabinets">Top Cabinets</Select.Item>
+                </Select.Content>
+              </Select.Root>
+            )}
+            {!objectFlag && (
+              <TextField.Root
+                radius="large"
+                variant="surface"
+                placeholder="Room Type"
+                name="room_type"
+                id="room_type"
+                onChange={(e) => setRoomType(e.target.value)}
+                required
+              />
+            )}
 
             <TextField.Root
               radius="large"
               variant="surface"
-              placeholder="Temperature"
-              name="temperature"
-              id="temperature"
-              onChange={(e) => setTemperature(e.target.value)}
+              placeholder="style"
+              name="style"
+              id="style"
+              onChange={(e) => setStyle(e.target.value)}
               required
             />
 
-            <TextField.Root
-              radius="large"
-              variant="surface"
-              placeholder="Theme"
-              name="theme"
-              id="theme"
-              onChange={(e) => setTheme(e.target.value)}
-              required
-            />
+            {!objectFlag && (
+              <TextField.Root
+                radius="large"
+                variant="surface"
+                placeholder="Theme"
+                name="theme"
+                id="theme"
+                onChange={(e) => setTheme(e.target.value)}
+                required
+              />
+            )}
           </div>
 
-          <div className="mt-4 flex items-center justify-between">
-            <TextField.Root
-              radius="large"
-              variant="surface"
-              placeholder="Room Color"
-              name="color"
-              id="color"
-              onChange={(e) => setColor(e.target.value)}
-              required
-            />
-
+          <div className="mb-8 mt-4 flex items-center justify-between">
+            {!objectFlag && (
+              <Select.Root
+                defaultValue="emirati"
+                onValueChange={setNationality}
+                required
+              >
+                <Select.Trigger color="gray" radius="large" />
+                <Select.Content color="gray" variant="solid">
+                  <Select.Item value="emirati">Emirati</Select.Item>
+                </Select.Content>
+              </Select.Root>
+            )}
             <div>
               <input
                 id="images"
@@ -140,19 +181,6 @@ const UploadImageDialogue = ({ title }: CustomDialogProps) => {
                 required
               />
             </div>
-          </div>
-
-          <div className="mt-4 flex justify-start">
-            <Select.Root
-              defaultValue="emirati"
-              onValueChange={setNationality}
-              required
-            >
-              <Select.Trigger color="gray" radius="large" />
-              <Select.Content color="gray" variant="solid">
-                <Select.Item value="emirati">Emirati</Select.Item>
-              </Select.Content>
-            </Select.Root>
           </div>
 
           <Flex gap="3" justify="end">

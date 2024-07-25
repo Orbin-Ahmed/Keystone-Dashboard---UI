@@ -466,6 +466,7 @@ export const postImageFile = async (imageFiles: ImageFiles[]) => {
 
   if (!token) {
     window.location.href = `${Frontend_BASE_URL}/auth/login`;
+    return;
   }
 
   const url = `${API_BASE_URL}api/images/file/`;
@@ -476,13 +477,18 @@ export const postImageFile = async (imageFiles: ImageFiles[]) => {
     for (const imageFile of imageFiles) {
       const formData = new FormData();
       formData.append("photo", imageFile.photo);
-      formData.append("nationality", imageFile.nationality);
-      formData.append("room_type", imageFile.room_type);
       formData.append("source", imageFile.source);
-      formData.append("temperature", imageFile.temperature);
-      formData.append("theme", imageFile.theme);
-      formData.append("color", imageFile.color);
+      formData.append("style", imageFile.style);
       formData.append("is_url", imageFile.is_url);
+      formData.append("is_object", imageFile.is_object);
+
+      if (imageFile.nationality)
+        formData.append("nationality", imageFile.nationality);
+      if (imageFile.room_type)
+        formData.append("room_type", imageFile.room_type);
+      if (imageFile.theme) formData.append("theme", imageFile.theme);
+      if (imageFile.object_type)
+        formData.append("object_type", imageFile.object_type);
 
       const response = await fetch(url, {
         method: "POST",

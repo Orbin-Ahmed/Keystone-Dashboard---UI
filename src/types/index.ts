@@ -60,8 +60,7 @@ export interface ImageData {
   source?: string;
   nationality?: string;
   room_type?: string;
-  temperature?: string;
-  color?: string;
+  style?: string;
   theme?: string;
   is_url: string;
 }
@@ -74,13 +73,14 @@ export interface VariantData {
 
 export type ImageFiles = {
   photo: File;
-  nationality: string;
-  room_type: string;
+  nationality?: string;
+  room_type?: string;
   source: string;
-  temperature: string;
-  theme: string;
-  color: string;
+  style: string;
+  theme?: string;
   is_url: string;
+  object_type?: string;
+  is_object: string;
 };
 
 export interface ChatData {

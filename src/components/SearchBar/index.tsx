@@ -152,6 +152,20 @@ const SearchBar = ({
         </div>
       </form>
       <div className="mb-4 flex">
+        {/* Upload Object Button Area  */}
+        <div>
+          <Dialog.Root>
+            <Dialog.Trigger>
+              <CustomButton className="mr-2 px-4 py-1">
+                Upload Object
+              </CustomButton>
+            </Dialog.Trigger>
+            <UploadImageDialogue
+              objectFlag={true}
+              title="Upload Your Own Image To Database"
+            />
+          </Dialog.Root>
+        </div>
         {/* Upload Button Area  */}
         <div>
           <Dialog.Root>
