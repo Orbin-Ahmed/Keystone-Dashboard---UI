@@ -190,7 +190,6 @@ export const pixabayImageData = async (searchTerm: string, page: Number) => {
 
 export const pinterestImageData = async (searchTerm: string, page: Number) => {
   const token = getToken();
-
   if (!token) {
     window.location.href = `${Frontend_BASE_URL}/auth/login`;
   }
