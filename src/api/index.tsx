@@ -198,7 +198,7 @@ export const pinterestImageData = async (searchTerm: string, page: Number) => {
   const url = `${API_BASE_URL}api/images/search?query=${searchTerm}&page_size=20&page_number=${page}`;
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 seconds timeout
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
 
   try {
     const response = await fetch(url, {
