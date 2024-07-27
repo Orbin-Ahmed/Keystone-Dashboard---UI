@@ -12,12 +12,15 @@ import React, { useState } from "react";
 import Lightbox from "yet-another-react-lightbox";
 import { Download } from "yet-another-react-lightbox/plugins";
 import { TbArrowUpRight } from "react-icons/tb";
+import PanoramicViewer from "@/components/PanoViewer";
+import { handleGenerate360ViewAPI } from "@/api";
 
 type RevampProps = {};
 
 const Revamp = ({}: RevampProps) => {
   const [index, setIndex] = React.useState(-1);
   const [isLoading, setIsLoading] = useState(false);
+  const [panoImage, setPanoImage] = useState<string>("/images/test_pano.jpg");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [seed, setSeed] = useState<string>("0");
@@ -107,6 +110,24 @@ const Revamp = ({}: RevampProps) => {
     src: designResults[key],
     download: `https://corsproxy.io/?${designResults[key]}`,
   }));
+
+  const handleOpen360View = (imageSrc: string) => {
+    console.log("hello");
+    const url = `/panoramic-view?imageUrl=${encodeURIComponent(imageSrc)}`;
+    window.open(url, "_blank");
+  };
+
+  const handleGenerate360View = async (imageSrc: string) => {
+    const response = await handleGenerate360ViewAPI(
+      imageSrc,
+      `A ${theme} themed ${roomType} with ${prompt}`,
+      true,
+    );
+    if (response) {
+      setPanoImage(response);
+    } else {
+    }
+  };
 
   return (
     <>
@@ -285,22 +306,60 @@ const Revamp = ({}: RevampProps) => {
             {/* Left Layout end  */}
             {/* Right layout */}
             <div className="border-gray-300 mt-8 flex basis-3/5 flex-col items-start justify-start border-l">
-              <p className="ml-4 flex w-full justify-center text-lg font-bold">
-                Generated Design
-              </p>
-              <div className="flex flex-wrap">
-                {Object.keys(designResults).map((key, index) => (
-                  <div key={index} className="flex basis-1/2 p-2">
-                    <VariantPin
-                      imgSrc={designResults[key]}
-                      idx={index}
-                      setIndex={setIndex}
-                      id={key}
-                      pinSize="medium"
-                      is_variant={false}
-                    />
+              <div className="flex w-full flex-col items-center justify-center gap-4">
+                {/* Wrapper 1 */}
+                <div>
+                  <div className="ml-4 flex w-full justify-center text-lg font-bold">
+                    <div className="flex items-center justify-center">
+                      <span className="mr-2">Generated Design </span>{" "}
+                      {isLoading && <Spinner loading={isLoading}></Spinner>}
+                    </div>
                   </div>
-                ))}
+                  <div className="flex flex-wrap">
+                    {Object.keys(designResults).map((key, index) => (
+                      <div key={index} className="flex basis-1/2 p-2">
+                        <div className="flex flex-col items-center justify-center">
+                          <VariantPin
+                            imgSrc={designResults[key]}
+                            idx={index}
+                            setIndex={setIndex}
+                            id={key}
+                            pinSize="medium"
+                            is_variant={false}
+                          />
+                          <CustomButton
+                            className="max-w-fit"
+                            onClick={() =>
+                              handleGenerate360View(designResults[key])
+                            }
+                          >
+                            360 View Generate
+                          </CustomButton>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {/* Wrapper 1 end */}
+                {/* Wrapper 2  */}
+                <div className="w-full">
+                  <div className="ml-4 flex w-full justify-center text-lg font-bold">
+                    <div className="flex items-center justify-center">
+                      <span className="mr-2">360 View </span>{" "}
+                      {isLoading && <Spinner loading={isLoading}></Spinner>}
+                      {!isLoading && (
+                        <TbArrowUpRight
+                          className="cursor-pointer text-xl"
+                          onClick={() => handleOpen360View(panoImage)}
+                        />
+                      )}
+                    </div>
+                  </div>
+                  <div style={{ width: "100%", height: "500px" }}>
+                    <PanoramicViewer imageSrc={panoImage} />
+                  </div>
+                </div>
+                {/* Wrapper 2 end */}
               </div>
             </div>
             {/* Right layout end */}

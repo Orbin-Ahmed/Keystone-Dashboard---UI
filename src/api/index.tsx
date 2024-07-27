@@ -1032,6 +1032,59 @@ function getToken() {
   }
   return token;
 }
+export const handleGenerate360ViewAPI = async (
+  imageSrc: string,
+  prompt: string,
+  upscale: boolean,
+) => {
+  const base64Image = await convertToBase64(imageSrc);
+  const BASETEN_API_KEY = process.env.NEXT_PUBLIC_BASETEN_API_KEY;
+
+  try {
+    const response = await fetch(
+      "https://model-5qe5pnpq.api.baseten.co/development/predict",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Api-Key ${BASETEN_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          image: base64Image,
+          prompt: prompt,
+          upscale: upscale,
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error generating 360 view:", error);
+    throw error;
+  }
+};
+
+const convertToBase64 = (url: string) => {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.onload = function () {
+      const reader = new FileReader();
+      reader.onloadend = function () {
+        resolve(reader.result);
+      };
+      reader.readAsDataURL(xhr.response);
+    };
+    xhr.onerror = reject;
+    xhr.open("GET", url);
+    xhr.responseType = "blob";
+    xhr.send();
+  });
+};
 
 export function getCookie(name: string) {
   const decodedCookie = decodeURIComponent(document.cookie);

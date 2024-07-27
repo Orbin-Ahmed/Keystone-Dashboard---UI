@@ -118,9 +118,9 @@ const AddImageDialogue = ({
             <TextField.Root
               radius="large"
               variant="surface"
-              placeholder="Temperature"
-              name="temperature"
-              id="temperature"
+              placeholder="Style"
+              name="style"
+              id="style"
               onChange={(e) => setStyle(e.target.value)}
               required
             />
