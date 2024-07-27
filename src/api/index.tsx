@@ -1022,40 +1022,29 @@ const getObjectWhenReady = async (order_id: string) => {
     await delay(3000);
   } while (responseData.order_status_code !== 200);
 };
-
 // AI Editor End
 
-function getToken() {
-  let token = getSessionStorage("Token");
-  if (!token) {
-    token = getCookie("data");
-  }
-  return token;
-}
 export const handleGenerate360ViewAPI = async (
   imageSrc: string,
   prompt: string,
   upscale: boolean,
 ) => {
-  const base64Image = await convertToBase64(imageSrc);
-  const BASETEN_API_KEY = process.env.NEXT_PUBLIC_BASETEN_API_KEY;
-
   try {
-    const response = await fetch(
-      "https://model-5qe5pnpq.api.baseten.co/development/predict",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Api-Key ${BASETEN_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          image: base64Image,
-          prompt: prompt,
-          upscale: upscale,
-        }),
+    const base64Image = await convertToBase64(imageSrc);
+
+    const payload = {
+      image: base64Image,
+      prompt: prompt,
+      upscale: upscale,
+    };
+
+    const response = await fetch("/api/panoramic", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify(payload),
+    });
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -1069,6 +1058,7 @@ export const handleGenerate360ViewAPI = async (
   }
 };
 
+// MISC
 const convertToBase64 = (url: string) => {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
@@ -1086,6 +1076,13 @@ const convertToBase64 = (url: string) => {
   });
 };
 
+function getToken() {
+  let token = getSessionStorage("Token");
+  if (!token) {
+    token = getCookie("data");
+  }
+  return token;
+}
 export function getCookie(name: string) {
   const decodedCookie = decodeURIComponent(document.cookie);
   const cookieParts = decodedCookie.split(";");
@@ -1098,3 +1095,4 @@ export function getCookie(name: string) {
   }
   return null;
 }
+// MISC End

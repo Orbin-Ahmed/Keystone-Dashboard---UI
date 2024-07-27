@@ -111,21 +111,31 @@ const Revamp = ({}: RevampProps) => {
     download: `https://corsproxy.io/?${designResults[key]}`,
   }));
 
-  const handleOpen360View = (imageSrc: string) => {
-    console.log("hello");
-    const url = `/panoramic-view?imageUrl=${encodeURIComponent(imageSrc)}`;
-    window.open(url, "_blank");
+  const handleOpen360View = (base64Image: string) => {
+    try {
+      const url = `/panoramic-view?imageData=${encodeURIComponent(base64Image)}`;
+      window.open(url, "_blank");
+    } catch (error) {
+      console.error("Failed to open new tab:", error);
+    }
   };
 
   const handleGenerate360View = async (imageSrc: string) => {
-    const response = await handleGenerate360ViewAPI(
-      imageSrc,
-      `A ${theme} themed ${roomType} with ${prompt}`,
-      true,
-    );
-    if (response) {
-      setPanoImage(response);
-    } else {
+    try {
+      const response = await handleGenerate360ViewAPI(
+        imageSrc,
+        `A ${theme} themed ${roomType} with ${prompt}`,
+        true,
+      );
+
+      if (response) {
+        const base64Image = response.result;
+        setPanoImage(`data:image/png;base64,${base64Image}`);
+      } else {
+        console.error("No response received");
+      }
+    } catch (error) {
+      console.error("Error handling 360 view generation:", error);
     }
   };
 
