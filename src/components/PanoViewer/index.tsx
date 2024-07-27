@@ -13,8 +13,6 @@ const PanoramicViewer = ({ imageSrc }: PanoramicViewerProps) => {
       {
         autorotateSpeed: "1rpm",
         autorotatePitch: "5deg",
-        autorotateDelay: 1000,
-        rotateInertia: 0.1,
       },
     ],
   ] as [any, any][];

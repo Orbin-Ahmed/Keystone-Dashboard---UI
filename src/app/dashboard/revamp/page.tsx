@@ -122,6 +122,7 @@ const Revamp = ({}: RevampProps) => {
 
   const handleGenerate360View = async (imageSrc: string) => {
     try {
+      setIsLoading(true);
       const response = await handleGenerate360ViewAPI(
         imageSrc,
         `A ${theme} themed ${roomType} with ${prompt}`,
@@ -136,6 +137,8 @@ const Revamp = ({}: RevampProps) => {
       }
     } catch (error) {
       console.error("Error handling 360 view generation:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
