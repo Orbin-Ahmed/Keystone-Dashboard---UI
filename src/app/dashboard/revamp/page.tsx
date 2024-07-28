@@ -125,7 +125,7 @@ const Revamp = ({}: RevampProps) => {
       setIsLoading(true);
       const response = await handleGenerate360ViewAPI(
         imageSrc,
-        `A ${theme} themed ${roomType} with ${prompt}`,
+        `A ${roomType} with ${prompt}`,
         true,
       );
 
