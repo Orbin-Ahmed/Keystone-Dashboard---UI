@@ -342,6 +342,7 @@ const Revamp = ({}: RevampProps) => {
                           />
                           <CustomButton
                             className="max-w-fit"
+                            disabled={isLoading}
                             onClick={() =>
                               handleGenerate360View(designResults[key])
                             }
