@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
           Authorization: `Api-Key ${BASETEN_KEY}`,
           "Content-Type": "application/json",
         },
-        timeout: 240000,
+        timeout: 300000,
       },
     );
 
