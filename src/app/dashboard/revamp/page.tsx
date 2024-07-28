@@ -346,7 +346,12 @@ const Revamp = ({}: RevampProps) => {
                               handleGenerate360View(designResults[key])
                             }
                           >
-                            360 View Generate
+                            <div className="flex items-center justify-center">
+                              <span className="mr-2">360 View Generate</span>{" "}
+                              {isLoading && (
+                                <Spinner loading={isLoading}></Spinner>
+                              )}
+                            </div>
                           </CustomButton>
                         </div>
                       </div>
