@@ -1009,6 +1009,7 @@ const delay = async (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
+// Replicate
 const getObjectWhenReady = async (order_id: string) => {
   let responseData;
 
@@ -1022,18 +1023,18 @@ const getObjectWhenReady = async (order_id: string) => {
     await delay(3000);
   } while (responseData.order_status_code !== 200);
 };
+// Replicate End
+
 // AI Editor End
 
 export const handleGenerate360ViewAPI = async (
-  imageSrc: string,
+  imageUrl: string,
   prompt: string,
   upscale: boolean,
 ) => {
   try {
-    const base64Image = await convertToBase64(imageSrc);
-
     const payload = {
-      image: base64Image,
+      imageUrl: imageUrl,
       prompt: prompt,
       upscale: upscale,
     };
@@ -1059,23 +1060,6 @@ export const handleGenerate360ViewAPI = async (
 };
 
 // MISC
-const convertToBase64 = (url: string) => {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.onload = function () {
-      const reader = new FileReader();
-      reader.onloadend = function () {
-        resolve(reader.result);
-      };
-      reader.readAsDataURL(xhr.response);
-    };
-    xhr.onerror = reject;
-    xhr.open("GET", url);
-    xhr.responseType = "blob";
-    xhr.send();
-  });
-};
-
 function getToken() {
   let token = getSessionStorage("Token");
   if (!token) {
