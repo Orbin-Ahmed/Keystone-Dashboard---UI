@@ -85,6 +85,9 @@ const Revamp = ({}: RevampProps) => {
 
         const response = await fetch("/api/revamp", {
           method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
+          },
           body: formData,
         });
 
