@@ -1026,38 +1026,6 @@ const getObjectWhenReady = async (order_id: string) => {
 };
 // Replicate End
 
-// AI Editor End
-
-export const handleGenerate360ViewAPI = async (
-  imageUrl: string,
-  prompt: string,
-  upscale: boolean,
-) => {
-  try {
-    const payload = {
-      imageUrl: imageUrl,
-      prompt: prompt,
-      upscale: upscale,
-    };
-
-    const response = await axios({
-      method: "post",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
-      },
-      url: "/api/panoramic",
-      data: payload,
-      timeout: 300000,
-    });
-
-    return response.data;
-  } catch (error) {
-    console.error("Error generating 360 view:", error);
-    throw error;
-  }
-};
-
 // MISC
 function getToken() {
   let token = getSessionStorage("Token");

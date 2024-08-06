@@ -13,7 +13,6 @@ import Lightbox from "yet-another-react-lightbox";
 import { Download } from "yet-another-react-lightbox/plugins";
 import { TbArrowUpRight } from "react-icons/tb";
 import PanoramicViewer from "@/components/PanoViewer";
-import { handleGenerate360ViewAPI } from "@/api";
 import axios from "axios";
 
 type RevampProps = {};
@@ -121,19 +120,27 @@ const Revamp = ({}: RevampProps) => {
   const handleGenerate360View = async (imageUrl: string) => {
     try {
       setIsLoading(true);
-      const response = await handleGenerate360ViewAPI(
-        imageUrl,
-        `A ${roomType} with ${prompt}`,
-        true,
-      );
+      const payload = {
+        imageUrl: imageUrl,
+        prompt: prompt,
+        upscale: true,
+      };
 
-      if (response) {
-        setPanoImage(response);
-      } else {
-        console.error("No response received");
-      }
+      const response = await axios({
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
+        },
+        url: "/api/panoramic",
+        data: payload,
+        timeout: 300000,
+      });
+
+      return response.data;
     } catch (error) {
-      console.error("Error handling 360 view generation:", error);
+      console.error("Error generating 360 view:", error);
+      throw error;
     } finally {
       setIsLoading(false);
     }
