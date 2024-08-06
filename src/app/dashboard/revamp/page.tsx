@@ -58,11 +58,13 @@ const Revamp = ({}: RevampProps) => {
       prompt_strength: promptStrength,
       num_inference_steps: numInferenceSteps,
     };
+
     if (parseInt(seed) !== 0) {
       input.seed = parseInt(seed);
     }
 
     const results: { [key: string]: any } = {};
+
     try {
       for (let i = 1; i <= parseInt(numDesigns); i++) {
         const formData = new FormData();
@@ -75,23 +77,37 @@ const Revamp = ({}: RevampProps) => {
           "num_inference_steps",
           input.num_inference_steps.toString(),
         );
+
         if (input.seed !== undefined) {
           formData.append("seed", input.seed.toString());
         }
-        try {
-          const response = await axios.post("/api/revamp", formData, {
-            headers: {
-              Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
-              "Content-Type": "multipart/form-data",
-            },
-            timeout: 300000,
-          });
-          results[`image${i}`] = response.data;
-        } catch (error) {
-          if (axios.isAxiosError(error) && error.code === "ECONNABORTED") {
-            console.error(`Timeout error for image${i}`);
-          } else {
-            console.error(`Error running model for image${i}:`, error);
+
+        const retryLimit = 3;
+        let attempt = 0;
+
+        while (attempt < retryLimit) {
+          try {
+            const response = await axios.post("/api/revamp", formData, {
+              headers: {
+                Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
+                "Content-Type": "multipart/form-data",
+              },
+              timeout: 300000,
+            });
+
+            results[`image${i}`] = response.data;
+            break; // If request is successful, break out of the retry loop
+          } catch (error) {
+            attempt++;
+            if (axios.isAxiosError(error) && error.code === "ECONNABORTED") {
+              console.error(
+                `Timeout error for image${i}, retrying...`,
+                attempt,
+              );
+            } else {
+              console.error(`Error running model for image${i}:`, error);
+              break; // If it's a non-timeout error, break out of the retry loop
+            }
           }
         }
       }
@@ -118,31 +134,46 @@ const Revamp = ({}: RevampProps) => {
   };
 
   const handleGenerate360View = async (imageUrl: string) => {
-    try {
-      setIsLoading(true);
-      const payload = {
-        imageUrl: imageUrl,
-        prompt: `A ${roomType} with ${prompt}`,
-        upscale: true,
-      };
+    const payload = {
+      imageUrl: imageUrl,
+      prompt: `A ${roomType} with ${prompt}`,
+      upscale: true,
+    };
 
-      const response = await axios({
-        method: "post",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
-        },
-        url: "/api/panoramic",
-        data: payload,
-        timeout: 300000,
-      });
-      setPanoImage(response.data);
-    } catch (error) {
-      console.error("Error generating 360 view:", error);
-      throw error;
-    } finally {
-      setIsLoading(false);
+    const retryLimit = 3;
+    let attempt = 0;
+
+    while (attempt < retryLimit) {
+      try {
+        setIsLoading(true);
+
+        const response = await axios({
+          method: "post",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
+          },
+          url: "/api/panoramic",
+          data: payload,
+          timeout: 300000,
+        });
+
+        setPanoImage(response.data);
+        return;
+      } catch (error) {
+        attempt++;
+        if (axios.isAxiosError(error) && error.code === "ECONNABORTED") {
+          console.error("Timeout error, retrying...", attempt);
+        } else {
+          console.error("Error generating 360 view:", error);
+          throw error;
+        }
+      } finally {
+        setIsLoading(false);
+      }
     }
+
+    throw new Error("Failed to generate 360 view after multiple attempts.");
   };
 
   return (
