@@ -10,6 +10,7 @@ import {
   User,
 } from "@/types";
 import { getSessionStorage, storeSessionStorage } from "@/utils";
+import axios from "axios";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const Frontend_BASE_URL = process.env.NEXT_PUBLIC_FRONTEND_URL;
@@ -1039,21 +1040,18 @@ export const handleGenerate360ViewAPI = async (
       upscale: upscale,
     };
 
-    const response = await fetch("/api/panoramic", {
-      method: "POST",
+    const response = await axios({
+      method: "post",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
       },
-      body: JSON.stringify(payload),
+      url: "/api/panoramic",
+      data: payload,
+      timeout: 5000,
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data;
+    return response.data;
   } catch (error) {
     console.error("Error generating 360 view:", error);
     throw error;

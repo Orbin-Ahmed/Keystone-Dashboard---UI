@@ -13,7 +13,7 @@
     "@photo-sphere-viewer/core": "^5.8.3",
     "@radix-ui/themes": "^3.0.3",
     "apexcharts": "^3.45.2",
-    "axios": "^1.7.2",
+    "axios": "^1.7.3",
     "class-variance-authority": "^0.7.0",
     "crypto-js": "^4.2.0",
     "flatpickr": "^4.6.13",

@@ -14,6 +14,7 @@ import { Download } from "yet-another-react-lightbox/plugins";
 import { TbArrowUpRight } from "react-icons/tb";
 import PanoramicViewer from "@/components/PanoViewer";
 import { handleGenerate360ViewAPI } from "@/api";
+import axios from "axios";
 
 type RevampProps = {};
 
@@ -48,7 +49,6 @@ const Revamp = ({}: RevampProps) => {
 
   const handleSubmit = async () => {
     setIsLoading(true);
-
     const extraPrompt =
       "sunny, real, realistic, 4k, 2k, 8k, ultra-detailed, photorealistic, high-definition, professional, vibrant colors, natural lighting, hyper-realistic, balanced light, eye soothing, ";
     const input: InteriorDesignInput = {
@@ -59,13 +59,10 @@ const Revamp = ({}: RevampProps) => {
       prompt_strength: promptStrength,
       num_inference_steps: numInferenceSteps,
     };
-
     if (parseInt(seed) !== 0) {
       input.seed = parseInt(seed);
     }
-
     const results: { [key: string]: any } = {};
-
     try {
       for (let i = 1; i <= parseInt(numDesigns); i++) {
         const formData = new FormData();
@@ -78,27 +75,24 @@ const Revamp = ({}: RevampProps) => {
           "num_inference_steps",
           input.num_inference_steps.toString(),
         );
-
         if (input.seed !== undefined) {
           formData.append("seed", input.seed.toString());
         }
-
-        const response = await fetch("/api/revamp", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
-          },
-          body: formData,
-        });
-
-        if (response.ok) {
-          const responseData = await response.json();
-          results[`image${i}`] = responseData;
-        } else {
-          console.error(
-            `Error running model for image${i}:`,
-            response.statusText,
-          );
+        try {
+          const response = await axios.post("/api/revamp", formData, {
+            headers: {
+              Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
+              "Content-Type": "multipart/form-data",
+            },
+            timeout: 5000,
+          });
+          results[`image${i}`] = response.data;
+        } catch (error) {
+          if (axios.isAxiosError(error) && error.code === "ECONNABORTED") {
+            console.error(`Timeout error for image${i}`);
+          } else {
+            console.error(`Error running model for image${i}:`, error);
+          }
         }
       }
       setDesignResults(results);
