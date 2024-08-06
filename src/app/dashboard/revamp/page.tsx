@@ -122,7 +122,7 @@ const Revamp = ({}: RevampProps) => {
       setIsLoading(true);
       const payload = {
         imageUrl: imageUrl,
-        prompt: prompt,
+        prompt: `A ${roomType} with ${prompt}`,
         upscale: true,
       };
 
@@ -136,8 +136,7 @@ const Revamp = ({}: RevampProps) => {
         data: payload,
         timeout: 300000,
       });
-
-      return response.data;
+      setPanoImage(response.data);
     } catch (error) {
       console.error("Error generating 360 view:", error);
       throw error;
