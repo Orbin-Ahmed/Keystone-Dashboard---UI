@@ -1048,7 +1048,7 @@ export const handleGenerate360ViewAPI = async (
       },
       url: "/api/panoramic",
       data: payload,
-      timeout: 5000,
+      timeout: 300000,
     });
 
     return response.data;

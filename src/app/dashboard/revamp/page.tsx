@@ -62,6 +62,7 @@ const Revamp = ({}: RevampProps) => {
     if (parseInt(seed) !== 0) {
       input.seed = parseInt(seed);
     }
+
     const results: { [key: string]: any } = {};
     try {
       for (let i = 1; i <= parseInt(numDesigns); i++) {
@@ -84,7 +85,7 @@ const Revamp = ({}: RevampProps) => {
               Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
               "Content-Type": "multipart/form-data",
             },
-            timeout: 5000,
+            timeout: 300000,
           });
           results[`image${i}`] = response.data;
         } catch (error) {
