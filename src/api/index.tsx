@@ -189,31 +189,42 @@ export const pixabayImageData = async (searchTerm: string, page: Number) => {
   }
 };
 
-export const pinterestImageData = async (searchTerm: string, page: Number) => {
+export const pinterestImageData = async (searchTerm: string, page: number) => {
   const token = getToken();
   if (!token) {
     window.location.href = `${Frontend_BASE_URL}/auth/login`;
+    return;
   }
 
   const url = `${API_BASE_URL}api/images/search?query=${searchTerm}&page_size=20&page_number=${page}`;
+  const retryLimit = 3;
+  let attempt = 0;
 
-  try {
-    const response = await fetch(url, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Token ${token}`,
-      },
-    });
+  while (attempt < retryLimit) {
+    try {
+      const response = await axios({
+        method: "get",
+        url: url,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+        timeout: 300000,
+      });
 
-    if (response.ok) {
-      const data = await response.json();
-      return data;
-    } else {
-      console.log(response);
+      return response.data;
+    } catch (error) {
+      attempt++;
+      if (axios.isAxiosError(error) && error.code === "ECONNABORTED") {
+        console.error("Timeout error, retrying...", attempt);
+      } else {
+        console.error("Error fetching data:", error);
+        break;
+      }
     }
-  } catch (error) {
-    console.error("Error fetching data:", error);
   }
+
+  throw new Error("Failed to fetch data after multiple attempts.");
 };
 
 export const houzzImageData = async (searchTerm: string, page: Number) => {
