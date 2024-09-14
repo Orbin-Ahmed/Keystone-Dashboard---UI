@@ -29,11 +29,11 @@ export default function Footer() {
               <Link className="py-1 hover:underline" href="/view/about">
                 Documentation
               </Link>
-              <Link className="py-1 hover:underline" href="/press">
-                API Reference
+              <Link className="py-1 hover:underline" href="/floor-planner">
+                Floor Planner
               </Link>
-              <Link className="py-1 hover:underline" href="/careers">
-                Changelog
+              <Link className="py-1 hover:underline" href="/shape-builder">
+                Shape Builder
               </Link>
               <Link className="py-1 hover:underline" href="/view/contact">
                 Status
