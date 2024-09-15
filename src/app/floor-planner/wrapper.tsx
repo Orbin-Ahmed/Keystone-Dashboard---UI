@@ -12,16 +12,24 @@ import {
   reducer as PlannerReducer,
   ReactPlanner,
   Plugins as PlannerPlugins,
-} from "react-planner";
+} from "@/file/";
+
+declare global {
+  interface Window {
+    __REDUX_DEVTOOLS_EXTENSION__: any;
+  }
+}
 
 const AppState = Map({
   "react-planner": new PlannerModels.State(),
 });
 
 const _reducer = (state: Map<string, any> = AppState, action: any) => {
-  return state.update("react-planner", (plannerState) =>
+  state = state || AppState;
+  state = state.update("react-planner", (plannerState) =>
     PlannerReducer(plannerState, action),
   );
+  return state;
 };
 
 const FloorPlannerPage = () => {
@@ -57,25 +65,19 @@ const FloorPlannerPage = () => {
   }
 
   return (
-    <div
-      style={{
-        width: "100%",
-        height: "100%",
-        minWidth: "800px",
-        minHeight: "600px",
-      }}
-      ref={parentRef}
-    >
-      <Provider store={store}>
-        <ReactPlanner
-          store={store}
-          catalog={MyCatalog}
-          width={800}
-          height={600}
-          plugins={plugins}
-          stateExtractor={(state: any) => state.get("react-planner")}
-        />
-      </Provider>
+    <div style={{ width: "100%", height: "100%" }} ref={parentRef}>
+      {width && height && store && plugins && (
+        <Provider store={store}>
+          <ReactPlanner
+            store={store}
+            catalog={MyCatalog}
+            width={width}
+            height={height}
+            plugins={plugins}
+            stateExtractor={(state: any) => state.get("react-planner")}
+          />
+        </Provider>
+      )}
     </div>
   );
 };
