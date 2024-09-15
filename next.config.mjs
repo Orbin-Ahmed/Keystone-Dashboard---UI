@@ -36,6 +36,21 @@ const nextConfig = {
       },
     ],
   },
+  webpack: (config, { isServer }) => {
+    // Add rule for .mtl files
+    config.module.rules.push({
+      test: /\.mtl$/,
+      use: "raw-loader",
+    });
+
+    // Add rule for .obj files
+    config.module.rules.push({
+      test: /\.obj$/,
+      use: "raw-loader", // Use raw-loader to load .obj files as plain text
+    });
+
+    return config;
+  },
 };
 
 export default nextConfig;
