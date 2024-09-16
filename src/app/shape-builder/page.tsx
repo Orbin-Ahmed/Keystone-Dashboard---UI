@@ -1,9 +1,9 @@
 import DrawerSidebar from "@/components/DrawerSidebar";
 import React from "react";
 
-type Props = {};
+type ShapeBuilderProps = {};
 
-const ShapeBuilder = (props: Props) => {
+const ShapeBuilder = ({}: ShapeBuilderProps) => {
   return (
     <>
       <DrawerSidebar />
