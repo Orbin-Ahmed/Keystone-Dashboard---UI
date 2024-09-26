@@ -36,6 +36,14 @@ const nextConfig = {
       },
     ],
   },
+
+  // Extend webpack configuration to resolve 'canvas' alias
+  webpack(config, { nextRuntime }) {
+    if (nextRuntime === "nodejs") {
+      config.resolve.alias.canvas = false;
+    }
+    return config;
+  },
 };
 
 export default nextConfig;
