@@ -12,6 +12,8 @@ import useImage from "use-image";
 import CustomButton from "../CustomButton";
 import { Text } from "react-konva";
 import Konva from "konva";
+import PlanEditorSideBar from "./PlanEditorSideBar";
+import { PlanEditorProps } from "@/types";
 
 interface Line {
   points: number[];
@@ -31,27 +33,28 @@ interface Shape {
 const GRID_SIZE = 50;
 const PIXELS_PER_METER = 100;
 
-const PlanEditor = () => {
-  const [tool, setTool] = useState<
-    "wall" | "window" | "door" | "moveWall" | null
-  >(null);
-  const [shapes, setShapes] = useState<Shape[]>([]);
-  const [lines, setLines] = useState<Line[]>([]);
+const PlanEditor = ({tool,
+  setTool,
+  showDimensions,
+  setShowDimensions,
+  selectedShape,
+  setSelectedShape,
+  selectedWall,
+  setSelectedWall,
+  shapes,
+  setShapes,
+  lines,
+  setLines,
+  windowImage,
+  doorImage,
+  viewMode,}:PlanEditorProps) => {
   const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(
     null,
   );
   const [isMounted, setIsMounted] = useState(false);
   const [tempLine, setTempLine] = useState<Line | null>(null);
-  const [selectedShape, setSelectedShape] = useState<number | null>(null);
-  const [selectedWall, setSelectedWall] = useState<number | null>(null);
-
-  const [windowImage] = useImage("/textures/window.svg");
-  const [doorImage] = useImage("/textures/door.svg");
   const [rotateIcon] = useImage("/icons/rotate.svg");
   const [deleteIcon] = useImage("/icons/delete.svg");
-  const [showDimensions, setShowDimensions] = useState(true);
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const stageRef = useRef<Konva.Stage>(null);
 
@@ -71,7 +74,7 @@ const PlanEditor = () => {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [setTool, setSelectedShape, setSelectedWall]);
 
   const drawGrid = () => {
     const lines = [];
@@ -485,51 +488,6 @@ const PlanEditor = () => {
   }
 };
 
-  const handleDownload = () => {
-    // Serialize shapes without images
-    const shapesToSave = shapes.map((shape) => ({
-      ...shape,
-      image: shape.type,
-    }));
-    const dataStr = JSON.stringify({ lines, shapes: shapesToSave });
-    const dataUri =
-      "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
-
-    const exportFileDefaultName = "design.json";
-
-    let linkElement = document.createElement("a");
-    linkElement.setAttribute("href", dataUri);
-    linkElement.setAttribute("download", exportFileDefaultName);
-    linkElement.click();
-  };
-
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const data = JSON.parse(event.target?.result as string);
-        setLines(data.lines || []);
-        // Map shapes to include images
-        const loadedShapes = data.shapes.map((shape: any) => {
-          let image = null;
-          if (shape.type === "window") {
-            image = windowImage;
-          } else if (shape.type === "door") {
-            image = doorImage;
-          }
-          return { ...shape, image };
-        });
-        setShapes(loadedShapes || []);
-      } catch (err) {
-        console.error("Failed to load design:", err);
-      }
-    };
-    reader.readAsText(file);
-  };
-
   const deleteWall = (index: number) => {
     const updatedLines = [...lines];
     updatedLines.splice(index, 1);
@@ -542,74 +500,6 @@ const PlanEditor = () => {
   };
 
   return (
-    <div className="editor-container">
-      {/* Sidebar */}
-      <div className="sidebar">
-        <CustomButton
-          variant={tool === "wall" ? "primary" : "secondary"}
-          onClick={() => {
-            setTool("wall");
-            setSelectedShape(null);
-            setSelectedWall(null);
-          }}
-        >
-          Draw Wall
-        </CustomButton>
-        <CustomButton
-          variant={tool === "window" ? "primary" : "secondary"}
-          onClick={() => {
-            setTool("window");
-            setSelectedShape(null);
-            setSelectedWall(null);
-          }}
-        >
-          Add Window
-        </CustomButton>
-        <CustomButton
-          variant={tool === "door" ? "primary" : "secondary"}
-          onClick={() => {
-            setTool("door");
-            setSelectedShape(null);
-            setSelectedWall(null);
-          }}
-        >
-          Add Door
-        </CustomButton>
-        <CustomButton
-          variant={tool === "moveWall" ? "primary" : "secondary"}
-          onClick={() => {
-            setTool("moveWall");
-            setSelectedShape(null);
-            setSelectedWall(null);
-          }}
-        >
-          Move Wall
-        </CustomButton>
-        <CustomButton
-          variant="secondary"
-          onClick={() => setShowDimensions(!showDimensions)}
-        >
-          {showDimensions ? "Hide Dimensions" : "Show Dimensions"}
-        </CustomButton>
-        {/* Download and Upload Buttons */}
-        <CustomButton variant="secondary" onClick={handleDownload}>
-          Download Design
-        </CustomButton>
-        <CustomButton
-          variant="secondary"
-          onClick={() => fileInputRef.current?.click()}
-        >
-          Upload Design
-        </CustomButton>
-        <input
-          type="file"
-          accept=".json"
-          ref={fileInputRef}
-          style={{ display: "none" }}
-          onChange={handleUpload}
-        />
-      </div>
-      {/* Canvas Container */}
       <div className="canvas-container">
         {isMounted && typeof window !== "undefined" && (
           <Stage
@@ -722,7 +612,6 @@ const PlanEditor = () => {
           </Stage>
         )}
       </div>
-    </div>
   );
 };
 

@@ -155,3 +155,36 @@ export interface InteriorDesignInput {
   num_inference_steps: number;
   seed?: number;
 }
+
+export interface Shape {
+  type: "window" | "door";
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation?: number;
+  image: HTMLImageElement | undefined;
+  wallIndex?: number;
+}
+
+export interface Line {
+  points: number[];
+}
+
+export interface PlanEditorProps {
+  tool: "wall" | "window" | "door" | "moveWall" | null;
+  setTool: React.Dispatch<React.SetStateAction<"wall" | "window" | "door" | "moveWall" | null>>;
+  showDimensions: boolean;
+  setShowDimensions: React.Dispatch<React.SetStateAction<boolean>>;
+  selectedShape: number | null;
+  setSelectedShape: React.Dispatch<React.SetStateAction<number | null>>;
+  selectedWall: number | null;
+  setSelectedWall: React.Dispatch<React.SetStateAction<number | null>>;
+  shapes: Shape[];
+  setShapes: React.Dispatch<React.SetStateAction<Shape[]>>;
+  lines: Line[];
+  setLines: React.Dispatch<React.SetStateAction<Line[]>>;
+  windowImage: HTMLImageElement | undefined;
+  doorImage: HTMLImageElement | undefined;
+  viewMode: "2D" | "3D";
+}
