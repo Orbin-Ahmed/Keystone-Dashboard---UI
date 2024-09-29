@@ -383,9 +383,10 @@ const PlanEditor = ({tool,
 
     if (angle > 90) {
       angle -= 180;
+      textOffsetX = 0;
+      textOffsetY = -10;
     } else if (angle < -90) {
       angle += 180;
-      textOffsetX = 0;
       textOffsetY = -10;
     }
 
