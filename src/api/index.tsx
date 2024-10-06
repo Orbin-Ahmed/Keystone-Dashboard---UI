@@ -736,6 +736,30 @@ export const getAllImageCount = async () => {
   }
 };
 
+export const detectWallPosition = async (imageFile: File) => {
+  const url = `${API_BASE_URL}api/detect-walls/`;
+
+  try {
+    const formData = new FormData();
+    formData.append("image", imageFile);
+
+    const response = await fetch(url, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      const errorMessage = await response.json();
+      console.log("Error:", errorMessage);
+    }
+  } catch (e) {
+    console.log("Request failed:", e);
+  }
+};
+
 export const postVariant = async (formData: FormData): Promise<any> => {
   const token = getToken();
 

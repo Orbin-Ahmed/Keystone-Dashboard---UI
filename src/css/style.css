@@ -319,16 +319,10 @@ input[type="search"]::-webkit-search-cancel-button {
   opacity: 1;
 }
 
-.noScroll {
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-}
-
 .editor-container {
   display: flex;
   height: 100vh;
-  overflow: hidden; /* Prevent scrollbars */
+  overflow: hidden;
 }
 .sidebar {
   width: 220px;
@@ -342,17 +336,5 @@ input[type="search"]::-webkit-search-cancel-button {
 .canvas-container {
   flex-grow: 1;
   position: relative;
-  overflow: hidden; /* Prevent scrollbars */
+  overflow: auto;
 }
-.zoom-controls {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 10px;
-}
-.zoom-controls button {
-  padding: 5px 10px;
-}
-

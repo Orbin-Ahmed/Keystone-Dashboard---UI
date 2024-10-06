@@ -9,15 +9,9 @@ import {
   Group,
 } from "react-konva";
 import useImage from "use-image";
-import CustomButton from "../CustomButton";
 import { Text } from "react-konva";
 import Konva from "konva";
-import PlanEditorSideBar from "./PlanEditorSideBar";
-import { PlanEditorProps } from "@/types";
-
-interface Line {
-  points: number[];
-}
+import { Line, PlanEditorProps } from "@/types";
 
 interface Shape {
   type: "window" | "door";
@@ -32,8 +26,10 @@ interface Shape {
 
 const GRID_SIZE = 50;
 const PIXELS_PER_METER = 100;
+const SNAP_THRESHOLD = 20;
 
-const PlanEditor = ({tool,
+const PlanEditor = ({
+  tool,
   setTool,
   showDimensions,
   setShowDimensions,
@@ -47,7 +43,8 @@ const PlanEditor = ({tool,
   setLines,
   windowImage,
   doorImage,
-  viewMode,}:PlanEditorProps) => {
+  viewMode,
+}: PlanEditorProps) => {
   const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(
     null,
   );
@@ -154,10 +151,7 @@ const PlanEditor = ({tool,
       const pos = stage.getPointerPosition();
       if (pos) {
         const snappedPos = getSnappedPosition(pos);
-
-        // Check for zero-length line
         if (startPoint.x === snappedPos.x && startPoint.y === snappedPos.y) {
-          // Do not add the wall
           setStartPoint(null);
           setTempLine(null);
           return;
@@ -177,20 +171,22 @@ const PlanEditor = ({tool,
   };
 
   const getSnappedPosition = (pos: { x: number; y: number }) => {
-    const threshold = 20;
     for (let line of lines) {
       const [x1, y1, x2, y2] = line.points;
-      if (distance(pos, { x: x1, y: y1 }) < threshold) {
+      if (distance(pos, { x: x1, y: y1 }) < SNAP_THRESHOLD) {
         return { x: x1, y: y1 };
       }
-      if (distance(pos, { x: x2, y: y2 }) < threshold) {
+      if (distance(pos, { x: x2, y: y2 }) < SNAP_THRESHOLD) {
         return { x: x2, y: y2 };
       }
     }
     return pos;
   };
 
-  const distance = (p1: { x: number; y: number }, p2: { x: number; y: number }) => {
+  const distance = (
+    p1: { x: number; y: number },
+    p2: { x: number; y: number },
+  ) => {
     return Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
   };
 
@@ -275,7 +271,10 @@ const PlanEditor = ({tool,
     setShapes(updatedShapes);
   };
 
-  const findClosestLineIndex = (pos: { x: number; y: number }): number | null => {
+  const findClosestLineIndex = (pos: {
+    x: number;
+    y: number;
+  }): number | null => {
     let closestLineIndex: number | null = null;
     let minDist = Infinity;
 
@@ -443,51 +442,49 @@ const PlanEditor = ({tool,
   };
 
   const handleShapeDragEnd = (
-  e: Konva.KonvaEventObject<DragEvent>,
-  index: number,
-) => {
-  const pos = e.target.position();
-  const closestLineIndex = findClosestLineIndex(pos);
+    e: Konva.KonvaEventObject<DragEvent>,
+    index: number,
+  ) => {
+    const pos = e.target.position();
+    const closestLineIndex = findClosestLineIndex(pos);
 
-  if (closestLineIndex !== null) {
-    const closestLine = lines[closestLineIndex];
-    if (isClickOnWall(closestLine, pos)) {
-      const { x, y, angle } = findClosestPointOnLine(closestLine, pos);
-      const updatedShapes = [...shapes];
-      const isWindow = updatedShapes[index].type === "window";
+    if (closestLineIndex !== null) {
+      const closestLine = lines[closestLineIndex];
+      if (isClickOnWall(closestLine, pos)) {
+        const { x, y, angle } = findClosestPointOnLine(closestLine, pos);
+        const updatedShapes = [...shapes];
+        const isWindow = updatedShapes[index].type === "window";
 
-      // Adjust position and rotation for window to align properly
-      let adjustedX = x;
-      let adjustedY = y;
-      let shapeRotation = angle;
+        // Adjust position and rotation for window to align properly
+        let adjustedX = x;
+        let adjustedY = y;
+        let shapeRotation = angle;
 
-      if (isWindow) {
-        const windowHeight = updatedShapes[index].height;
-        const angleRadians = (angle * Math.PI) / 180;
+        if (isWindow) {
+          const windowHeight = updatedShapes[index].height;
+          const angleRadians = (angle * Math.PI) / 180;
 
-        adjustedX =
-          x - (windowHeight / 2) * Math.sin(angleRadians);
-        adjustedY =
-          y + (windowHeight / 2) * Math.cos(angleRadians);
+          adjustedX = x - (windowHeight / 2) * Math.sin(angleRadians);
+          adjustedY = y + (windowHeight / 2) * Math.cos(angleRadians);
 
-        shapeRotation = (angle + 180) % 360;
+          shapeRotation = (angle + 180) % 360;
+        }
+
+        updatedShapes[index] = {
+          ...updatedShapes[index],
+          x: adjustedX,
+          y: adjustedY,
+          rotation: isWindow ? shapeRotation : angle,
+          wallIndex: closestLineIndex,
+        };
+        setShapes(updatedShapes);
+      } else {
+        e.target.position({ x: shapes[index].x, y: shapes[index].y });
       }
-
-      updatedShapes[index] = {
-        ...updatedShapes[index],
-        x: adjustedX,
-        y: adjustedY,
-        rotation: isWindow ? shapeRotation : angle,
-        wallIndex: closestLineIndex,
-      };
-      setShapes(updatedShapes);
     } else {
       e.target.position({ x: shapes[index].x, y: shapes[index].y });
     }
-  } else {
-    e.target.position({ x: shapes[index].x, y: shapes[index].y });
-  }
-};
+  };
 
   const deleteWall = (index: number) => {
     const updatedLines = [...lines];
@@ -501,118 +498,118 @@ const PlanEditor = ({tool,
   };
 
   return (
-      <div className="canvas-container">
-        {isMounted && typeof window !== "undefined" && (
-          <Stage
-            width={2000} // Fixed canvas width
-            height={2000} // Fixed canvas height
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            ref={stageRef}
-          >
-            <Layer>
-              {drawGrid()}
-              {tempLine && (
-                <KonvaLine
-                  points={tempLine.points}
-                  stroke="black"
-                  strokeWidth={2}
-                  dash={[10, 5]}
+    <div className="canvas-container">
+      {isMounted && typeof window !== "undefined" && (
+        <Stage
+          width={2000} // Fixed canvas width
+          height={2000} // Fixed canvas height
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          ref={stageRef}
+        >
+          <Layer>
+            {drawGrid()}
+            {tempLine && (
+              <KonvaLine
+                points={tempLine.points}
+                stroke="black"
+                strokeWidth={2}
+                dash={[10, 5]}
+              />
+            )}
+            {lines.map((line, i) => (
+              <React.Fragment key={i}>
+                <Group
+                  draggable={tool === "moveWall"}
+                  onClick={() => {
+                    if (tool === "moveWall") {
+                      setSelectedWall(i);
+                      setSelectedShape(null);
+                    }
+                  }}
+                  onDragEnd={(e) => {
+                    const dx = e.target.x();
+                    const dy = e.target.y();
+                    updateWall(i, dx, dy);
+                    e.target.position({ x: 0, y: 0 });
+                  }}
+                  onMouseEnter={(e) => {
+                    const stage = e.target.getStage();
+                    if (stage) {
+                      stage.container().style.cursor =
+                        tool === "moveWall" ? "move" : "pointer";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    const stage = e.target.getStage();
+                    if (stage) {
+                      stage.container().style.cursor = "default";
+                    }
+                  }}
+                >
+                  <KonvaLine
+                    points={line.points}
+                    stroke={selectedWall === i ? "blue" : "black"}
+                    strokeWidth={line.thickness || 8}
+                  />
+                </Group>
+                {selectedWall === i && (
+                  <KonvaImage
+                    image={deleteIcon}
+                    x={(line.points[0] + line.points[2]) / 2 - 10}
+                    y={(line.points[1] + line.points[3]) / 2 - 30}
+                    width={20}
+                    height={20}
+                    onClick={() => deleteWall(i)}
+                  />
+                )}
+                {drawWallLength(line, i)}
+              </React.Fragment>
+            ))}
+            {shapes.map((shape, i) => (
+              <React.Fragment key={i}>
+                <KonvaImage
+                  image={shape.image}
+                  x={shape.x}
+                  y={shape.y}
+                  width={shape.width}
+                  height={shape.height}
+                  rotation={shape.rotation}
+                  onClick={() => {
+                    setSelectedShape(i);
+                    setSelectedWall(null);
+                  }}
+                  draggable
+                  onDragEnd={(e) => handleShapeDragEnd(e, i)}
                 />
-              )}
-              {lines.map((line, i) => (
-                <React.Fragment key={i}>
-                  <Group
-                    draggable={tool === "moveWall"}
-                    onClick={() => {
-                      if (tool === "moveWall") {
-                        setSelectedWall(i);
-                        setSelectedShape(null);
-                      }
-                    }}
-                    onDragEnd={(e) => {
-                      const dx = e.target.x();
-                      const dy = e.target.y();
-                      updateWall(i, dx, dy);
-                      e.target.position({ x: 0, y: 0 });
-                    }}
-                    onMouseEnter={(e) => {
-                      const stage = e.target.getStage();
-                      if (stage) {
-                        stage.container().style.cursor =
-                          tool === "moveWall" ? "move" : "pointer";
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      const stage = e.target.getStage();
-                      if (stage) {
-                        stage.container().style.cursor = "default";
-                      }
-                    }}
-                  >
-                    <KonvaLine
-                      points={line.points}
-                      stroke={selectedWall === i ? "blue" : "black"}
-                      strokeWidth={8}
-                    />
-                  </Group>
-                  {selectedWall === i && (
+                {selectedShape === i && (
+                  <>
+                    {/* Replace Circles with Icons */}
                     <KonvaImage
-                      image={deleteIcon}
-                      x={(line.points[0] + line.points[2]) / 2 - 10}
-                      y={(line.points[1] + line.points[3]) / 2 - 30}
+                      image={rotateIcon}
+                      x={shape.x + shape.width + 10}
+                      y={shape.y + shape.height / 2 - 30}
                       width={20}
                       height={20}
-                      onClick={() => deleteWall(i)}
+                      onClick={() => rotateShape(i)}
                     />
-                  )}
-                  {drawWallLength(line, i)}
-                </React.Fragment>
-              ))}
-              {shapes.map((shape, i) => (
-                <React.Fragment key={i}>
-                  <KonvaImage
-                    image={shape.image}
-                    x={shape.x}
-                    y={shape.y}
-                    width={shape.width}
-                    height={shape.height}
-                    rotation={shape.rotation}
-                    onClick={() => {
-                      setSelectedShape(i);
-                      setSelectedWall(null);
-                    }}
-                    draggable
-                    onDragEnd={(e) => handleShapeDragEnd(e, i)}
-                  />
-                  {selectedShape === i && (
-                    <>
-                      {/* Replace Circles with Icons */}
-                      <KonvaImage
-                        image={rotateIcon}
-                        x={shape.x + shape.width + 10}
-                        y={shape.y + shape.height / 2 - 30}
-                        width={20}
-                        height={20}
-                        onClick={() => rotateShape(i)}
-                      />
-                      <KonvaImage
-                        image={deleteIcon}
-                        x={shape.x + shape.width + 10}
-                        y={shape.y + shape.height / 2 + 10}
-                        width={20}
-                        height={20}
-                        onClick={() => deleteShape(i)}
-                      />
-                    </>
-                  )}
-                </React.Fragment>
-              ))}
-            </Layer>
-          </Stage>
-        )}
-      </div>
+                    <KonvaImage
+                      image={deleteIcon}
+                      x={shape.x + shape.width + 10}
+                      y={shape.y + shape.height / 2 + 10}
+                      width={20}
+                      height={20}
+                      onClick={() => deleteShape(i)}
+                    />
+                  </>
+                )}
+              </React.Fragment>
+            ))}
+          </Layer>
+        </Stage>
+      )}
+    </div>
   );
 };
 

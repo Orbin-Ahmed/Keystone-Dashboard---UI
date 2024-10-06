@@ -167,13 +167,11 @@ export interface Shape {
   wallIndex?: number;
 }
 
-export interface Line {
-  points: number[];
-}
-
 export interface PlanEditorProps {
   tool: "wall" | "window" | "door" | "moveWall" | null;
-  setTool: React.Dispatch<React.SetStateAction<"wall" | "window" | "door" | "moveWall" | null>>;
+  setTool: React.Dispatch<
+    React.SetStateAction<"wall" | "window" | "door" | "moveWall" | null>
+  >;
   showDimensions: boolean;
   setShowDimensions: React.Dispatch<React.SetStateAction<boolean>>;
   selectedShape: number | null;
@@ -187,4 +185,28 @@ export interface PlanEditorProps {
   windowImage: HTMLImageElement | undefined;
   doorImage: HTMLImageElement | undefined;
   viewMode: "2D" | "3D";
+}
+
+export interface LineData {
+  points: number[];
+}
+
+export interface ShapeData {
+  type: "window" | "door";
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation?: number;
+  wallIndex?: number;
+}
+
+export interface Point {
+  x: number;
+  y: number;
+}
+
+export interface Line {
+  points: number[];
+  thickness?: number;
 }
