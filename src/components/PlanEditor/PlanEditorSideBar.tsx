@@ -1,9 +1,11 @@
-import React from 'react';
-import CustomButton from '../CustomButton';
+import React from "react";
+import CustomButton from "../CustomButton";
 
 interface SidebarProps {
   tool: "wall" | "window" | "door" | "moveWall" | null;
-  setTool: React.Dispatch<React.SetStateAction<"wall" | "window" | "door" | "moveWall" | null>>;
+  setTool: React.Dispatch<
+    React.SetStateAction<"wall" | "window" | "door" | "moveWall" | null>
+  >;
   showDimensions: boolean;
   setShowDimensions: React.Dispatch<React.SetStateAction<boolean>>;
   handleDownload: () => void;
@@ -28,9 +30,8 @@ const PlanEditorSideBar: React.FC<SidebarProps> = ({
   viewMode,
   setViewMode,
 }) => {
-
   const toggleViewMode = () => {
-    setViewMode((prevMode) => (prevMode === '3D' ? '2D' : '3D'));
+    setViewMode((prevMode) => (prevMode === "3D" ? "2D" : "3D"));
   };
 
   return (
@@ -82,10 +83,7 @@ const PlanEditorSideBar: React.FC<SidebarProps> = ({
         {showDimensions ? "Hide Dimensions" : "Show Dimensions"}
       </CustomButton>
       {/* 3D Conversion Button */}
-      <CustomButton
-        variant="secondary"
-        onClick={toggleViewMode}
-      >
+      <CustomButton variant="secondary" onClick={toggleViewMode}>
         {viewMode}
       </CustomButton>
       {/* Download and Upload Buttons */}
@@ -100,7 +98,6 @@ const PlanEditorSideBar: React.FC<SidebarProps> = ({
       </CustomButton>
       <input
         type="file"
-        accept=".json"
         ref={fileInputRef}
         style={{ display: "none" }}
         onChange={handleUpload}

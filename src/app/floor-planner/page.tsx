@@ -14,12 +14,15 @@ const Planner3DViewer = dynamic(() => import("@/components/Planner3DViewer"), {
   ssr: false,
 });
 
+const MAX_DISTANCE = 10;
+const EXTENSION_LENGTH = 5;
+
 const FloorPlanner = () => {
   const [tool, setTool] = useState<
     "wall" | "window" | "door" | "moveWall" | null
   >(null);
   const [showDimensions, setShowDimensions] = useState(true);
-  const [viewMode, setViewMode] = useState<"2D" | "3D">("2D");
+  const [viewMode, setViewMode] = useState<"2D" | "3D">("3D");
   const [selectedShape, setSelectedShape] = useState<number | null>(null);
   const [selectedWall, setSelectedWall] = useState<number | null>(null);
 
@@ -29,6 +32,11 @@ const FloorPlanner = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [windowImage] = useImage("/textures/window.svg");
   const [doorImage] = useImage("/textures/door.svg");
+
+  const distance = (point1: any, point2: any) =>
+    Math.sqrt(
+      Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2),
+    );
 
   const handleDownload = () => {
     const shapesToSave = shapes.map((shape) => ({
@@ -47,6 +55,85 @@ const FloorPlanner = () => {
     linkElement.click();
   };
 
+  const connectCloseLinesByExtending = (lines: any[]) => {
+    const updatedLines = lines.map((line) => ({
+      ...line,
+      points: [...line.points],
+    }));
+
+    const isHorizontal = (line: any) =>
+      Math.abs(line.points[1] - line.points[3]) < 1;
+    const isVertical = (line: any) =>
+      Math.abs(line.points[0] - line.points[2]) < 1;
+
+    for (let i = 0; i < updatedLines.length; i++) {
+      for (let j = i + 1; j < updatedLines.length; j++) {
+        const lineA = updatedLines[i];
+        const lineB = updatedLines[j];
+
+        const pointsA = lineA.points;
+        const pointsB = lineB.points;
+        const A_start = { x: pointsA[0], y: pointsA[1] };
+        const A_end = { x: pointsA[2], y: pointsA[3] };
+        const B_start = { x: pointsB[0], y: pointsB[1] };
+        const B_end = { x: pointsB[2], y: pointsB[3] };
+
+        const endpointPairs = [
+          {
+            pointAName: "A_end",
+            pointBName: "B_start",
+            pointA: A_end,
+            pointB: B_start,
+          },
+          {
+            pointAName: "A_end",
+            pointBName: "B_end",
+            pointA: A_end,
+            pointB: B_end,
+          },
+          {
+            pointAName: "A_start",
+            pointBName: "B_start",
+            pointA: A_start,
+            pointB: B_start,
+          },
+          {
+            pointAName: "A_start",
+            pointBName: "B_end",
+            pointA: A_start,
+            pointB: B_end,
+          },
+        ];
+
+        endpointPairs.forEach(({ pointAName, pointBName, pointA, pointB }) => {
+          const dist = distance(pointA, pointB);
+
+          if (dist <= MAX_DISTANCE) {
+            if (isHorizontal(lineA) && isHorizontal(lineB)) {
+              if (pointAName === "A_start") {
+                lineA.points[0] = pointB.x; // Connect start point
+                lineA.points[2] += EXTENSION_LENGTH; // Extend on the x-axis
+              } else {
+                lineA.points[2] = pointB.x; // Connect end point
+                lineA.points[2] += EXTENSION_LENGTH; // Extend on the x-axis
+              }
+            } else if (isVertical(lineA) && isVertical(lineB)) {
+              if (pointAName === "A_start") {
+                lineA.points[1] = pointB.y; // Connect start point
+                lineA.points[3] += EXTENSION_LENGTH; // Extend on the y-axis
+              } else {
+                lineA.points[3] = pointB.y; // Connect end point
+                lineA.points[3] += EXTENSION_LENGTH; // Extend on the y-axis
+              }
+            }
+          }
+        });
+      }
+    }
+
+    return updatedLines;
+  };
+
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -59,7 +146,9 @@ const FloorPlanner = () => {
         try {
           const data = JSON.parse(event.target?.result as string);
 
-          const linesWithThickness = data.lines.map((line: any) => {
+          const connectedLines = connectCloseLinesByExtending(data.lines);
+
+          const linesWithThickness = connectedLines.map((line: any) => {
             return {
               ...line,
               thickness: line.thickness || 8,
@@ -89,7 +178,11 @@ const FloorPlanner = () => {
         const responseData = await detectWallPosition(file);
 
         if (responseData) {
-          const linesWithThickness = responseData.lines.map((line: any) => {
+          const connectedLines = connectCloseLinesByExtending(
+            responseData.lines,
+          );
+
+          const linesWithThickness = connectedLines.map((line: any) => {
             return {
               ...line,
               thickness: line.thickness || 8,
@@ -137,7 +230,7 @@ const FloorPlanner = () => {
         viewMode={viewMode}
         setViewMode={setViewMode}
       />
-      {viewMode === "3D" ? (
+      {viewMode === "2D" ? (
         <Planner3DViewer lines={lines} shapes={shapes} />
       ) : (
         <PlanEditor

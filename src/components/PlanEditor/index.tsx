@@ -26,7 +26,9 @@ interface Shape {
 
 const GRID_SIZE = 50;
 const PIXELS_PER_METER = 100;
-const SNAP_THRESHOLD = 20;
+const SNAP_THRESHOLD = 10;
+const MIN_WALL_LENGTH = 0.1 * PIXELS_PER_METER;
+const STRAIGHT_LINE_THRESHOLD = 10; // Threshold for snapping to straight lines
 
 const PlanEditor = ({
   tool,
@@ -50,6 +52,7 @@ const PlanEditor = ({
   );
   const [isMounted, setIsMounted] = useState(false);
   const [tempLine, setTempLine] = useState<Line | null>(null);
+  const [guideLine, setGuideLine] = useState<Line | null>(null);
   const [rotateIcon] = useImage("/icons/rotate.svg");
   const [deleteIcon] = useImage("/icons/delete.svg");
 
@@ -63,6 +66,7 @@ const PlanEditor = ({
         setTool(null);
         setSelectedShape(null);
         setSelectedWall(null);
+        setGuideLine(null);
       }
     };
 
@@ -136,9 +140,22 @@ const PlanEditor = ({
       const pos = e.target.getStage()?.getPointerPosition();
       if (pos) {
         const snappedPos = getSnappedPosition(pos);
+        const constrainedPos = getDynamicConstrainedPosition(
+          snappedPos,
+          startPoint,
+        );
         setTempLine({
-          points: [startPoint.x, startPoint.y, snappedPos.x, snappedPos.y],
+          points: [
+            startPoint.x,
+            startPoint.y,
+            constrainedPos.x,
+            constrainedPos.y,
+          ],
         });
+
+        // Draw a guidance line if the user reaches the extension of an existing wall
+        const guide = getGuideLine(constrainedPos);
+        setGuideLine(guide);
       }
     }
   };
@@ -151,21 +168,40 @@ const PlanEditor = ({
       const pos = stage.getPointerPosition();
       if (pos) {
         const snappedPos = getSnappedPosition(pos);
-        if (startPoint.x === snappedPos.x && startPoint.y === snappedPos.y) {
+        const constrainedPos = getDynamicConstrainedPosition(
+          snappedPos,
+          startPoint,
+        );
+
+        if (
+          startPoint.x === constrainedPos.x &&
+          startPoint.y === constrainedPos.y
+        ) {
           setStartPoint(null);
           setTempLine(null);
+          setGuideLine(null);
           return;
         }
 
         const newLinePoints = [
           startPoint.x,
           startPoint.y,
-          snappedPos.x,
-          snappedPos.y,
+          constrainedPos.x,
+          constrainedPos.y,
         ];
-        setLines([...lines, { points: newLinePoints }]);
+
+        const length = Math.sqrt(
+          (constrainedPos.x - startPoint.x) ** 2 +
+            (constrainedPos.y - startPoint.y) ** 2,
+        );
+
+        if (length >= MIN_WALL_LENGTH - 0.01) {
+          setLines([...lines, { points: newLinePoints }]);
+        }
+
         setStartPoint(null);
         setTempLine(null);
+        setGuideLine(null);
       }
     }
   };
@@ -181,6 +217,47 @@ const PlanEditor = ({
       }
     }
     return pos;
+  };
+
+  const getDynamicConstrainedPosition = (
+    pos: { x: number; y: number },
+    start: { x: number; y: number },
+  ) => {
+    const dx = pos.x - start.x;
+    const dy = pos.y - start.y;
+
+    if (Math.abs(dx) < STRAIGHT_LINE_THRESHOLD) {
+      return { x: start.x, y: pos.y };
+    } else if (Math.abs(dy) < STRAIGHT_LINE_THRESHOLD) {
+      return { x: pos.x, y: start.y };
+    } else {
+      return pos;
+    }
+  };
+
+  const getGuideLine = (pos: { x: number; y: number }) => {
+    for (let line of lines) {
+      const [x1, y1, x2, y2] = line.points;
+
+      if (
+        Math.abs(pos.x - x1) < STRAIGHT_LINE_THRESHOLD &&
+        Math.abs(y1 - y2) < STRAIGHT_LINE_THRESHOLD
+      ) {
+        // Vertical alignment guidance
+        return {
+          points: [x1, Math.min(y1, y2), x1, Math.max(startPoint!.y, pos.y)],
+        };
+      } else if (
+        Math.abs(pos.y - y1) < STRAIGHT_LINE_THRESHOLD &&
+        Math.abs(x1 - x2) < STRAIGHT_LINE_THRESHOLD
+      ) {
+        // Horizontal alignment guidance
+        return {
+          points: [Math.min(x1, x2), y1, Math.max(startPoint!.x, pos.x), y1],
+        };
+      }
+    }
+    return null;
   };
 
   const distance = (
@@ -516,6 +593,14 @@ const PlanEditor = ({
                 stroke="black"
                 strokeWidth={2}
                 dash={[10, 5]}
+              />
+            )}
+            {guideLine && (
+              <KonvaLine
+                points={guideLine.points}
+                stroke="blue"
+                strokeWidth={1}
+                dash={[5, 5]}
               />
             )}
             {lines.map((line, i) => (
