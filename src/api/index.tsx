@@ -737,7 +737,7 @@ export const getAllImageCount = async () => {
 };
 
 export const detectWallPosition = async (imageFile: File) => {
-  const url = `${API_BASE_URL}api/detect-walls/`;
+  const url = `${API_BASE_URL}api/detect-walls-shapes/`;
 
   try {
     const formData = new FormData();
