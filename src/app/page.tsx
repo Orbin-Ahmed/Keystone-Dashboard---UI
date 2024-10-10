@@ -18,7 +18,7 @@ export default function Home() {
     <>
       <Header />
       <HeroSection />
-      <CompanySection />
+      {/* <CompanySection /> */}
       <AboutComponent />
       <CatalogueSection />
       <CatalogSwiperSection />

@@ -12,14 +12,14 @@ export default function Footer() {
               <Link className="py-1 hover:underline" href="/view/about">
                 About Us
               </Link>
-              <Link className="py-1 hover:underline" href="/dashboard">
+              {/* <Link className="py-1 hover:underline" href="/dashboard">
                 Dashboard
-              </Link>
-              <Link className="py-1 hover:underline" href="/careers">
+              </Link> */}
+              {/* <Link className="py-1 hover:underline" href="/careers">
                 Careers
-              </Link>
+              </Link> */}
               <Link className="py-1 hover:underline" href="/view/contact">
-                Contact
+                Contact Us
               </Link>
             </div>
           </div>
@@ -29,12 +29,12 @@ export default function Footer() {
               <Link className="py-1 hover:underline" href="/view/about">
                 Documentation
               </Link>
-              <Link className="py-1 hover:underline" href="/floor-planner">
+              {/* <Link className="py-1 hover:underline" href="/floor-planner">
                 Floor Planner
               </Link>
               <Link className="py-1 hover:underline" href="/shape-builder">
                 Shape Builder
-              </Link>
+              </Link> */}
               <Link className="py-1 hover:underline" href="/view/contact">
                 Status
               </Link>
@@ -43,13 +43,22 @@ export default function Footer() {
           <div>
             <h2 className="pb-4 text-xl font-semibold">CONNECT</h2>
             <div className="flex flex-col ">
-              <Link className="py-1 hover:underline" href="/view/about">
+              <Link
+                className="py-1 hover:underline"
+                href="https://www.instagram.com/keystone.upvc/"
+              >
                 Instagram
               </Link>
-              <Link className="py-1 hover:underline" href="/view/about">
+              <Link
+                className="py-1 hover:underline"
+                href="https://ae.linkedin.com/company/keystoneupvc"
+              >
                 Linkedin
               </Link>
-              <Link className="py-1 hover:underline" href="/view/about">
+              <Link
+                className="py-1 hover:underline"
+                href="https://www.youtube.com/@keystoneupvc"
+              >
                 Twitter
               </Link>
             </div>

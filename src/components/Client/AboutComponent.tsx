@@ -8,19 +8,19 @@ export default function AboutComponent() {
           className="text-gray-800 py-4 text-3xl font-extrabold leading-tight lg:text-5xl"
           href=""
         >
-          An aesthetic room is <br />
-          given harmony
+          Captures a sense of peaceful <br />
+          simplicity & minimalism.
         </a>
-        <p className="text-gray-400 tracking-wider">WORLD AWARD</p>
+        {/* <p className="text-gray-400 tracking-wider">WORLD AWARD</p> */}
       </div>
       <div className="grid place-items-center lg:grid-cols-2 ">
         <div>
           <Image
-            src="/images/client_interface/aboutfront.png"
+            src="/images/view/(4).jpg"
             width={900}
             height={500}
             alt=""
-            className="max-md:hidden"
+            className="rounded-xl max-md:hidden"
           />
         </div>
 
@@ -32,7 +32,7 @@ export default function AboutComponent() {
             homes. We have also received many awards from various place for our
             work.
           </p>
-          <div className="flex gap-x-4 px-12 pt-4 ">
+          {/* <div className="flex gap-x-4 px-12 pt-4 ">
             <Image
               src="/images/client_interface/awards.png"
               width={100}
@@ -47,7 +47,7 @@ export default function AboutComponent() {
               alt=""
               className=" h-[100px]"
             />
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

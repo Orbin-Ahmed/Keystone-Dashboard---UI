@@ -138,6 +138,8 @@ const FloorPlanner = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    e.target.value = "";
+
     const fileType = file.type;
 
     if (fileType === "application/json") {

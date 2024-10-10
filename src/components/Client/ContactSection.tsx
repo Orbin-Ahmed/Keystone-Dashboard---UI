@@ -9,7 +9,7 @@ export default function ContactSection() {
           <p className="text-2xl">Lets</p>
           <h1 className="text-3xl font-medium lg:text-6xl">Get in touch</h1>
         </div>
-        <a href="/view/about">
+        <a href="/view/contact">
           <CustomButton
             variant="primary"
             className="inline-flex items-center gap-1 rounded-full px-6 py-3 text-sm"

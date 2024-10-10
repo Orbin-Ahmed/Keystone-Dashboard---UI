@@ -30,11 +30,11 @@ export default function HeroSection() {
 
         <div className="w-1/2">
           <Image
-            src="/images/client_interface/kitchen.png"
+            src="/images/view/(3).jpg"
             width={800}
             height={500}
             alt=""
-            className="absolute right-0 hidden lg:block lg:h-[344px] lg:w-[500px]  xl:h-[448px] xl:w-[700px]"
+            className="absolute right-0 hidden rounded-l-xl lg:block lg:h-[344px]  lg:w-[500px] xl:h-[448px] xl:w-[700px]"
           />
         </div>
       </div>

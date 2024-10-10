@@ -59,47 +59,56 @@ export default function CatalogSwiperSection() {
       >
         <SwiperSlide>
           <Image
-            src="/images/client_interface/swiper1.jpg"
+            src="/images/view/(1).jpg"
             alt="LOGO"
             width={520}
             height={220}
-            className="w-full"
+            className="w-full rounded-md"
           />
         </SwiperSlide>
         <SwiperSlide>
           <Image
-            src="/images/client_interface/swiper2.jpg"
+            src="/images/view/(2).jpg"
             alt="LOGO"
             width={520}
             height={220}
-            className="w-full"
+            className="w-full rounded-md"
           />
         </SwiperSlide>
         <SwiperSlide>
           <Image
-            src="/images/client_interface/swiper3.jpg"
+            src="/images/view/(3).jpg"
             alt="LOGO"
             width={520}
             height={220}
-            className="w-full"
+            className="w-full rounded-md"
           />
         </SwiperSlide>
         <SwiperSlide>
           <Image
-            src="/images/client_interface/swiper4.jpg"
+            src="/images/view/(4).jpg"
             alt="LOGO"
             width={520}
             height={220}
-            className="w-full"
+            className="w-full rounded-md"
           />
         </SwiperSlide>
         <SwiperSlide>
           <Image
-            src="/images/client_interface/swiper5.jpg"
+            src="/images/view/(5).jpg"
             alt="LOGO"
             width={520}
             height={220}
-            className="w-full"
+            className="w-full rounded-md"
+          />
+        </SwiperSlide>
+        <SwiperSlide>
+          <Image
+            src="/images/view/(6).jpg"
+            alt="LOGO"
+            width={520}
+            height={220}
+            className="w-full rounded-md"
           />
         </SwiperSlide>
       </Swiper>

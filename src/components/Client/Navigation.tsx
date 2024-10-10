@@ -52,7 +52,7 @@ export default function Navigation() {
         className={` ${isOpen ? "fixed inset-0 z-30 bg-black bg-opacity-50" : "hidden"} `}
         onClick={() => setOpen(false)}
       ></div>
-      <a href="/view/about">
+      <a href="/view/contact">
         <CustomButton
           variant="primary"
           className="hover:bg-gray-100 hidden items-center rounded-full px-5 py-2 font-medium shadow lg:inline-flex"
