@@ -28,7 +28,9 @@ const GRID_SIZE = 50;
 const PIXELS_PER_METER = 100;
 const SNAP_THRESHOLD = 10;
 const MIN_WALL_LENGTH = 0.1 * PIXELS_PER_METER;
-const STRAIGHT_LINE_THRESHOLD = 10; // Threshold for snapping to straight lines
+const STRAIGHT_LINE_THRESHOLD = 10;
+const width = 4000;
+const height = 2000;
 
 const PlanEditor = ({
   tool,
@@ -80,8 +82,6 @@ const PlanEditor = ({
   const drawGrid = () => {
     const lines = [];
     const gridSize = GRID_SIZE;
-    const width = 2000; // Fixed canvas width
-    const height = 2000; // Fixed canvas height
 
     for (let i = 0; i <= width; i += gridSize) {
       lines.push(
@@ -578,8 +578,8 @@ const PlanEditor = ({
     <div className="canvas-container">
       {isMounted && typeof window !== "undefined" && (
         <Stage
-          width={2000} // Fixed canvas width
-          height={2000} // Fixed canvas height
+          width={width}
+          height={height}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}

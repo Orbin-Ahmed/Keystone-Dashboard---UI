@@ -11,7 +11,7 @@ import {
   MeshStandardMaterial,
 } from "three";
 import { OBJLoader } from "three-stdlib";
-import { CSG } from "three-csg-ts"; // Import CSG library
+import { CSG } from "three-csg-ts";
 import CustomButton from "../CustomButton";
 
 interface Plan3DViewerProps {
@@ -36,8 +36,13 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
   const planeHeight = Math.abs(maxY - minY) + 2000;
 
   const grassTexture = useLoader(TextureLoader, "/textures/grass.png");
+  // const grassTexture = useLoader(TextureLoader, "/textures/walllightmap.png");
   const floorTexture = useLoader(TextureLoader, "/textures/floor.png");
-  const outWallTexture = useLoader(TextureLoader, "/textures/out_wall.png");
+  // const outWallTexture = useLoader(TextureLoader, "/textures/out_wall.png");
+  const outWallTexture = useLoader(
+    TextureLoader,
+    "/textures/wallmap_yellow.png",
+  );
 
   const cameraRef = useRef<PerspectiveCamera | null>(null);
 
@@ -162,8 +167,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
               {/* Doors and Windows */}
               {shapesOnWall.map((shape, shapeIndex) => {
                 const { type, x, y } = shape;
-                const modelPath =
-                  type === "window" ? "/models/window.obj" : "/models/door.obj";
+                const modelPath = type === "window" ? "window.obj" : "door.obj";
 
                 const shapeWorldX = x - centerX;
                 const shapeWorldZ = y - centerY;
@@ -234,7 +238,9 @@ const Model = ({
   rotation: [number, number, number];
   scale: [number, number, number];
 }) => {
-  const object = useLoader(OBJLoader, path);
+  const object = useLoader(OBJLoader, path, (loader) => {
+    loader.setPath("/models/");
+  });
 
   return (
     <primitive

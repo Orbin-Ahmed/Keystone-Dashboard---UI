@@ -750,6 +750,7 @@ export const detectWallPosition = async (imageFile: File) => {
 
     if (response.ok) {
       const data = await response.json();
+      console.log(data);
       return data;
     } else {
       const errorMessage = await response.json();
