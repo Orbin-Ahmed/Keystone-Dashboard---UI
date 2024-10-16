@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import { useMemo } from "react";
 import { Canvas, useLoader } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { LineData, ShapeData } from "@/types";
@@ -77,6 +78,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
   return (
     <>
       <Canvas
+        dpr={[1, 2]}
+        gl={{ antialias: true }}
         camera={{ position: [0, 300, 500], fov: 50, near: 1, far: 5000 }}
         onCreated={({ camera }) => {
           if (camera instanceof PerspectiveCamera) {
@@ -84,88 +87,99 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
           }
         }}
       >
+        // Soft Ambient Light
         <ambientLight intensity={0.8} />
-        <directionalLight position={[10, 50, 25]} intensity={1} />
-        <hemisphereLight intensity={0.35} />
+        // Directional Light with Shadows
+        <directionalLight
+          position={[10, 50, 25]}
+          intensity={1}
+          shadow-mapSize-width={2048}
+          shadow-mapSize-height={2048}
+        />
+        // Optional: Add more lights
+        <pointLight position={[0, 100, 0]} intensity={0.5} />
         <OrbitControls
           enablePan={true}
           enableZoom={true}
           maxPolarAngle={Math.PI / 2}
           minPolarAngle={0}
         />
-
         {/* Grass Surface */}
         <mesh position={[0, -0.2, 0]} rotation={[-Math.PI / 2, 0, 0]}>
           <planeGeometry args={[planeWidth, planeHeight]} />
           <meshStandardMaterial map={grassTexture} />
         </mesh>
-
         {/* Floor */}
         <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
           <planeGeometry args={[maxX - minX, maxY - minY]} />
           <meshStandardMaterial map={floorTexture} />
         </mesh>
-
         {/* Walls with Doors and Windows */}
         {lines.map((line, wallIndex) => {
-          const [x1, y1, x2, y2] = line.points;
-          const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
-          const wallPosition = new Vector3(
-            (x1 + x2) / 2 - centerX,
-            wallHeight / 2,
-            (y1 + y2) / 2 - centerY,
-          );
-          const angle = Math.atan2(y2 - y1, x2 - x1);
+          const wallData = useMemo(() => {
+            const [x1, y1, x2, y2] = line.points;
+            const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+            const wallPosition = new Vector3(
+              (x1 + x2) / 2 - centerX,
+              wallHeight / 2,
+              (y1 + y2) / 2 - centerY,
+            );
+            const angle = Math.atan2(y2 - y1, x2 - x1);
 
-          const wallGeometry = new BoxGeometry(
-            length,
-            wallHeight,
-            wallThickness,
-          );
-
-          let wallMesh = new Mesh(
-            wallGeometry,
-            new MeshStandardMaterial({ map: outWallTexture }),
-          );
-
-          const shapesOnWall = shapes.filter(
-            (shape) => shape.wallIndex === wallIndex,
-          );
-
-          shapesOnWall.forEach((shape) => {
-            const { type, x, y } = shape;
-
-            // Use constants for cutout dimensions
-            const cutoutWidth = type === "door" ? DOOR_WIDTH : WINDOW_WIDTH;
-            const cutoutHeight = type === "door" ? DOOR_HEIGHT : WINDOW_HEIGHT;
-
-            // Create cutout geometry
-            const cutoutGeometry = new BoxGeometry(
-              cutoutWidth,
-              cutoutHeight,
+            const wallGeometry = new BoxGeometry(
+              length,
+              wallHeight,
               wallThickness,
             );
 
-            // Calculate position within the wall
-            const shapeWorldX = x - centerX;
-            const shapeWorldZ = y - centerY;
+            let wallMesh = new Mesh(
+              wallGeometry,
+              new MeshStandardMaterial({ map: outWallTexture }),
+            );
 
-            const dx = shapeWorldX - wallPosition.x;
-            const dz = shapeWorldZ - wallPosition.z;
+            const shapesOnWall = shapes.filter(
+              (shape) => shape.wallIndex === wallIndex,
+            );
 
-            const localX = dx * Math.cos(angle) + dz * Math.sin(angle);
-            const localY =
-              type === "window" ? 0 : -wallHeight / 2 + DOOR_HEIGHT / 2;
+            shapesOnWall.forEach((shape) => {
+              const { type, x, y } = shape;
 
-            cutoutGeometry.translate(localX, localY, 0);
-            const cutoutMesh = new Mesh(cutoutGeometry);
+              // Use constants for cutout dimensions
+              const cutoutWidth = type === "door" ? DOOR_WIDTH : WINDOW_WIDTH;
+              const cutoutHeight =
+                type === "door" ? DOOR_HEIGHT : WINDOW_HEIGHT;
 
-            // Apply CSG subtraction
-            wallMesh = CSG.subtract(
-              wallMesh as Mesh<BoxGeometry, MeshStandardMaterial>,
-              cutoutMesh as Mesh<BoxGeometry, MeshStandardMaterial>,
-            ) as Mesh<BoxGeometry, MeshStandardMaterial>;
-          });
+              // Create cutout geometry
+              const cutoutGeometry = new BoxGeometry(
+                cutoutWidth,
+                cutoutHeight,
+                wallThickness,
+              );
+
+              // Calculate position within the wall
+              const shapeWorldX = x - centerX;
+              const shapeWorldZ = y - centerY;
+
+              const dx = shapeWorldX - wallPosition.x;
+              const dz = shapeWorldZ - wallPosition.z;
+
+              const localX = dx * Math.cos(angle) + dz * Math.sin(angle);
+              const localY =
+                type === "window" ? 0 : -wallHeight / 2 + DOOR_HEIGHT / 2;
+
+              cutoutGeometry.translate(localX, localY, 0);
+              const cutoutMesh = new Mesh(cutoutGeometry);
+
+              // Apply CSG subtraction
+              wallMesh = CSG.subtract(
+                wallMesh as Mesh<BoxGeometry, MeshStandardMaterial>,
+                cutoutMesh as Mesh<BoxGeometry, MeshStandardMaterial>,
+              ) as Mesh<BoxGeometry, MeshStandardMaterial>;
+            });
+            return { wallMesh, wallPosition, angle, shapesOnWall };
+          }, [line, shapes]);
+
+          const { wallMesh, wallPosition, angle, shapesOnWall } = wallData;
 
           return (
             <group
