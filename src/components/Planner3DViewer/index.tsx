@@ -50,12 +50,15 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
     "/textures/wallmap_yellow.png",
   );
 
-  const [modelData, setModelData] = useState<{
-    dimensions: { width: number; height: number; depth: number };
-    center: Vector3;
-  } | null>(null);
-
   const cameraRef = useRef<PerspectiveCamera | null>(null);
+
+  // Initialize state for position and scale
+  const [shapesPositions, setShapesPositions] = useState<{
+    [key: string]: [number, number, number];
+  }>({});
+  const [shapesScales, setShapesScales] = useState<{
+    [key: string]: [number, number, number];
+  }>({});
 
   const handleZoomIn = () => {
     if (cameraRef.current instanceof PerspectiveCamera) {
@@ -104,7 +107,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
         </mesh>
 
         {/* Walls with Doors and Windows */}
-        {lines.map((line, index) => {
+        {lines.map((line, wallIndex) => {
           const [x1, y1, x2, y2] = line.points;
           const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
           const wallPosition = new Vector3(
@@ -126,7 +129,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
           );
 
           const shapesOnWall = shapes.filter(
-            (shape) => shape.wallIndex === index,
+            (shape) => shape.wallIndex === wallIndex,
           );
 
           shapesOnWall.forEach((shape) => {
@@ -166,7 +169,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
 
           return (
             <group
-              key={index}
+              key={wallIndex}
               position={wallPosition}
               rotation={[0, -angle, 0]}
             >
@@ -176,7 +179,10 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
               {shapesOnWall.map((shape, shapeIndex) => {
                 const { type, x, y } = shape;
                 const modelPath =
-                  type === "window" ? "window1.obj" : "door2.obj";
+                  type === "window" ? "window1.obj" : "door3.glb";
+
+                // Create a unique key for each shape using wallIndex and shapeIndex
+                const uniqueKey = `${wallIndex}-${shapeIndex}`;
 
                 // Calculate position within the wall
                 const shapeWorldX = x - centerX;
@@ -189,17 +195,12 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
                 const localY =
                   type === "window" ? 0 : -wallHeight / 2 + DOOR_HEIGHT / 2;
 
-                // Initialize state for position and scale
-                const [shapePosition, setShapePosition] = useState<
-                  [number, number, number]
-                >([0, 0, 0]);
-                const [shapeScale, setShapeScale] = useState<
-                  [number, number, number]
-                >([1, 1, 1]);
+                const shapePosition = shapesPositions[uniqueKey] || [0, 0, 0];
+                const shapeScale = shapesScales[uniqueKey] || [1, 1, 1];
 
                 return (
                   <Model
-                    key={shapeIndex}
+                    key={uniqueKey}
                     path={modelPath}
                     position={shapePosition}
                     rotation={[0, 0, 0]}
@@ -212,25 +213,26 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
                       const scaleY =
                         (type === "door" ? DOOR_HEIGHT : WINDOW_HEIGHT) /
                         dimensions.height;
-                      const scaleZ =
-                        type === "door"
-                          ? wallThickness / dimensions.depth
-                          : wallThickness / dimensions.depth;
+                      const scaleZ = wallThickness / dimensions.depth;
 
-                      setShapeScale([scaleX, scaleY, scaleZ]);
+                      setShapesScales((prevScales) => ({
+                        ...prevScales,
+                        [uniqueKey]: [scaleX, scaleY, scaleZ],
+                      }));
 
                       // Adjust position to align with cutout
                       const adjustedLocalX = localX - center.x * scaleX;
                       const adjustedLocalY = localY - center.y * scaleY;
                       const adjustedLocalZ = -center.z * scaleZ;
 
-                      // console.log(type === "door" ? "" : "window", scaleZ);
-
-                      setShapePosition([
-                        adjustedLocalX,
-                        adjustedLocalY,
-                        adjustedLocalZ,
-                      ]);
+                      setShapesPositions((prevPositions) => ({
+                        ...prevPositions,
+                        [uniqueKey]: [
+                          adjustedLocalX,
+                          adjustedLocalY,
+                          adjustedLocalZ,
+                        ],
+                      }));
                     }}
                   />
                 );
