@@ -179,7 +179,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
               {shapesOnWall.map((shape, shapeIndex) => {
                 const { type, x, y } = shape;
                 const modelPath =
-                  type === "window" ? "window1.obj" : "door3.glb";
+                  type === "window" ? "window1.glb" : "door.glb";
 
                 // Create a unique key for each shape using wallIndex and shapeIndex
                 const uniqueKey = `${wallIndex}-${shapeIndex}`;

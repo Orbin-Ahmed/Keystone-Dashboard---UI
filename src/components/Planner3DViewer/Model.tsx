@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { useLoader, useThree } from "@react-three/fiber";
-import { OBJLoader } from "three-stdlib";
+import React, { useEffect } from "react";
 import { useGLTF } from "@react-three/drei";
-import { Box3, Vector3, Group, Mesh } from "three";
+import { Box3, Vector3 } from "three";
 
 interface ModelProps {
   path: string;
@@ -16,52 +14,27 @@ interface ModelProps {
 }
 
 const Model = ({ path, position, rotation, scale, onLoaded }: ModelProps) => {
-  const [object, setObject] = useState<Group | Mesh | null>(null);
-  const extension = path.split(".").pop()?.toLowerCase();
-
-  // Load either OBJ or GLB using the appropriate loader
-  const objObject =
-    extension === "obj" ? useLoader(OBJLoader, `/models/${path}`) : null;
-  const gltf =
-    extension === "glb" || extension === "gltf"
-      ? useGLTF(`/models/${path}`)
-      : null;
+  const { scene } = useGLTF(`/models/${path}`);
 
   useEffect(() => {
-    let loadedObject: Group | Mesh | null = null;
-
-    if (objObject) {
-      loadedObject = objObject;
-    } else if (gltf) {
-      loadedObject = gltf.scene;
-    }
-
-    if (loadedObject) {
-      setObject(loadedObject);
-
+    if (scene && onLoaded) {
       // Calculate dimensions and center
-      const bbox = new Box3().setFromObject(loadedObject);
+      const bbox = new Box3().setFromObject(scene);
       const size = new Vector3();
       bbox.getSize(size);
       const center = new Vector3();
       bbox.getCenter(center);
 
-      if (onLoaded) {
-        onLoaded({
-          dimensions: { width: size.x, height: size.y, depth: size.z },
-          center,
-        });
-      }
+      onLoaded({
+        dimensions: { width: size.x, height: size.y, depth: size.z },
+        center,
+      });
     }
-  }, [objObject, gltf, onLoaded]);
-
-  if (!object) {
-    return null; // or a loading placeholder
-  }
+  }, [scene, onLoaded]);
 
   return (
     <primitive
-      object={object.clone()}
+      object={scene.clone()}
       position={position}
       rotation={rotation}
       scale={scale}
