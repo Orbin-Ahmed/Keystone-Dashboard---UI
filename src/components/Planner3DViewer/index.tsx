@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Canvas, useLoader } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { LineData, ShapeData } from "@/types";
@@ -10,9 +10,9 @@ import {
   BoxGeometry,
   MeshStandardMaterial,
 } from "three";
-import { OBJLoader } from "three-stdlib";
 import { CSG } from "three-csg-ts";
 import CustomButton from "../CustomButton";
+import Model from "./Model";
 
 interface Plan3DViewerProps {
   lines: LineData[];
@@ -22,6 +22,14 @@ interface Plan3DViewerProps {
 const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
   const wallHeight = 120;
   const wallThickness = 10;
+
+  // Door Dimensions (in scene units)
+  const DOOR_WIDTH = 60;
+  const DOOR_HEIGHT = 100;
+
+  // Window Dimensions (in scene units)
+  const WINDOW_WIDTH = 60;
+  const WINDOW_HEIGHT = 50;
 
   const allX = lines.flatMap((line) => [line.points[0], line.points[2]]);
   const allY = lines.flatMap((line) => [line.points[1], line.points[3]]);
@@ -35,14 +43,17 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
   const planeWidth = Math.abs(maxX - minX) + 2000;
   const planeHeight = Math.abs(maxY - minY) + 2000;
 
-  const grassTexture = useLoader(TextureLoader, "/textures/grass.png");
-  // const grassTexture = useLoader(TextureLoader, "/textures/walllightmap.png");
+  const grassTexture = useLoader(TextureLoader, "/textures/grass1.jpg");
   const floorTexture = useLoader(TextureLoader, "/textures/floor.png");
-  // const outWallTexture = useLoader(TextureLoader, "/textures/out_wall.png");
   const outWallTexture = useLoader(
     TextureLoader,
     "/textures/wallmap_yellow.png",
   );
+
+  const [modelData, setModelData] = useState<{
+    dimensions: { width: number; height: number; depth: number };
+    center: Vector3;
+  } | null>(null);
 
   const cameraRef = useRef<PerspectiveCamera | null>(null);
 
@@ -70,7 +81,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
           }
         }}
       >
-        <ambientLight intensity={0.5} />
+        <ambientLight intensity={0.8} />
         <directionalLight position={[10, 50, 25]} intensity={1} />
         <hemisphereLight intensity={0.35} />
         <OrbitControls
@@ -121,19 +132,18 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
           shapesOnWall.forEach((shape) => {
             const { type, x, y } = shape;
 
-            // Calculate cutout dimensions based on the scale
-            const cutoutWidth =
-              type === "door" ? 0.4 * wallHeight : 0.48 * wallHeight;
-            const cutoutHeight =
-              type === "door" ? wallHeight * 0.85 : 0.42 * wallHeight;
+            // Use constants for cutout dimensions
+            const cutoutWidth = type === "door" ? DOOR_WIDTH : WINDOW_WIDTH;
+            const cutoutHeight = type === "door" ? DOOR_HEIGHT : WINDOW_HEIGHT;
 
-            // Create cutout geometry for doors/windows
+            // Create cutout geometry
             const cutoutGeometry = new BoxGeometry(
               cutoutWidth,
               cutoutHeight,
-              wallThickness, // Make cutout slightly thicker to ensure complete removal
+              wallThickness,
             );
 
+            // Calculate position within the wall
             const shapeWorldX = x - centerX;
             const shapeWorldZ = y - centerY;
 
@@ -142,14 +152,12 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
 
             const localX = dx * Math.cos(angle) + dz * Math.sin(angle);
             const localY =
-              type === "window"
-                ? cutoutHeight / 10 - 13
-                : cutoutHeight / 10 - 23;
+              type === "window" ? 0 : -wallHeight / 2 + DOOR_HEIGHT / 2;
 
             cutoutGeometry.translate(localX, localY, 0);
             const cutoutMesh = new Mesh(cutoutGeometry);
 
-            // Apply CSG subtraction to create cutout in the wall
+            // Apply CSG subtraction
             wallMesh = CSG.subtract(
               wallMesh as Mesh<BoxGeometry, MeshStandardMaterial>,
               cutoutMesh as Mesh<BoxGeometry, MeshStandardMaterial>,
@@ -167,8 +175,10 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
               {/* Doors and Windows */}
               {shapesOnWall.map((shape, shapeIndex) => {
                 const { type, x, y } = shape;
-                const modelPath = type === "window" ? "window.obj" : "door.obj";
+                const modelPath =
+                  type === "window" ? "window1.obj" : "door2.obj";
 
+                // Calculate position within the wall
                 const shapeWorldX = x - centerX;
                 const shapeWorldZ = y - centerY;
 
@@ -176,28 +186,52 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
                 const dz = shapeWorldZ - wallPosition.z;
 
                 const localX = dx * Math.cos(angle) + dz * Math.sin(angle);
-                const localZ = -dx * Math.sin(angle) + dz * Math.cos(angle);
+                const localY =
+                  type === "window" ? 0 : -wallHeight / 2 + DOOR_HEIGHT / 2;
 
-                // Adjust shape position to align with wall thickness
-                const shapePosition: [number, number, number] = [
-                  type === "door" ? localX + 5 : localX,
-                  type === "window" ? wallHeight / 10 - 20 : -8, // Place windows in the middle of the wall and doors at ground level
-                  wallThickness / 2 - 5, // Slight offset to make sure they protrude from the wall slightly
-                ];
-
-                const modelRotationOffset = Math.PI / 2;
+                // Initialize state for position and scale
+                const [shapePosition, setShapePosition] = useState<
+                  [number, number, number]
+                >([0, 0, 0]);
+                const [shapeScale, setShapeScale] = useState<
+                  [number, number, number]
+                >([1, 1, 1]);
 
                 return (
                   <Model
                     key={shapeIndex}
                     path={modelPath}
                     position={shapePosition}
-                    rotation={[modelRotationOffset, 0, 0]}
-                    scale={
-                      type === "door"
-                        ? [0.5, 1, 0.4] // Scale the door to fit within the wall thickness
-                        : [1.2, 1, 1.2] // Scale the window properly and adjust depth to fit within wall
-                    }
+                    rotation={[0, 0, 0]}
+                    scale={shapeScale}
+                    onLoaded={({ dimensions, center }) => {
+                      // Calculate scaling factors
+                      const scaleX =
+                        (type === "door" ? DOOR_WIDTH : WINDOW_WIDTH) /
+                        dimensions.width;
+                      const scaleY =
+                        (type === "door" ? DOOR_HEIGHT : WINDOW_HEIGHT) /
+                        dimensions.height;
+                      const scaleZ =
+                        type === "door"
+                          ? wallThickness / dimensions.depth
+                          : wallThickness / dimensions.depth;
+
+                      setShapeScale([scaleX, scaleY, scaleZ]);
+
+                      // Adjust position to align with cutout
+                      const adjustedLocalX = localX - center.x * scaleX;
+                      const adjustedLocalY = localY - center.y * scaleY;
+                      const adjustedLocalZ = -center.z * scaleZ;
+
+                      // console.log(type === "door" ? "" : "window", scaleZ);
+
+                      setShapePosition([
+                        adjustedLocalX,
+                        adjustedLocalY,
+                        adjustedLocalZ,
+                      ]);
+                    }}
                   />
                 );
               })}
@@ -226,28 +260,3 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
 };
 
 export default Plan3DViewer;
-
-const Model = ({
-  path,
-  position,
-  rotation,
-  scale,
-}: {
-  path: string;
-  position: [number, number, number];
-  rotation: [number, number, number];
-  scale: [number, number, number];
-}) => {
-  const object = useLoader(OBJLoader, path, (loader) => {
-    loader.setPath("/models/");
-  });
-
-  return (
-    <primitive
-      object={object.clone()}
-      position={position}
-      rotation={rotation}
-      scale={scale}
-    />
-  );
-};
