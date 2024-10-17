@@ -227,7 +227,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
                       }));
 
                       // Adjust position to align with cutout
-                      let adjustedLocalX;
+                      let adjustedLocalX: number;
+
                       if (isFacingInward) {
                         adjustedLocalX = localX + center.x * scaleX;
                       } else {
