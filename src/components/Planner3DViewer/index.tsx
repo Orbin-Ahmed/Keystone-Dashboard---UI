@@ -87,16 +87,13 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
           }
         }}
       >
-        // Soft Ambient Light
-        <ambientLight intensity={0.8} />
-        // Directional Light with Shadows
+        <ambientLight intensity={1} />
         <directionalLight
           position={[10, 50, 25]}
           intensity={1}
           shadow-mapSize-width={2048}
           shadow-mapSize-height={2048}
         />
-        // Optional: Add more lights
         <pointLight position={[0, 100, 0]} intensity={0.5} />
         <OrbitControls
           enablePan={true}
