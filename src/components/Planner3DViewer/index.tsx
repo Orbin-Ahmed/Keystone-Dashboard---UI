@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { Canvas, useLoader } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { LineData, ShapeData } from "@/types";
@@ -9,6 +9,7 @@ import {
   Mesh,
   BoxGeometry,
   MeshStandardMaterial,
+  Vector2,
 } from "three";
 import { CSG } from "three-csg-ts";
 import CustomButton from "../CustomButton";
@@ -40,14 +41,13 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
   const centerX = (minX + maxX) / 2;
   const centerY = (minY + maxY) / 2;
 
-  const planeWidth = Math.abs(maxX - minX) + 2000;
-  const planeHeight = Math.abs(maxY - minY) + 2000;
-
-  const grassTexture = useLoader(TextureLoader, "/textures/grass1.jpg");
-  const floorTexture = useLoader(TextureLoader, "/textures/floor.png");
-  const outWallTexture = useLoader(
-    TextureLoader,
-    "/textures/wallmap_yellow.png",
+  const floorTexture = useMemo(
+    () => useLoader(TextureLoader, "/textures/hardwood.png"),
+    [],
+  );
+  const outWallTexture = useMemo(
+    () => useLoader(TextureLoader, "/textures/marbletiles.jpg"),
+    [],
   );
 
   const cameraRef = useRef<PerspectiveCamera | null>(null);
@@ -77,8 +77,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
   return (
     <>
       <Canvas
-        dpr={[1, 2]}
-        gl={{ antialias: true }}
         camera={{ position: [0, 300, 500], fov: 50, near: 1, far: 5000 }}
         onCreated={({ camera }) => {
           if (camera instanceof PerspectiveCamera) {
@@ -87,29 +85,24 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
         }}
       >
         <ambientLight intensity={1} />
-        <directionalLight
-          position={[10, 50, 25]}
-          intensity={1}
-          shadow-mapSize-width={2048}
-          shadow-mapSize-height={2048}
-        />
+        <directionalLight position={[10, 50, 25]} intensity={1} />
         <pointLight position={[0, 100, 0]} intensity={0.5} />
         <OrbitControls
-          enablePan={true}
           enableZoom={true}
           maxPolarAngle={Math.PI / 2}
           minPolarAngle={0}
         />
-        {/* Grass Surface */}
-        <mesh position={[0, -0.2, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[planeWidth, planeHeight]} />
-          <meshStandardMaterial map={grassTexture} />
-        </mesh>
+        <gridHelper
+          args={[2000, 40, "#cccccc", "#e0e0e0"]}
+          position={[0, -0.1, 0]}
+        />
+
         {/* Floor */}
         <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
           <planeGeometry args={[maxX - minX, maxY - minY]} />
           <meshStandardMaterial map={floorTexture} />
         </mesh>
+
         {/* Walls with Doors and Windows */}
         {lines.map((line, wallIndex) => {
           const [x1, y1, x2, y2] = line.points;
@@ -120,6 +113,20 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
             (y1 + y2) / 2 - centerY,
           );
           const angle = Math.atan2(y2 - y1, x2 - x1);
+
+          // Calculate wall normal
+          const wallNormal = new Vector2(-(y2 - y1), x2 - x1).normalize();
+
+          // Vector from wall center to house center
+          const wallCenter = new Vector2((x1 + x2) / 2, (y1 + y2) / 2);
+          const toCenterVector = new Vector2(
+            centerX - wallCenter.x,
+            centerY - wallCenter.y,
+          ).normalize();
+
+          // Determine if wall is facing inward
+          const dot = wallNormal.dot(toCenterVector);
+          const isFacingInward = dot > 0;
 
           const wallGeometry = new BoxGeometry(
             length,
@@ -201,12 +208,14 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
                 const shapePosition = shapesPositions[uniqueKey] || [0, 0, 0];
                 const shapeScale = shapesScales[uniqueKey] || [1, 1, 1];
 
+                const rotationY = isFacingInward ? Math.PI : 0;
+
                 return (
                   <Model
                     key={uniqueKey}
                     path={modelPath}
                     position={shapePosition}
-                    rotation={[0, 0, 0]}
+                    rotation={[0, rotationY, 0]}
                     scale={shapeScale}
                     onLoaded={({ dimensions, center }) => {
                       // Calculate scaling factors
@@ -224,7 +233,13 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
                       }));
 
                       // Adjust position to align with cutout
-                      const adjustedLocalX = localX - center.x * scaleX;
+                      let adjustedLocalX;
+                      if (isFacingInward) {
+                        adjustedLocalX = localX + center.x * scaleX;
+                      } else {
+                        adjustedLocalX = localX - center.x * scaleX;
+                      }
+                      // const adjustedLocalX = localX - center.x * scaleX;
                       const adjustedLocalY = localY - center.y * scaleY;
                       const adjustedLocalZ = -center.z * scaleZ;
 
