@@ -41,14 +41,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
   const centerX = (minX + maxX) / 2;
   const centerY = (minY + maxY) / 2;
 
-  const floorTexture = useMemo(
-    () => useLoader(TextureLoader, "/textures/hardwood.png"),
-    [],
-  );
-  const outWallTexture = useMemo(
-    () => useLoader(TextureLoader, "/textures/marbletiles.jpg"),
-    [],
-  );
+  const floorTexture = useLoader(TextureLoader, "/textures/hardwood.png");
+  const outWallTexture = useLoader(TextureLoader, "/textures/marbletiles.jpg");
 
   const cameraRef = useRef<PerspectiveCamera | null>(null);
 
