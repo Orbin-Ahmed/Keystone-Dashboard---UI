@@ -1,5 +1,4 @@
 import React, { useRef, useState } from "react";
-import { useMemo } from "react";
 import { Canvas, useLoader } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { LineData, ShapeData } from "@/types";
@@ -113,71 +112,64 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
         </mesh>
         {/* Walls with Doors and Windows */}
         {lines.map((line, wallIndex) => {
-          const wallData = useMemo(() => {
-            const [x1, y1, x2, y2] = line.points;
-            const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
-            const wallPosition = new Vector3(
-              (x1 + x2) / 2 - centerX,
-              wallHeight / 2,
-              (y1 + y2) / 2 - centerY,
-            );
-            const angle = Math.atan2(y2 - y1, x2 - x1);
+          const [x1, y1, x2, y2] = line.points;
+          const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+          const wallPosition = new Vector3(
+            (x1 + x2) / 2 - centerX,
+            wallHeight / 2,
+            (y1 + y2) / 2 - centerY,
+          );
+          const angle = Math.atan2(y2 - y1, x2 - x1);
 
-            const wallGeometry = new BoxGeometry(
-              length,
-              wallHeight,
+          const wallGeometry = new BoxGeometry(
+            length,
+            wallHeight,
+            wallThickness,
+          );
+
+          let wallMesh = new Mesh(
+            wallGeometry,
+            new MeshStandardMaterial({ map: outWallTexture }),
+          );
+
+          const shapesOnWall = shapes.filter(
+            (shape) => shape.wallIndex === wallIndex,
+          );
+
+          shapesOnWall.forEach((shape) => {
+            const { type, x, y } = shape;
+
+            // Use constants for cutout dimensions
+            const cutoutWidth = type === "door" ? DOOR_WIDTH : WINDOW_WIDTH;
+            const cutoutHeight = type === "door" ? DOOR_HEIGHT : WINDOW_HEIGHT;
+
+            // Create cutout geometry
+            const cutoutGeometry = new BoxGeometry(
+              cutoutWidth,
+              cutoutHeight,
               wallThickness,
             );
 
-            let wallMesh = new Mesh(
-              wallGeometry,
-              new MeshStandardMaterial({ map: outWallTexture }),
-            );
+            // Calculate position within the wall
+            const shapeWorldX = x - centerX;
+            const shapeWorldZ = y - centerY;
 
-            const shapesOnWall = shapes.filter(
-              (shape) => shape.wallIndex === wallIndex,
-            );
+            const dx = shapeWorldX - wallPosition.x;
+            const dz = shapeWorldZ - wallPosition.z;
 
-            shapesOnWall.forEach((shape) => {
-              const { type, x, y } = shape;
+            const localX = dx * Math.cos(angle) + dz * Math.sin(angle);
+            const localY =
+              type === "window" ? 0 : -wallHeight / 2 + DOOR_HEIGHT / 2;
 
-              // Use constants for cutout dimensions
-              const cutoutWidth = type === "door" ? DOOR_WIDTH : WINDOW_WIDTH;
-              const cutoutHeight =
-                type === "door" ? DOOR_HEIGHT : WINDOW_HEIGHT;
+            cutoutGeometry.translate(localX, localY, 0);
+            const cutoutMesh = new Mesh(cutoutGeometry);
 
-              // Create cutout geometry
-              const cutoutGeometry = new BoxGeometry(
-                cutoutWidth,
-                cutoutHeight,
-                wallThickness,
-              );
-
-              // Calculate position within the wall
-              const shapeWorldX = x - centerX;
-              const shapeWorldZ = y - centerY;
-
-              const dx = shapeWorldX - wallPosition.x;
-              const dz = shapeWorldZ - wallPosition.z;
-
-              const localX = dx * Math.cos(angle) + dz * Math.sin(angle);
-              const localY =
-                type === "window" ? 0 : -wallHeight / 2 + DOOR_HEIGHT / 2;
-
-              cutoutGeometry.translate(localX, localY, 0);
-              const cutoutMesh = new Mesh(cutoutGeometry);
-
-              // Apply CSG subtraction
-              wallMesh = CSG.subtract(
-                wallMesh as Mesh<BoxGeometry, MeshStandardMaterial>,
-                cutoutMesh as Mesh<BoxGeometry, MeshStandardMaterial>,
-              ) as Mesh<BoxGeometry, MeshStandardMaterial>;
-            });
-            return { wallMesh, wallPosition, angle, shapesOnWall };
-          }, [line, shapes]);
-
-          const { wallMesh, wallPosition, angle, shapesOnWall } = wallData;
-
+            // Apply CSG subtraction
+            wallMesh = CSG.subtract(
+              wallMesh as Mesh<BoxGeometry, MeshStandardMaterial>,
+              cutoutMesh as Mesh<BoxGeometry, MeshStandardMaterial>,
+            ) as Mesh<BoxGeometry, MeshStandardMaterial>;
+          });
           return (
             <group
               key={wallIndex}
