@@ -47,7 +47,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
 
   const cameraRef = useRef<PerspectiveCamera | null>(null);
 
-  // Initialize state for position and scale
+  // Initialize state for position, scale and shapeData
   const [shapesPositions, setShapesPositions] = useState<{
     [key: string]: [number, number, number];
   }>({});
@@ -100,7 +100,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
           position={[0, -0.1, 0]}
         />
 
-        {/* Floor */}
+        {/* Floor Mesh*/}
         <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
           <planeGeometry args={[maxX - minX, maxY - minY]} />
           <meshStandardMaterial map={floorTexture} />
@@ -190,16 +190,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
 
                 const shapePosition = shapesPositions[uniqueKey] || [0, 0, 0];
                 const shapeScale = shapesScales[uniqueKey] || [1, 1, 1];
-
                 const rotationY = isFacingInward ? Math.PI : 0;
-
-                // const [shapeData, setShapeData] = useState<{
-                //   [key: string]: {
-                //     position: [number, number, number];
-                //     scale: [number, number, number];
-                //     loaded: boolean;
-                //   };
-                // }>({});
 
                 return (
                   <Model
@@ -218,11 +209,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
                           (type === "door" ? DOOR_HEIGHT : WINDOW_HEIGHT) /
                           dimensions.height;
                         const scaleZ = wallThickness / dimensions.depth;
-
-                        setShapesScales((prevScales) => ({
-                          ...prevScales,
-                          [uniqueKey]: [scaleX, scaleY, scaleZ],
-                        }));
 
                         // Adjust position to align with cutout
                         let adjustedLocalX: number;
@@ -243,6 +229,11 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
                             adjustedLocalY,
                             adjustedLocalZ,
                           ],
+                        }));
+
+                        setShapesScales((prevScales) => ({
+                          ...prevScales,
+                          [uniqueKey]: [scaleX, scaleY, scaleZ],
                         }));
                       }
                     }}
