@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useLoader } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { LineData, ShapeData } from "@/types";
@@ -41,8 +41,17 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
   const centerX = (minX + maxX) / 2;
   const centerY = (minY + maxY) / 2;
 
-  const floorTexture = useLoader(TextureLoader, "/textures/hardwood.png");
-  const outWallTexture = useLoader(TextureLoader, "/textures/marbletiles.jpg");
+  // const floorTexture = useLoader(TextureLoader, "/textures/hardwood.png");
+  // const outWallTexture = useLoader(TextureLoader, "/textures/marbletiles.jpg");
+
+  const floorTexture = useMemo(
+    () => useLoader(TextureLoader, "/textures/hardwood.png"),
+    [],
+  );
+  const outWallTexture = useMemo(
+    () => useLoader(TextureLoader, "/textures/marbletiles.jpg"),
+    [],
+  );
 
   const cameraRef = useRef<PerspectiveCamera | null>(null);
 
@@ -71,7 +80,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
   return (
     <>
       <Canvas
-        camera={{ position: [0, 300, 500], fov: 50, near: 1, far: 5000 }}
+        camera={{ position: [0, 300, 500], fov: 50, near: 1, far: 2000 }}
         onCreated={({ camera }) => {
           if (camera instanceof PerspectiveCamera) {
             cameraRef.current = camera;
@@ -84,7 +93,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
         <OrbitControls
           enableZoom={true}
           maxPolarAngle={Math.PI / 2}
-          minPolarAngle={0}
+          minPolarAngle={0.1}
+          maxDistance={1000}
         />
         <gridHelper
           args={[2000, 40, "#cccccc", "#e0e0e0"]}
@@ -108,19 +118,15 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
           );
           const angle = Math.atan2(y2 - y1, x2 - x1);
 
-          // Calculate wall normal
-          const wallNormal = new Vector2(-(y2 - y1), x2 - x1).normalize();
-
-          // Vector from wall center to house center
-          const wallCenter = new Vector2((x1 + x2) / 2, (y1 + y2) / 2);
-          const toCenterVector = new Vector2(
-            centerX - wallCenter.x,
-            centerY - wallCenter.y,
-          ).normalize();
-
           // Determine if wall is facing inward
-          const dot = wallNormal.dot(toCenterVector);
-          const isFacingInward = dot > 0;
+          // const wallNormal = new Vector2(-(y2 - y1), x2 - x1).normalize();
+          // const wallCenter = new Vector2((x1 + x2) / 2, (y1 + y2) / 2);
+          // const toCenterVector = new Vector2(
+          //   centerX - wallCenter.x,
+          //   centerY - wallCenter.y,
+          // ).normalize();
+          // const dot = wallNormal.dot(toCenterVector);
+          // const isFacingInward = dot > 0;
 
           const wallGeometry = new BoxGeometry(
             length,
@@ -140,37 +146,29 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
           shapesOnWall.forEach((shape) => {
             const { type, x, y } = shape;
 
-            // Use constants for cutout dimensions
+            // Use constants for cutout dimensions & Create cutout geometry
             const cutoutWidth = type === "door" ? DOOR_WIDTH : WINDOW_WIDTH;
             const cutoutHeight = type === "door" ? DOOR_HEIGHT : WINDOW_HEIGHT;
-
-            // Create cutout geometry
             const cutoutGeometry = new BoxGeometry(
               cutoutWidth,
               cutoutHeight,
               wallThickness,
             );
-
-            // Calculate position within the wall
             const shapeWorldX = x - centerX;
             const shapeWorldZ = y - centerY;
-
             const dx = shapeWorldX - wallPosition.x;
             const dz = shapeWorldZ - wallPosition.z;
-
             const localX = dx * Math.cos(angle) + dz * Math.sin(angle);
             const localY =
               type === "window" ? 0 : -wallHeight / 2 + DOOR_HEIGHT / 2;
-
             cutoutGeometry.translate(localX, localY, 0);
             const cutoutMesh = new Mesh(cutoutGeometry);
-
-            // Apply CSG subtraction
             wallMesh = CSG.subtract(
               wallMesh as Mesh<BoxGeometry, MeshStandardMaterial>,
               cutoutMesh as Mesh<BoxGeometry, MeshStandardMaterial>,
             ) as Mesh<BoxGeometry, MeshStandardMaterial>;
           });
+
           return (
             <group
               key={wallIndex}
@@ -178,23 +176,15 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
               rotation={[0, -angle, 0]}
             >
               <primitive object={wallMesh} />
-
-              {/* Doors and Windows */}
               {shapesOnWall.map((shape, shapeIndex) => {
                 const { type, x, y } = shape;
                 const modelPath =
-                  type === "window" ? "window1.glb" : "door.glb";
-
-                // Create a unique key for each shape using wallIndex and shapeIndex
+                  type === "window" ? "window2.glb" : "door1.glb";
                 const uniqueKey = `${wallIndex}-${shapeIndex}`;
-
-                // Calculate position within the wall
                 const shapeWorldX = x - centerX;
                 const shapeWorldZ = y - centerY;
-
                 const dx = shapeWorldX - wallPosition.x;
                 const dz = shapeWorldZ - wallPosition.z;
-
                 const localX = dx * Math.cos(angle) + dz * Math.sin(angle);
                 const localY =
                   type === "window" ? 0 : -wallHeight / 2 + DOOR_HEIGHT / 2;
@@ -202,51 +192,61 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
                 const shapePosition = shapesPositions[uniqueKey] || [0, 0, 0];
                 const shapeScale = shapesScales[uniqueKey] || [1, 1, 1];
 
-                const rotationY = isFacingInward ? Math.PI : 0;
+                // const rotationY = isFacingInward ? Math.PI : 0;
+
+                const [shapeData, setShapeData] = useState<{
+                  [key: string]: {
+                    position: [number, number, number];
+                    scale: [number, number, number];
+                    loaded: boolean;
+                  };
+                }>({});
 
                 return (
                   <Model
                     key={uniqueKey}
                     path={modelPath}
                     position={shapePosition}
-                    rotation={[0, rotationY, 0]}
-                    scale={shapeScale}
-                    onLoaded={({ dimensions, center }) => {
-                      // Calculate scaling factors
-                      const scaleX =
-                        (type === "door" ? DOOR_WIDTH : WINDOW_WIDTH) /
-                        dimensions.width;
-                      const scaleY =
-                        (type === "door" ? DOOR_HEIGHT : WINDOW_HEIGHT) /
-                        dimensions.height;
-                      const scaleZ = wallThickness / dimensions.depth;
+                    rotation={[0, 0, 0]}
+                    // scale={shapeScale}
+                    // onLoaded={({ dimensions, center }) => {
+                    //   if (!shapeData[uniqueKey]?.loaded) {
+                    //     // Calculate scaling factors
+                    //     const scaleX =
+                    //       (type === "door" ? DOOR_WIDTH : WINDOW_WIDTH) /
+                    //       dimensions.width;
+                    //     const scaleY =
+                    //       (type === "door" ? DOOR_HEIGHT : WINDOW_HEIGHT) /
+                    //       dimensions.height;
+                    //     const scaleZ = wallThickness / dimensions.depth;
 
-                      setShapesScales((prevScales) => ({
-                        ...prevScales,
-                        [uniqueKey]: [scaleX, scaleY, scaleZ],
-                      }));
+                    //     setShapesScales((prevScales) => ({
+                    //       ...prevScales,
+                    //       [uniqueKey]: [scaleX, scaleY, scaleZ],
+                    //     }));
 
-                      // Adjust position to align with cutout
-                      let adjustedLocalX: number;
+                    //     // Adjust position to align with cutout
+                    //     let adjustedLocalX: number;
 
-                      if (isFacingInward) {
-                        adjustedLocalX = localX + center.x * scaleX;
-                      } else {
-                        adjustedLocalX = localX - center.x * scaleX;
-                      }
-                      // const adjustedLocalX = localX - center.x * scaleX;
-                      const adjustedLocalY = localY - center.y * scaleY;
-                      const adjustedLocalZ = -center.z * scaleZ;
+                    //     if (isFacingInward) {
+                    //       adjustedLocalX = localX + center.x * scaleX;
+                    //     } else {
+                    //       adjustedLocalX = localX - center.x * scaleX;
+                    //     }
+                    //     // const adjustedLocalX = localX - center.x * scaleX;
+                    //     const adjustedLocalY = localY - center.y * scaleY;
+                    //     const adjustedLocalZ = -center.z * scaleZ;
 
-                      setShapesPositions((prevPositions) => ({
-                        ...prevPositions,
-                        [uniqueKey]: [
-                          adjustedLocalX,
-                          adjustedLocalY,
-                          adjustedLocalZ,
-                        ],
-                      }));
-                    }}
+                    //     setShapesPositions((prevPositions) => ({
+                    //       ...prevPositions,
+                    //       [uniqueKey]: [
+                    //         adjustedLocalX,
+                    //         adjustedLocalY,
+                    //         adjustedLocalZ,
+                    //       ],
+                    //     }));
+                    //   }
+                    // }}
                   />
                 );
               })}
