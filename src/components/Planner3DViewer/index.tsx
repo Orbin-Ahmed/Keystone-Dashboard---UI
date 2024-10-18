@@ -185,13 +185,13 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
 
                 // const rotationY = isFacingInward ? Math.PI : 0;
 
-                const [shapeData, setShapeData] = useState<{
-                  [key: string]: {
-                    position: [number, number, number];
-                    scale: [number, number, number];
-                    loaded: boolean;
-                  };
-                }>({});
+                // const [shapeData, setShapeData] = useState<{
+                //   [key: string]: {
+                //     position: [number, number, number];
+                //     scale: [number, number, number];
+                //     loaded: boolean;
+                //   };
+                // }>({});
 
                 return (
                   <Model
