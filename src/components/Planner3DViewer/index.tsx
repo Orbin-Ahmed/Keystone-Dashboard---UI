@@ -21,6 +21,7 @@ interface Plan3DViewerProps {
 }
 
 const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
+  // Wall Dimensions (in scene units)
   const wallHeight = 120;
   const wallThickness = 10;
 
@@ -110,14 +111,14 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
           const angle = Math.atan2(y2 - y1, x2 - x1);
 
           // Determine if wall is facing inward
-          // const wallNormal = new Vector2(-(y2 - y1), x2 - x1).normalize();
-          // const wallCenter = new Vector2((x1 + x2) / 2, (y1 + y2) / 2);
-          // const toCenterVector = new Vector2(
-          //   centerX - wallCenter.x,
-          //   centerY - wallCenter.y,
-          // ).normalize();
-          // const dot = wallNormal.dot(toCenterVector);
-          // const isFacingInward = dot > 0;
+          const wallNormal = new Vector2(-(y2 - y1), x2 - x1).normalize();
+          const wallCenter = new Vector2((x1 + x2) / 2, (y1 + y2) / 2);
+          const toCenterVector = new Vector2(
+            centerX - wallCenter.x,
+            centerY - wallCenter.y,
+          ).normalize();
+          const dot = wallNormal.dot(toCenterVector);
+          const isFacingInward = dot > 0;
 
           const wallGeometry = new BoxGeometry(
             length,
@@ -170,7 +171,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
               {shapesOnWall.map((shape, shapeIndex) => {
                 const { type, x, y } = shape;
                 const modelPath =
-                  type === "window" ? "window2.glb" : "door1.glb";
+                  type === "window" ? "window_arch.glb" : "door.glb";
                 const uniqueKey = `${wallIndex}-${shapeIndex}`;
                 const shapeWorldX = x - centerX;
                 const shapeWorldZ = y - centerY;
@@ -183,61 +184,61 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
                 const shapePosition = shapesPositions[uniqueKey] || [0, 0, 0];
                 const shapeScale = shapesScales[uniqueKey] || [1, 1, 1];
 
-                // const rotationY = isFacingInward ? Math.PI : 0;
+                const rotationY = isFacingInward ? Math.PI : 0;
 
-                // const [shapeData, setShapeData] = useState<{
-                //   [key: string]: {
-                //     position: [number, number, number];
-                //     scale: [number, number, number];
-                //     loaded: boolean;
-                //   };
-                // }>({});
+                const [shapeData, setShapeData] = useState<{
+                  [key: string]: {
+                    position: [number, number, number];
+                    scale: [number, number, number];
+                    loaded: boolean;
+                  };
+                }>({});
 
                 return (
                   <Model
                     key={uniqueKey}
                     path={modelPath}
                     position={shapePosition}
-                    rotation={[0, 0, 0]}
-                    // scale={shapeScale}
-                    // onLoaded={({ dimensions, center }) => {
-                    //   if (!shapeData[uniqueKey]?.loaded) {
-                    //     // Calculate scaling factors
-                    //     const scaleX =
-                    //       (type === "door" ? DOOR_WIDTH : WINDOW_WIDTH) /
-                    //       dimensions.width;
-                    //     const scaleY =
-                    //       (type === "door" ? DOOR_HEIGHT : WINDOW_HEIGHT) /
-                    //       dimensions.height;
-                    //     const scaleZ = wallThickness / dimensions.depth;
+                    rotation={[0, rotationY, 0]}
+                    scale={shapeScale}
+                    onLoaded={({ dimensions, center }) => {
+                      if (!shapeData[uniqueKey]?.loaded) {
+                        // Calculate scaling factors
+                        const scaleX =
+                          (type === "door" ? DOOR_WIDTH : WINDOW_WIDTH) /
+                          dimensions.width;
+                        const scaleY =
+                          (type === "door" ? DOOR_HEIGHT : WINDOW_HEIGHT) /
+                          dimensions.height;
+                        const scaleZ = wallThickness / dimensions.depth;
 
-                    //     setShapesScales((prevScales) => ({
-                    //       ...prevScales,
-                    //       [uniqueKey]: [scaleX, scaleY, scaleZ],
-                    //     }));
+                        setShapesScales((prevScales) => ({
+                          ...prevScales,
+                          [uniqueKey]: [scaleX, scaleY, scaleZ],
+                        }));
 
-                    //     // Adjust position to align with cutout
-                    //     let adjustedLocalX: number;
+                        // Adjust position to align with cutout
+                        let adjustedLocalX: number;
 
-                    //     if (isFacingInward) {
-                    //       adjustedLocalX = localX + center.x * scaleX;
-                    //     } else {
-                    //       adjustedLocalX = localX - center.x * scaleX;
-                    //     }
-                    //     // const adjustedLocalX = localX - center.x * scaleX;
-                    //     const adjustedLocalY = localY - center.y * scaleY;
-                    //     const adjustedLocalZ = -center.z * scaleZ;
+                        if (isFacingInward) {
+                          adjustedLocalX = localX + center.x * scaleX;
+                        } else {
+                          adjustedLocalX = localX - center.x * scaleX;
+                        }
+                        // const adjustedLocalX = localX - center.x * scaleX;
+                        const adjustedLocalY = localY - center.y * scaleY;
+                        const adjustedLocalZ = -center.z * scaleZ;
 
-                    //     setShapesPositions((prevPositions) => ({
-                    //       ...prevPositions,
-                    //       [uniqueKey]: [
-                    //         adjustedLocalX,
-                    //         adjustedLocalY,
-                    //         adjustedLocalZ,
-                    //       ],
-                    //     }));
-                    //   }
-                    // }}
+                        setShapesPositions((prevPositions) => ({
+                          ...prevPositions,
+                          [uniqueKey]: [
+                            adjustedLocalX,
+                            adjustedLocalY,
+                            adjustedLocalZ,
+                          ],
+                        }));
+                      }
+                    }}
                   />
                 );
               })}
