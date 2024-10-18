@@ -54,6 +54,13 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
   const [shapesScales, setShapesScales] = useState<{
     [key: string]: [number, number, number];
   }>({});
+  const [shapeData, setShapeData] = useState<{
+    [key: string]: {
+      position: [number, number, number];
+      scale: [number, number, number];
+      loaded: boolean;
+    };
+  }>({});
 
   const handleZoomIn = () => {
     if (cameraRef.current instanceof PerspectiveCamera) {
@@ -186,13 +193,11 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
 
                 const rotationY = isFacingInward ? Math.PI : 0;
 
-                const [shapeData, setShapeData] = useState<{
-                  [key: string]: {
-                    position: [number, number, number];
-                    scale: [number, number, number];
-                    loaded: boolean;
-                  };
-                }>({});
+                const shapeDataValue = shapeData[uniqueKey] || {
+                  position: [0, 0, 0],
+                  scale: [1, 1, 1],
+                  loaded: false,
+                };
 
                 return (
                   <Model
