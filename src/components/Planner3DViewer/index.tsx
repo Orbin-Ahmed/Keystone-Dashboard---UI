@@ -1,5 +1,5 @@
-import React, { useRef } from "react";
-import { Canvas, useLoader } from "@react-three/fiber";
+import React, { useEffect, useRef, useState } from "react";
+import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { LineData, ShapeData } from "@/types";
 import {
@@ -15,10 +15,109 @@ import { CSG } from "three-csg-ts";
 import CustomButton from "../CustomButton";
 import Model from "./Model";
 
+interface TourPoint {
+  id: string;
+  position: [number, number, number];
+  lookAt: [number, number, number];
+  title: string;
+}
+
 interface Plan3DViewerProps {
   lines: LineData[];
   shapes: ShapeData[];
 }
+
+const CameraController = ({
+  activeTourPoint,
+  isTransitioning,
+  setIsTransitioning,
+  isAutoRotating,
+  setIsAutoRotating,
+}: {
+  activeTourPoint: TourPoint | null;
+  isTransitioning: boolean;
+  setIsTransitioning: (value: boolean) => void;
+  isAutoRotating: boolean;
+  setIsAutoRotating: (value: boolean) => void;
+}) => {
+  const { camera } = useThree();
+  const targetPos = useRef(new Vector3());
+  const targetLookAt = useRef(new Vector3());
+  const currentLookAt = useRef(new Vector3());
+  const rotationAngle = useRef(0);
+  const rotationRadius = useRef(360); // Distance from look-at point
+  const rotationSpeed = 0.005; // Speed of auto-rotation
+  const manualRotationSpeed = 1; // Speed of manual rotation
+
+  // Handle keyboard input
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!activeTourPoint || isTransitioning) return;
+
+      if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+        // Stop auto-rotation when user starts manual control
+        setIsAutoRotating(false);
+
+        const direction = event.key === "ArrowLeft" ? 1 : -1;
+        rotationAngle.current += direction * manualRotationSpeed;
+
+        const currentPos = new Vector3(...activeTourPoint.position);
+        const lookAtPoint = new Vector3(...activeTourPoint.lookAt);
+
+        // Calculate new camera position based on rotation
+        const offset = new Vector3(
+          Math.sin(rotationAngle.current) * rotationRadius.current,
+          0,
+          Math.cos(rotationAngle.current) * rotationRadius.current,
+        );
+
+        camera.position.copy(currentPos);
+        camera.lookAt(lookAtPoint.add(offset));
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activeTourPoint, isTransitioning, camera, setIsAutoRotating]);
+
+  // Handle auto-rotation and transitions
+  useFrame(() => {
+    if (!activeTourPoint) return;
+
+    if (isTransitioning) {
+      const targetPosition = new Vector3(...activeTourPoint.position);
+      const targetLookat = new Vector3(...activeTourPoint.lookAt);
+
+      targetPos.current.lerp(targetPosition, 0.05);
+      targetLookAt.current.lerp(targetLookat, 0.05);
+
+      camera.position.copy(targetPos.current);
+      currentLookAt.current.lerp(targetLookAt.current, 0.05);
+      camera.lookAt(currentLookAt.current);
+
+      if (targetPos.current.distanceTo(targetPosition) < 0.1) {
+        setIsTransitioning(false);
+      }
+    } else if (isAutoRotating) {
+      rotationAngle.current += rotationSpeed;
+
+      const currentPos = new Vector3(...activeTourPoint.position);
+      const lookAtPoint = new Vector3(...activeTourPoint.lookAt);
+
+      // Calculate new camera position for auto-rotation
+      const offset = new Vector3(
+        Math.sin(rotationAngle.current) * rotationRadius.current,
+        0,
+        Math.cos(rotationAngle.current) * rotationRadius.current,
+      );
+
+      camera.position.copy(currentPos);
+      camera.lookAt(lookAtPoint.add(offset));
+    }
+  });
+
+  return null;
+};
 
 const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
   // Wall Dimensions (in scene units)
@@ -29,6 +128,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
   const doorDimensions = { width: 60, height: 100 };
   const windowDimensions = { width: 60, height: 50 };
 
+  const EYE_LEVEL = 70;
+
   const allX = lines.flatMap((line) => [line.points[0], line.points[2]]);
   const allY = lines.flatMap((line) => [line.points[1], line.points[3]]);
   const minX = Math.min(...allX);
@@ -37,6 +138,35 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
   const maxY = Math.max(...allY);
   const centerX = (minX + maxX) / 2;
   const centerY = (minY + maxY) / 2;
+
+  // Virtual tour state
+  const [tourPoints] = useState<TourPoint[]>([
+    {
+      id: "entrance",
+      position: [0, EYE_LEVEL, 300],
+      lookAt: [0, EYE_LEVEL - 10, 0],
+      title: "Entrance",
+    },
+    {
+      id: "living-room",
+      position: [-200, EYE_LEVEL, 0],
+      lookAt: [0, EYE_LEVEL - 10, 0],
+      title: "Living Room",
+    },
+    {
+      id: "kitchen",
+      position: [200, EYE_LEVEL, 0],
+      lookAt: [0, EYE_LEVEL - 10, 0],
+      title: "Kitchen",
+    },
+  ]);
+
+  const [activeTourPoint, setActiveTourPoint] = useState<TourPoint | null>(
+    null,
+  );
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [controlsEnabled, setControlsEnabled] = useState(true);
+  const [isAutoRotating, setIsAutoRotating] = useState(false);
 
   const floorTexture = useLoader(TextureLoader, "/textures/hardwood.png");
   const outWallTexture = useLoader(TextureLoader, "/textures/marbletiles.jpg");
@@ -57,16 +187,47 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
     }
   };
 
+  const handleTourPointClick = (point: TourPoint) => {
+    setActiveTourPoint(point);
+    setIsTransitioning(true);
+    setControlsEnabled(false);
+    // Start auto-rotation when arriving at a new point
+    setIsAutoRotating(true);
+  };
+
+  const handleExitTour = () => {
+    setActiveTourPoint(null);
+    setControlsEnabled(true);
+    setIsAutoRotating(false);
+    if (cameraRef.current) {
+      cameraRef.current.position.set(0, 150, 500);
+      cameraRef.current.lookAt(0, 0, 0);
+      cameraRef.current.updateProjectionMatrix();
+    }
+  };
+
+  const toggleAutoRotation = () => {
+    setIsAutoRotating(!isAutoRotating);
+  };
+
   return (
     <>
       <Canvas
-        camera={{ position: [0, 300, 500], fov: 50, near: 1, far: 2000 }}
+        camera={{ position: [0, 300, 500], fov: 65, near: 1, far: 2000 }}
         onCreated={({ camera }) => {
           if (camera instanceof PerspectiveCamera) {
             cameraRef.current = camera;
           }
         }}
       >
+        <CameraController
+          activeTourPoint={activeTourPoint}
+          isTransitioning={isTransitioning}
+          setIsTransitioning={setIsTransitioning}
+          isAutoRotating={isAutoRotating}
+          setIsAutoRotating={setIsAutoRotating}
+        />
+
         <ambientLight intensity={1} />
         <directionalLight position={[10, 50, 25]} intensity={1} />
         <pointLight position={[0, 100, 0]} intensity={0.5} />
@@ -76,6 +237,21 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
           minPolarAngle={0.1}
           maxDistance={1000}
         />
+
+        {/* Tour Point Markers */}
+        {tourPoints.map((point) => (
+          <mesh
+            key={point.id}
+            position={point.position}
+            onClick={() => handleTourPointClick(point)}
+          >
+            <sphereGeometry args={[5, 32, 32]} />
+            <meshStandardMaterial
+              color={activeTourPoint?.id === point.id ? "#ff0000" : "#00ff00"}
+            />
+          </mesh>
+        ))}
+
         <gridHelper
           args={[4000, 40, "#cccccc", "#e0e0e0"]}
           position={[0, -0.1, 0]}
@@ -163,7 +339,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
               {shapesOnWall.map((shape, shapeIndex) => {
                 const { type, x, y } = shape;
                 const modelPath =
-                  type === "window" ? "window_arch.glb" : "door.glb";
+                  type === "window" ? "window_slide.glb" : "door.glb";
                 const uniqueKey = `${wallIndex}-${shapeIndex}`;
                 const shapeWorldX = x - centerX;
                 const shapeWorldZ = y - centerY;
@@ -210,6 +386,46 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
           Zoom Out
         </CustomButton>
       </div>
+
+      <div className="absolute right-4 top-4 flex flex-col gap-2">
+        <div className="rounded-lg bg-white p-4 shadow-lg">
+          <h3 className="mb-2 text-lg font-bold">Virtual Tour Controls</h3>
+          <div className="flex flex-col gap-2">
+            {tourPoints.map((point) => (
+              <CustomButton
+                key={point.id}
+                variant={
+                  activeTourPoint?.id === point.id ? "primary" : "secondary"
+                }
+                onClick={() => handleTourPointClick(point)}
+              >
+                {point.title}
+              </CustomButton>
+            ))}
+            {activeTourPoint && (
+              <>
+                {/* <CustomButton variant="secondary" onClick={toggleAutoRotation}>
+                  {isAutoRotating
+                    ? "Stop Auto-Rotation"
+                    : "Start Auto-Rotation"}
+                </CustomButton> */}
+                <CustomButton variant="secondary" onClick={handleExitTour}>
+                  Exit Tour
+                </CustomButton>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Keyboard Controls Info */}
+      {/* {activeTourPoint && (
+        <div className="absolute right-4 top-4 rounded-lg bg-white p-4 shadow-lg">
+          <h4 className="mb-2 font-bold">Keyboard Controls:</h4>
+          <p>← Left Arrow: Rotate Left</p>
+          <p>→ Right Arrow: Rotate Right</p>
+        </div>
+      )} */}
     </>
   );
 };
