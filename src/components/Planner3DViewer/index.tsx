@@ -25,13 +25,9 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
   const wallHeight = 120;
   const wallThickness = 10;
 
-  // Door Dimensions (in scene units)
-  const DOOR_WIDTH = 60;
-  const DOOR_HEIGHT = 100;
-
-  // Window Dimensions (in scene units)
-  const WINDOW_WIDTH = 60;
-  const WINDOW_HEIGHT = 50;
+  // Door and Window Dimensions (in scene units)
+  const doorDimensions = { width: 60, height: 100 };
+  const windowDimensions = { width: 60, height: 50 };
 
   const allX = lines.flatMap((line) => [line.points[0], line.points[2]]);
   const allY = lines.flatMap((line) => [line.points[1], line.points[3]]);
@@ -146,8 +142,10 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
             const { type, x, y } = shape;
 
             // Use constants for cutout dimensions & Create cutout geometry
-            const cutoutWidth = type === "door" ? DOOR_WIDTH : WINDOW_WIDTH;
-            const cutoutHeight = type === "door" ? DOOR_HEIGHT : WINDOW_HEIGHT;
+            const cutoutWidth =
+              type === "door" ? doorDimensions.width : windowDimensions.width;
+            const cutoutHeight =
+              type === "door" ? doorDimensions.height : windowDimensions.height;
             const cutoutGeometry = new BoxGeometry(
               cutoutWidth,
               cutoutHeight,
@@ -159,7 +157,9 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
             const dz = shapeWorldZ - wallPosition.z;
             const localX = dx * Math.cos(angle) + dz * Math.sin(angle);
             const localY =
-              type === "window" ? 0 : -wallHeight / 2 + DOOR_HEIGHT / 2;
+              type === "window"
+                ? 0
+                : -wallHeight / 2 + doorDimensions.height / 2;
             cutoutGeometry.translate(localX, localY, 0);
             const cutoutMesh = new Mesh(cutoutGeometry);
             wallMesh = CSG.subtract(
@@ -186,57 +186,22 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
                 const dz = shapeWorldZ - wallPosition.z;
                 const localX = dx * Math.cos(angle) + dz * Math.sin(angle);
                 const localY =
-                  type === "window" ? 0 : -wallHeight / 2 + DOOR_HEIGHT / 2;
-
-                const shapePosition = shapesPositions[uniqueKey] || [0, 0, 0];
-                const shapeScale = shapesScales[uniqueKey] || [1, 1, 1];
+                  type === "window"
+                    ? 0
+                    : -wallHeight / 2 + doorDimensions.height / 2;
                 const rotationY = isFacingInward ? Math.PI : 0;
 
                 return (
                   <Model
                     key={uniqueKey}
                     path={modelPath}
-                    position={shapePosition}
+                    position={[localX, localY, 0]}
                     rotation={[0, rotationY, 0]}
-                    scale={shapeScale}
-                    onLoaded={({ dimensions, center }) => {
-                      if (!shapeData[uniqueKey]?.loaded) {
-                        // Calculate scaling factors
-                        const scaleX =
-                          (type === "door" ? DOOR_WIDTH : WINDOW_WIDTH) /
-                          dimensions.width;
-                        const scaleY =
-                          (type === "door" ? DOOR_HEIGHT : WINDOW_HEIGHT) /
-                          dimensions.height;
-                        const scaleZ = wallThickness / dimensions.depth;
-
-                        // Adjust position to align with cutout
-                        let adjustedLocalX: number;
-
-                        if (isFacingInward) {
-                          adjustedLocalX = localX + center.x * scaleX;
-                        } else {
-                          adjustedLocalX = localX - center.x * scaleX;
-                        }
-                        // const adjustedLocalX = localX - center.x * scaleX;
-                        const adjustedLocalY = localY - center.y * scaleY;
-                        const adjustedLocalZ = -center.z * scaleZ;
-
-                        setShapesPositions((prevPositions) => ({
-                          ...prevPositions,
-                          [uniqueKey]: [
-                            adjustedLocalX,
-                            adjustedLocalY,
-                            adjustedLocalZ,
-                          ],
-                        }));
-
-                        setShapesScales((prevScales) => ({
-                          ...prevScales,
-                          [uniqueKey]: [scaleX, scaleY, scaleZ],
-                        }));
-                      }
-                    }}
+                    type={type}
+                    wallThickness={wallThickness}
+                    wallHeight={wallHeight}
+                    doorDimensions={doorDimensions}
+                    windowDimensions={windowDimensions}
                   />
                 );
               })}

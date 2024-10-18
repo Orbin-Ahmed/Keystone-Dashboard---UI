@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useGLTF } from "@react-three/drei";
 import { Box3, Mesh, Vector3 } from "three";
 
@@ -6,31 +6,59 @@ interface ModelProps {
   path: string;
   position: [number, number, number];
   rotation: [number, number, number];
-  scale?: [number, number, number];
-  onLoaded?: (modelData: {
-    dimensions: { width: number; height: number; depth: number };
-    center: Vector3;
-  }) => void;
+  type: "door" | "window";
+  wallThickness: number;
+  wallHeight: number;
+  doorDimensions: { width: number; height: number };
+  windowDimensions: { width: number; height: number };
 }
 
-const Model = ({ path, position, rotation, scale, onLoaded }: ModelProps) => {
+const Model = ({
+  path,
+  position,
+  rotation,
+  type,
+  wallThickness,
+  wallHeight,
+  doorDimensions,
+  windowDimensions,
+}: ModelProps) => {
   const { scene } = useGLTF(`/models/${path}`);
+  const [adjustedPosition, setAdjustedPosition] =
+    useState<[number, number, number]>(position);
+  const [adjustedScale, setAdjustedScale] = useState<[number, number, number]>([
+    1, 1, 1,
+  ]);
 
   const clonedScene = useMemo(() => scene.clone(), [scene]);
 
   useEffect(() => {
-    if (scene && onLoaded) {
+    if (scene) {
+      // Calculate dimensions and center for scaling and positioning
       const bbox = new Box3().setFromObject(scene);
       const size = new Vector3();
       bbox.getSize(size);
       const center = new Vector3();
       bbox.getCenter(center);
 
-      onLoaded({
-        dimensions: { width: size.x, height: size.y, depth: size.z },
-        center,
-      });
+      // Set scale based on dimensions
+      const { width: doorWidth, height: doorHeight } = doorDimensions;
+      const { width: windowWidth, height: windowHeight } = windowDimensions;
+
+      const scaleX = (type === "door" ? doorWidth : windowWidth) / size.x;
+      const scaleY = (type === "door" ? doorHeight : windowHeight) / size.y;
+      const scaleZ = wallThickness / size.z;
+
+      setAdjustedScale([scaleX, scaleY, scaleZ]);
+
+      // Adjust position to align with the cutout
+      let adjustedLocalX = position[0] - center.x * scaleX;
+      let adjustedLocalY = position[1] - center.y * scaleY;
+      let adjustedLocalZ = position[2] - center.z * scaleZ;
+
+      setAdjustedPosition([adjustedLocalX, adjustedLocalY, adjustedLocalZ]);
     }
+
     return () => {
       clonedScene.traverse((object) => {
         if (object instanceof Mesh) {
@@ -45,14 +73,22 @@ const Model = ({ path, position, rotation, scale, onLoaded }: ModelProps) => {
         }
       });
     };
-  }, [clonedScene]);
+  }, [
+    clonedScene,
+    type,
+    doorDimensions,
+    windowDimensions,
+    wallThickness,
+    wallHeight,
+    position,
+  ]);
 
   return (
     <primitive
       object={clonedScene}
-      position={position}
+      position={adjustedPosition}
       rotation={rotation}
-      scale={scale}
+      scale={adjustedScale}
     />
   );
 };
