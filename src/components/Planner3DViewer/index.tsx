@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useRef } from "react";
 import { Canvas, useLoader } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { LineData, ShapeData } from "@/types";
@@ -43,21 +43,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
 
   const cameraRef = useRef<PerspectiveCamera | null>(null);
 
-  // Initialize state for position, scale and shapeData
-  const [shapesPositions, setShapesPositions] = useState<{
-    [key: string]: [number, number, number];
-  }>({});
-  const [shapesScales, setShapesScales] = useState<{
-    [key: string]: [number, number, number];
-  }>({});
-  const [shapeData, setShapeData] = useState<{
-    [key: string]: {
-      position: [number, number, number];
-      scale: [number, number, number];
-      loaded: boolean;
-    };
-  }>({});
-
   const handleZoomIn = () => {
     if (cameraRef.current instanceof PerspectiveCamera) {
       cameraRef.current.zoom = Math.min(cameraRef.current.zoom + 0.1, 5);
@@ -92,7 +77,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
           maxDistance={1000}
         />
         <gridHelper
-          args={[2000, 40, "#cccccc", "#e0e0e0"]}
+          args={[4000, 40, "#cccccc", "#e0e0e0"]}
           position={[0, -0.1, 0]}
         />
 
