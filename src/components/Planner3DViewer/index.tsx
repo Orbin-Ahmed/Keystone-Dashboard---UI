@@ -227,17 +227,17 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
           isAutoRotating={isAutoRotating}
           setIsAutoRotating={setIsAutoRotating}
         />
-
-        <ambientLight intensity={1} />
-        <directionalLight position={[10, 50, 25]} intensity={1} />
-        <pointLight position={[0, 100, 0]} intensity={0.5} />
+        <ambientLight intensity={0.8} />
+        <directionalLight position={[10, 50, 25]} intensity={0.8} castShadow />
+        <directionalLight position={[-10, 50, -25]} intensity={0.6} />
+        <pointLight position={[0, 100, 0]} intensity={0.4} />
+        <hemisphereLight groundColor="#ffffff" intensity={0.3} />
         <OrbitControls
           enableZoom={true}
           maxPolarAngle={Math.PI / 2}
           minPolarAngle={0.1}
           maxDistance={1000}
         />
-
         {/* Tour Point Markers */}
         {tourPoints.map((point) => (
           <mesh
@@ -251,18 +251,15 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
             />
           </mesh>
         ))}
-
         <gridHelper
           args={[4000, 40, "#cccccc", "#e0e0e0"]}
           position={[0, -0.1, 0]}
         />
-
         {/* Floor Mesh*/}
         <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
           <planeGeometry args={[maxX - minX, maxY - minY]} />
           <meshStandardMaterial map={floorTexture} />
         </mesh>
-
         {/* Walls with Doors and Windows */}
         {lines.map((line, wallIndex) => {
           const [x1, y1, x2, y2] = line.points;
@@ -339,7 +336,9 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
               {shapesOnWall.map((shape, shapeIndex) => {
                 const { type, x, y } = shape;
                 const modelPath =
-                  type === "window" ? "window_slide.glb" : "door.glb";
+                  type === "window"
+                    ? "window/window_twin_casement.glb"
+                    : "door/door.glb";
                 const uniqueKey = `${wallIndex}-${shapeIndex}`;
                 const shapeWorldX = x - centerX;
                 const shapeWorldZ = y - centerY;
@@ -350,7 +349,14 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({ lines, shapes }) => {
                   type === "window"
                     ? 0
                     : -wallHeight / 2 + doorDimensions.height / 2;
-                const rotationY = isFacingInward ? Math.PI : 0;
+                const rotationY =
+                  type === "door"
+                    ? isFacingInward
+                      ? Math.PI
+                      : 0
+                    : isFacingInward
+                      ? 0
+                      : Math.PI;
 
                 return (
                   <Model
