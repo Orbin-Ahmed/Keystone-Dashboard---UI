@@ -178,6 +178,10 @@ export interface PlanEditorProps {
   setSelectedShape: React.Dispatch<React.SetStateAction<number | null>>;
   selectedWall: number | null;
   setSelectedWall: React.Dispatch<React.SetStateAction<number | null>>;
+  roomNames: { x: number; y: number; name: string }[];
+  setRoomNames: React.Dispatch<
+    React.SetStateAction<{ x: number; y: number; name: string }[]>
+  >;
   shapes: Shape[];
   setShapes: React.Dispatch<React.SetStateAction<Shape[]>>;
   lines: Line[];

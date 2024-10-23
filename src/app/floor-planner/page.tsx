@@ -25,6 +25,9 @@ const FloorPlanner = () => {
   const [viewMode, setViewMode] = useState<"2D" | "3D">("3D");
   const [selectedShape, setSelectedShape] = useState<number | null>(null);
   const [selectedWall, setSelectedWall] = useState<number | null>(null);
+  const [roomNames, setRoomNames] = useState<
+    { x: number; y: number; name: string }[]
+  >([]);
 
   const [shapes, setShapes] = useState<Shape[]>([]);
   const [lines, setLines] = useState<Line[]>([]);
@@ -43,7 +46,7 @@ const FloorPlanner = () => {
       ...shape,
       image: shape.type,
     }));
-    const dataStr = JSON.stringify({ lines, shapes: shapesToSave });
+    const dataStr = JSON.stringify({ lines, shapes: shapesToSave, roomNames });
     const dataUri =
       "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
 
@@ -170,6 +173,7 @@ const FloorPlanner = () => {
           });
 
           setShapes(loadedShapes || []);
+          setRoomNames(data.roomNames || []);
         } catch (err) {
           console.error("Failed to load design:", err);
         }
@@ -204,6 +208,7 @@ const FloorPlanner = () => {
           });
 
           setShapes(loadedShapes || []);
+          setRoomNames(responseData.roomNames || []);
         } else {
           console.error("No data returned from API");
         }
@@ -251,6 +256,8 @@ const FloorPlanner = () => {
           windowImage={windowImage}
           doorImage={doorImage}
           viewMode={viewMode}
+          roomNames={roomNames}
+          setRoomNames={setRoomNames}
         />
       )}
     </div>

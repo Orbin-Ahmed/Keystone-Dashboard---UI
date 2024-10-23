@@ -48,6 +48,8 @@ const PlanEditor = ({
   windowImage,
   doorImage,
   viewMode,
+  roomNames,
+  setRoomNames,
 }: PlanEditorProps) => {
   const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(
     null,
@@ -574,6 +576,19 @@ const PlanEditor = ({
     setShapes(updatedShapes);
   };
 
+  const handleDoubleClick = (e: Konva.KonvaEventObject<MouseEvent>) => {
+    const stage = e.target.getStage();
+    if (!stage) return;
+
+    const pos = stage.getPointerPosition();
+    if (pos) {
+      const name = prompt("Enter room name:");
+      if (name) {
+        setRoomNames([...roomNames, { x: pos.x, y: pos.y, name }]);
+      }
+    }
+  };
+
   return (
     <div className="canvas-container">
       {isMounted && typeof window !== "undefined" && (
@@ -583,6 +598,7 @@ const PlanEditor = ({
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
+          onDblClick={handleDoubleClick}
           ref={stageRef}
         >
           <Layer>
@@ -690,6 +706,27 @@ const PlanEditor = ({
                   </>
                 )}
               </React.Fragment>
+            ))}
+            {roomNames.map((room, index) => (
+              <Text
+                key={index}
+                text={room.name}
+                x={room.x}
+                y={room.y}
+                fontSize={18}
+                fontStyle="bold"
+                fill="black"
+                draggable
+                onDragEnd={(e) => {
+                  const newRoomNames = [...roomNames];
+                  newRoomNames[index] = {
+                    ...newRoomNames[index],
+                    x: e.target.x(),
+                    y: e.target.y(),
+                  };
+                  setRoomNames(newRoomNames);
+                }}
+              />
             ))}
           </Layer>
         </Stage>
