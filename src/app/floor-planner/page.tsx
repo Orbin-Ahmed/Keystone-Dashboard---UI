@@ -16,6 +16,7 @@ const Planner3DViewer = dynamic(() => import("@/components/Planner3DViewer"), {
 
 const MAX_DISTANCE = 10;
 const EXTENSION_LENGTH = 5;
+let roomIdCounter = 0;
 
 const FloorPlanner = () => {
   const [tool, setTool] = useState<
@@ -26,7 +27,7 @@ const FloorPlanner = () => {
   const [selectedShape, setSelectedShape] = useState<number | null>(null);
   const [selectedWall, setSelectedWall] = useState<number | null>(null);
   const [roomNames, setRoomNames] = useState<
-    { x: number; y: number; name: string }[]
+    { id: number; x: number; y: number; name: string; offsetX: number }[]
   >([]);
 
   const [shapes, setShapes] = useState<Shape[]>([]);
@@ -41,12 +42,42 @@ const FloorPlanner = () => {
       Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2),
     );
 
+  const measureTextWidth = (
+    text: string,
+    fontSize = 18,
+    fontStyle = "bold",
+  ): number => {
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+
+    if (context) {
+      context.font = `${fontStyle} ${fontSize}px sans-serif`;
+      const metrics = context.measureText(text);
+      return metrics.width;
+    } else {
+      console.error("Unable to get 2D context from canvas.");
+      return 0;
+    }
+  };
+
   const handleDownload = () => {
     const shapesToSave = shapes.map((shape) => ({
       ...shape,
       image: shape.type,
     }));
-    const dataStr = JSON.stringify({ lines, shapes: shapesToSave, roomNames });
+
+    const roomNamesToSave = roomNames.map((room) => ({
+      x: room.x,
+      y: room.y,
+      name: room.name,
+    }));
+
+    const dataStr = JSON.stringify({
+      lines,
+      shapes: shapesToSave,
+      roomNames: roomNamesToSave,
+    });
+
     const dataUri =
       "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
 
@@ -173,7 +204,17 @@ const FloorPlanner = () => {
           });
 
           setShapes(loadedShapes || []);
-          setRoomNames(data.roomNames || []);
+          const loadedRoomNames = (data.roomNames || []).map(
+            (room: { x: number; y: number; name: string }) => {
+              const textWidth = measureTextWidth(room.name);
+              return {
+                ...room,
+                id: roomIdCounter++,
+                offsetX: textWidth / 2,
+              };
+            },
+          );
+          setRoomNames(loadedRoomNames);
         } catch (err) {
           console.error("Failed to load design:", err);
         }
@@ -208,7 +249,18 @@ const FloorPlanner = () => {
           });
 
           setShapes(loadedShapes || []);
-          setRoomNames(responseData.roomNames || []);
+
+          const loadedRoomNames = (responseData.roomNames || []).map(
+            (room: { x: number; y: number; name: string }) => {
+              const textWidth = measureTextWidth(room.name);
+              return {
+                ...room,
+                id: roomIdCounter++,
+                offsetX: textWidth / 2,
+              };
+            },
+          );
+          setRoomNames(loadedRoomNames);
         } else {
           console.error("No data returned from API");
         }
@@ -220,6 +272,37 @@ const FloorPlanner = () => {
         "Unsupported file format. Please upload a JSON or an image.",
       );
     }
+  };
+
+  const addRoomName = (x: number, y: number, name: string) => {
+    const textWidth = measureTextWidth(name);
+    setRoomNames((prevRoomNames) => [
+      ...prevRoomNames,
+      {
+        id: roomIdCounter++,
+        x,
+        y,
+        name,
+        offsetX: textWidth / 2,
+      },
+    ]);
+  };
+
+  const editRoomName = (id: number, newName: string) => {
+    const textWidth = measureTextWidth(newName);
+    setRoomNames((prevRoomNames) =>
+      prevRoomNames.map((room) =>
+        room.id === id
+          ? { ...room, name: newName, offsetX: textWidth / 2 }
+          : room,
+      ),
+    );
+  };
+
+  const deleteRoomName = (id: number) => {
+    setRoomNames((prevRoomNames) =>
+      prevRoomNames.filter((room) => room.id !== id),
+    );
   };
 
   return (
@@ -258,6 +341,9 @@ const FloorPlanner = () => {
           viewMode={viewMode}
           roomNames={roomNames}
           setRoomNames={setRoomNames}
+          addRoomName={addRoomName}
+          editRoomName={editRoomName}
+          deleteRoomName={deleteRoomName}
         />
       )}
     </div>

@@ -50,6 +50,9 @@ const PlanEditor = ({
   viewMode,
   roomNames,
   setRoomNames,
+  addRoomName,
+  editRoomName,
+  deleteRoomName,
 }: PlanEditorProps) => {
   const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(
     null,
@@ -57,8 +60,10 @@ const PlanEditor = ({
   const [isMounted, setIsMounted] = useState(false);
   const [tempLine, setTempLine] = useState<Line | null>(null);
   const [guideLine, setGuideLine] = useState<Line | null>(null);
+  const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null);
   const [rotateIcon] = useImage("/icons/rotate.svg");
   const [deleteIcon] = useImage("/icons/delete.svg");
+  const [editIcon] = useImage("/icons/edit.svg");
 
   const stageRef = useRef<Konva.Stage>(null);
 
@@ -584,7 +589,7 @@ const PlanEditor = ({
     if (pos) {
       const name = prompt("Enter room name:");
       if (name) {
-        setRoomNames([...roomNames, { x: pos.x, y: pos.y, name }]);
+        addRoomName(pos.x, pos.y, name);
       }
     }
   };
@@ -708,25 +713,79 @@ const PlanEditor = ({
               </React.Fragment>
             ))}
             {roomNames.map((room, index) => (
-              <Text
-                key={index}
-                text={room.name}
-                x={room.x}
-                y={room.y}
-                fontSize={18}
-                fontStyle="bold"
-                fill="black"
-                draggable
-                onDragEnd={(e) => {
-                  const newRoomNames = [...roomNames];
-                  newRoomNames[index] = {
-                    ...newRoomNames[index],
-                    x: e.target.x(),
-                    y: e.target.y(),
-                  };
-                  setRoomNames(newRoomNames);
-                }}
-              />
+              <React.Fragment key={room.id}>
+                <Text
+                  text={room.name}
+                  x={room.x}
+                  y={room.y}
+                  fontSize={18}
+                  fontStyle="bold"
+                  fill={selectedRoomId === room.id ? "red" : "black"}
+                  draggable
+                  align="center"
+                  offsetX={room.offsetX || 0}
+                  onDragEnd={(e) => {
+                    const newRoomNames = [...roomNames];
+                    newRoomNames[index] = {
+                      ...newRoomNames[index],
+                      x: e.target.x(),
+                      y: e.target.y(),
+                    };
+                    setRoomNames(newRoomNames);
+                  }}
+                  onClick={() => {
+                    setSelectedRoomId(room.id);
+                    setSelectedShape(null);
+                    setSelectedWall(null);
+                  }}
+                  onMouseEnter={(e) => {
+                    const container = e.target.getStage()?.container();
+                    if (container) {
+                      container.style.cursor = "pointer";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    const container = e.target.getStage()?.container();
+                    if (container) {
+                      container.style.cursor = "default";
+                    }
+                  }}
+                />
+                {selectedRoomId === room.id && (
+                  <>
+                    {/* Delete Icon */}
+                    <KonvaImage
+                      image={deleteIcon}
+                      x={room.x + 20}
+                      y={room.y - 20}
+                      width={20}
+                      height={20}
+                      onClick={() => {
+                        deleteRoomName(room.id);
+                        setSelectedRoomId(null);
+                      }}
+                    />
+                    {/* Edit Icon */}
+                    <KonvaImage
+                      image={editIcon}
+                      x={room.x + 50}
+                      y={room.y - 20}
+                      width={20}
+                      height={20}
+                      onClick={() => {
+                        const newName = prompt(
+                          "Enter new room name:",
+                          room.name,
+                        );
+                        if (newName) {
+                          editRoomName(room.id, newName); // Use editRoomName function
+                          setSelectedRoomId(null);
+                        }
+                      }}
+                    />
+                  </>
+                )}
+              </React.Fragment>
             ))}
           </Layer>
         </Stage>

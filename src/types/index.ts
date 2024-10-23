@@ -178,9 +178,23 @@ export interface PlanEditorProps {
   setSelectedShape: React.Dispatch<React.SetStateAction<number | null>>;
   selectedWall: number | null;
   setSelectedWall: React.Dispatch<React.SetStateAction<number | null>>;
-  roomNames: { x: number; y: number; name: string }[];
+  roomNames: {
+    id: number;
+    x: number;
+    y: number;
+    name: string;
+    offsetX: number;
+  }[];
   setRoomNames: React.Dispatch<
-    React.SetStateAction<{ x: number; y: number; name: string }[]>
+    React.SetStateAction<
+      {
+        id: number;
+        x: number;
+        y: number;
+        name: string;
+        offsetX: number;
+      }[]
+    >
   >;
   shapes: Shape[];
   setShapes: React.Dispatch<React.SetStateAction<Shape[]>>;
@@ -189,6 +203,9 @@ export interface PlanEditorProps {
   windowImage: HTMLImageElement | undefined;
   doorImage: HTMLImageElement | undefined;
   viewMode: "2D" | "3D";
+  addRoomName: (x: number, y: number, name: string) => void;
+  editRoomName: (id: number, newName: string) => void;
+  deleteRoomName: (id: number) => void;
 }
 
 export interface LineData {
