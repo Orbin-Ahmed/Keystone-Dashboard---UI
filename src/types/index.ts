@@ -231,3 +231,26 @@ export interface Line {
   points: number[];
   thickness?: number;
 }
+
+export interface TourPoint {
+  id: string;
+  position: [number, number, number];
+  lookAt: [number, number, number];
+  title: string;
+}
+
+export interface RoomName {
+  id: number;
+  x: number;
+  y: number;
+  name: string;
+  offsetX: number;
+}
+
+export interface CameraControllerProps {
+  activeTourPoint: TourPoint | null;
+  isTransitioning: boolean;
+  setIsTransitioning: (value: boolean) => void;
+  isAutoRotating: boolean;
+  setIsAutoRotating: (value: boolean) => void;
+}
