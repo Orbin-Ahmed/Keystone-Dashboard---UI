@@ -29,8 +29,8 @@ const PIXELS_PER_METER = 100;
 const SNAP_THRESHOLD = 10;
 const MIN_WALL_LENGTH = 0.1 * PIXELS_PER_METER;
 const STRAIGHT_LINE_THRESHOLD = 10;
-const width = 8000;
-const height = 6000;
+const width = 5000;
+const height = 3000;
 
 const PlanEditor = ({
   tool,

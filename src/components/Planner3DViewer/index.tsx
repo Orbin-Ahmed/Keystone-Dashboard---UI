@@ -33,14 +33,12 @@ const CameraController: React.FC<CameraControllerProps> = ({
   isTransitioning,
   setIsTransitioning,
   isAutoRotating,
-  setIsAutoRotating,
 }) => {
   const { camera } = useThree();
   const targetPos = useRef(new Vector3());
   const targetLookAt = useRef(new Vector3());
   const currentLookAt = useRef(new Vector3());
   const rotationAngle = useRef(0);
-  const rotationRadius = 360;
   const rotationSpeed = 0.002;
 
   useFrame(() => {
@@ -101,40 +99,29 @@ const CameraController: React.FC<CameraControllerProps> = ({
   );
 };
 
-const RoomLabel = ({
-  position,
-  name,
-}: {
-  position: [number, number, number];
-  name: string;
-}) => {
-  const { camera } = useThree();
-  const textRef = useRef<Group>(null);
-
-  useFrame(() => {
-    if (textRef.current) {
-      textRef.current.lookAt(camera.position);
-    }
-  });
-
-  return (
-    <group position={position} ref={textRef}>
-      <mesh>
-        <planeGeometry args={[50, 20]} />
-        <meshBasicMaterial color="white" transparent opacity={0.8} />
-      </mesh>
-      <Text
-        position={[0, 0, 0.1]}
-        fontSize={10}
-        color="black"
-        anchorX="center"
-        anchorY="middle"
-      >
-        {name}
-      </Text>
-    </group>
-  );
-};
+const RoomLabel = React.memo(
+  ({
+    position,
+    name,
+  }: {
+    position: [number, number, number];
+    name: string;
+  }) => {
+    return (
+      <group position={position}>
+        <Text
+          position={[0, 0, 0.1]}
+          fontSize={10}
+          color="black"
+          anchorX="center"
+          anchorY="top"
+        >
+          {name}
+        </Text>
+      </group>
+    );
+  },
+);
 
 const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   lines,
@@ -244,17 +231,11 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           setIsAutoRotating={setIsAutoRotating}
         />
         <ambientLight intensity={0.8} />
-        <directionalLight position={[10, 50, 25]} intensity={0.8} castShadow />
+        <directionalLight position={[10, 50, 25]} intensity={0.8} />
         <directionalLight position={[-10, 50, -25]} intensity={0.6} />
         <pointLight position={[0, 100, 0]} intensity={0.4} />
-        <hemisphereLight groundColor="#ffffff" intensity={0.3} />
-        {/* <OrbitControls
-          enableZoom={true}
-          maxPolarAngle={Math.PI / 2}
-          minPolarAngle={0.1}
-          maxDistance={1000}
-        /> */}
-        {/* Tour Point Markers */}
+        <hemisphereLight intensity={0.3} />
+
         {tourPoints.map((point) => (
           <mesh
             key={point.id}
@@ -262,9 +243,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
             onClick={() => handleTourPointClick(point)}
           >
             <sphereGeometry args={[5, 32, 32]} />
-            <meshStandardMaterial
-              color={activeTourPoint?.id === point.id ? "#ff0000" : "#00ff00"}
-            />
+            <meshBasicMaterial transparent opacity={0} />
           </mesh>
         ))}
 
