@@ -1,13 +1,7 @@
-import React, { useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
-import { OrbitControls, Text } from "@react-three/drei";
-import {
-  CameraControllerProps,
-  LineData,
-  RoomName,
-  ShapeData,
-  TourPoint,
-} from "@/types";
+import { Text } from "@react-three/drei";
+import { LineData, RoomName, ShapeData, TourPoint } from "@/types";
 import {
   Vector3,
   TextureLoader,
@@ -21,7 +15,7 @@ import {
 import { CSG } from "three-csg-ts";
 import CustomButton from "../CustomButton";
 import Model from "./Model";
-import { CameraController, RoomLabel } from "./CameraController";
+import CameraController from "./CameraController";
 
 interface Plan3DViewerProps {
   lines: LineData[];
@@ -44,14 +38,18 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
   const EYE_LEVEL = 70;
 
-  const allX = lines.flatMap((line) => [line.points[0], line.points[2]]);
-  const allY = lines.flatMap((line) => [line.points[1], line.points[3]]);
-  const minX = Math.min(...allX);
-  const maxX = Math.max(...allX);
-  const minY = Math.min(...allY);
-  const maxY = Math.max(...allY);
-  const centerX = (minX + maxX) / 2;
-  const centerY = (minY + maxY) / 2;
+  const { centerX, centerY, minX, maxX, minY, maxY } = useMemo(() => {
+    const allX = lines.flatMap((line) => [line.points[0], line.points[2]]);
+    const allY = lines.flatMap((line) => [line.points[1], line.points[3]]);
+    return {
+      minX: Math.min(...allX),
+      maxX: Math.max(...allX),
+      minY: Math.min(...allY),
+      maxY: Math.max(...allY),
+      centerX: (Math.min(...allX) + Math.max(...allX)) / 2,
+      centerY: (Math.min(...allY) + Math.max(...allY)) / 2,
+    };
+  }, [lines]);
 
   // Create tour points based on room names
   const [tourPoints] = useState<TourPoint[]>(() =>
@@ -70,9 +68,14 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [isAutoRotating, setIsAutoRotating] = useState(false);
   const [showRoof, setShowRoof] = useState(false);
 
-  const floorTexture = useLoader(TextureLoader, "/textures/hardwood.png");
-  const outWallTexture = useLoader(TextureLoader, "/textures/marbletiles.jpg");
-  const roofTexture = useLoader(TextureLoader, "/textures/marbletiles.jpg");
+  const textures = useMemo(
+    () => ({
+      floor: useLoader(TextureLoader, "/textures/hardwood.png"),
+      wall: useLoader(TextureLoader, "/textures/marbletiles.jpg"),
+      roof: useLoader(TextureLoader, "/textures/marbletiles.jpg"),
+    }),
+    [],
+  );
 
   const cameraRef = useRef<PerspectiveCamera | null>(null);
 
@@ -114,7 +117,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     return (
       <mesh position={[0, wallHeight + 5, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[maxX - minX + 20, maxY - minY + 20]} />
-        <meshStandardMaterial map={roofTexture} transparent opacity={0.9} />
+        <meshStandardMaterial map={textures.roof} transparent opacity={0.9} />
       </mesh>
     );
   };
@@ -148,7 +151,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
             position={point.position}
             onClick={() => handleTourPointClick(point)}
           >
-            <sphereGeometry args={[5, 32, 32]} />
+            <sphereGeometry args={[5, 16, 16]} />
             <meshBasicMaterial transparent opacity={0} />
           </mesh>
         ))}
@@ -171,7 +174,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         {/* Floor Mesh*/}
         <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
           <planeGeometry args={[maxX - minX, maxY - minY]} />
-          <meshStandardMaterial map={floorTexture} />
+          <meshStandardMaterial map={textures.floor} />
         </mesh>
 
         {/* Walls with Doors and Windows */}
@@ -203,7 +206,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
           let wallMesh = new Mesh(
             wallGeometry,
-            new MeshStandardMaterial({ map: outWallTexture }),
+            new MeshStandardMaterial({ map: textures.wall }),
           );
 
           const shapesOnWall = shapes.filter(
@@ -336,3 +339,24 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 };
 
 export default Plan3DViewer;
+
+const RoomLabel = React.memo(
+  ({
+    position,
+    name,
+  }: {
+    position: [number, number, number];
+    name: string;
+  }) => (
+    <Text
+      position={[position[0], 1, position[2]]}
+      fontSize={10}
+      color="black"
+      anchorX="center"
+      anchorY="bottom"
+      rotation={[-Math.PI / 2, 0, 0]}
+    >
+      {name}
+    </Text>
+  ),
+);

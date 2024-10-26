@@ -43,25 +43,4 @@ const CameraController: React.FC<CameraControllerProps> = ({
   ) : null;
 };
 
-const RoomLabel = React.memo(
-  ({
-    position,
-    name,
-  }: {
-    position: [number, number, number];
-    name: string;
-  }) => (
-    <Text
-      position={[position[0], 1, position[2]]}
-      fontSize={10}
-      color="black"
-      anchorX="center"
-      anchorY="bottom"
-      rotation={[-Math.PI / 2, 0, 0]}
-    >
-      {name}
-    </Text>
-  ),
-);
-
-export { CameraController, RoomLabel };
+export default CameraController;
