@@ -21,107 +21,13 @@ import {
 import { CSG } from "three-csg-ts";
 import CustomButton from "../CustomButton";
 import Model from "./Model";
+import { CameraController, RoomLabel } from "./CameraController";
 
 interface Plan3DViewerProps {
   lines: LineData[];
   shapes: ShapeData[];
   roomNames: RoomName[];
 }
-
-const CameraController: React.FC<CameraControllerProps> = ({
-  activeTourPoint,
-  isTransitioning,
-  setIsTransitioning,
-  isAutoRotating,
-}) => {
-  const { camera } = useThree();
-  const targetPos = useRef(new Vector3());
-  const targetLookAt = useRef(new Vector3());
-  const currentLookAt = useRef(new Vector3());
-  const rotationAngle = useRef(0);
-  const rotationSpeed = 0.002;
-
-  useFrame(() => {
-    if (!activeTourPoint) return;
-
-    if (isTransitioning) {
-      const targetPosition = new Vector3(...activeTourPoint.position);
-      const targetLookat = new Vector3(...activeTourPoint.lookAt);
-
-      targetPos.current.lerp(targetPosition, 0.05);
-      targetLookAt.current.lerp(targetLookat, 0.05);
-
-      camera.position.copy(targetPos.current);
-      currentLookAt.current.lerp(targetLookAt.current, 0.05);
-      camera.lookAt(currentLookAt.current);
-
-      if (targetPos.current.distanceTo(targetPosition) < 0.1) {
-        setIsTransitioning(false);
-      }
-    } else if (isAutoRotating) {
-      rotationAngle.current += rotationSpeed;
-
-      const currentPos = new Vector3(...activeTourPoint.position);
-      const lookAtPoint = new Vector3(...activeTourPoint.lookAt);
-      camera.position.copy(currentPos);
-      const offsetX = Math.sin(rotationAngle.current) * 50;
-      const offsetZ = Math.cos(rotationAngle.current) * 50;
-
-      const rotatedLookAt = new Vector3(
-        lookAtPoint.x + offsetX,
-        lookAtPoint.y,
-        lookAtPoint.z + offsetZ,
-      );
-      camera.lookAt(rotatedLookAt);
-    }
-  });
-
-  return (
-    <>
-      {activeTourPoint && (
-        <OrbitControls
-          enableZoom={false}
-          enablePan={false}
-          enableDamping={true}
-          dampingFactor={0.05}
-        />
-      )}
-
-      {!activeTourPoint && (
-        <OrbitControls
-          enableZoom={true}
-          maxPolarAngle={Math.PI / 2}
-          minPolarAngle={0.1}
-          maxDistance={1000}
-        />
-      )}
-    </>
-  );
-};
-
-const RoomLabel = React.memo(
-  ({
-    position,
-    name,
-  }: {
-    position: [number, number, number];
-    name: string;
-  }) => {
-    return (
-      <group position={position}>
-        <Text
-          position={[0, 0, 0.1]}
-          fontSize={10}
-          color="black"
-          anchorX="center"
-          anchorY="top"
-        >
-          {name}
-        </Text>
-      </group>
-    );
-  },
-);
 
 const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   lines,
