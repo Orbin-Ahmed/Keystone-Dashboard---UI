@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from "react";
-import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
+import { Canvas, useLoader } from "@react-three/fiber";
 import { Text } from "@react-three/drei";
 import { LineData, RoomName, ShapeData, TourPoint } from "@/types";
 import {
@@ -10,7 +10,6 @@ import {
   BoxGeometry,
   MeshStandardMaterial,
   Vector2,
-  Group,
 } from "three";
 import { CSG } from "three-csg-ts";
 import CustomButton from "../CustomButton";
@@ -68,14 +67,11 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [isAutoRotating, setIsAutoRotating] = useState(false);
   const [showRoof, setShowRoof] = useState(false);
 
-  const textures = useMemo(
-    () => ({
-      floor: useLoader(TextureLoader, "/textures/hardwood.png"),
-      wall: useLoader(TextureLoader, "/textures/marbletiles.jpg"),
-      roof: useLoader(TextureLoader, "/textures/marbletiles.jpg"),
-    }),
-    [],
-  );
+  const textures = {
+    floor: useLoader(TextureLoader, "/textures/hardwood.png"),
+    wall: useLoader(TextureLoader, "/textures/marbletiles.jpg"),
+    roof: useLoader(TextureLoader, "/textures/marbletiles.jpg"),
+  };
 
   const cameraRef = useRef<PerspectiveCamera | null>(null);
 
@@ -340,23 +336,23 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
 export default Plan3DViewer;
 
-const RoomLabel = React.memo(
-  ({
-    position,
-    name,
-  }: {
-    position: [number, number, number];
-    name: string;
-  }) => (
-    <Text
-      position={[position[0], 1, position[2]]}
-      fontSize={10}
-      color="black"
-      anchorX="center"
-      anchorY="bottom"
-      rotation={[-Math.PI / 2, 0, 0]}
-    >
-      {name}
-    </Text>
-  ),
+const RoomLabelComponent = ({
+  position,
+  name,
+}: {
+  position: [number, number, number];
+  name: string;
+}) => (
+  <Text
+    position={[position[0], 1, position[2]]}
+    fontSize={10}
+    color="black"
+    anchorX="center"
+    anchorY="bottom"
+    rotation={[-Math.PI / 2, 0, 0]}
+  >
+    {name}
+  </Text>
 );
+
+const RoomLabel = React.memo(RoomLabelComponent);

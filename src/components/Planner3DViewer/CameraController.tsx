@@ -1,7 +1,6 @@
 import React, { useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { OrbitControls, Text } from "@react-three/drei";
-import { Vector3 } from "three";
+import { OrbitControls } from "@react-three/drei";
 import { CameraControllerProps } from "@/types";
 
 const CameraController: React.FC<CameraControllerProps> = ({
