@@ -108,30 +108,30 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     }
   };
 
-  // const Roof = () => {
-  //   if (!showRoof) return null;
+  const Roof = () => {
+    if (!showRoof) return null;
 
-  //   const roofThickness = 2;
+    const roofThickness = 2;
 
-  //   const roofGeometry = useMemo(() => {
-  //     return new BoxGeometry(maxX - minX, roofThickness, maxY - minY);
-  //   }, [maxX, minX, maxY, minY, roofThickness]);
+    const roofGeometry = new BoxGeometry(
+      maxX - minX,
+      roofThickness,
+      maxY - minY,
+    );
 
-  //   const roofMaterial = useMemo(() => {
-  //     return new MeshStandardMaterial({
-  //       map: textures.roof,
-  //       side: DoubleSide,
-  //     });
-  //   }, [textures.roof]);
+    const roofMaterial = new MeshStandardMaterial({
+      map: textures.roof,
+      side: DoubleSide,
+    });
 
-  //   return (
-  //     <mesh
-  //       geometry={roofGeometry}
-  //       material={roofMaterial}
-  //       position={[0, wallHeight + roofThickness / 2, 0]}
-  //     />
-  //   );
-  // };
+    return (
+      <mesh
+        geometry={roofGeometry}
+        material={roofMaterial}
+        position={[0, wallHeight + roofThickness / 2, 0]}
+      />
+    );
+  };
 
   return (
     <>
@@ -176,7 +176,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           />
         ))}
 
-        {/* <Roof /> */}
+        <Roof />
         <gridHelper
           args={[4000, 40, "#cccccc", "#e0e0e0"]}
           position={[0, -0.1, 0]}
