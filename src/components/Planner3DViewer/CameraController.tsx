@@ -12,10 +12,9 @@ const CameraController: React.FC<CameraControllerProps> = ({
   const targetPosition = useRef(new Vector3());
   const targetLookAt = useRef(new Vector3());
 
-  // Constants
   const ROTATION_RADIUS = 50;
-  const ROTATION_SPEED = 0.3; // Adjusted for smoother rotation
-  const EYE_LEVEL = 70;
+  const ROTATION_SPEED = 0.2;
+  const EYE_LEVEL = 60;
 
   useFrame((state) => {
     if (!activeTourPoint || !isAutoRotating) return;

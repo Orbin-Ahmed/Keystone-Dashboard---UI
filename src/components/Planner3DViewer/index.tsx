@@ -10,6 +10,7 @@ import {
   BoxGeometry,
   MeshStandardMaterial,
   Vector2,
+  DoubleSide,
 } from "three";
 import { CSG } from "three-csg-ts";
 import CustomButton from "../CustomButton";
@@ -70,7 +71,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const textures = {
     floor: useLoader(TextureLoader, "/textures/hardwood.png"),
     wall: useLoader(TextureLoader, "/textures/marbletiles.jpg"),
-    roof: useLoader(TextureLoader, "/textures/marbletiles.jpg"),
+    roof: useLoader(TextureLoader, "/textures/wallmap_yellow.png"),
   };
 
   const cameraRef = useRef<PerspectiveCamera | null>(null);
@@ -110,11 +111,25 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const Roof = () => {
     if (!showRoof) return null;
 
+    const roofThickness = 2;
+
+    const roofGeometry = useMemo(() => {
+      return new BoxGeometry(maxX - minX, roofThickness, maxY - minY);
+    }, [maxX, minX, maxY, minY, roofThickness]);
+
+    const roofMaterial = useMemo(() => {
+      return new MeshStandardMaterial({
+        map: textures.roof,
+        side: DoubleSide,
+      });
+    }, [textures.roof]);
+
     return (
-      <mesh position={[0, wallHeight + 5, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[maxX - minX + 20, maxY - minY + 20]} />
-        <meshStandardMaterial map={textures.roof} transparent opacity={0.9} />
-      </mesh>
+      <mesh
+        geometry={roofGeometry}
+        material={roofMaterial}
+        position={[0, wallHeight + roofThickness / 2, 0]}
+      />
     );
   };
 
