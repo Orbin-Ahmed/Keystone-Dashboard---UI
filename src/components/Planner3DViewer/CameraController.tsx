@@ -22,11 +22,8 @@ const CameraController: React.FC<CameraControllerProps> = ({
     const targetX = activeTourPoint.position[0];
     const targetZ = activeTourPoint.position[2];
 
-    // Use elapsed time for consistent rotation
     const elapsedTime = state.clock.getElapsedTime();
     const angle = elapsedTime * ROTATION_SPEED;
-
-    // Calculate target positions
     targetPosition.current.set(
       targetX + Math.sin(angle) * ROTATION_RADIUS,
       EYE_LEVEL,
@@ -34,10 +31,7 @@ const CameraController: React.FC<CameraControllerProps> = ({
     );
     targetLookAt.current.set(targetX, EYE_LEVEL, targetZ);
 
-    // Smoothly interpolate camera position
     camera.position.lerp(targetPosition.current, 0.1);
-
-    // Update camera lookAt
     camera.lookAt(targetLookAt.current);
   });
 

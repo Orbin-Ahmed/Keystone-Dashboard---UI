@@ -34,14 +34,11 @@ const Model = ({
 
   useEffect(() => {
     if (scene) {
-      // Calculate dimensions and center for scaling and positioning
       const bbox = new Box3().setFromObject(scene);
       const size = new Vector3();
       bbox.getSize(size);
       const center = new Vector3();
       bbox.getCenter(center);
-
-      // Set scale based on dimensions
       const { width: doorWidth, height: doorHeight } = doorDimensions;
       const { width: windowWidth, height: windowHeight } = windowDimensions;
 
@@ -50,8 +47,6 @@ const Model = ({
       const scaleZ = wallThickness / size.z;
 
       setAdjustedScale([scaleX, scaleY, scaleZ]);
-
-      // Adjust position to align with the cutout
       let adjustedLocalX = position[0] - center.x * scaleX;
       let adjustedLocalY = position[1] - center.y * scaleY;
       let adjustedLocalZ = position[2] - center.z * scaleZ;
