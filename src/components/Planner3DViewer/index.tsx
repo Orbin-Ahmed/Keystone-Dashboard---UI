@@ -78,14 +78,11 @@ const SceneContent: React.FC<{
     };
   }, [scene]);
 
-  const textures = useMemo(
-    () => ({
-      floor: useLoader(TextureLoader, "/textures/hardwood.png"),
-      wall: useLoader(TextureLoader, "/textures/marbletiles.jpg"),
-      roof: useLoader(TextureLoader, "/textures/wallmap_yellow.png"),
-    }),
-    [],
-  );
+  const textures = {
+    floor: useLoader(TextureLoader, "/textures/hardwood.png"),
+    wall: useLoader(TextureLoader, "/textures/marbletiles.jpg"),
+    roof: useLoader(TextureLoader, "/textures/wallmap_yellow.png"),
+  };
 
   useEffect(() => {
     return () => {
@@ -95,12 +92,9 @@ const SceneContent: React.FC<{
 
   const wallHeight = 120;
   const wallThickness = 10;
-
-  // Door and Window Dimensions (in scene units)
   const doorDimensions = { width: 60, height: 100 };
   const windowDimensions = { width: 60, height: 50 };
 
-  // Memoize calculations
   const { centerX, centerY, minX, maxX, minY, maxY } = useMemo(() => {
     const allX = lines.flatMap((line) => [line.points[0], line.points[2]]);
     const allY = lines.flatMap((line) => [line.points[1], line.points[3]]);
@@ -114,7 +108,6 @@ const SceneContent: React.FC<{
     };
   }, [lines]);
 
-  // Memoized wall material
   const wallMaterial = useMemo(
     () => new MeshStandardMaterial({ map: textures.wall }),
     [textures.wall],
