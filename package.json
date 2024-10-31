@@ -40,6 +40,7 @@
     "three": "^0.168.0",
     "three-csg-ts": "^3.2.0",
     "three-stdlib": "^2.33.0",
+    "uid": "^2.0.2",
     "use-image": "^1.1.1",
     "yet-another-react-lightbox": "^3.18.0"
   },

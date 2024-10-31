@@ -11,18 +11,7 @@ import {
 import useImage from "use-image";
 import { Text } from "react-konva";
 import Konva from "konva";
-import { Line, PlanEditorProps } from "@/types";
-
-interface Shape {
-  type: "window" | "door";
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  rotation?: number;
-  image: HTMLImageElement;
-  wallIndex?: number;
-}
+import { Line, PlanEditorProps, Shape } from "@/types";
 
 const GRID_SIZE = 50;
 const PIXELS_PER_METER = 100;

@@ -163,7 +163,7 @@ export interface Shape {
   width: number;
   height: number;
   rotation?: number;
-  image: HTMLImageElement | undefined;
+  image: HTMLImageElement;
   wallIndex?: number;
 }
 
