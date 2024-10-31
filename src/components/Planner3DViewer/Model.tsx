@@ -32,13 +32,11 @@ const Model: React.FC<ModelProps> = React.memo(
     const { scene, materials } = useGLTF(`/models/${path}`);
     const sceneRef = useRef(null);
 
-    // Memoize dimensions based on type
     const dimensions = useMemo<Dimensions>(
       () => (type === "door" ? doorDimensions : windowDimensions),
       [type, doorDimensions, windowDimensions],
     );
 
-    // Memoize material cloning function
     const cloneMaterial = useCallback((material: Material) => {
       const newMat = material.clone();
       if (newMat instanceof MeshStandardMaterial) {
@@ -47,7 +45,6 @@ const Model: React.FC<ModelProps> = React.memo(
       return newMat;
     }, []);
 
-    // Memoize scene cloning with optimized material handling
     const clonedScene = useMemo(() => {
       const cloned = scene.clone();
       cloned.traverse((object) => {
@@ -64,7 +61,6 @@ const Model: React.FC<ModelProps> = React.memo(
       return cloned;
     }, [scene, materials, cloneMaterial]);
 
-    // Memoize position and scale calculations
     const [adjustedPosition, adjustedScale] = useMemo(() => {
       const bbox = new Box3().setFromObject(scene);
       const size = new Vector3();
@@ -90,7 +86,6 @@ const Model: React.FC<ModelProps> = React.memo(
       ];
     }, [scene, dimensions, wallThickness, position]);
 
-    // Cleanup resources
     useEffect(() => {
       const currentScene = clonedScene;
 
@@ -108,7 +103,6 @@ const Model: React.FC<ModelProps> = React.memo(
       };
     }, [clonedScene]);
 
-    // Preload next model
     useEffect(() => {
       return () => {
         useGLTF.preload(`/models/${path}`);
@@ -129,7 +123,6 @@ const Model: React.FC<ModelProps> = React.memo(
 
 Model.displayName = "Model";
 
-// Preload model
 export const preloadModel = (path: string) => {
   useGLTF.preload(`/models/${path}`);
 };

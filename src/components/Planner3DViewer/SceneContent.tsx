@@ -90,7 +90,7 @@ const SceneContent: React.FC<{
 
   const wallHeight = 120;
   const wallThickness = 10;
-  const doorDimensions = { width: 60, height: 100 };
+  const doorDimensions = { width: 50, height: 100 };
   const windowDimensions = { width: 60, height: 50 };
 
   const { centerX, centerY, minX, maxX, minY, maxY } = useMemo(() => {
