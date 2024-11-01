@@ -12,6 +12,7 @@ import useImage from "use-image";
 import { Text } from "react-konva";
 import Konva from "konva";
 import { Line, PlanEditorProps, Shape } from "@/types";
+import { uid } from "uid";
 
 const GRID_SIZE = 50;
 const PIXELS_PER_METER = 100;
@@ -50,6 +51,7 @@ const PlanEditor = ({
   const [tempLine, setTempLine] = useState<Line | null>(null);
   const [guideLine, setGuideLine] = useState<Line | null>(null);
   const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null);
+
   const [rotateIcon] = useImage("/icons/rotate.svg");
   const [deleteIcon] = useImage("/icons/delete.svg");
   const [editIcon] = useImage("/icons/edit.svg");
@@ -104,6 +106,24 @@ const PlanEditor = ({
     return lines;
   };
 
+  const findClosestLineById = (pos: {
+    x: number;
+    y: number;
+  }): string | null => {
+    let closestLineId: string | null = null;
+    let minDist = Infinity;
+
+    lines.forEach((line) => {
+      const dist = distanceToLine(line, pos);
+      if (dist < minDist) {
+        minDist = dist;
+        closestLineId = line.id;
+      }
+    });
+
+    return closestLineId;
+  };
+
   const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
     const clickedOnEmpty = e.target === e.target.getStage();
     if (clickedOnEmpty) {
@@ -115,17 +135,18 @@ const PlanEditor = ({
     if (!stage) return;
 
     const pos = stage.getPointerPosition();
+    if (!pos) return;
 
-    if (tool === "wall" && pos) {
+    if (tool === "wall") {
       const snappedPos = getSnappedPosition(pos);
       setStartPoint(snappedPos);
-    } else if ((tool === "window" || tool === "door") && pos) {
-      const closestLineIndex = findClosestLineIndex(pos);
-      if (closestLineIndex !== null) {
-        const closestLine = lines[closestLineIndex];
-        if (isClickOnWall(closestLine, pos)) {
+    } else if (tool === "window" || tool === "door") {
+      const closestLineId = findClosestLineById(pos);
+      if (closestLineId) {
+        const closestLine = lines.find((line) => line.id === closestLineId);
+        if (closestLine && isClickOnWall(closestLine, pos)) {
           const { x, y, angle } = findClosestPointOnLine(closestLine, pos);
-          addShape(tool, x, y, angle, closestLineIndex);
+          addShape(tool, x, y, angle, closestLineId);
         }
       }
     }
@@ -141,26 +162,35 @@ const PlanEditor = ({
           startPoint,
         );
         setTempLine({
+          id: "temp",
           points: [
             startPoint.x,
             startPoint.y,
             constrainedPos.x,
             constrainedPos.y,
           ],
+          thickness: 8,
         });
 
-        // Draw a guidance line if the user reaches the extension of an existing wall
         const guide = getGuideLine(constrainedPos);
-        setGuideLine(guide);
+        if (guide) {
+          setGuideLine({
+            id: "guide",
+            points: guide.points,
+            thickness: 1,
+          });
+        } else {
+          setGuideLine(null);
+        }
       }
     }
   };
 
   const handleMouseUp = (e: Konva.KonvaEventObject<MouseEvent>) => {
     const stage = e.target.getStage();
-    if (!stage) return;
+    if (!stage || !startPoint) return;
 
-    if (tool === "wall" && startPoint) {
+    if (tool === "wall") {
       const pos = stage.getPointerPosition();
       if (pos) {
         const snappedPos = getSnappedPosition(pos);
@@ -192,7 +222,12 @@ const PlanEditor = ({
         );
 
         if (length >= MIN_WALL_LENGTH - 0.01) {
-          setLines([...lines, { points: newLinePoints }]);
+          const newLine: Line = {
+            id: uid(16),
+            points: newLinePoints,
+            thickness: 8,
+          };
+          setLines([...lines, newLine]);
         }
 
         setStartPoint(null);
@@ -239,7 +274,6 @@ const PlanEditor = ({
         Math.abs(pos.x - x1) < STRAIGHT_LINE_THRESHOLD &&
         Math.abs(y1 - y2) < STRAIGHT_LINE_THRESHOLD
       ) {
-        // Vertical alignment guidance
         return {
           points: [x1, Math.min(y1, y2), x1, Math.max(startPoint!.y, pos.y)],
         };
@@ -247,7 +281,6 @@ const PlanEditor = ({
         Math.abs(pos.y - y1) < STRAIGHT_LINE_THRESHOLD &&
         Math.abs(x1 - x2) < STRAIGHT_LINE_THRESHOLD
       ) {
-        // Horizontal alignment guidance
         return {
           points: [Math.min(x1, x2), y1, Math.max(startPoint!.x, pos.x), y1],
         };
@@ -268,98 +301,70 @@ const PlanEditor = ({
     x: number,
     y: number,
     angle: number,
-    wallIndex: number,
+    wallId: string,
   ) => {
     const image = shapeType === "window" ? windowImage : doorImage;
     const isWindow = shapeType === "window";
+    const wall = lines.find((line) => line.id === wallId);
 
-    const line = lines[wallIndex];
-    const [x1, y1, x2, y2] = line.points;
+    if (!wall) return;
+
+    const [x1, y1, x2, y2] = wall.points;
     const wallLength = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
 
-    // Window Area
-    const windowWidth = wallLength * 0.15;
+    const windowWidth = 80;
     const windowHeight = 8;
-
-    const offsetDistance = 0;
-    const angleRadians = (angle * Math.PI) / 180;
-
-    const adjustedX =
-      x - (windowHeight / 2 + offsetDistance) * Math.sin(angleRadians);
-    const adjustedY =
-      y + (windowHeight / 2 + offsetDistance) * Math.cos(angleRadians);
-
-    let shapeRotation = angle;
-    if (isWindow) {
-      shapeRotation = (angle + 180) % 360;
-    }
-    // Window Area End
-
-    // Door Area
     const doorWidth = 40;
     const doorHeight = 60;
 
-    const adjustedDoorY = isWindow ? y - windowHeight / 2 : y;
-    // Door Area End
+    let newShape: Shape;
 
-    if (image && !isWindow) {
-      const newShape: Shape = {
-        type: shapeType,
-        x,
-        y: adjustedDoorY,
-        width: doorWidth,
-        height: doorHeight,
-        image,
-        rotation: angle,
-        wallIndex,
-      };
+    if (isWindow) {
+      const angleRadians = (angle * Math.PI) / 180;
+      const adjustedX = x - (windowHeight / 2) * Math.sin(angleRadians);
+      const adjustedY = y + (windowHeight / 2) * Math.cos(angleRadians);
 
-      setShapes([...shapes, newShape]);
-    } else if (image && isWindow) {
-      const newShape: Shape = {
-        type: shapeType,
+      newShape = {
+        id: uid(16),
+        type: "window",
         x: adjustedX,
         y: adjustedY,
         width: windowWidth,
         height: windowHeight,
         image,
-        rotation: shapeRotation,
-        wallIndex,
+        rotation: (angle + 180) % 360,
+        wallId,
       };
-
-      setShapes([...shapes, newShape]);
+    } else {
+      newShape = {
+        id: uid(16),
+        type: "door",
+        x,
+        y,
+        width: doorWidth,
+        height: doorHeight,
+        image,
+        rotation: angle,
+        wallId,
+      };
     }
+
+    setShapes([...shapes, newShape]);
   };
 
-  const deleteShape = (index: number) => {
-    const updatedShapes = [...shapes];
-    updatedShapes.splice(index, 1);
-    setShapes(updatedShapes);
+  const deleteShape = (shapeId: string) => {
+    setShapes(shapes.filter((shape) => shape.id !== shapeId));
     setSelectedShape(null);
   };
 
-  const rotateShape = (index: number) => {
-    const updatedShapes = [...shapes];
-    updatedShapes[index].rotation = (updatedShapes[index].rotation || 0) + 90;
-    setShapes(updatedShapes);
-  };
-
-  const findClosestLineIndex = (pos: {
-    x: number;
-    y: number;
-  }): number | null => {
-    let closestLineIndex: number | null = null;
-    let minDist = Infinity;
-
-    lines.forEach((line, index) => {
-      const dist = distanceToLine(line, pos);
-      if (dist < minDist) {
-        minDist = dist;
-        closestLineIndex = index;
-      }
-    });
-
-    return closestLineIndex;
+  const rotateShape = (shapeId: string) => {
+    setShapes(
+      shapes.map((shape) =>
+        shape.id === shapeId
+          ? { ...shape, rotation: (shape.rotation || 0) + 90 }
+          : shape,
+      ),
+    );
   };
 
   const isClickOnWall = (line: Line, point: { x: number; y: number }) => {
@@ -427,7 +432,7 @@ const PlanEditor = ({
     return Math.sqrt(dx * dx + dy * dy);
   };
 
-  const drawWallLength = (line: Line, index: number) => {
+  const drawWallLength = (line: Line, index: string) => {
     const [x1, y1, x2, y2] = line.points;
     const lengthMeters = (
       Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) / PIXELS_PER_METER
@@ -489,20 +494,25 @@ const PlanEditor = ({
     ) : null;
   };
 
-  const updateWall = (index: number, dx: number, dy: number) => {
-    const updatedLines = [...lines];
-    const oldPoints = updatedLines[index].points;
-    const newPoints = [
-      oldPoints[0] + dx,
-      oldPoints[1] + dy,
-      oldPoints[2] + dx,
-      oldPoints[3] + dy,
-    ];
-    updatedLines[index].points = newPoints;
-    setLines(updatedLines);
+  const updateWall = (wallId: string, dx: number, dy: number) => {
+    const updatedLines = lines.map((line) => {
+      if (line.id === wallId) {
+        const oldPoints = line.points;
+        return {
+          ...line,
+          points: [
+            oldPoints[0] + dx,
+            oldPoints[1] + dy,
+            oldPoints[2] + dx,
+            oldPoints[3] + dy,
+          ],
+        };
+      }
+      return line;
+    });
 
     const updatedShapes = shapes.map((shape) => {
-      if (shape.wallIndex === index) {
+      if (shape.wallId === wallId) {
         return {
           ...shape,
           x: shape.x + dx,
@@ -511,63 +521,64 @@ const PlanEditor = ({
       }
       return shape;
     });
+
+    setLines(updatedLines);
     setShapes(updatedShapes);
   };
 
   const handleShapeDragEnd = (
     e: Konva.KonvaEventObject<DragEvent>,
-    index: number,
+    shapeId: string,
   ) => {
     const pos = e.target.position();
-    const closestLineIndex = findClosestLineIndex(pos);
+    const closestLineId = findClosestLineById(pos);
+    const shape = shapes.find((s) => s.id === shapeId);
 
-    if (closestLineIndex !== null) {
-      const closestLine = lines[closestLineIndex];
-      if (isClickOnWall(closestLine, pos)) {
+    if (!shape) return;
+
+    if (closestLineId) {
+      const closestLine = lines.find((line) => line.id === closestLineId);
+      if (closestLine && isClickOnWall(closestLine, pos)) {
         const { x, y, angle } = findClosestPointOnLine(closestLine, pos);
-        const updatedShapes = [...shapes];
-        const isWindow = updatedShapes[index].type === "window";
+        const isWindow = shape.type === "window";
 
-        // Adjust position and rotation for window to align properly
         let adjustedX = x;
         let adjustedY = y;
         let shapeRotation = angle;
 
         if (isWindow) {
-          const windowHeight = updatedShapes[index].height;
+          const windowHeight = shape.height;
           const angleRadians = (angle * Math.PI) / 180;
-
           adjustedX = x - (windowHeight / 2) * Math.sin(angleRadians);
           adjustedY = y + (windowHeight / 2) * Math.cos(angleRadians);
-
           shapeRotation = (angle + 180) % 360;
         }
 
-        updatedShapes[index] = {
-          ...updatedShapes[index],
-          x: adjustedX,
-          y: adjustedY,
-          rotation: isWindow ? shapeRotation : angle,
-          wallIndex: closestLineIndex,
-        };
-        setShapes(updatedShapes);
+        setShapes(
+          shapes.map((s) =>
+            s.id === shapeId
+              ? {
+                  ...s,
+                  x: adjustedX,
+                  y: adjustedY,
+                  rotation: isWindow ? shapeRotation : angle,
+                  wallId: closestLineId,
+                }
+              : s,
+          ),
+        );
       } else {
-        e.target.position({ x: shapes[index].x, y: shapes[index].y });
+        e.target.position({ x: shape.x, y: shape.y });
       }
     } else {
-      e.target.position({ x: shapes[index].x, y: shapes[index].y });
+      e.target.position({ x: shape.x, y: shape.y });
     }
   };
 
-  const deleteWall = (index: number) => {
-    const updatedLines = [...lines];
-    updatedLines.splice(index, 1);
-    setLines(updatedLines);
+  const deleteWall = (wallId: string) => {
+    setLines(lines.filter((line) => line.id !== wallId));
+    setShapes(shapes.filter((shape) => shape.wallId !== wallId));
     setSelectedWall(null);
-
-    // Remove shapes attached to this wall
-    const updatedShapes = shapes.filter((shape) => shape.wallIndex !== index);
-    setShapes(updatedShapes);
   };
 
   const handleDoubleClick = (e: Konva.KonvaEventObject<MouseEvent>) => {
@@ -613,20 +624,20 @@ const PlanEditor = ({
                 dash={[5, 5]}
               />
             )}
-            {lines.map((line, i) => (
-              <React.Fragment key={i}>
+            {lines.map((line) => (
+              <React.Fragment key={line.id}>
                 <Group
                   draggable={tool === "moveWall"}
                   onClick={() => {
                     if (tool === "moveWall") {
-                      setSelectedWall(i);
+                      setSelectedWall(line.id);
                       setSelectedShape(null);
                     }
                   }}
                   onDragEnd={(e) => {
                     const dx = e.target.x();
                     const dy = e.target.y();
-                    updateWall(i, dx, dy);
+                    updateWall(line.id, dx, dy);
                     e.target.position({ x: 0, y: 0 });
                   }}
                   onMouseEnter={(e) => {
@@ -645,25 +656,25 @@ const PlanEditor = ({
                 >
                   <KonvaLine
                     points={line.points}
-                    stroke={selectedWall === i ? "blue" : "black"}
+                    stroke={selectedWall === line.id ? "blue" : "black"}
                     strokeWidth={line.thickness || 8}
                   />
                 </Group>
-                {selectedWall === i && (
+                {selectedWall === line.id && (
                   <KonvaImage
                     image={deleteIcon}
                     x={(line.points[0] + line.points[2]) / 2 - 10}
                     y={(line.points[1] + line.points[3]) / 2 - 30}
                     width={20}
                     height={20}
-                    onClick={() => deleteWall(i)}
+                    onClick={() => deleteWall(line.id)}
                   />
                 )}
-                {drawWallLength(line, i)}
+                {drawWallLength(line, line.id)}
               </React.Fragment>
             ))}
-            {shapes.map((shape, i) => (
-              <React.Fragment key={i}>
+            {shapes.map((shape) => (
+              <React.Fragment key={shape.id}>
                 <KonvaImage
                   image={shape.image}
                   x={shape.x}
@@ -672,13 +683,13 @@ const PlanEditor = ({
                   height={shape.height}
                   rotation={shape.rotation}
                   onClick={() => {
-                    setSelectedShape(i);
+                    setSelectedShape(shape.id);
                     setSelectedWall(null);
                   }}
                   draggable
-                  onDragEnd={(e) => handleShapeDragEnd(e, i)}
+                  onDragEnd={(e) => handleShapeDragEnd(e, shape.id)}
                 />
-                {selectedShape === i && (
+                {selectedShape === shape.id && (
                   <>
                     {/* Replace Circles with Icons */}
                     <KonvaImage
@@ -687,7 +698,7 @@ const PlanEditor = ({
                       y={shape.y + shape.height / 2 - 30}
                       width={20}
                       height={20}
-                      onClick={() => rotateShape(i)}
+                      onClick={() => rotateShape(shape.id)}
                     />
                     <KonvaImage
                       image={deleteIcon}
@@ -695,7 +706,7 @@ const PlanEditor = ({
                       y={shape.y + shape.height / 2 + 10}
                       width={20}
                       height={20}
-                      onClick={() => deleteShape(i)}
+                      onClick={() => deleteShape(shape.id)}
                     />
                   </>
                 )}

@@ -157,6 +157,7 @@ export interface InteriorDesignInput {
 }
 
 export interface Shape {
+  id: string;
   type: "window" | "door";
   x: number;
   y: number;
@@ -164,7 +165,7 @@ export interface Shape {
   height: number;
   rotation?: number;
   image: HTMLImageElement;
-  wallIndex?: number;
+  wallId: string;
 }
 
 export interface PlanEditorProps {
@@ -174,10 +175,10 @@ export interface PlanEditorProps {
   >;
   showDimensions: boolean;
   setShowDimensions: React.Dispatch<React.SetStateAction<boolean>>;
-  selectedShape: number | null;
-  setSelectedShape: React.Dispatch<React.SetStateAction<number | null>>;
-  selectedWall: number | null;
-  setSelectedWall: React.Dispatch<React.SetStateAction<number | null>>;
+  selectedShape: string | null;
+  setSelectedShape: React.Dispatch<React.SetStateAction<string | null>>;
+  selectedWall: string | null;
+  setSelectedWall: React.Dispatch<React.SetStateAction<string | null>>;
   roomNames: {
     id: number;
     x: number;
@@ -200,8 +201,8 @@ export interface PlanEditorProps {
   setShapes: React.Dispatch<React.SetStateAction<Shape[]>>;
   lines: Line[];
   setLines: React.Dispatch<React.SetStateAction<Line[]>>;
-  windowImage: HTMLImageElement | undefined;
-  doorImage: HTMLImageElement | undefined;
+  windowImage: HTMLImageElement;
+  doorImage: HTMLImageElement;
   viewMode: "2D" | "3D";
   addRoomName: (x: number, y: number, name: string) => void;
   editRoomName: (id: number, newName: string) => void;
@@ -209,17 +210,20 @@ export interface PlanEditorProps {
 }
 
 export interface LineData {
+  id: string;
   points: number[];
 }
 
 export interface ShapeData {
+  id: string;
   type: "window" | "door";
   x: number;
   y: number;
   width: number;
   height: number;
   rotation?: number;
-  wallIndex?: number;
+  image: HTMLImageElement;
+  wallId: string;
 }
 
 export interface Point {
@@ -228,6 +232,7 @@ export interface Point {
 }
 
 export interface Line {
+  id: string;
   points: number[];
   thickness?: number;
 }

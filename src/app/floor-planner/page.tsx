@@ -24,8 +24,10 @@ const FloorPlanner = () => {
   >(null);
   const [showDimensions, setShowDimensions] = useState(true);
   const [viewMode, setViewMode] = useState<"2D" | "3D">("3D");
-  const [selectedShape, setSelectedShape] = useState<number | null>(null);
-  const [selectedWall, setSelectedWall] = useState<number | null>(null);
+
+  const [selectedWall, setSelectedWall] = useState<string | null>(null);
+  const [selectedShape, setSelectedShape] = useState<string | null>(null);
+
   const [roomNames, setRoomNames] = useState<
     { id: number; x: number; y: number; name: string; offsetX: number }[]
   >([]);
@@ -145,19 +147,19 @@ const FloorPlanner = () => {
           if (dist <= MAX_DISTANCE) {
             if (isHorizontal(lineA) && isHorizontal(lineB)) {
               if (pointAName === "A_start") {
-                lineA.points[0] = pointB.x; // Connect start point
-                lineA.points[2] += EXTENSION_LENGTH; // Extend on the x-axis
+                lineA.points[0] = pointB.x;
+                lineA.points[2] += EXTENSION_LENGTH;
               } else {
-                lineA.points[2] = pointB.x; // Connect end point
-                lineA.points[2] += EXTENSION_LENGTH; // Extend on the x-axis
+                lineA.points[2] = pointB.x;
+                lineA.points[2] += EXTENSION_LENGTH;
               }
             } else if (isVertical(lineA) && isVertical(lineB)) {
               if (pointAName === "A_start") {
-                lineA.points[1] = pointB.y; // Connect start point
-                lineA.points[3] += EXTENSION_LENGTH; // Extend on the y-axis
+                lineA.points[1] = pointB.y;
+                lineA.points[3] += EXTENSION_LENGTH;
               } else {
-                lineA.points[3] = pointB.y; // Connect end point
-                lineA.points[3] += EXTENSION_LENGTH; // Extend on the y-axis
+                lineA.points[3] = pointB.y;
+                lineA.points[3] += EXTENSION_LENGTH;
               }
             }
           }
@@ -304,6 +306,10 @@ const FloorPlanner = () => {
       prevRoomNames.filter((room) => room.id !== id),
     );
   };
+
+  if (!windowImage || !doorImage) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="editor-container">

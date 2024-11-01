@@ -11,8 +11,8 @@ interface SidebarProps {
   handleDownload: () => void;
   handleUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   fileInputRef: React.RefObject<HTMLInputElement>;
-  setSelectedShape: React.Dispatch<React.SetStateAction<number | null>>;
-  setSelectedWall: React.Dispatch<React.SetStateAction<number | null>>;
+  setSelectedShape: React.Dispatch<React.SetStateAction<string | null>>;
+  setSelectedWall: React.Dispatch<React.SetStateAction<string | null>>;
   viewMode: "2D" | "3D";
   setViewMode: React.Dispatch<React.SetStateAction<"2D" | "3D">>;
 }

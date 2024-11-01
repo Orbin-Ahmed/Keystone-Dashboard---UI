@@ -117,6 +117,19 @@ const SceneContent: React.FC<{
     );
   }, [showRoof, maxX, minX, maxY, minY, wallHeight, textures.roof]);
 
+  const shapesByWallId = useMemo(() => {
+    return shapes.reduce(
+      (acc, shape) => {
+        if (!acc[shape.wallId]) {
+          acc[shape.wallId] = [];
+        }
+        acc[shape.wallId].push(shape);
+        return acc;
+      },
+      {} as Record<string, ShapeData[]>,
+    );
+  }, [shapes]);
+
   return (
     <>
       <CameraController
@@ -164,7 +177,7 @@ const SceneContent: React.FC<{
       </mesh>
 
       {/* Walls */}
-      {lines.map((line, wallIndex) => {
+      {lines.map((line) => {
         const [x1, y1, x2, y2] = line.points;
         const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
         const wallPosition = new Vector3(
@@ -191,9 +204,7 @@ const SceneContent: React.FC<{
           new MeshStandardMaterial({ map: textures.wall }),
         );
 
-        const shapesOnWall = shapes.filter(
-          (shape) => shape.wallIndex === wallIndex,
-        );
+        const shapesOnWall = shapesByWallId[line.id] || [];
 
         shapesOnWall.forEach((shape) => {
           const { type, x, y } = shape;
@@ -223,18 +234,17 @@ const SceneContent: React.FC<{
 
         return (
           <group
-            key={wallIndex}
+            key={line.id}
             position={wallPosition}
             rotation={[0, -angle, 0]}
           >
             <primitive object={wallMesh} />
-            {shapesOnWall.map((shape, shapeIndex) => {
-              const { type, x, y } = shape;
+            {shapesOnWall.map((shape) => {
+              const { type, x, y, id } = shape; // TO DO check if shape id is unique or not
               const modelPath =
                 type === "window"
                   ? "window/window_twin_casement.glb"
                   : "door/door.glb";
-              const uniqueKey = `${wallIndex}-${shapeIndex}`;
               const shapeWorldX = x - centerX;
               const shapeWorldZ = y - centerY;
               const dx = shapeWorldX - wallPosition.x;
@@ -255,7 +265,7 @@ const SceneContent: React.FC<{
 
               return (
                 <Model
-                  key={uniqueKey}
+                  key={id}
                   path={modelPath}
                   position={[localX, localY, 0]}
                   rotation={[0, rotationY, 0]}
