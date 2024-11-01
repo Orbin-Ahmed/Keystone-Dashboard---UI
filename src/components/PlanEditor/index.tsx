@@ -312,7 +312,7 @@ const PlanEditor = ({
     const [x1, y1, x2, y2] = wall.points;
     const wallLength = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
 
-    const windowWidth = 80;
+    const windowWidth = 70;
     const windowHeight = 8;
     const doorWidth = 40;
     const doorHeight = 60;

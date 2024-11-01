@@ -5,6 +5,7 @@ import PlanEditorSideBar from "@/components/PlanEditor/PlanEditorSideBar";
 import useImage from "use-image";
 import { Line, Shape } from "@/types";
 import { detectWallPosition } from "@/api";
+import { uid } from "uid";
 
 const PlanEditor = dynamic(() => import("@/components/PlanEditor"), {
   ssr: false,
@@ -186,26 +187,28 @@ const FloorPlanner = () => {
 
           const connectedLines = connectCloseLinesByExtending(data.lines);
 
-          const linesWithThickness = connectedLines.map((line: any) => {
+          const linesWithThickness = connectedLines.map((line: Line) => {
             return {
               ...line,
+              id: line.id || uid(),
               thickness: line.thickness || 8,
             };
           });
 
           setLines(linesWithThickness || []);
 
-          const loadedShapes = data.shapes.map((shape: any) => {
+          const loadedShapes = data.shapes.map((shape: Shape) => {
             let image = null;
             if (shape.type === "window") {
               image = windowImage;
             } else if (shape.type === "door") {
               image = doorImage;
             }
-            return { ...shape, image };
+            return { ...shape, id: shape.id || uid(), image };
           });
 
           setShapes(loadedShapes || []);
+
           const loadedRoomNames = (data.roomNames || []).map(
             (room: { x: number; y: number; name: string }) => {
               const textWidth = measureTextWidth(room.name);
@@ -234,6 +237,7 @@ const FloorPlanner = () => {
           const linesWithThickness = connectedLines.map((line: any) => {
             return {
               ...line,
+              id: line.id || uid(),
               thickness: line.thickness || 8,
             };
           });
@@ -247,7 +251,7 @@ const FloorPlanner = () => {
             } else if (shape.type === "door") {
               image = doorImage;
             }
-            return { ...shape, image };
+            return { ...shape, id: shape.id || uid(), image };
           });
 
           setShapes(loadedShapes || []);
