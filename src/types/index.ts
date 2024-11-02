@@ -259,3 +259,17 @@ export interface CameraControllerProps {
   isAutoRotating: boolean;
   setIsAutoRotating: (value: boolean) => void;
 }
+
+export interface WallClassification {
+  isOuter: boolean;
+  isFacingInward: boolean;
+}
+
+export type Point2D = [number, number];
+
+export type WallPoints = Array<Point2D>;
+
+export interface ShapeResult {
+  floorShape: Shape | null;
+  outerWallPoints: WallPoints;
+}

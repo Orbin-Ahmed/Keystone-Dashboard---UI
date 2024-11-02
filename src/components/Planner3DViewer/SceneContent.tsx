@@ -1,6 +1,12 @@
 import React, { useMemo, useEffect } from "react";
 import { useLoader, useThree } from "@react-three/fiber";
-import { LineData, RoomName, ShapeData, TourPoint } from "@/types";
+import {
+  LineData,
+  RoomName,
+  ShapeData,
+  TourPoint,
+  WallClassification,
+} from "@/types";
 import {
   Vector3,
   TextureLoader,
@@ -14,6 +20,15 @@ import { CSG } from "three-csg-ts";
 import Model from "./Model";
 import CameraController from "./CameraController";
 import RoomLabel from "./RoomLabel";
+
+const ensureWallPoints = (
+  points: number[],
+): [number, number, number, number] => {
+  if (points.length !== 4) {
+    throw new Error("Wall points must contain exactly 4 values");
+  }
+  return [points[0], points[1], points[2], points[3]];
+};
 
 const SceneContent: React.FC<{
   lines: LineData[];
@@ -117,6 +132,57 @@ const SceneContent: React.FC<{
     );
   }, [showRoof, maxX, minX, maxY, minY, wallHeight, textures.roof]);
 
+  const wallClassifications = useMemo(() => {
+    const classifications: Record<string, WallClassification> = {};
+    const tolerance = 5;
+
+    const wallEndpoints: Array<[number, number, number, number]> = [];
+    const wallIds: string[] = [];
+
+    lines.forEach((line) => {
+      wallEndpoints.push(ensureWallPoints(line.points));
+      wallIds.push(line.id);
+    });
+
+    wallEndpoints.forEach((wall, wallIndex) => {
+      const [x1, y1, x2, y2] = wall;
+      const wallId = wallIds[wallIndex];
+      const wallCenter = new Vector2((x1 + x2) / 2, (y1 + y2) / 2);
+      const wallNormal = new Vector2(-(y2 - y1), x2 - x1).normalize();
+      const toCenterVector = new Vector2(
+        centerX - wallCenter.x,
+        centerY - wallCenter.y,
+      ).normalize();
+
+      const isFacingInward = wallNormal.dot(toCenterVector) > 0;
+      const isHorizontal = Math.abs(y1 - y2) < tolerance;
+      const isVertical = Math.abs(x1 - x2) < tolerance;
+
+      const isAtHorizontalBoundary =
+        Math.abs(y1 - minY) < tolerance ||
+        Math.abs(y1 - maxY) < tolerance ||
+        Math.abs(y2 - minY) < tolerance ||
+        Math.abs(y2 - maxY) < tolerance;
+
+      const isAtVerticalBoundary =
+        Math.abs(x1 - minX) < tolerance ||
+        Math.abs(x1 - maxX) < tolerance ||
+        Math.abs(x2 - minX) < tolerance ||
+        Math.abs(x2 - maxX) < tolerance;
+
+      const isOuter =
+        (isHorizontal && isAtHorizontalBoundary) ||
+        (isVertical && isAtVerticalBoundary);
+
+      classifications[wallId] = {
+        isOuter,
+        isFacingInward,
+      };
+    });
+
+    return classifications;
+  }, [lines, centerX, centerY, minX, maxX, minY, maxY]);
+
   const shapesByWallId = useMemo(() => {
     return shapes.reduce(
       (acc, shape) => {
@@ -178,7 +244,8 @@ const SceneContent: React.FC<{
 
       {/* Walls */}
       {lines.map((line) => {
-        const [x1, y1, x2, y2] = line.points;
+        const points = ensureWallPoints(line.points);
+        const [x1, y1, x2, y2] = points;
         const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
         const wallPosition = new Vector3(
           (x1 + x2) / 2 - centerX,
@@ -188,14 +255,8 @@ const SceneContent: React.FC<{
         const angle = Math.atan2(y2 - y1, x2 - x1);
 
         // Determine if wall is facing inward
-        const wallNormal = new Vector2(-(y2 - y1), x2 - x1).normalize();
-        const wallCenter = new Vector2((x1 + x2) / 2, (y1 + y2) / 2);
-        const toCenterVector = new Vector2(
-          centerX - wallCenter.x,
-          centerY - wallCenter.y,
-        ).normalize();
-        const dot = wallNormal.dot(toCenterVector);
-        const isFacingInward = dot > 0;
+        const wallClass = wallClassifications[line.id];
+        const { isOuter, isFacingInward } = wallClass;
 
         const wallGeometry = new BoxGeometry(length, wallHeight, wallThickness);
 
@@ -240,11 +301,14 @@ const SceneContent: React.FC<{
           >
             <primitive object={wallMesh} />
             {shapesOnWall.map((shape) => {
-              const { type, x, y, id } = shape; // TO DO check if shape id is unique or not
+              const { type, x, y, id } = shape;
               const modelPath =
                 type === "window"
                   ? "window/window_twin_casement.glb"
-                  : "door/door.glb";
+                  : isOuter
+                    ? "door/door.glb"
+                    : "door/door_wooden.glb";
+
               const shapeWorldX = x - centerX;
               const shapeWorldZ = y - centerY;
               const dx = shapeWorldX - wallPosition.x;
