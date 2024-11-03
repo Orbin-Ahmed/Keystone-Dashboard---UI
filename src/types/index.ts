@@ -1,3 +1,5 @@
+import { Shape } from "three";
+
 export interface ImageFile {
   readonly file: File;
   readonly filename?: string;
@@ -156,7 +158,7 @@ export interface InteriorDesignInput {
   seed?: number;
 }
 
-export interface Shape {
+export interface ShapeType {
   id: string;
   type: "window" | "door";
   x: number;
@@ -197,8 +199,8 @@ export interface PlanEditorProps {
       }[]
     >
   >;
-  shapes: Shape[];
-  setShapes: React.Dispatch<React.SetStateAction<Shape[]>>;
+  shapes: ShapeType[];
+  setShapes: React.Dispatch<React.SetStateAction<ShapeType[]>>;
   lines: Line[];
   setLines: React.Dispatch<React.SetStateAction<Line[]>>;
   windowImage: HTMLImageElement;
@@ -263,13 +265,4 @@ export interface CameraControllerProps {
 export interface WallClassification {
   isOuter: boolean;
   isFacingInward: boolean;
-}
-
-export type Point2D = [number, number];
-
-export type WallPoints = Array<Point2D>;
-
-export interface ShapeResult {
-  floorShape: Shape | null;
-  outerWallPoints: WallPoints;
 }

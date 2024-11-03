@@ -25,7 +25,6 @@ const Model: React.FC<ModelProps> = React.memo(
     rotation,
     type,
     wallThickness,
-    wallHeight,
     doorDimensions,
     windowDimensions,
   }) => {

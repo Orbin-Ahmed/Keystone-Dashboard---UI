@@ -11,7 +11,7 @@ import {
 import useImage from "use-image";
 import { Text } from "react-konva";
 import Konva from "konva";
-import { Line, PlanEditorProps, Shape } from "@/types";
+import { Line, PlanEditorProps, ShapeType } from "@/types";
 import { uid } from "uid";
 
 const GRID_SIZE = 50;
@@ -317,7 +317,7 @@ const PlanEditor = ({
     const doorWidth = 40;
     const doorHeight = 60;
 
-    let newShape: Shape;
+    let newShape: ShapeType;
 
     if (isWindow) {
       const angleRadians = (angle * Math.PI) / 180;

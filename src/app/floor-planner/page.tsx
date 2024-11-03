@@ -3,7 +3,7 @@ import React, { useState, useRef } from "react";
 import dynamic from "next/dynamic";
 import PlanEditorSideBar from "@/components/PlanEditor/PlanEditorSideBar";
 import useImage from "use-image";
-import { Line, Shape } from "@/types";
+import { Line, ShapeType } from "@/types";
 import { detectWallPosition } from "@/api";
 import { uid } from "uid";
 
@@ -33,7 +33,7 @@ const FloorPlanner = () => {
     { id: number; x: number; y: number; name: string; offsetX: number }[]
   >([]);
 
-  const [shapes, setShapes] = useState<Shape[]>([]);
+  const [shapes, setShapes] = useState<ShapeType[]>([]);
   const [lines, setLines] = useState<Line[]>([]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -197,7 +197,7 @@ const FloorPlanner = () => {
 
           setLines(linesWithThickness || []);
 
-          const loadedShapes = data.shapes.map((shape: Shape) => {
+          const loadedShapes = data.shapes.map((shape: ShapeType) => {
             let image = null;
             if (shape.type === "window") {
               image = windowImage;

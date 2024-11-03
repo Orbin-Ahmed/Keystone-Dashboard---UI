@@ -1,6 +1,7 @@
 import React, { useMemo, useEffect } from "react";
 import { useLoader, useThree } from "@react-three/fiber";
 import {
+  Line,
   LineData,
   RoomName,
   ShapeData,
@@ -15,6 +16,8 @@ import {
   MeshStandardMaterial,
   Vector2,
   DoubleSide,
+  Shape,
+  ExtrudeGeometry,
 } from "three";
 import { CSG } from "three-csg-ts";
 import Model from "./Model";
@@ -196,6 +199,72 @@ const SceneContent: React.FC<{
     );
   }, [shapes]);
 
+  const createBuildingShape = (
+    lines: Line[],
+    centerX: number,
+    centerY: number,
+  ) => {
+    const segments = lines.map((line) => ({
+      start: new Vector2(line.points[0], line.points[1]),
+      end: new Vector2(line.points[2], line.points[3]),
+    }));
+    const outerPoints = [];
+    let currentPoint = segments[0].start;
+    const usedSegments = new Set();
+
+    while (outerPoints.length < segments.length) {
+      outerPoints.push(currentPoint);
+      const nextSegment = segments.find((segment, index) => {
+        if (usedSegments.has(index)) return false;
+        return (
+          currentPoint.distanceTo(segment.start) < 1 ||
+          currentPoint.distanceTo(segment.end) < 1
+        );
+      });
+
+      if (!nextSegment) break;
+
+      usedSegments.add(segments.indexOf(nextSegment));
+      if (currentPoint.distanceTo(nextSegment.start) < 1) {
+        currentPoint = nextSegment.end;
+      } else {
+        currentPoint = nextSegment.start;
+      }
+    }
+
+    const shape = new Shape();
+    const localPoints = outerPoints.map(
+      (point) => new Vector2(point.x - centerX, point.y - centerY),
+    );
+    shape.moveTo(localPoints[0].x, localPoints[0].y);
+    for (let i = 1; i < localPoints.length; i++) {
+      shape.lineTo(localPoints[i].x, localPoints[i].y);
+    }
+    shape.closePath();
+
+    return {
+      floorShape: shape,
+      outerWallPoints: localPoints.map((p) => [p.x, p.y]),
+    };
+  };
+
+  const { floorShape } = createBuildingShape(lines, centerX, centerY);
+
+  // Floor
+  const Floor = useMemo(() => {
+    if (!floorShape) return null;
+
+    const geometry = new ExtrudeGeometry(floorShape);
+    geometry.scale(1, -1, 1);
+
+    return (
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
+        <primitive object={geometry} />
+        <meshStandardMaterial map={textures.floor} />
+      </mesh>
+    );
+  }, [floorShape, textures.floor]);
+
   return (
     <>
       <CameraController
@@ -236,11 +305,7 @@ const SceneContent: React.FC<{
 
       {Roof}
 
-      {/* Floor */}
-      <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[maxX - minX, maxY - minY]} />
-        <meshStandardMaterial map={textures.floor} />
-      </mesh>
+      {Floor}
 
       {/* Walls */}
       {lines.map((line) => {
