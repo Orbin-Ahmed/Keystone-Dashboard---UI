@@ -11,9 +11,7 @@ const CreateBuildingShape = (
   centerX: number,
   centerY: number,
 ) => {
-  const THRESHOLD = 20;
-
-  // Helper function to determine if two points are within the threshold distance
+  const THRESHOLD = 10;
   const arePointsClose = (
     x1: number,
     y1: number,
@@ -24,8 +22,6 @@ const CreateBuildingShape = (
     const dy = y1 - y2;
     return Math.sqrt(dx * dx + dy * dy) <= THRESHOLD;
   };
-
-  // Find the starting line: the line with the smallest y-coordinate, or the leftmost x if tied
   const findStartingLine = () => {
     return lines.reduce((minLine, line) => {
       const [x1, y1] = line.points.slice(0, 2);
@@ -36,19 +32,13 @@ const CreateBuildingShape = (
       return minLine;
     }, lines[0]);
   };
-
-  // Traverse all lines to follow the outer boundary
   const traverseOuterBoundary = () => {
     const boundaryPoints: Vector2[] = [];
     const visitedLines = new Set<Line>();
-
-    // Get the starting line and initialize traversal
     let currentLine = findStartingLine();
     let [startX, startY] = currentLine.points.slice(0, 2);
     boundaryPoints.push(new Vector2(startX, startY));
     visitedLines.add(currentLine);
-
-    // Traverse until we loop back to the start or exhaust possible connections
     while (true) {
       let [x1, y1, x2, y2] = currentLine.points;
       let nextPoint = new Vector2(x2, y2);
@@ -56,18 +46,14 @@ const CreateBuildingShape = (
       if (!boundaryPoints[0].equals(nextPoint)) {
         boundaryPoints.push(nextPoint);
       } else {
-        break; // Closed loop detected
+        break;
       }
-
-      // Find the closest line segment from the current endpoint (x2, y2)
       let closestLine: Line | null = null;
       let minDistance = Infinity;
 
       for (const line of lines) {
         if (visitedLines.has(line)) continue;
         const [lx1, ly1, lx2, ly2] = line.points;
-
-        // Check both endpoints of the line to see if they are within threshold of the current endpoint
         if (arePointsClose(x2, y2, lx1, ly1) && line !== currentLine) {
           const distance = Math.sqrt((lx1 - x2) ** 2 + (ly1 - y2) ** 2);
           if (distance < minDistance) {
@@ -84,19 +70,13 @@ const CreateBuildingShape = (
           }
         }
       }
-
-      // Stop if no unvisited close line is found
       if (!closestLine) break;
-
-      // Update for next iteration
       visitedLines.add(closestLine);
       currentLine = closestLine;
     }
 
     return boundaryPoints;
   };
-
-  // Generate the shape using the outer boundary points
   const boundaryPoints = traverseOuterBoundary();
   if (boundaryPoints.length < 3) {
     console.warn("No valid boundary found for floor shape.");
@@ -113,7 +93,7 @@ const CreateBuildingShape = (
 
   shape.moveTo(localPoints[0].x, localPoints[0].y);
   localPoints.slice(1).forEach((point) => shape.lineTo(point.x, point.y));
-  shape.lineTo(localPoints[0].x, localPoints[0].y); // Close the shape
+  shape.lineTo(localPoints[0].x, localPoints[0].y);
 
   return {
     floorShape: shape,
