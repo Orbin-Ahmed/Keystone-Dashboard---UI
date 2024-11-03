@@ -11,93 +11,160 @@ const CreateBuildingShape = (
   centerX: number,
   centerY: number,
 ) => {
-  const THRESHOLD = 10;
-  const arePointsClose = (
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number,
-  ): boolean => {
-    const dx = x1 - x2;
-    const dy = y1 - y2;
-    return Math.sqrt(dx * dx + dy * dy) <= THRESHOLD;
-  };
-  const findStartingLine = () => {
-    return lines.reduce((minLine, line) => {
-      const [x1, y1] = line.points.slice(0, 2);
-      const [minX, minY] = minLine.points.slice(0, 2);
-      if (y1 < minY || (y1 === minY && x1 < minX)) {
-        return line;
-      }
-      return minLine;
-    }, lines[0]);
-  };
-  const traverseOuterBoundary = () => {
-    const boundaryPoints: Vector2[] = [];
-    const visitedLines = new Set<Line>();
-    let currentLine = findStartingLine();
-    let [startX, startY] = currentLine.points.slice(0, 2);
-    boundaryPoints.push(new Vector2(startX, startY));
-    visitedLines.add(currentLine);
-    while (true) {
-      let [x1, y1, x2, y2] = currentLine.points;
-      let nextPoint = new Vector2(x2, y2);
+  const DISTANCE_THRESHOLD = 10;
 
-      if (!boundaryPoints[0].equals(nextPoint)) {
-        boundaryPoints.push(nextPoint);
-      } else {
-        break;
-      }
-      let closestLine: Line | null = null;
-      let minDistance = Infinity;
+  const debug = (message: string, ...args: any[]) => {
+    console.log(`[BuildingShape] ${message}`, ...args);
+  };
 
-      for (const line of lines) {
-        if (visitedLines.has(line)) continue;
-        const [lx1, ly1, lx2, ly2] = line.points;
-        if (arePointsClose(x2, y2, lx1, ly1) && line !== currentLine) {
-          const distance = Math.sqrt((lx1 - x2) ** 2 + (ly1 - y2) ** 2);
-          if (distance < minDistance) {
-            minDistance = distance;
-            closestLine = line;
-            nextPoint = new Vector2(lx2, ly2);
-          }
-        } else if (arePointsClose(x2, y2, lx2, ly2) && line !== currentLine) {
-          const distance = Math.sqrt((lx2 - x2) ** 2 + (ly2 - y2) ** 2);
-          if (distance < minDistance) {
-            minDistance = distance;
-            closestLine = line;
-            nextPoint = new Vector2(lx1, ly1);
-          }
-        }
-      }
-      if (!closestLine) break;
-      visitedLines.add(closestLine);
-      currentLine = closestLine;
+  const findExternalWalls = () => {
+    const sortedLines = [...lines].sort((a, b) => {
+      const aMinX = Math.min(a.points[0], a.points[2]);
+      const bMinX = Math.min(b.points[0], b.points[2]);
+      return aMinX - bMinX;
+    });
+
+    let externalWalls: Line[] = [];
+    let visited = new Set<string>();
+
+    let startLine = sortedLines.find((line) => {
+      const [x1, y1, x2, y2] = line.points;
+      const isVertical = Math.abs(x1 - x2) < 10;
+      return isVertical;
+    });
+
+    if (!startLine) {
+      debug("No vertical starting line found, using leftmost line");
+      startLine = sortedLines[0];
     }
 
-    return boundaryPoints;
-  };
-  const boundaryPoints = traverseOuterBoundary();
-  if (boundaryPoints.length < 3) {
-    console.warn("No valid boundary found for floor shape.");
-    return {
-      floorShape: null,
-      outerWallPoints: [],
+    if (!startLine) {
+      debug("No lines found at all");
+      return [];
+    }
+
+    debug("Starting line:", startLine);
+
+    const findNextWall = (
+      currentLine: Line,
+      currentEndPoint: Vector2,
+    ): Line | null => {
+      let bestMatch: Line | null = null;
+      let minDistance = DISTANCE_THRESHOLD;
+
+      const [cx1, cy1, cx2, cy2] = currentLine.points;
+      const currentVector = new Vector2(cx2 - cx1, cy2 - cy1).normalize();
+
+      lines.forEach((line) => {
+        if (visited.has(line.id) || line.id === currentLine.id) return;
+
+        const [x1, y1, x2, y2] = line.points;
+        const start = new Vector2(x1, y1);
+        const end = new Vector2(x2, y2);
+
+        [start, end].forEach((point) => {
+          const distance = point.distanceTo(currentEndPoint);
+          if (distance < minDistance) {
+            const nextVector = new Vector2(x2 - x1, y2 - y1).normalize();
+            const dotProduct = currentVector.dot(nextVector);
+
+            if (Math.abs(dotProduct) < 0.1 || Math.abs(dotProduct) > 0.9) {
+              minDistance = distance;
+              bestMatch = line;
+            }
+          }
+        });
+      });
+
+      return bestMatch;
     };
-  }
 
-  const shape = new Shape();
-  const localPoints = boundaryPoints.map(
-    (point) => new Vector2(point.x - centerX, point.y - centerY),
-  );
+    let currentLine = startLine;
+    externalWalls.push(currentLine);
+    visited.add(currentLine.id);
 
-  shape.moveTo(localPoints[0].x, localPoints[0].y);
-  localPoints.slice(1).forEach((point) => shape.lineTo(point.x, point.y));
-  shape.lineTo(localPoints[0].x, localPoints[0].y);
+    while (true) {
+      const [x1, y1, x2, y2] = currentLine.points;
+      const currentEndPoint = new Vector2(x2, y2);
+
+      const nextWall = findNextWall(currentLine, currentEndPoint);
+
+      if (!nextWall) {
+        debug("No next wall found, breaking chain");
+        break;
+      }
+
+      debug("Found next wall:", nextWall);
+      externalWalls.push(nextWall);
+      visited.add(nextWall.id);
+      currentLine = nextWall;
+
+      if (externalWalls.length > 2) {
+        const firstPoint = new Vector2(
+          startLine.points[0],
+          startLine.points[1],
+        );
+        const distance = currentEndPoint.distanceTo(firstPoint);
+        if (distance < DISTANCE_THRESHOLD) {
+          debug("Found path back to start!");
+          break;
+        }
+      }
+
+      if (externalWalls.length > lines.length) {
+        debug("Safety break - too many walls");
+        break;
+      }
+    }
+
+    debug("Found external walls:", externalWalls.length);
+    return externalWalls;
+  };
+
+  const createShape = (walls: Line[]): Shape | null => {
+    if (walls.length < 3) {
+      debug("Not enough walls to create shape");
+      return null;
+    }
+
+    const shape = new Shape();
+    let firstPoint: Vector2 = new Vector2(0, 0);
+    let lastPoint: Vector2 = new Vector2(0, 0);
+    let isFirstPoint = true;
+
+    walls.forEach((wall, index) => {
+      const [x1, y1, x2, y2] = wall.points;
+      const point1 = new Vector2(x1 - centerX, y1 - centerY);
+      const point2 = new Vector2(x2 - centerX, y2 - centerY);
+
+      if (index === 0) {
+        firstPoint = point1.clone();
+        shape.moveTo(point1.x, point1.y);
+      }
+
+      shape.lineTo(point2.x, point2.y);
+      lastPoint = point2.clone();
+    });
+
+    // Close the shape if needed
+    if (lastPoint.distanceTo(firstPoint) > 1) {
+      shape.lineTo(firstPoint.x, firstPoint.y);
+    }
+
+    return shape;
+  };
+
+  const externalWalls = findExternalWalls();
+  const floorShape = createShape(externalWalls);
+
+  const outerWallPoints = externalWalls.map((wall) => {
+    const [x1, y1] = wall.points;
+    return [x1 - centerX, y1 - centerY] as [number, number];
+  });
 
   return {
-    floorShape: shape,
-    outerWallPoints: localPoints.map((p) => [p.x, p.y] as [number, number]),
+    floorShape,
+    outerWallPoints,
   };
 };
 
