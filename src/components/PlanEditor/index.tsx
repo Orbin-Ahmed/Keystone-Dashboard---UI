@@ -660,6 +660,22 @@ const PlanEditor = ({
                     strokeWidth={line.thickness || 8}
                   />
                 </Group>
+                <Text
+                  key={`id-${line.id}`}
+                  text={`ID: ${line.id}`}
+                  x={(line.points[0] + line.points[2]) / 2 - 20}
+                  y={(line.points[1] + line.points[3]) / 2 - 20}
+                  fontSize={14}
+                  fill="grey"
+                  rotation={
+                    (Math.atan2(
+                      line.points[3] - line.points[1],
+                      line.points[2] - line.points[0],
+                    ) *
+                      180) /
+                    Math.PI
+                  }
+                />
                 {selectedWall === line.id && (
                   <KonvaImage
                     image={deleteIcon}
