@@ -334,7 +334,12 @@ const FloorPlanner = () => {
         setViewMode={setViewMode}
       />
       {viewMode === "2D" ? (
-        <Planner3DViewer lines={lines} shapes={shapes} roomNames={roomNames} />
+        <Planner3DViewer
+          lines={lines}
+          shapes={shapes}
+          roomNames={roomNames}
+          floorPlanPoints={floorPlanPoints}
+        />
       ) : (
         <PlanEditor
           tool={tool}

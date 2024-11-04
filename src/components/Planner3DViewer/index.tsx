@@ -9,6 +9,7 @@ interface Plan3DViewerProps {
   lines: LineData[];
   shapes: ShapeData[];
   roomNames: RoomName[];
+  floorPlanPoints: { id: string; x: number; y: number }[];
 }
 
 const Plan3DViewer: React.FC<Plan3DViewerProps> = ({

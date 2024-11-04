@@ -53,6 +53,9 @@ const PlanEditor = ({
   const [tempLine, setTempLine] = useState<Line | null>(null);
   const [guideLine, setGuideLine] = useState<Line | null>(null);
   const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null);
+  const [selectedFloorPoint, setSelectedFloorPoint] = useState<string | null>(
+    null,
+  );
 
   const [rotateIcon] = useImage("/icons/rotate.svg");
   const [deleteIcon] = useImage("/icons/delete.svg");
@@ -128,6 +131,13 @@ const PlanEditor = ({
 
   const addFloorPlanPoint = (x: number, y: number) => {
     setFloorPlanPoints((prevPoints) => [...prevPoints, { id: uid(), x, y }]);
+  };
+
+  const deleteFloorPlanPoint = (pointId: string) => {
+    setFloorPlanPoints((prevPoints) =>
+      prevPoints.filter((point) => point.id !== pointId),
+    );
+    setSelectedFloorPoint(null);
   };
 
   const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
@@ -739,6 +749,8 @@ const PlanEditor = ({
               <Group
                 key={point.id}
                 draggable
+                x={point.x}
+                y={point.y}
                 onDragEnd={(e) => {
                   const newX = e.target.x();
                   const newY = e.target.y();
@@ -748,19 +760,33 @@ const PlanEditor = ({
                     ),
                   );
                 }}
-                onClick={() => {}}
+                onClick={() => {
+                  setSelectedFloorPoint(point.id);
+                  setSelectedShape(null);
+                  setSelectedWall(null);
+                }}
               >
                 <Circle
-                  x={point.x}
-                  y={point.y}
+                  x={0}
+                  y={0}
                   radius={5}
                   fill="red"
                   stroke="black"
                   strokeWidth={1}
-                  draggable={false}
                 />
+                {selectedFloorPoint === point.id && (
+                  <KonvaImage
+                    image={deleteIcon}
+                    x={10}
+                    y={-10}
+                    width={20}
+                    height={20}
+                    onClick={() => deleteFloorPlanPoint(point.id)}
+                  />
+                )}
               </Group>
             ))}
+
             {roomNames.map((room, index) => (
               <React.Fragment key={room.id}>
                 <Text
