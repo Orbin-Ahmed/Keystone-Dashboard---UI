@@ -23,7 +23,7 @@ import { CSG } from "three-csg-ts";
 import Model from "./Model";
 import CameraController from "./CameraController";
 import RoomLabel from "./RoomLabel";
-import CreateBuildingShape from "./CreateBuildingShape";
+import CreateFloorShape from "./createFloorShape";
 
 const ensureWallPoints = (
   points: number[],
@@ -210,6 +210,15 @@ const SceneContent: React.FC<{
 
     return shape;
   }, [floorPlanPoints, centerX, centerY]);
+
+  // const floorShape = useMemo(() => {
+  //   try {
+  //     return CreateFloorShape(floorPlanPoints, centerX, centerY);
+  //   } catch (error) {
+  //     console.error("Failed to create floor shape:", error);
+  //     return null;
+  //   }
+  // }, [floorPlanPoints, centerX, centerY]);
 
   const Floor = useMemo(() => {
     if (!floorShape) {

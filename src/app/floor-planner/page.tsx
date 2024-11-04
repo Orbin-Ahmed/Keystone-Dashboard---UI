@@ -6,8 +6,7 @@ import useImage from "use-image";
 import { Line, ShapeType } from "@/types";
 import { detectWallPosition } from "@/api";
 import { uid } from "uid";
-import Konva from "konva";
-import CreateBuildingShape from "@/components/Planner3DViewer/CreateBuildingShape";
+import CreateBuildingShape from "@/components/PlanEditor/CreateBuildingShape";
 
 const PlanEditor = dynamic(() => import("@/components/PlanEditor"), {
   ssr: false,
