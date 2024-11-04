@@ -17,6 +17,7 @@ import {
   DoubleSide,
   ExtrudeGeometry,
   RepeatWrapping,
+  Shape,
 } from "three";
 import { CSG } from "three-csg-ts";
 import Model from "./Model";
@@ -45,6 +46,7 @@ const SceneContent: React.FC<{
   showRoof: boolean;
   tourPoints: TourPoint[];
   onTourPointClick: (point: TourPoint) => void;
+  floorPlanPoints: { id: string; x: number; y: number }[];
   centerX: number;
   centerY: number;
   minX: number;
@@ -63,6 +65,7 @@ const SceneContent: React.FC<{
   showRoof,
   tourPoints,
   onTourPointClick,
+  floorPlanPoints,
   centerX,
   centerY,
   minX,
@@ -122,17 +125,6 @@ const SceneContent: React.FC<{
   const wallThickness = 10;
   const doorDimensions = { width: 50, height: 100 };
   const windowDimensions = { width: 60, height: 50 };
-
-  const Roof = useMemo(() => {
-    if (!showRoof) return null;
-
-    return (
-      <mesh position={[0, wallHeight, 0]}>
-        <boxGeometry args={[maxX - minX, 2, maxY - minY]} />
-        <meshStandardMaterial map={textures.roof} side={DoubleSide} />
-      </mesh>
-    );
-  }, [showRoof, maxX, minX, maxY, minY, wallHeight, textures.roof]);
 
   const wallClassifications = useMemo(() => {
     const classifications: Record<string, WallClassification> = {};
@@ -198,10 +190,26 @@ const SceneContent: React.FC<{
     );
   }, [shapes]);
 
-  const { floorShape } = useMemo(
-    () => CreateBuildingShape(lines, centerX, centerY),
-    [lines, centerX, centerY],
-  );
+  const floorShape = useMemo(() => {
+    if (floorPlanPoints.length < 3) {
+      console.error("Not enough floor plan points to create a shape.");
+      return null;
+    }
+
+    const shape = new Shape();
+
+    const firstPoint = floorPlanPoints[0];
+    shape.moveTo(firstPoint.x - centerX, firstPoint.y - centerY);
+
+    for (let i = 1; i < floorPlanPoints.length; i++) {
+      const point = floorPlanPoints[i];
+      shape.lineTo(point.x - centerX, point.y - centerY);
+    }
+
+    shape.lineTo(firstPoint.x - centerX, firstPoint.y - centerY);
+
+    return shape;
+  }, [floorPlanPoints, centerX, centerY]);
 
   const Floor = useMemo(() => {
     if (!floorShape) {
@@ -209,41 +217,16 @@ const SceneContent: React.FC<{
       return null;
     }
 
-    const customUVGenerator = {
-      generateTopUV: function (
-        geometry: ExtrudeGeometry,
-        vertices: number[],
-        indexA: number,
-        indexB: number,
-        indexC: number,
-      ) {
-        const ax = vertices[indexA * 3];
-        const ay = vertices[indexA * 3 + 1];
-        const bx = vertices[indexB * 3];
-        const by = vertices[indexB * 3 + 1];
-        const cx = vertices[indexC * 3];
-        const cy = vertices[indexC * 3 + 1];
-        const scale = 1 / 100;
-        return [
-          new Vector2(ax * scale, ay * scale),
-          new Vector2(bx * scale, by * scale),
-          new Vector2(cx * scale, cy * scale),
-        ];
-      },
-
-      generateSideWallUV: function () {
-        return [new Vector2(), new Vector2(), new Vector2(), new Vector2()];
-      },
-    };
-
     const geometry = new ExtrudeGeometry(floorShape, {
       depth: 1,
       bevelEnabled: false,
-      UVGenerator: customUVGenerator,
     });
+
+    geometry.rotateX(Math.PI / 2);
+
     const floorTexture = textures.floor;
     floorTexture.wrapS = floorTexture.wrapT = RepeatWrapping;
-    const textureUnitSize = 1000;
+    const textureUnitSize = 100000;
     const floorWidth = maxX - minX;
     const floorHeight = maxY - minY;
     const textureRepeatX = floorWidth / textureUnitSize;
@@ -251,11 +234,29 @@ const SceneContent: React.FC<{
     floorTexture.repeat.set(textureRepeatX, textureRepeatY);
 
     return (
-      <mesh geometry={geometry} rotation={[Math.PI / 2, 0, 0]}>
+      <mesh geometry={geometry} position={[0, 0, 0]}>
         <meshStandardMaterial map={floorTexture} side={DoubleSide} />
       </mesh>
     );
-  }, [floorShape, textures.floor]);
+  }, [floorShape, textures.floor, minX, maxX, minY, maxY]);
+
+  const Roof = useMemo(() => {
+    if (!showRoof || !floorShape) return null;
+
+    const geometry = new ExtrudeGeometry(floorShape, {
+      depth: 1,
+      bevelEnabled: false,
+    });
+
+    geometry.rotateX(Math.PI / 2);
+    geometry.translate(0, wallHeight + 1, 0);
+
+    return (
+      <mesh geometry={geometry} position={[0, 0, 0]}>
+        <meshStandardMaterial map={textures.roof} side={DoubleSide} />
+      </mesh>
+    );
+  }, [showRoof, floorShape, wallHeight, textures.roof]);
 
   return (
     <>
@@ -295,15 +296,11 @@ const SceneContent: React.FC<{
         />
       ))}
 
+      {/* Roof  */}
       {Roof}
 
+      {/* Floor  */}
       {Floor}
-
-      {/* Floor */}
-      {/* <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[maxX - minX, maxY - minY]} />
-        <meshStandardMaterial map={textures.floor} />
-      </mesh> */}
 
       {/* Walls */}
       {lines.map((line) => {

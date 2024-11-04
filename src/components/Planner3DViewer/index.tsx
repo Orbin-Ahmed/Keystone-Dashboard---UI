@@ -22,6 +22,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   lines,
   shapes,
   roomNames,
+  floorPlanPoints,
   centerX,
   centerY,
   minX,
@@ -124,6 +125,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           showRoof={showRoof}
           tourPoints={tourPoints}
           onTourPointClick={handleTourPointClick}
+          floorPlanPoints={floorPlanPoints}
           centerX={centerX}
           centerY={centerY}
           minX={minX}
