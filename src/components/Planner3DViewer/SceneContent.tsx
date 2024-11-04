@@ -16,6 +16,7 @@ import {
   Vector2,
   DoubleSide,
   ExtrudeGeometry,
+  RepeatWrapping,
 } from "three";
 import { CSG } from "three-csg-ts";
 import Model from "./Model";
@@ -203,25 +204,56 @@ const SceneContent: React.FC<{
     [lines, centerX, centerY],
   );
 
-  // Floor
   const Floor = useMemo(() => {
     if (!floorShape) {
       console.log("No floor shape available");
       return null;
     }
-    console.log(floorShape);
+
+    const customUVGenerator = {
+      generateTopUV: function (
+        geometry: ExtrudeGeometry,
+        vertices: number[],
+        indexA: number,
+        indexB: number,
+        indexC: number,
+      ) {
+        const ax = vertices[indexA * 3];
+        const ay = vertices[indexA * 3 + 1];
+        const bx = vertices[indexB * 3];
+        const by = vertices[indexB * 3 + 1];
+        const cx = vertices[indexC * 3];
+        const cy = vertices[indexC * 3 + 1];
+        const scale = 1 / 100;
+        return [
+          new Vector2(ax * scale, ay * scale),
+          new Vector2(bx * scale, by * scale),
+          new Vector2(cx * scale, cy * scale),
+        ];
+      },
+
+      generateSideWallUV: function () {
+        return [new Vector2(), new Vector2(), new Vector2(), new Vector2()];
+      },
+    };
 
     const geometry = new ExtrudeGeometry(floorShape, {
       depth: 2,
       bevelEnabled: false,
+      UVGenerator: customUVGenerator,
     });
-
-    geometry.scale(1, -1, 1);
+    const floorTexture = textures.floor;
+    floorTexture.wrapS = floorTexture.wrapT = RepeatWrapping;
+    const textureUnitSize = 1000;
+    const floorWidth = maxX - minX;
+    const floorHeight = maxY - minY;
+    const textureRepeatX = floorWidth / textureUnitSize;
+    const textureRepeatY = floorHeight / textureUnitSize;
+    floorTexture.repeat.set(textureRepeatX, textureRepeatY);
 
     return (
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
-        <primitive object={geometry} />
-        <meshStandardMaterial map={textures.floor} side={DoubleSide} />
+      <mesh geometry={geometry} rotation={[Math.PI / 2, 0, 0]}>
+        <meshStandardMaterial map={floorTexture} side={DoubleSide} />
       </mesh>
     );
   }, [floorShape, textures.floor]);
