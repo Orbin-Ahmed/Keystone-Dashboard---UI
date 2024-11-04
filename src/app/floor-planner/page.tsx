@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
 import PlanEditorSideBar from "@/components/PlanEditor/PlanEditorSideBar";
 import useImage from "use-image";
@@ -315,37 +315,18 @@ const FloorPlanner = () => {
     );
   };
 
-  const calculateBounds = (lines: Line[]) => {
-    if (lines.length === 0) {
-      return {
-        centerX: 0,
-        centerY: 0,
-        minX: 0,
-        maxX: 0,
-        minY: 0,
-        maxY: 0,
-      };
-    }
-
+  const { centerX, centerY, minX, maxX, minY, maxY } = useMemo(() => {
     const allX = lines.flatMap((line) => [line.points[0], line.points[2]]);
     const allY = lines.flatMap((line) => [line.points[1], line.points[3]]);
-
-    const minX = Math.min(...allX);
-    const maxX = Math.max(...allX);
-    const minY = Math.min(...allY);
-    const maxY = Math.max(...allY);
-
     return {
-      minX,
-      maxX,
-      minY,
-      maxY,
-      centerX: (minX + maxX) / 2,
-      centerY: (minY + maxY) / 2,
+      minX: Math.min(...allX),
+      maxX: Math.max(...allX),
+      minY: Math.min(...allY),
+      maxY: Math.max(...allY),
+      centerX: (Math.min(...allX) + Math.max(...allX)) / 2,
+      centerY: (Math.min(...allY) + Math.max(...allY)) / 2,
     };
-  };
-
-  const { centerX, centerY, minX, maxX, minY, maxY } = calculateBounds(lines);
+  }, [lines]);
 
   useEffect(() => {
     const result = CreateBuildingShape(lines, centerX, centerY);
