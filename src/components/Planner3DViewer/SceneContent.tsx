@@ -21,9 +21,9 @@ import {
 } from "three";
 import { CSG } from "three-csg-ts";
 import Model from "./Model";
-import CameraController from "./CameraController";
-import RoomLabel from "./RoomLabel";
-import CreateFloorShape from "./createFloorShape";
+import CameraController from "@/components/Planner3DViewer/CameraController";
+import RoomLabel from "@/components/Planner3DViewer/RoomLabel";
+import CreateFloorShape from "@/components/Planner3DViewer/createFloorShape";
 
 const ensureWallPoints = (
   points: number[],
@@ -192,6 +192,7 @@ const SceneContent: React.FC<{
 
   const floorShape = useMemo(() => {
     const shape = CreateFloorShape(floorPlanPoints, centerX, centerY);
+    console.log("Hi");
     if (!shape) {
       console.error("Failed to create floor shape.");
       return null;

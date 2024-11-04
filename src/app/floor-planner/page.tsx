@@ -24,7 +24,7 @@ const FloorPlanner = () => {
   const [tool, setTool] = useState<
     "wall" | "window" | "door" | "moveWall" | "floorPoint" | null
   >(null);
-  const [showDimensions, setShowDimensions] = useState(true);
+  const [showDimensions, setShowDimensions] = useState(false);
   const [viewMode, setViewMode] = useState<"2D" | "3D">("3D");
 
   const [selectedWall, setSelectedWall] = useState<string | null>(null);

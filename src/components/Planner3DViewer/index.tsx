@@ -2,8 +2,8 @@ import React, { useMemo, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { LineData, RoomName, ShapeData, TourPoint } from "@/types";
 import { PerspectiveCamera } from "three";
-import CustomButton from "../CustomButton";
-import SceneContent from "./SceneContent";
+import CustomButton from "@/components/CustomButton";
+import SceneContent from "@/components/Planner3DViewer/SceneContent";
 
 interface Plan3DViewerProps {
   lines: LineData[];
