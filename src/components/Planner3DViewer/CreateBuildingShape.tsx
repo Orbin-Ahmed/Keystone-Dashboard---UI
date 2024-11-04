@@ -233,12 +233,12 @@ const CreateBuildingShape = (
     const [x1, y1] = reversed
       ? [line.points[2], line.points[3]]
       : [line.points[0], line.points[1]];
-    return [x1 - centerX, y1 - centerY] as [number, number];
+    return { x: x1 - centerX, y: y1 - centerY };
   });
 
   return {
     floorShape,
-    outerWallPoints,
+    floorPlanPoints: outerWallPoints,
   };
 };
 

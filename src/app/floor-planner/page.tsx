@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
 import PlanEditorSideBar from "@/components/PlanEditor/PlanEditorSideBar";
 import useImage from "use-image";
@@ -7,6 +7,7 @@ import { Line, ShapeType } from "@/types";
 import { detectWallPosition } from "@/api";
 import { uid } from "uid";
 import Konva from "konva";
+import CreateBuildingShape from "@/components/Planner3DViewer/CreateBuildingShape";
 
 const PlanEditor = dynamic(() => import("@/components/PlanEditor"), {
   ssr: false,
@@ -314,10 +315,56 @@ const FloorPlanner = () => {
     );
   };
 
+  const calculateBounds = (lines: Line[]) => {
+    if (lines.length === 0) {
+      return {
+        centerX: 0,
+        centerY: 0,
+        minX: 0,
+        maxX: 0,
+        minY: 0,
+        maxY: 0,
+      };
+    }
+
+    const allX = lines.flatMap((line) => [line.points[0], line.points[2]]);
+    const allY = lines.flatMap((line) => [line.points[1], line.points[3]]);
+
+    const minX = Math.min(...allX);
+    const maxX = Math.max(...allX);
+    const minY = Math.min(...allY);
+    const maxY = Math.max(...allY);
+
+    return {
+      minX,
+      maxX,
+      minY,
+      maxY,
+      centerX: (minX + maxX) / 2,
+      centerY: (minY + maxY) / 2,
+    };
+  };
+
+  const { centerX, centerY } = calculateBounds(lines);
+
+  useEffect(() => {
+    const result = CreateBuildingShape(lines, centerX, centerY);
+
+    if (result.floorPlanPoints.length > 0) {
+      const formattedFloorPlanPoints = result.floorPlanPoints.map((point) => ({
+        x: point.x + centerX,
+        y: point.y + centerY,
+        id: uid(),
+      }));
+      setFloorPlanPoints(formattedFloorPlanPoints);
+    } else {
+      setFloorPlanPoints([]);
+    }
+  }, [lines, centerX, centerY]);
+
   if (!windowImage || !doorImage) {
     return <div>Loading...</div>;
   }
-
   return (
     <div className="editor-container">
       <PlanEditorSideBar
