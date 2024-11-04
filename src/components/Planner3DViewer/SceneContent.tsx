@@ -45,6 +45,12 @@ const SceneContent: React.FC<{
   showRoof: boolean;
   tourPoints: TourPoint[];
   onTourPointClick: (point: TourPoint) => void;
+  centerX: number;
+  centerY: number;
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
 }> = ({
   lines,
   shapes,
@@ -57,6 +63,12 @@ const SceneContent: React.FC<{
   showRoof,
   tourPoints,
   onTourPointClick,
+  centerX,
+  centerY,
+  minX,
+  maxX,
+  minY,
+  maxY,
 }) => {
   const { scene } = useThree();
 
@@ -111,18 +123,18 @@ const SceneContent: React.FC<{
   const doorDimensions = { width: 50, height: 100 };
   const windowDimensions = { width: 60, height: 50 };
 
-  const { centerX, centerY, minX, maxX, minY, maxY } = useMemo(() => {
-    const allX = lines.flatMap((line) => [line.points[0], line.points[2]]);
-    const allY = lines.flatMap((line) => [line.points[1], line.points[3]]);
-    return {
-      minX: Math.min(...allX),
-      maxX: Math.max(...allX),
-      minY: Math.min(...allY),
-      maxY: Math.max(...allY),
-      centerX: (Math.min(...allX) + Math.max(...allX)) / 2,
-      centerY: (Math.min(...allY) + Math.max(...allY)) / 2,
-    };
-  }, [lines]);
+  // const { centerX, centerY, minX, maxX, minY, maxY } = useMemo(() => {
+  //   const allX = lines.flatMap((line) => [line.points[0], line.points[2]]);
+  //   const allY = lines.flatMap((line) => [line.points[1], line.points[3]]);
+  //   return {
+  //     minX: Math.min(...allX),
+  //     maxX: Math.max(...allX),
+  //     minY: Math.min(...allY),
+  //     maxY: Math.max(...allY),
+  //     centerX: (Math.min(...allX) + Math.max(...allX)) / 2,
+  //     centerY: (Math.min(...allY) + Math.max(...allY)) / 2,
+  //   };
+  // }, [lines]);
 
   const Roof = useMemo(() => {
     if (!showRoof) return null;

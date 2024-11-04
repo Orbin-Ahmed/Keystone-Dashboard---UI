@@ -10,12 +10,24 @@ interface Plan3DViewerProps {
   shapes: ShapeData[];
   roomNames: RoomName[];
   floorPlanPoints: { id: string; x: number; y: number }[];
+  centerX: number;
+  centerY: number;
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
 }
 
 const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   lines,
   shapes,
   roomNames,
+  centerX,
+  centerY,
+  minX,
+  maxX,
+  minY,
+  maxY,
 }) => {
   const [activeTourPoint, setActiveTourPoint] = useState<TourPoint | null>(
     null,
@@ -112,6 +124,12 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           showRoof={showRoof}
           tourPoints={tourPoints}
           onTourPointClick={handleTourPointClick}
+          centerX={centerX}
+          centerY={centerY}
+          minX={minX}
+          maxX={maxX}
+          minY={minY}
+          maxY={maxY}
         />
       </Canvas>
 

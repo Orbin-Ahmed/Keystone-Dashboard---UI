@@ -345,7 +345,7 @@ const FloorPlanner = () => {
     };
   };
 
-  const { centerX, centerY } = calculateBounds(lines);
+  const { centerX, centerY, minX, maxX, minY, maxY } = calculateBounds(lines);
 
   useEffect(() => {
     const result = CreateBuildingShape(lines, centerX, centerY);
@@ -386,6 +386,12 @@ const FloorPlanner = () => {
           shapes={shapes}
           roomNames={roomNames}
           floorPlanPoints={floorPlanPoints}
+          centerX={centerX}
+          centerY={centerY}
+          minX={minX}
+          maxX={maxX}
+          minY={minY}
+          maxY={maxY}
         />
       ) : (
         <PlanEditor
