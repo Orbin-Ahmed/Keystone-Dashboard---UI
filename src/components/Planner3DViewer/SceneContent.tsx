@@ -222,13 +222,13 @@ const SceneContent: React.FC<{
 
   const floorShape = useMemo(() => {
     const shape = CreateFloorShape(floorPlanPoints, centerX, centerY);
-    console.log("Hi");
+    console.log(shape);
     if (!shape) {
       console.error("Failed to create floor shape.");
       return null;
     }
     return shape;
-  }, [floorPlanPoints, centerX, centerY]);
+  }, [floorPlanPoints]);
 
   const Floor = useMemo(() => {
     if (!floorShape) {
@@ -257,7 +257,7 @@ const SceneContent: React.FC<{
         <meshStandardMaterial map={floorTexture} side={DoubleSide} />
       </mesh>
     );
-  }, [floorShape, textures.floor, minX, maxX, minY, maxY]);
+  }, [floorShape]);
 
   const Roof = useMemo(() => {
     if (!showRoof || !floorShape) return null;
@@ -275,7 +275,7 @@ const SceneContent: React.FC<{
         <meshStandardMaterial map={textures.roof} side={DoubleSide} />
       </mesh>
     );
-  }, [showRoof, floorShape, wallHeight, textures.roof]);
+  }, [floorShape]);
 
   return (
     <>

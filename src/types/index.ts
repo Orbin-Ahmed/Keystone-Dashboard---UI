@@ -270,3 +270,9 @@ export interface WallClassification {
   isOuter: boolean;
   isFacingInward: boolean;
 }
+
+export interface FloorPlanPoint {
+  id: string;
+  x: number;
+  y: number;
+}

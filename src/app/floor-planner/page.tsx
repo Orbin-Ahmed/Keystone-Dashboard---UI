@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
 import PlanEditorSideBar from "@/components/PlanEditor/PlanEditorSideBar";
 import useImage from "use-image";
-import { Line, ShapeType } from "@/types";
+import { FloorPlanPoint, Line, ShapeType } from "@/types";
 import { detectWallPosition } from "@/api";
 import { uid } from "uid";
 import CreateBuildingShape from "@/components/PlanEditor/CreateBuildingShape";
@@ -78,10 +78,17 @@ const FloorPlanner = () => {
       name: room.name,
     }));
 
+    const floorPlanPointsToSave = floorPlanPoints.map((point) => ({
+      id: point.id,
+      x: point.x,
+      y: point.y,
+    }));
+
     const dataStr = JSON.stringify({
       lines,
       shapes: shapesToSave,
       roomNames: roomNamesToSave,
+      floorPlanPoints: floorPlanPointsToSave,
     });
 
     const dataUri =
@@ -223,6 +230,18 @@ const FloorPlanner = () => {
             },
           );
           setRoomNames(loadedRoomNames);
+          if (data.floorPlanPoints && data.floorPlanPoints.length > 0) {
+            const loadedFloorPlanPoints = data.floorPlanPoints.map(
+              (point: { id: string; x: number; y: number }) => ({
+                id: point.id || uid(),
+                x: point.x,
+                y: point.y,
+              }),
+            );
+            setFloorPlanPoints(loadedFloorPlanPoints);
+          } else {
+            setFloorPlanPoints([]);
+          }
         } catch (err) {
           console.error("Failed to load design:", err);
         }
@@ -327,18 +346,49 @@ const FloorPlanner = () => {
     };
   }, [lines]);
 
+  const mergeFloorPlanPoints = (
+    existingPoints: FloorPlanPoint[],
+    newPoints: { x: number; y: number }[],
+  ): FloorPlanPoint[] => {
+    const tolerance = 10;
+
+    const mergedPoints = [...existingPoints];
+
+    newPoints.forEach((newPoint) => {
+      const exists = existingPoints.some((existingPoint) => {
+        const dx = existingPoint.x - newPoint.x;
+        const dy = existingPoint.y - newPoint.y;
+        return dx * dx + dy * dy <= tolerance * tolerance;
+      });
+
+      if (!exists) {
+        mergedPoints.push({
+          ...newPoint,
+          id: uid(),
+        });
+      }
+    });
+
+    return mergedPoints;
+  };
+
   useEffect(() => {
     const result = CreateBuildingShape(lines, centerX, centerY);
 
     if (result.floorPlanPoints.length > 0) {
-      const formattedFloorPlanPoints = result.floorPlanPoints.map((point) => ({
+      const newPoints = result.floorPlanPoints.map((point) => ({
         x: point.x + centerX,
         y: point.y + centerY,
         id: uid(),
       }));
-      setFloorPlanPoints(formattedFloorPlanPoints);
-    } else {
-      setFloorPlanPoints([]);
+
+      setFloorPlanPoints((prevFloorPlanPoints) => {
+        const mergedPoints = mergeFloorPlanPoints(
+          prevFloorPlanPoints,
+          newPoints,
+        );
+        return mergedPoints;
+      });
     }
   }, [lines, centerX, centerY]);
 
