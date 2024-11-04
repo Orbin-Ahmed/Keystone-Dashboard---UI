@@ -10,10 +10,10 @@ const CreateFloorShape = (
   floorPlanPoints: Point[],
   centerX: number,
   centerY: number,
-): Shape => {
+) => {
   if (floorPlanPoints.length < 3) {
     console.error("Not enough floor plan points to create a shape.");
-    throw new Error("At least 3 points are required to create a floor shape");
+    return null;
   }
 
   const shape = new Shape();

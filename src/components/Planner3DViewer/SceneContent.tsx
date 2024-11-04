@@ -191,34 +191,13 @@ const SceneContent: React.FC<{
   }, [shapes]);
 
   const floorShape = useMemo(() => {
-    if (floorPlanPoints.length < 3) {
-      console.error("Not enough floor plan points to create a shape.");
+    const shape = CreateFloorShape(floorPlanPoints, centerX, centerY);
+    if (!shape) {
+      console.error("Failed to create floor shape.");
       return null;
     }
-
-    const shape = new Shape();
-
-    const firstPoint = floorPlanPoints[0];
-    shape.moveTo(firstPoint.x - centerX, firstPoint.y - centerY);
-
-    for (let i = 1; i < floorPlanPoints.length; i++) {
-      const point = floorPlanPoints[i];
-      shape.lineTo(point.x - centerX, point.y - centerY);
-    }
-
-    shape.lineTo(firstPoint.x - centerX, firstPoint.y - centerY);
-
     return shape;
   }, [floorPlanPoints, centerX, centerY]);
-
-  // const floorShape = useMemo(() => {
-  //   try {
-  //     return CreateFloorShape(floorPlanPoints, centerX, centerY);
-  //   } catch (error) {
-  //     console.error("Failed to create floor shape:", error);
-  //     return null;
-  //   }
-  // }, [floorPlanPoints, centerX, centerY]);
 
   const Floor = useMemo(() => {
     if (!floorShape) {
