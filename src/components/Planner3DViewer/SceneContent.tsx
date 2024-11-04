@@ -238,7 +238,7 @@ const SceneContent: React.FC<{
     };
 
     const geometry = new ExtrudeGeometry(floorShape, {
-      depth: 2,
+      depth: 1,
       bevelEnabled: false,
       UVGenerator: customUVGenerator,
     });

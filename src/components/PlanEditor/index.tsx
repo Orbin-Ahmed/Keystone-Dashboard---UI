@@ -7,6 +7,7 @@ import {
   Image as KonvaImage,
   Arrow,
   Group,
+  Circle,
 } from "react-konva";
 import useImage from "use-image";
 import { Text } from "react-konva";
@@ -37,7 +38,8 @@ const PlanEditor = ({
   setLines,
   windowImage,
   doorImage,
-  viewMode,
+  setFloorPlanPoints,
+  floorPlanPoints,
   roomNames,
   setRoomNames,
   addRoomName,
@@ -124,6 +126,10 @@ const PlanEditor = ({
     return closestLineId;
   };
 
+  const addFloorPlanPoint = (x: number, y: number) => {
+    setFloorPlanPoints((prevPoints) => [...prevPoints, { id: uid(), x, y }]);
+  };
+
   const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
     const clickedOnEmpty = e.target === e.target.getStage();
     if (clickedOnEmpty) {
@@ -149,6 +155,8 @@ const PlanEditor = ({
           addShape(tool, x, y, angle, closestLineId);
         }
       }
+    } else if (tool === "floorPoint") {
+      addFloorPlanPoint(pos.x, pos.y);
     }
   };
 
@@ -707,7 +715,6 @@ const PlanEditor = ({
                 />
                 {selectedShape === shape.id && (
                   <>
-                    {/* Replace Circles with Icons */}
                     <KonvaImage
                       image={rotateIcon}
                       x={shape.x + shape.width + 10}
@@ -727,6 +734,32 @@ const PlanEditor = ({
                   </>
                 )}
               </React.Fragment>
+            ))}
+            {floorPlanPoints.map((point) => (
+              <Group
+                key={point.id}
+                draggable
+                onDragEnd={(e) => {
+                  const newX = e.target.x();
+                  const newY = e.target.y();
+                  setFloorPlanPoints((prevPoints) =>
+                    prevPoints.map((p) =>
+                      p.id === point.id ? { ...p, x: newX, y: newY } : p,
+                    ),
+                  );
+                }}
+                onClick={() => {}}
+              >
+                <Circle
+                  x={point.x}
+                  y={point.y}
+                  radius={5}
+                  fill="red"
+                  stroke="black"
+                  strokeWidth={1}
+                  draggable={false}
+                />
+              </Group>
             ))}
             {roomNames.map((room, index) => (
               <React.Fragment key={room.id}>

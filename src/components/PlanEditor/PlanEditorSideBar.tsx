@@ -2,9 +2,11 @@ import React from "react";
 import CustomButton from "../CustomButton";
 
 interface SidebarProps {
-  tool: "wall" | "window" | "door" | "moveWall" | null;
+  tool: "wall" | "window" | "door" | "moveWall" | "floorPoint" | null;
   setTool: React.Dispatch<
-    React.SetStateAction<"wall" | "window" | "door" | "moveWall" | null>
+    React.SetStateAction<
+      "wall" | "window" | "door" | "moveWall" | "floorPoint" | null
+    >
   >;
   showDimensions: boolean;
   setShowDimensions: React.Dispatch<React.SetStateAction<boolean>>;
@@ -85,6 +87,17 @@ const PlanEditorSideBar: React.FC<SidebarProps> = ({
       {/* 3D Conversion Button */}
       <CustomButton variant="secondary" onClick={toggleViewMode}>
         {viewMode}
+      </CustomButton>
+      {/* ... Floor Point */}
+      <CustomButton
+        variant={tool === "floorPoint" ? "primary" : "secondary"}
+        onClick={() => {
+          setTool("floorPoint");
+          setSelectedShape(null);
+          setSelectedWall(null);
+        }}
+      >
+        Floor Point
       </CustomButton>
       {/* Download and Upload Buttons */}
       <CustomButton variant="secondary" onClick={handleDownload}>

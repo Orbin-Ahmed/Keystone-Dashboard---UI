@@ -6,6 +6,7 @@ import useImage from "use-image";
 import { Line, ShapeType } from "@/types";
 import { detectWallPosition } from "@/api";
 import { uid } from "uid";
+import Konva from "konva";
 
 const PlanEditor = dynamic(() => import("@/components/PlanEditor"), {
   ssr: false,
@@ -21,14 +22,16 @@ let roomIdCounter = 0;
 
 const FloorPlanner = () => {
   const [tool, setTool] = useState<
-    "wall" | "window" | "door" | "moveWall" | null
+    "wall" | "window" | "door" | "moveWall" | "floorPoint" | null
   >(null);
   const [showDimensions, setShowDimensions] = useState(true);
   const [viewMode, setViewMode] = useState<"2D" | "3D">("3D");
 
   const [selectedWall, setSelectedWall] = useState<string | null>(null);
   const [selectedShape, setSelectedShape] = useState<string | null>(null);
-
+  const [floorPlanPoints, setFloorPlanPoints] = useState<
+    { id: string; x: number; y: number }[]
+  >([]);
   const [roomNames, setRoomNames] = useState<
     { id: number; x: number; y: number; name: string; offsetX: number }[]
   >([]);
@@ -346,6 +349,8 @@ const FloorPlanner = () => {
           setShapes={setShapes}
           lines={lines}
           setLines={setLines}
+          floorPlanPoints={floorPlanPoints}
+          setFloorPlanPoints={setFloorPlanPoints}
           windowImage={windowImage}
           doorImage={doorImage}
           viewMode={viewMode}

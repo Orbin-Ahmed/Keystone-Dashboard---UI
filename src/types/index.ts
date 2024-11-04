@@ -1,5 +1,3 @@
-import { Shape } from "three";
-
 export interface ImageFile {
   readonly file: File;
   readonly filename?: string;
@@ -171,9 +169,11 @@ export interface ShapeType {
 }
 
 export interface PlanEditorProps {
-  tool: "wall" | "window" | "door" | "moveWall" | null;
+  tool: "wall" | "window" | "door" | "moveWall" | "floorPoint" | null;
   setTool: React.Dispatch<
-    React.SetStateAction<"wall" | "window" | "door" | "moveWall" | null>
+    React.SetStateAction<
+      "wall" | "window" | "door" | "moveWall" | "floorPoint" | null
+    >
   >;
   showDimensions: boolean;
   setShowDimensions: React.Dispatch<React.SetStateAction<boolean>>;
@@ -181,6 +181,10 @@ export interface PlanEditorProps {
   setSelectedShape: React.Dispatch<React.SetStateAction<string | null>>;
   selectedWall: string | null;
   setSelectedWall: React.Dispatch<React.SetStateAction<string | null>>;
+  floorPlanPoints: { id: string; x: number; y: number }[];
+  setFloorPlanPoints: React.Dispatch<
+    React.SetStateAction<{ id: string; x: number; y: number }[]>
+  >;
   roomNames: {
     id: number;
     x: number;
