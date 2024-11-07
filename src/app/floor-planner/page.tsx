@@ -194,7 +194,7 @@ const FloorPlanner = () => {
       reader.onload = (event) => {
         try {
           const data = JSON.parse(event.target?.result as string);
-
+          // Line Start
           const connectedLines = connectCloseLinesByExtending(data.lines);
 
           const linesWithThickness = connectedLines.map((line: Line) => {
@@ -204,9 +204,10 @@ const FloorPlanner = () => {
               thickness: line.thickness || 8,
             };
           });
-
           setLines(linesWithThickness || []);
+          // Line End
 
+          // Shape Start
           const loadedShapes = data.shapes.map((shape: ShapeType) => {
             let image = null;
             if (shape.type === "window") {
@@ -218,7 +219,9 @@ const FloorPlanner = () => {
           });
 
           setShapes(loadedShapes || []);
+          // Shape End
 
+          // Room Name start
           const loadedRoomNames = (data.roomNames || []).map(
             (room: { x: number; y: number; name: string }) => {
               const textWidth = measureTextWidth(room.name);
@@ -230,6 +233,9 @@ const FloorPlanner = () => {
             },
           );
           setRoomNames(loadedRoomNames);
+          // Room name end
+
+          // Floor Points
           if (data.floorPlanPoints && data.floorPlanPoints.length > 0) {
             const loadedFloorPlanPoints = data.floorPlanPoints.map(
               (point: { id: string; x: number; y: number }) => ({
@@ -240,8 +246,34 @@ const FloorPlanner = () => {
             );
             setFloorPlanPoints(loadedFloorPlanPoints);
           } else {
-            setFloorPlanPoints([]);
+            const allPoints = linesWithThickness.flatMap((line) => [
+              { x: line.points[0], y: line.points[1] },
+              { x: line.points[2], y: line.points[3] },
+            ]);
+
+            const calculatedCenterX =
+              allPoints.reduce((sum, point) => sum + point.x, 0) /
+              (allPoints.length || 1);
+            const calculatedCenterY =
+              allPoints.reduce((sum, point) => sum + point.y, 0) /
+              (allPoints.length || 1);
+            const result = CreateBuildingShape(
+              linesWithThickness,
+              calculatedCenterX,
+              calculatedCenterY,
+            );
+
+            if (result.floorPlanPoints.length > 0) {
+              const newPoints = result.floorPlanPoints.map((point) => ({
+                x: point.x + calculatedCenterX,
+                y: point.y + calculatedCenterY,
+                id: uid(),
+              }));
+
+              setFloorPlanPoints(newPoints);
+            }
           }
+          // Floor Points end
         } catch (err) {
           console.error("Failed to load design:", err);
         }
@@ -372,25 +404,29 @@ const FloorPlanner = () => {
     return mergedPoints;
   };
 
-  useEffect(() => {
-    const result = CreateBuildingShape(lines, centerX, centerY);
+  // useEffect(() => {
+  //   const result = CreateBuildingShape(lines, centerX, centerY);
 
-    if (result.floorPlanPoints.length > 0) {
-      const newPoints = result.floorPlanPoints.map((point) => ({
-        x: point.x + centerX,
-        y: point.y + centerY,
-        id: uid(),
-      }));
+  //   if (result.floorPlanPoints.length > 0) {
+  //     const newPoints = result.floorPlanPoints.map((point) => ({
+  //       x: point.x + centerX,
+  //       y: point.y + centerY,
+  //       id: uid(),
+  //     }));
 
-      setFloorPlanPoints((prevFloorPlanPoints) => {
-        const mergedPoints = mergeFloorPlanPoints(
-          prevFloorPlanPoints,
-          newPoints,
-        );
-        return mergedPoints;
-      });
-    }
-  }, [lines, centerX, centerY]);
+  //     setFloorPlanPoints((prevFloorPlanPoints) => {
+  //       const mergedPoints = mergeFloorPlanPoints(
+  //         prevFloorPlanPoints,
+  //         newPoints,
+  //       );
+  //       return mergedPoints;
+  //     });
+  //   }
+  // }, [lines, centerX, centerY]);
+
+  // useEffect(() => {
+  //   console.log(floorPlanPoints);
+  // }, [floorPlanPoints]);
 
   if (!windowImage || !doorImage) {
     return <div>Loading...</div>;
