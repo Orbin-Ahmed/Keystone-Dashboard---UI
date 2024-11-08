@@ -678,7 +678,7 @@ const PlanEditor = ({
                     strokeWidth={line.thickness || 8}
                   />
                 </Group>
-                <Text
+                {/* <Text
                   key={`id-${line.id}`}
                   text={`ID: ${line.id}`}
                   x={(line.points[0] + line.points[2]) / 2 - 20}
@@ -693,7 +693,7 @@ const PlanEditor = ({
                       180) /
                     Math.PI
                   }
-                />
+                /> */}
                 {selectedWall === line.id && (
                   <KonvaImage
                     image={deleteIcon}
@@ -747,8 +747,8 @@ const PlanEditor = ({
             ))}
             {floorPlanPoints.map((point) => (
               <Group
+                draggable={tool === "floorPoint"}
                 key={point.id}
-                draggable
                 x={point.x}
                 y={point.y}
                 onDragEnd={(e) => {
@@ -772,7 +772,7 @@ const PlanEditor = ({
                   radius={5}
                   fill="red"
                   stroke="black"
-                  strokeWidth={1}
+                  strokeWidth={2}
                 />
                 {selectedFloorPoint === point.id && (
                   <KonvaImage
