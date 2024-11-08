@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from "react";
+import React, { useMemo, useEffect, useState } from "react";
 import { useLoader, useThree } from "@react-three/fiber";
 import {
   LineData,
@@ -104,6 +104,9 @@ const SceneContent: React.FC<{
   maxY,
 }) => {
   const { scene } = useThree();
+  const [selectedDoorModel, setSelectedDoorModel] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
     return () => {
@@ -222,7 +225,6 @@ const SceneContent: React.FC<{
 
   const floorShape = useMemo(() => {
     const shape = CreateFloorShape(floorPlanPoints, centerX, centerY);
-    console.log(shape);
     if (!shape) {
       console.error("Failed to create floor shape.");
       return null;
@@ -275,7 +277,11 @@ const SceneContent: React.FC<{
         <meshStandardMaterial map={textures.roof} side={DoubleSide} />
       </mesh>
     );
-  }, [floorShape]);
+  }, [floorShape, showRoof]);
+
+  const handleDoorClick = (modelPath: string) => {
+    setSelectedDoorModel(modelPath);
+  };
 
   return (
     <>
