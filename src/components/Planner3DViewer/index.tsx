@@ -246,10 +246,10 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
                 Standard Window
               </CustomButton>
               <CustomButton
-                onClick={() => handleModelChange("window/window_arch.glb")}
+                onClick={() => handleModelChange("window/window_slide.glb")}
                 className="mb-2 w-full text-left"
               >
-                Arch Window
+                Slide Window
               </CustomButton>
             </>
           )}
