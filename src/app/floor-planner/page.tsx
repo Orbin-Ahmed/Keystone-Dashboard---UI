@@ -246,32 +246,33 @@ const FloorPlanner = () => {
             );
             setFloorPlanPoints(loadedFloorPlanPoints);
           } else {
-            const allPoints = linesWithThickness.flatMap((line) => [
-              { x: line.points[0], y: line.points[1] },
-              { x: line.points[2], y: line.points[3] },
-            ]);
+            setFloorPlanPoints([]);
+            // const allPoints = linesWithThickness.flatMap((line) => [
+            //   { x: line.points[0], y: line.points[1] },
+            //   { x: line.points[2], y: line.points[3] },
+            // ]);
 
-            const calculatedCenterX =
-              allPoints.reduce((sum, point) => sum + point.x, 0) /
-              (allPoints.length || 1);
-            const calculatedCenterY =
-              allPoints.reduce((sum, point) => sum + point.y, 0) /
-              (allPoints.length || 1);
-            const result = CreateBuildingShape(
-              linesWithThickness,
-              calculatedCenterX,
-              calculatedCenterY,
-            );
+            // const calculatedCenterX =
+            //   allPoints.reduce((sum, point) => sum + point.x, 0) /
+            //   (allPoints.length || 1);
+            // const calculatedCenterY =
+            //   allPoints.reduce((sum, point) => sum + point.y, 0) /
+            //   (allPoints.length || 1);
+            // const result = CreateBuildingShape(
+            //   linesWithThickness,
+            //   calculatedCenterX,
+            //   calculatedCenterY,
+            // );
 
-            if (result.floorPlanPoints.length > 0) {
-              const newPoints = result.floorPlanPoints.map((point) => ({
-                x: point.x + calculatedCenterX,
-                y: point.y + calculatedCenterY,
-                id: uid(),
-              }));
+            // if (result.floorPlanPoints.length > 0) {
+            //   const newPoints = result.floorPlanPoints.map((point) => ({
+            //     x: point.x + calculatedCenterX,
+            //     y: point.y + calculatedCenterY,
+            //     id: uid(),
+            //   }));
 
-              setFloorPlanPoints(newPoints);
-            }
+            //   setFloorPlanPoints(newPoints);
+            // }
           }
           // Floor Points end
         } catch (err) {
@@ -378,31 +379,31 @@ const FloorPlanner = () => {
     };
   }, [lines]);
 
-  const mergeFloorPlanPoints = (
-    existingPoints: FloorPlanPoint[],
-    newPoints: { x: number; y: number }[],
-  ): FloorPlanPoint[] => {
-    const tolerance = 10;
+  // const mergeFloorPlanPoints = (
+  //   existingPoints: FloorPlanPoint[],
+  //   newPoints: { x: number; y: number }[],
+  // ): FloorPlanPoint[] => {
+  //   const tolerance = 10;
 
-    const mergedPoints = [...existingPoints];
+  //   const mergedPoints = [...existingPoints];
 
-    newPoints.forEach((newPoint) => {
-      const exists = existingPoints.some((existingPoint) => {
-        const dx = existingPoint.x - newPoint.x;
-        const dy = existingPoint.y - newPoint.y;
-        return dx * dx + dy * dy <= tolerance * tolerance;
-      });
+  //   newPoints.forEach((newPoint) => {
+  //     const exists = existingPoints.some((existingPoint) => {
+  //       const dx = existingPoint.x - newPoint.x;
+  //       const dy = existingPoint.y - newPoint.y;
+  //       return dx * dx + dy * dy <= tolerance * tolerance;
+  //     });
 
-      if (!exists) {
-        mergedPoints.push({
-          ...newPoint,
-          id: uid(),
-        });
-      }
-    });
+  //     if (!exists) {
+  //       mergedPoints.push({
+  //         ...newPoint,
+  //         id: uid(),
+  //       });
+  //     }
+  //   });
 
-    return mergedPoints;
-  };
+  //   return mergedPoints;
+  // };
 
   // useEffect(() => {
   //   const result = CreateBuildingShape(lines, centerX, centerY);
