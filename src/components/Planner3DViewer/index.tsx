@@ -38,6 +38,10 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [showRoof, setShowRoof] = useState(false);
   const cameraRef = useRef<PerspectiveCamera | null>(null);
   const [isTourOpen, setIsTourOpen] = useState(false);
+  const [selectedShape, setSelectedShape] = useState<ShapeData | null>(null);
+  const [modelPathsByShapeId, setModelPathsByShapeId] = useState<
+    Record<string, string>
+  >({});
 
   const EYE_LEVEL = 70;
 
@@ -108,6 +112,25 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     setIsTourOpen((prev) => !prev);
   };
 
+  const handleModelClick = (shape: ShapeData) => {
+    setSelectedShape(shape);
+    setIsTourOpen(false);
+  };
+
+  const handleModelChange = (newModelPath: string) => {
+    if (selectedShape) {
+      setModelPathsByShapeId((prev) => ({
+        ...prev,
+        [selectedShape.id]: newModelPath,
+      }));
+      setSelectedShape(null);
+    }
+  };
+
+  const handleCloseSidebar = () => {
+    setSelectedShape(null);
+  };
+
   return (
     <>
       <Canvas
@@ -137,50 +160,94 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           maxX={maxX}
           minY={minY}
           maxY={maxY}
+          onModelClick={handleModelClick}
+          modelPathsByShapeId={modelPathsByShapeId}
         />
       </Canvas>
+      {!selectedShape && (
+        <>
+          {/* UI Controls */}
+          <div className="absolute right-4 top-4">
+            <CustomButton variant="primary" onClick={toggleTourList}>
+              {isTourOpen ? "Hide Tour Points" : "Show Tour Points"}
+            </CustomButton>
 
-      {/* UI Controls */}
-      <div className="absolute right-4 top-4">
-        <CustomButton variant="primary" onClick={toggleTourList}>
-          {isTourOpen ? "Hide Tour Points" : "Show Tour Points"}
-        </CustomButton>
-
-        {/* Tour Points List */}
-        {isTourOpen && (
-          <div className="mt-4 rounded-lg bg-white p-4 shadow-lg">
-            <h3 className="text-lg font-bold">Virtual Tour</h3>
-            <div className="flex flex-col gap-2">
-              {tourPoints.map((point) => (
-                <CustomButton
-                  key={point.id}
-                  variant={
-                    activeTourPoint?.id === point.id ? "primary" : "secondary"
-                  }
-                  onClick={() => handleTourPointClick(point)}
-                >
-                  {point.title}
-                </CustomButton>
-              ))}
-              {activeTourPoint && (
-                <CustomButton variant="secondary" onClick={handleExitTour}>
-                  Exit Tour
-                </CustomButton>
-              )}
-            </div>
+            {/* Tour Points List */}
+            {isTourOpen && (
+              <div className="mt-4 rounded-lg bg-white p-4 shadow-lg">
+                <h3 className="text-lg font-bold">Virtual Tour</h3>
+                <div className="flex flex-col gap-2">
+                  {tourPoints.map((point) => (
+                    <CustomButton
+                      key={point.id}
+                      variant={
+                        activeTourPoint?.id === point.id
+                          ? "primary"
+                          : "secondary"
+                      }
+                      onClick={() => handleTourPointClick(point)}
+                    >
+                      {point.title}
+                    </CustomButton>
+                  ))}
+                  {activeTourPoint && (
+                    <CustomButton variant="secondary" onClick={handleExitTour}>
+                      Exit Tour
+                    </CustomButton>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
-        )}
-      </div>
 
-      {/* Zoom Controls */}
-      {!isTourOpen && (
-        <div className="absolute bottom-4 right-4 flex gap-2">
-          <CustomButton variant="secondary" onClick={handleZoomIn}>
-            Zoom In
-          </CustomButton>
-          <CustomButton variant="secondary" onClick={handleZoomOut}>
-            Zoom Out
-          </CustomButton>
+          {/* Zoom Controls */}
+          {!isTourOpen && (
+            <div className="absolute bottom-4 right-4 flex gap-2">
+              <CustomButton variant="secondary" onClick={handleZoomIn}>
+                Zoom In
+              </CustomButton>
+              <CustomButton variant="secondary" onClick={handleZoomOut}>
+                Zoom Out
+              </CustomButton>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Sidebar for Model Selection */}
+      {selectedShape && (
+        <div className="sidebar">
+          {/* Sidebar content for model selection */}
+          <h3>Select a {selectedShape.type} Model</h3>
+          {/* Options based on selectedShape.type */}
+          {selectedShape.type === "door" ? (
+            <>
+              <CustomButton onClick={() => handleModelChange("door/door.glb")}>
+                Glass Door
+              </CustomButton>
+              <CustomButton
+                onClick={() => handleModelChange("door/door_wooden.glb")}
+              >
+                Wooden Door
+              </CustomButton>
+            </>
+          ) : (
+            <>
+              <CustomButton
+                onClick={() =>
+                  handleModelChange("window/window_twin_casement.glb")
+                }
+              >
+                Standard Window
+              </CustomButton>
+              <CustomButton
+                onClick={() => handleModelChange("window/window_arch.glb")}
+              >
+                Arch Window
+              </CustomButton>
+            </>
+          )}
+          <CustomButton onClick={handleCloseSidebar}>Close</CustomButton>
         </div>
       )}
     </>

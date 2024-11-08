@@ -83,6 +83,8 @@ const SceneContent: React.FC<{
   maxX: number;
   minY: number;
   maxY: number;
+  onModelClick: (shape: ShapeData) => void;
+  modelPathsByShapeId: Record<string, string>;
 }> = ({
   lines,
   shapes,
@@ -102,6 +104,8 @@ const SceneContent: React.FC<{
   maxX,
   minY,
   maxY,
+  onModelClick,
+  modelPathsByShapeId,
 }) => {
   const { scene } = useThree();
   const [selectedDoorModel, setSelectedDoorModel] = useState<string | null>(
@@ -279,10 +283,6 @@ const SceneContent: React.FC<{
     );
   }, [floorShape, showRoof]);
 
-  const handleDoorClick = (modelPath: string) => {
-    setSelectedDoorModel(modelPath);
-  };
-
   return (
     <>
       <CameraController
@@ -387,13 +387,14 @@ const SceneContent: React.FC<{
             <primitive object={wallMesh} />
             {shapesOnWall.map((shape) => {
               const { type, x, y, id } = shape;
-              const modelPath =
+              const defaultModelPath =
                 type === "window"
                   ? "window/window_twin_casement.glb"
                   : isOuter
                     ? "door/door.glb"
                     : "door/door_wooden.glb";
 
+              const modelPath = modelPathsByShapeId[id] || defaultModelPath;
               const shapeWorldX = x - centerX;
               const shapeWorldZ = y - centerY;
               const dx = shapeWorldX - wallPosition.x;
@@ -423,6 +424,7 @@ const SceneContent: React.FC<{
                   wallHeight={wallHeight}
                   doorDimensions={doorDimensions}
                   windowDimensions={windowDimensions}
+                  onClick={() => onModelClick(shape)}
                 />
               );
             })}

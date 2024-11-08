@@ -11,6 +11,7 @@ interface ModelProps {
   wallHeight: number;
   doorDimensions: { width: number; height: number };
   windowDimensions: { width: number; height: number };
+  onClick?: () => void;
 }
 
 interface Dimensions {
@@ -27,6 +28,7 @@ const Model: React.FC<ModelProps> = React.memo(
     wallThickness,
     doorDimensions,
     windowDimensions,
+    onClick,
   }) => {
     const { scene, materials } = useGLTF(`/models/${path}`);
     const sceneRef = useRef(null);
@@ -115,6 +117,7 @@ const Model: React.FC<ModelProps> = React.memo(
         position={adjustedPosition}
         rotation={rotation}
         scale={adjustedScale}
+        onClick={onClick}
       />
     );
   },
