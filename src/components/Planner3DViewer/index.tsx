@@ -216,17 +216,21 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
       {/* Sidebar for Model Selection */}
       {selectedShape && (
-        <div className="sidebar">
-          {/* Sidebar content for model selection */}
-          <h3>Select a {selectedShape.type} Model</h3>
-          {/* Options based on selectedShape.type */}
+        <div className="border-gray-200 fixed right-4 top-4 z-50 w-64 rounded-lg border bg-white p-4 shadow-lg">
+          <h3 className="text-gray-800 mb-4 text-lg font-semibold">
+            Select a {selectedShape.type} Model
+          </h3>
           {selectedShape.type === "door" ? (
             <>
-              <CustomButton onClick={() => handleModelChange("door/door.glb")}>
+              <CustomButton
+                onClick={() => handleModelChange("door/door.glb")}
+                className="mb-2 w-full text-left"
+              >
                 Glass Door
               </CustomButton>
               <CustomButton
                 onClick={() => handleModelChange("door/door_wooden.glb")}
+                className="mb-2 w-full text-left"
               >
                 Wooden Door
               </CustomButton>
@@ -237,17 +241,25 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
                 onClick={() =>
                   handleModelChange("window/window_twin_casement.glb")
                 }
+                className="mb-2 w-full text-left"
               >
                 Standard Window
               </CustomButton>
               <CustomButton
                 onClick={() => handleModelChange("window/window_arch.glb")}
+                className="mb-2 w-full text-left"
               >
                 Arch Window
               </CustomButton>
             </>
           )}
-          <CustomButton onClick={handleCloseSidebar}>Close</CustomButton>
+          <CustomButton
+            onClick={handleCloseSidebar}
+            variant="secondary"
+            className="m-auto w-full"
+          >
+            Close
+          </CustomButton>
         </div>
       )}
     </>
