@@ -33,6 +33,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [activeTourPoint, setActiveTourPoint] = useState<TourPoint | null>(
     null,
   );
+  const [shouldExport, setShouldExport] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isAutoRotating, setIsAutoRotating] = useState(false);
   const [showRoof, setShowRoof] = useState(false);
@@ -162,6 +163,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           maxY={maxY}
           onModelClick={handleModelClick}
           modelPathsByShapeId={modelPathsByShapeId}
+          shouldExport={shouldExport}
+          setShouldExport={setShouldExport}
         />
       </Canvas>
       {!selectedShape && (
@@ -208,6 +211,12 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
               </CustomButton>
               <CustomButton variant="secondary" onClick={handleZoomOut}>
                 Zoom Out
+              </CustomButton>
+              <CustomButton
+                variant="secondary"
+                onClick={() => setShouldExport(true)}
+              >
+                Export Scene
               </CustomButton>
             </div>
           )}

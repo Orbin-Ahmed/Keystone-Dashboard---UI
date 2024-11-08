@@ -23,6 +23,7 @@ import { CSG } from "three-csg-ts";
 import Model from "./Model";
 import CameraController from "@/components/Planner3DViewer/CameraController";
 import RoomLabel from "@/components/Planner3DViewer/RoomLabel";
+import { GLTFExporter } from "three-stdlib";
 
 const ensureWallPoints = (
   points: number[],
@@ -85,6 +86,8 @@ const SceneContent: React.FC<{
   maxY: number;
   onModelClick: (shape: ShapeData) => void;
   modelPathsByShapeId: Record<string, string>;
+  shouldExport: boolean;
+  setShouldExport: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({
   lines,
   shapes,
@@ -106,11 +109,35 @@ const SceneContent: React.FC<{
   maxY,
   onModelClick,
   modelPathsByShapeId,
+  shouldExport,
+  setShouldExport,
 }) => {
   const { scene } = useThree();
-  const [selectedDoorModel, setSelectedDoorModel] = useState<string | null>(
-    null,
-  );
+
+  useEffect(() => {
+    if (shouldExport) {
+      const exporter = new GLTFExporter();
+      exporter.parse(
+        scene,
+        (result) => {
+          const output =
+            result instanceof ArrayBuffer ? result : JSON.stringify(result);
+          const blob = new Blob([output], { type: "model/gltf-binary" });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = "scene.glb";
+          link.click();
+          URL.revokeObjectURL(link.href);
+          setShouldExport(false);
+        },
+        (error) => {
+          console.error("An error occurred during GLTF export", error);
+          setShouldExport(false);
+        },
+        { binary: true },
+      );
+    }
+  }, [shouldExport, scene, setShouldExport]);
 
   useEffect(() => {
     return () => {
