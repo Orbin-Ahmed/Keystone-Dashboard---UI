@@ -37,6 +37,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [isAutoRotating, setIsAutoRotating] = useState(false);
   const [showRoof, setShowRoof] = useState(false);
   const cameraRef = useRef<PerspectiveCamera | null>(null);
+  const [isTourOpen, setIsTourOpen] = useState(false);
 
   const EYE_LEVEL = 70;
 
@@ -103,6 +104,10 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     }
   };
 
+  const toggleTourList = () => {
+    setIsTourOpen((prev) => !prev);
+  };
+
   return (
     <>
       <Canvas
@@ -136,39 +141,48 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       </Canvas>
 
       {/* UI Controls */}
-      <div className="absolute right-4 top-4 flex flex-col gap-2">
-        <div className="rounded-lg bg-white p-4 shadow-lg">
-          <h3 className="mb-2 text-lg font-bold">Virtual Tour</h3>
-          <div className="flex flex-col gap-2">
-            {tourPoints.map((point) => (
-              <CustomButton
-                key={point.id}
-                variant={
-                  activeTourPoint?.id === point.id ? "primary" : "secondary"
-                }
-                onClick={() => handleTourPointClick(point)}
-              >
-                {point.title}
-              </CustomButton>
-            ))}
-            {activeTourPoint && (
-              <CustomButton variant="secondary" onClick={handleExitTour}>
-                Exit Tour
-              </CustomButton>
-            )}
+      <div className="absolute right-4 top-4">
+        <CustomButton variant="primary" onClick={toggleTourList}>
+          {isTourOpen ? "Hide Tour Points" : "Show Tour Points"}
+        </CustomButton>
+
+        {/* Tour Points List */}
+        {isTourOpen && (
+          <div className="mt-4 rounded-lg bg-white p-4 shadow-lg">
+            <h3 className="text-lg font-bold">Virtual Tour</h3>
+            <div className="flex flex-col gap-2">
+              {tourPoints.map((point) => (
+                <CustomButton
+                  key={point.id}
+                  variant={
+                    activeTourPoint?.id === point.id ? "primary" : "secondary"
+                  }
+                  onClick={() => handleTourPointClick(point)}
+                >
+                  {point.title}
+                </CustomButton>
+              ))}
+              {activeTourPoint && (
+                <CustomButton variant="secondary" onClick={handleExitTour}>
+                  Exit Tour
+                </CustomButton>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Zoom Controls */}
-      <div className="absolute bottom-4 right-4 flex gap-2">
-        <CustomButton variant="secondary" onClick={handleZoomIn}>
-          Zoom In
-        </CustomButton>
-        <CustomButton variant="secondary" onClick={handleZoomOut}>
-          Zoom Out
-        </CustomButton>
-      </div>
+      {!isTourOpen && (
+        <div className="absolute bottom-4 right-4 flex gap-2">
+          <CustomButton variant="secondary" onClick={handleZoomIn}>
+            Zoom In
+          </CustomButton>
+          <CustomButton variant="secondary" onClick={handleZoomOut}>
+            Zoom Out
+          </CustomButton>
+        </div>
+      )}
     </>
   );
 };
