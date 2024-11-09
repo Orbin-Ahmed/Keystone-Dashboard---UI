@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, forwardRef } from "react";
+import React, { useEffect, useMemo, forwardRef, useRef } from "react";
 import { useGLTF } from "@react-three/drei";
 import { Box3, Mesh, Object3D, Vector3 } from "three";
 
@@ -16,18 +16,23 @@ interface ItemModelProps {
 const ItemModel = forwardRef<Object3D, ItemModelProps>(
   ({ path, position, rotation, dimensions }, ref) => {
     const { scene } = useGLTF(`/models/${path}`);
+    const modelRef = useRef<Object3D | null>(null);
 
-    const clonedScene = useMemo(() => {
-      const cloned = scene.clone();
-      return cloned;
-    }, [scene]);
-
-    const [adjustedPosition, adjustedScale] = useMemo(() => {
-      const bbox = new Box3().setFromObject(clonedScene);
+    const initialBounds = useMemo(() => {
+      const bbox = new Box3().setFromObject(scene);
       const size = new Vector3();
       const center = new Vector3();
       bbox.getSize(size);
       bbox.getCenter(center);
+      return { size, center };
+    }, [scene]);
+
+    const clonedScene = useMemo(() => {
+      return scene.clone(true);
+    }, [scene]);
+
+    const [adjustedPosition, adjustedScale] = useMemo(() => {
+      const { size, center } = initialBounds;
 
       const scaleX = dimensions.width / size.x;
       const scaleY = dimensions.height / size.y;
@@ -36,6 +41,7 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
       const adjustedLocalX = position[0] - center.x * scaleX;
       const adjustedLocalY =
         position[1] - center.y * scaleY + dimensions.height / 2;
+      //   const adjustedLocalY = position[1] + dimensions.height / 2;
       const adjustedLocalZ = position[2] - center.z * scaleZ;
 
       return [
@@ -46,7 +52,15 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
         ],
         [scaleX, scaleY, scaleZ] as [number, number, number],
       ];
-    }, [clonedScene, dimensions, position]);
+    }, [initialBounds, dimensions, position]);
+
+    useEffect(() => {
+      if (modelRef.current) {
+        modelRef.current.position.set(...adjustedPosition);
+        modelRef.current.scale.set(...adjustedScale);
+        modelRef.current.rotation.set(...rotation);
+      }
+    }, [adjustedPosition, adjustedScale, rotation]);
 
     useEffect(() => {
       const currentScene = clonedScene;
@@ -54,20 +68,34 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
       return () => {
         currentScene.traverse((object) => {
           if (object instanceof Mesh) {
-            object.geometry.dispose();
+            object.geometry?.dispose();
             if (Array.isArray(object.material)) {
-              object.material.forEach((material) => material.dispose());
+              object.material.forEach((material) => material?.dispose());
             } else if (object.material) {
               object.material.dispose();
             }
           }
         });
       };
-    }, []);
+    }, [clonedScene]);
+
+    useEffect(() => {
+      useGLTF.preload(`/models/${path}`);
+      return () => {
+        useGLTF.clear(`/models/${path}`);
+      };
+    }, [path]);
 
     return (
       <primitive
-        ref={ref}
+        ref={(obj: Object3D | null) => {
+          modelRef.current = obj;
+          if (typeof ref === "function") {
+            ref(obj);
+          } else if (ref) {
+            (ref as React.MutableRefObject<Object3D | null>).current = obj;
+          }
+        }}
         object={clonedScene}
         position={adjustedPosition}
         rotation={rotation}

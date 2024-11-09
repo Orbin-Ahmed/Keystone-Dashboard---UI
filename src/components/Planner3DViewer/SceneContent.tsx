@@ -26,6 +26,7 @@ import ItemModel from "./ItemModel"; // New component for items
 import CameraController from "@/components/Planner3DViewer/CameraController";
 import RoomLabel from "@/components/Planner3DViewer/RoomLabel";
 import { GLTFExporter } from "three-stdlib";
+import { uid } from "uid";
 
 interface Point {
   id: string;
@@ -346,14 +347,12 @@ const SceneContent: React.FC<SceneContentProps> = ({
         isAutoRotating={isAutoRotating}
         setIsAutoRotating={setIsAutoRotating}
       />
-
       {/* Lights */}
       <ambientLight intensity={0.8} />
       <directionalLight position={[10, 50, 25]} intensity={0.8} />
       <directionalLight position={[-10, 50, -25]} intensity={0.6} />
       <pointLight position={[0, 100, 0]} intensity={0.4} />
       <hemisphereLight intensity={0.3} />
-
       {/* Tour Points */}
       {tourPoints.map((point) => (
         <mesh
@@ -365,7 +364,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
           <meshBasicMaterial transparent opacity={0} />
         </mesh>
       ))}
-
       {/* Room Labels */}
       {roomNames.map((room) => (
         <RoomLabel
@@ -374,13 +372,10 @@ const SceneContent: React.FC<SceneContentProps> = ({
           name={room.name}
         />
       ))}
-
       {/* Roof  */}
       {Roof}
-
       {/* Floor  */}
       {Floor}
-
       {/* Walls */}
       {lines.map((line) => {
         const points = ensureWallPoints(line.points);
@@ -485,13 +480,13 @@ const SceneContent: React.FC<SceneContentProps> = ({
           </group>
         );
       })}
-
       {/* Currently placing item */}
       {placingItem && (
         <ItemModel
+          key={`placing-${uid()}`}
           path={placingItem.path}
-          position={[0, 0, 0]}
-          rotation={[0, 0, 0]}
+          position={placingItem.position || [0, 0, 0]}
+          rotation={placingItem.rotation || [0, 0, 0]}
           dimensions={{
             width: placingItem.width,
             height: placingItem.height,
@@ -500,13 +495,12 @@ const SceneContent: React.FC<SceneContentProps> = ({
         />
       )}
 
-      {/* Placed items */}
       {placedItems.map((item, index) => (
         <ItemModel
-          key={index}
+          key={`placed-${uid() || index}`}
           path={item.path}
-          position={[0, 0, 0]} // All items at center; adjust if needed
-          rotation={[0, 0, 0]} // Adjust rotation if needed
+          position={item.position || [0, 0, 0]}
+          rotation={item.rotation || [0, 0, 0]}
           dimensions={{
             width: item.width,
             height: item.height,

@@ -223,11 +223,11 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   };
 
   const handleItemClick = (item: PlacingItemType) => {
-    setPlacingItem({
+    setPlacingItem((prev) => ({
       ...item,
-      position: [0, 0, 0],
-      rotation: [0, 0, 0],
-    });
+      position: prev?.position || [0, 0, 0],
+      rotation: prev?.rotation || [0, 0, 0],
+    }));
     setIsItemsOpen(false);
   };
 
