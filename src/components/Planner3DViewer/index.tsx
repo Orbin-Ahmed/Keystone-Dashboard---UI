@@ -1,3 +1,4 @@
+// Plan3DViewer.tsx
 import React, { useMemo, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { LineData, RoomName, ShapeData, TourPoint } from "@/types";
@@ -16,6 +17,15 @@ interface Plan3DViewerProps {
   maxX: number;
   minY: number;
   maxY: number;
+}
+
+interface PlacingItemType {
+  name: string;
+  path: string;
+  type: string;
+  width: number;
+  height: number;
+  depth: number;
 }
 
 const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
@@ -44,54 +54,74 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     Record<string, string>
   >({});
 
-  // Item add and drag states
+  // Item add states
   const [isItemsOpen, setIsItemsOpen] = useState(false);
-  const [placingItem, setPlacingItem] = useState<{
-    path: string;
-    type: string;
-  } | null>(null);
-  const [currentItem, setCurrentItem] = useState<{
-    id: string;
-    path: string;
-    type: string;
-    position: [number, number, number];
-    rotation: [number, number, number];
-  } | null>(null);
-  const [placedItems, setPlacedItems] = useState<
-    Array<{
-      id: string;
-      path: string;
-      type: string;
-      position: [number, number, number];
-      rotation: [number, number, number];
-    }>
-  >([]);
-  const [transformMode, setTransformMode] = useState<"translate" | "rotate">(
-    "translate",
-  );
-  // Item add and drag states End
+  const [placingItem, setPlacingItem] = useState<PlacingItemType | null>(null);
+  const [placedItems, setPlacedItems] = useState<PlacingItemType[]>([]);
 
   // Items categories and Model location
-  const categories = [
+  const categories: { name: string; items: PlacingItemType[] }[] = [
     {
       name: "Living Room",
       items: [
-        { name: "Sofa", path: "items/sofa.glb", type: "sofa" },
-        { name: "TV Bench", path: "items/tv_bench.glb", type: "tv_bench" },
+        {
+          name: "Sofa",
+          path: "items/sofa.glb",
+          type: "sofa",
+          width: 200,
+          height: 100,
+          depth: 80,
+        },
+        {
+          name: "TV Bench",
+          path: "items/tv_bench.glb",
+          type: "tv_bench",
+          width: 150,
+          height: 50,
+          depth: 50,
+        },
       ],
     },
     {
       name: "Bed Room",
       items: [
-        { name: "Bed", path: "items/bed.glb", type: "bed" },
-        { name: "Wardrobe", path: "items/wardrobe.glb", type: "wardrobe" },
+        {
+          name: "Bed",
+          path: "items/bed.glb",
+          type: "bed",
+          width: 136,
+          height: 32,
+          depth: 98,
+        },
+        {
+          name: "Wardrobe",
+          path: "items/wardrobe.glb",
+          type: "wardrobe",
+          width: 120,
+          height: 200,
+          depth: 60,
+        },
       ],
     },
     {
       name: "Kitchen",
       items: [
-        { name: "Fridge", path: "items/fridge.glb", type: "fridge" },
-        { name: "Sink", path: "items/sink.glb", type: "sink" },
+        {
+          name: "Fridge",
+          path: "items/fridge.glb",
+          type: "fridge",
+          width: 70,
+          height: 180,
+          depth: 70,
+        },
+        {
+          name: "Sink",
+          path: "items/sink.glb",
+          type: "sink",
+          width: 80,
+          height: 50,
+          depth: 60,
+        },
       ],
     },
   ];
@@ -185,15 +215,15 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     setSelectedShape(null);
   };
 
-  const handleItemClick = (item: any) => {
+  const handleItemClick = (item: PlacingItemType) => {
     setPlacingItem(item);
     setIsItemsOpen(false);
   };
 
   const confirmPlacement = () => {
-    if (currentItem) {
-      setPlacedItems([...placedItems, currentItem]);
-      setCurrentItem(null);
+    if (placingItem) {
+      setPlacedItems([...placedItems, placingItem]);
+      setPlacingItem(null);
     }
   };
 
@@ -231,100 +261,84 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           shouldExport={shouldExport}
           setShouldExport={setShouldExport}
           placingItem={placingItem}
-          setPlacingItem={setPlacingItem}
-          currentItem={currentItem}
-          setCurrentItem={setCurrentItem}
           placedItems={placedItems}
-          setPlacedItems={setPlacedItems}
-          transformMode={transformMode}
         />
       </Canvas>
+      {/* Render UI Controls and the "Items" button when no shape is selected */}
       {!selectedShape && (
-        <>
-          {/* UI Controls */}
-          <div className="absolute right-4 top-4">
-            <CustomButton variant="primary" onClick={toggleTourList}>
-              {isTourOpen ? "Hide Tour Points" : "Show Tour Points"}
-            </CustomButton>
+        <div className="absolute right-4 top-4">
+          <CustomButton variant="primary" onClick={toggleTourList}>
+            {isTourOpen ? "Hide Tour Points" : "Show Tour Points"}
+          </CustomButton>
+          <CustomButton
+            variant="primary"
+            onClick={() => setIsItemsOpen((prev) => !prev)}
+          >
+            {isItemsOpen ? "Hide Items" : "Items"}
+          </CustomButton>
 
-            {/* New "Items" button */}
-            <CustomButton
-              variant="primary"
-              onClick={() => setIsItemsOpen((prev) => !prev)}
-            >
-              {isItemsOpen ? "Hide Items" : "Items"}
-            </CustomButton>
-
-            {/* Tour Points List */}
-            {isTourOpen && (
-              <div className="mt-4 rounded-lg bg-white p-4 shadow-lg">
-                <h3 className="text-lg font-bold">Virtual Tour</h3>
-                <div className="flex flex-col gap-2">
-                  {tourPoints.map((point) => (
-                    <CustomButton
-                      key={point.id}
-                      variant={
-                        activeTourPoint?.id === point.id
-                          ? "primary"
-                          : "secondary"
-                      }
-                      onClick={() => handleTourPointClick(point)}
-                    >
-                      {point.title}
-                    </CustomButton>
-                  ))}
-                  {activeTourPoint && (
-                    <CustomButton variant="secondary" onClick={handleExitTour}>
-                      Exit Tour
-                    </CustomButton>
-                  )}
-                </div>
+          {/* Tour Points List */}
+          {isTourOpen && (
+            <div className="mt-4 rounded-lg bg-white p-4 shadow-lg">
+              <h3 className="text-lg font-bold">Virtual Tour</h3>
+              <div className="flex flex-col gap-2">
+                {tourPoints.map((point) => (
+                  <CustomButton
+                    key={point.id}
+                    variant={
+                      activeTourPoint?.id === point.id ? "primary" : "secondary"
+                    }
+                    onClick={() => handleTourPointClick(point)}
+                  >
+                    {point.title}
+                  </CustomButton>
+                ))}
+                {activeTourPoint && (
+                  <CustomButton variant="secondary" onClick={handleExitTour}>
+                    Exit Tour
+                  </CustomButton>
+                )}
               </div>
-            )}
-
-            {/* Items Sidebar */}
-            {isItemsOpen && (
-              <div className="mt-4 rounded-lg bg-white p-4 shadow-lg">
-                <h3 className="text-lg font-bold">Items</h3>
-                <div className="flex flex-col gap-2">
-                  {categories.map((category) => (
-                    <div key={category.name}>
-                      <h4 className="font-semibold">{category.name}</h4>
-                      {category.items.map((item) => (
-                        <CustomButton
-                          key={item.name}
-                          variant="secondary"
-                          onClick={() => handleItemClick(item)}
-                        >
-                          {item.name}
-                        </CustomButton>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Zoom Controls */}
-          {!isTourOpen && (
-            <div className="absolute bottom-4 right-4 flex gap-2">
-              <CustomButton variant="secondary" onClick={handleZoomIn}>
-                Zoom In
-              </CustomButton>
-              <CustomButton variant="secondary" onClick={handleZoomOut}>
-                Zoom Out
-              </CustomButton>
-              <CustomButton
-                variant="secondary"
-                onClick={() => setShouldExport(true)}
-              >
-                Export Scene
-              </CustomButton>
             </div>
           )}
-        </>
+
+          {/* Items Sidebar */}
+          {isItemsOpen && (
+            <div className="mt-4 rounded-lg bg-white p-4 shadow-lg">
+              <h3 className="text-lg font-bold">Items</h3>
+              <div className="flex flex-col gap-2">
+                {categories.map((category) => (
+                  <div key={category.name}>
+                    <h4 className="font-semibold">{category.name}</h4>
+                    {category.items.map((item) => (
+                      <CustomButton
+                        key={item.name}
+                        variant="secondary"
+                        onClick={() => handleItemClick(item)}
+                      >
+                        {item.name}
+                      </CustomButton>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       )}
+
+      {/* Render Zoom Controls and Export Button outside the selectedShape condition */}
+      <div className="absolute bottom-4 right-4 flex gap-2">
+        <CustomButton variant="secondary" onClick={handleZoomIn}>
+          Zoom In
+        </CustomButton>
+        <CustomButton variant="secondary" onClick={handleZoomOut}>
+          Zoom Out
+        </CustomButton>
+        <CustomButton variant="secondary" onClick={() => setShouldExport(true)}>
+          Export Scene
+        </CustomButton>
+      </div>
 
       {/* Sidebar for Model Selection */}
       {selectedShape && (
@@ -375,21 +389,9 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         </div>
       )}
 
-      {/* Transform Controls Buttons */}
-      {currentItem && (
-        <div className="absolute bottom-4 left-4 flex gap-2">
-          <CustomButton
-            variant="secondary"
-            onClick={() => setTransformMode("translate")}
-          >
-            Move
-          </CustomButton>
-          <CustomButton
-            variant="secondary"
-            onClick={() => setTransformMode("rotate")}
-          >
-            Rotate
-          </CustomButton>
+      {/* Confirm Placement Button */}
+      {placingItem && (
+        <div className="absolute bottom-4 left-4">
           <CustomButton variant="primary" onClick={confirmPlacement}>
             Place Item
           </CustomButton>

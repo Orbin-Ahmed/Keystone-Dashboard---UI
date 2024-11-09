@@ -1,4 +1,5 @@
-import React, { useMemo, useEffect, useRef } from "react";
+// SceneContent.tsx
+import React, { useMemo, useEffect } from "react";
 import { useLoader, useThree } from "@react-three/fiber";
 import {
   LineData,
@@ -18,15 +19,54 @@ import {
   ExtrudeGeometry,
   RepeatWrapping,
   Shape,
-  Object3D,
 } from "three";
 import { CSG } from "three-csg-ts";
 import Model from "./Model";
+import ItemModel from "./ItemModel"; // New component for items
 import CameraController from "@/components/Planner3DViewer/CameraController";
 import RoomLabel from "@/components/Planner3DViewer/RoomLabel";
 import { GLTFExporter } from "three-stdlib";
-import { uid } from "uid";
-import { TransformControls } from "@react-three/drei";
+
+interface Point {
+  id: string;
+  x: number;
+  y: number;
+}
+
+interface PlacingItemType {
+  path: string;
+  type: string;
+  width: number;
+  height: number;
+  depth: number;
+}
+
+interface SceneContentProps {
+  lines: LineData[];
+  shapes: ShapeData[];
+  roomNames: RoomName[];
+  activeTourPoint: TourPoint | null;
+  isTransitioning: boolean;
+  setIsTransitioning: (value: boolean) => void;
+  isAutoRotating: boolean;
+  setIsAutoRotating: (value: boolean) => void;
+  showRoof: boolean;
+  tourPoints: TourPoint[];
+  onTourPointClick: (point: TourPoint) => void;
+  floorPlanPoints: Point[];
+  centerX: number;
+  centerY: number;
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
+  onModelClick: (shape: ShapeData) => void;
+  modelPathsByShapeId: Record<string, string>;
+  shouldExport: boolean;
+  setShouldExport: React.Dispatch<React.SetStateAction<boolean>>;
+  placingItem: PlacingItemType | null;
+  placedItems: PlacingItemType[];
+}
 
 const ensureWallPoints = (
   points: number[],
@@ -36,12 +76,6 @@ const ensureWallPoints = (
   }
   return [points[0], points[1], points[2], points[3]];
 };
-
-interface Point {
-  id: string;
-  x: number;
-  y: number;
-}
 
 const CreateFloorShape = (
   floorPlanPoints: Point[],
@@ -68,70 +102,7 @@ const CreateFloorShape = (
   return shape;
 };
 
-const SceneContent: React.FC<{
-  lines: LineData[];
-  shapes: ShapeData[];
-  roomNames: RoomName[];
-  activeTourPoint: TourPoint | null;
-  isTransitioning: boolean;
-  setIsTransitioning: (value: boolean) => void;
-  isAutoRotating: boolean;
-  setIsAutoRotating: (value: boolean) => void;
-  showRoof: boolean;
-  tourPoints: TourPoint[];
-  onTourPointClick: (point: TourPoint) => void;
-  floorPlanPoints: { id: string; x: number; y: number }[];
-  centerX: number;
-  centerY: number;
-  minX: number;
-  maxX: number;
-  minY: number;
-  maxY: number;
-  onModelClick: (shape: ShapeData) => void;
-  modelPathsByShapeId: Record<string, string>;
-  shouldExport: boolean;
-  setShouldExport: React.Dispatch<React.SetStateAction<boolean>>;
-  placingItem: { path: string; type: string } | null;
-  setPlacingItem: React.Dispatch<
-    React.SetStateAction<{ path: string; type: string } | null>
-  >;
-  currentItem: {
-    id: string;
-    path: string;
-    type: string;
-    position: [number, number, number];
-    rotation: [number, number, number];
-  } | null;
-  setCurrentItem: React.Dispatch<
-    React.SetStateAction<{
-      id: string;
-      path: string;
-      type: string;
-      position: [number, number, number];
-      rotation: [number, number, number];
-    } | null>
-  >;
-
-  placedItems: Array<{
-    id: string;
-    path: string;
-    type: string;
-    position: [number, number, number];
-    rotation: [number, number, number];
-  }>;
-  setPlacedItems: React.Dispatch<
-    React.SetStateAction<
-      Array<{
-        id: string;
-        path: string;
-        type: string;
-        position: [number, number, number];
-        rotation: [number, number, number];
-      }>
-    >
-  >;
-  transformMode: "translate" | "rotate";
-}> = ({
+const SceneContent: React.FC<SceneContentProps> = ({
   lines,
   shapes,
   roomNames,
@@ -154,100 +125,10 @@ const SceneContent: React.FC<{
   modelPathsByShapeId,
   shouldExport,
   setShouldExport,
-  placedItems,
   placingItem,
-  setPlacingItem,
-  currentItem,
-  setPlacedItems,
-  setCurrentItem,
-  transformMode,
+  placedItems,
 }) => {
   const { scene } = useThree();
-  const modelRef = useRef<Object3D>(null);
-
-  useEffect(() => {
-    if (shouldExport) {
-      const exporter = new GLTFExporter();
-      exporter.parse(
-        scene,
-        (result) => {
-          const output =
-            result instanceof ArrayBuffer ? result : JSON.stringify(result);
-          const blob = new Blob([output], { type: "model/gltf-binary" });
-          const link = document.createElement("a");
-          link.href = URL.createObjectURL(blob);
-          link.download = "scene.glb";
-          link.click();
-          URL.revokeObjectURL(link.href);
-          setShouldExport(false);
-        },
-        (error) => {
-          console.error("An error occurred during GLTF export", error);
-          setShouldExport(false);
-        },
-        { binary: true },
-      );
-    }
-  }, [shouldExport, scene, setShouldExport]);
-
-  useEffect(() => {
-    return () => {
-      const disposeObject = (obj: any) => {
-        if (obj.geometry) {
-          obj.geometry.dispose();
-        }
-
-        if (obj.material) {
-          if (Array.isArray(obj.material)) {
-            obj.material.forEach((material: any) => disposeMaterial(material));
-          } else {
-            disposeMaterial(obj.material);
-          }
-        }
-
-        if (obj.children) {
-          obj.children.forEach(disposeObject);
-        }
-      };
-
-      const disposeMaterial = (material: any) => {
-        if (material.map) material.map.dispose();
-        if (material.lightMap) material.lightMap.dispose();
-        if (material.bumpMap) material.bumpMap.dispose();
-        if (material.normalMap) material.normalMap.dispose();
-        if (material.specularMap) material.specularMap.dispose();
-        if (material.envMap) material.envMap.dispose();
-        material.dispose();
-      };
-
-      scene.traverse(disposeObject);
-    };
-  }, [scene]);
-
-  const textures = {
-    floor: useLoader(TextureLoader, "/textures/hardwood.png"),
-    wall: useLoader(TextureLoader, "/textures/marbletiles.jpg"),
-    roof: useLoader(TextureLoader, "/textures/wallmap_yellow.png"),
-  };
-
-  useEffect(() => {
-    return () => {
-      Object.values(textures).forEach((texture) => texture.dispose());
-    };
-  }, [textures]);
-
-  useEffect(() => {
-    if (placingItem) {
-      setCurrentItem({
-        id: uid(),
-        path: placingItem.path,
-        type: placingItem.type,
-        position: [0, wallHeight / 2, 0],
-        rotation: [0, 0, 0],
-      });
-      setPlacingItem(null);
-    }
-  }, [placingItem]);
 
   const wallHeight = 120;
   const wallThickness = 10;
@@ -326,6 +207,77 @@ const SceneContent: React.FC<{
     }
     return shape;
   }, [floorPlanPoints]);
+
+  const textures = {
+    floor: useLoader(TextureLoader, "/textures/hardwood.png"),
+    wall: useLoader(TextureLoader, "/textures/marbletiles.jpg"),
+    roof: useLoader(TextureLoader, "/textures/wallmap_yellow.png"),
+  };
+
+  useEffect(() => {
+    if (shouldExport) {
+      const exporter = new GLTFExporter();
+      exporter.parse(
+        scene,
+        (result) => {
+          const output =
+            result instanceof ArrayBuffer ? result : JSON.stringify(result);
+          const blob = new Blob([output], { type: "model/gltf-binary" });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = "scene.glb";
+          link.click();
+          URL.revokeObjectURL(link.href);
+          setShouldExport(false);
+        },
+        (error) => {
+          console.error("An error occurred during GLTF export", error);
+          setShouldExport(false);
+        },
+        { binary: true },
+      );
+    }
+  }, [shouldExport, scene, setShouldExport]);
+
+  useEffect(() => {
+    return () => {
+      const disposeObject = (obj: any) => {
+        if (obj.geometry) {
+          obj.geometry.dispose();
+        }
+
+        if (obj.material) {
+          if (Array.isArray(obj.material)) {
+            obj.material.forEach((material: any) => disposeMaterial(material));
+          } else {
+            disposeMaterial(obj.material);
+          }
+        }
+
+        if (obj.children) {
+          obj.children.forEach(disposeObject);
+        }
+      };
+
+      const disposeMaterial = (material: any) => {
+        if (material.map) material.map.dispose();
+        if (material.lightMap) material.lightMap.dispose();
+        if (material.bumpMap) material.bumpMap.dispose();
+        if (material.normalMap) material.normalMap.dispose();
+        if (material.specularMap) material.specularMap.dispose();
+        if (material.envMap) material.envMap.dispose();
+        material.dispose();
+      };
+
+      scene.traverse(disposeObject);
+    };
+  }, [scene]);
+
+  useEffect(() => {
+    return () => {
+      Object.values(textures).forEach((texture) => texture.dispose());
+    };
+  }, [textures]);
 
   const Floor = useMemo(() => {
     if (!floorShape) {
@@ -523,39 +475,32 @@ const SceneContent: React.FC<{
         );
       })}
 
-      {currentItem && (
-        <TransformControls
-          mode={transformMode}
-          onObjectChange={() => {
-            if (modelRef.current) {
-              const position = modelRef.current.position.toArray();
-              const rotation = modelRef.current.rotation.toArray();
-              setCurrentItem({
-                ...currentItem,
-                position: [position[0], position[1], position[2]],
-                rotation: [rotation[0], rotation[1], rotation[2]],
-              });
-            }
+      {/* Currently placing item */}
+      {placingItem && (
+        <ItemModel
+          path={placingItem.path}
+          position={[0, 0, 0]}
+          rotation={[0, 0, 0]}
+          dimensions={{
+            width: placingItem.width,
+            height: placingItem.height,
+            depth: placingItem.depth,
           }}
-        >
-          <Model
-            ref={modelRef}
-            path={currentItem.path}
-            position={currentItem.position}
-            rotation={currentItem.rotation}
-            type={currentItem.type}
-          />
-        </TransformControls>
+        />
       )}
 
       {/* Placed items */}
-      {placedItems.map((item) => (
-        <Model
-          key={item.id}
+      {placedItems.map((item, index) => (
+        <ItemModel
+          key={index}
           path={item.path}
-          position={item.position}
-          rotation={item.rotation}
-          type={item.type}
+          position={[0, 0, 0]} // All items at center; adjust if needed
+          rotation={[0, 0, 0]} // Adjust rotation if needed
+          dimensions={{
+            width: item.width,
+            height: item.height,
+            depth: item.depth,
+          }}
         />
       ))}
     </>
