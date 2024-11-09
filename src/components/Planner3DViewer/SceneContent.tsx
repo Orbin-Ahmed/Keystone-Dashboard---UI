@@ -34,11 +34,14 @@ interface Point {
 }
 
 interface PlacingItemType {
+  name: string;
   path: string;
   type: string;
   width: number;
   height: number;
   depth: number;
+  position?: [number, number, number];
+  rotation?: [number, number, number];
 }
 
 interface SceneContentProps {

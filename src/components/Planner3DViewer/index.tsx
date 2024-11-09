@@ -1,4 +1,3 @@
-// Plan3DViewer.tsx
 import React, { useMemo, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { LineData, RoomName, ShapeData, TourPoint } from "@/types";
@@ -26,6 +25,14 @@ interface PlacingItemType {
   width: number;
   height: number;
   depth: number;
+  position?: [number, number, number];
+  rotation?: [number, number, number];
+}
+
+interface PlacedItemType extends PlacingItemType {
+  id: string;
+  position: [number, number, number];
+  rotation: [number, number, number];
 }
 
 const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
@@ -54,13 +61,14 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     Record<string, string>
   >({});
 
-  // Item add states
+  // Item states with persistence
   const [isItemsOpen, setIsItemsOpen] = useState(false);
   const [placingItem, setPlacingItem] = useState<PlacingItemType | null>(null);
-  const [placedItems, setPlacedItems] = useState<PlacingItemType[]>([]);
+  const [placedItems, setPlacedItems] = useState<PlacedItemType[]>([]);
+  const [lastPlacedItemId, setLastPlacedItemId] = useState(0);
 
-  // Items categories and Model location
-  const categories: { name: string; items: PlacingItemType[] }[] = [
+  // Items categories
+  const categories = [
     {
       name: "Living Room",
       items: [
@@ -125,7 +133,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       ],
     },
   ];
-  // Items categories and Model location end
 
   const EYE_LEVEL = 70;
 
@@ -199,6 +206,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const handleModelClick = (shape: ShapeData) => {
     setSelectedShape(shape);
     setIsTourOpen(false);
+    // Don't clear placing item or placed items here
   };
 
   const handleModelChange = (newModelPath: string) => {
@@ -216,13 +224,24 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   };
 
   const handleItemClick = (item: PlacingItemType) => {
-    setPlacingItem(item);
+    setPlacingItem({
+      ...item,
+      position: [0, 0, 0],
+      rotation: [0, 0, 0],
+    });
     setIsItemsOpen(false);
   };
 
   const confirmPlacement = () => {
     if (placingItem) {
-      setPlacedItems([...placedItems, placingItem]);
+      const newItem: PlacedItemType = {
+        ...placingItem,
+        id: `item-${lastPlacedItemId + 1}`,
+        position: placingItem.position || [0, 0, 0],
+        rotation: placingItem.rotation || [0, 0, 0],
+      };
+      setPlacedItems((prev) => [...prev, newItem]);
+      setLastPlacedItemId((prev) => prev + 1);
       setPlacingItem(null);
     }
   };
@@ -264,6 +283,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           placedItems={placedItems}
         />
       </Canvas>
+
       {/* Render UI Controls and the "Items" button when no shape is selected */}
       {!selectedShape && (
         <div className="absolute right-4 top-4">
@@ -327,7 +347,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         </div>
       )}
 
-      {/* Render Zoom Controls and Export Button outside the selectedShape condition */}
+      {/* Render Zoom Controls and Export Button */}
       <div className="absolute bottom-4 right-4 flex gap-2">
         <CustomButton variant="secondary" onClick={handleZoomIn}>
           Zoom In
@@ -391,7 +411,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
       {/* Confirm Placement Button */}
       {placingItem && (
-        <div className="absolute bottom-4 left-4">
+        <div className="absolute bottom-20 right-4">
           <CustomButton variant="primary" onClick={confirmPlacement}>
             Place Item
           </CustomButton>
