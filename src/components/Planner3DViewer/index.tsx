@@ -44,6 +44,59 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     Record<string, string>
   >({});
 
+  // Item add and drag states
+  const [isItemsOpen, setIsItemsOpen] = useState(false);
+  const [placingItem, setPlacingItem] = useState<{
+    path: string;
+    type: string;
+  } | null>(null);
+  const [currentItem, setCurrentItem] = useState<{
+    id: string;
+    path: string;
+    type: string;
+    position: [number, number, number];
+    rotation: [number, number, number];
+  } | null>(null);
+  const [placedItems, setPlacedItems] = useState<
+    Array<{
+      id: string;
+      path: string;
+      type: string;
+      position: [number, number, number];
+      rotation: [number, number, number];
+    }>
+  >([]);
+  const [transformMode, setTransformMode] = useState<"translate" | "rotate">(
+    "translate",
+  );
+  // Item add and drag states End
+
+  // Items categories and Model location
+  const categories = [
+    {
+      name: "Living Room",
+      items: [
+        { name: "Sofa", path: "items/sofa.glb", type: "sofa" },
+        { name: "TV Bench", path: "items/tv_bench.glb", type: "tv_bench" },
+      ],
+    },
+    {
+      name: "Bed Room",
+      items: [
+        { name: "Bed", path: "items/bed.glb", type: "bed" },
+        { name: "Wardrobe", path: "items/wardrobe.glb", type: "wardrobe" },
+      ],
+    },
+    {
+      name: "Kitchen",
+      items: [
+        { name: "Fridge", path: "items/fridge.glb", type: "fridge" },
+        { name: "Sink", path: "items/sink.glb", type: "sink" },
+      ],
+    },
+  ];
+  // Items categories and Model location end
+
   const EYE_LEVEL = 70;
 
   const tourPoints = useMemo(
@@ -132,6 +185,18 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     setSelectedShape(null);
   };
 
+  const handleItemClick = (item: any) => {
+    setPlacingItem(item);
+    setIsItemsOpen(false);
+  };
+
+  const confirmPlacement = () => {
+    if (currentItem) {
+      setPlacedItems([...placedItems, currentItem]);
+      setCurrentItem(null);
+    }
+  };
+
   return (
     <>
       <Canvas
@@ -165,6 +230,13 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           modelPathsByShapeId={modelPathsByShapeId}
           shouldExport={shouldExport}
           setShouldExport={setShouldExport}
+          placingItem={placingItem}
+          setPlacingItem={setPlacingItem}
+          currentItem={currentItem}
+          setCurrentItem={setCurrentItem}
+          placedItems={placedItems}
+          setPlacedItems={setPlacedItems}
+          transformMode={transformMode}
         />
       </Canvas>
       {!selectedShape && (
@@ -173,6 +245,14 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           <div className="absolute right-4 top-4">
             <CustomButton variant="primary" onClick={toggleTourList}>
               {isTourOpen ? "Hide Tour Points" : "Show Tour Points"}
+            </CustomButton>
+
+            {/* New "Items" button */}
+            <CustomButton
+              variant="primary"
+              onClick={() => setIsItemsOpen((prev) => !prev)}
+            >
+              {isItemsOpen ? "Hide Items" : "Items"}
             </CustomButton>
 
             {/* Tour Points List */}
@@ -198,6 +278,29 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
                       Exit Tour
                     </CustomButton>
                   )}
+                </div>
+              </div>
+            )}
+
+            {/* Items Sidebar */}
+            {isItemsOpen && (
+              <div className="mt-4 rounded-lg bg-white p-4 shadow-lg">
+                <h3 className="text-lg font-bold">Items</h3>
+                <div className="flex flex-col gap-2">
+                  {categories.map((category) => (
+                    <div key={category.name}>
+                      <h4 className="font-semibold">{category.name}</h4>
+                      {category.items.map((item) => (
+                        <CustomButton
+                          key={item.name}
+                          variant="secondary"
+                          onClick={() => handleItemClick(item)}
+                        >
+                          {item.name}
+                        </CustomButton>
+                      ))}
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
@@ -268,6 +371,27 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
             className="m-auto w-full"
           >
             Close
+          </CustomButton>
+        </div>
+      )}
+
+      {/* Transform Controls Buttons */}
+      {currentItem && (
+        <div className="absolute bottom-4 left-4 flex gap-2">
+          <CustomButton
+            variant="secondary"
+            onClick={() => setTransformMode("translate")}
+          >
+            Move
+          </CustomButton>
+          <CustomButton
+            variant="secondary"
+            onClick={() => setTransformMode("rotate")}
+          >
+            Rotate
+          </CustomButton>
+          <CustomButton variant="primary" onClick={confirmPlacement}>
+            Place Item
           </CustomButton>
         </div>
       )}

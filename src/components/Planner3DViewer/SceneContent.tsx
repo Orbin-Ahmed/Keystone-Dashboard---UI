@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState } from "react";
+import React, { useMemo, useEffect, useRef } from "react";
 import { useLoader, useThree } from "@react-three/fiber";
 import {
   LineData,
@@ -18,12 +18,15 @@ import {
   ExtrudeGeometry,
   RepeatWrapping,
   Shape,
+  Object3D,
 } from "three";
 import { CSG } from "three-csg-ts";
 import Model from "./Model";
 import CameraController from "@/components/Planner3DViewer/CameraController";
 import RoomLabel from "@/components/Planner3DViewer/RoomLabel";
 import { GLTFExporter } from "three-stdlib";
+import { uid } from "uid";
+import { TransformControls } from "@react-three/drei";
 
 const ensureWallPoints = (
   points: number[],
@@ -88,6 +91,46 @@ const SceneContent: React.FC<{
   modelPathsByShapeId: Record<string, string>;
   shouldExport: boolean;
   setShouldExport: React.Dispatch<React.SetStateAction<boolean>>;
+  placingItem: { path: string; type: string } | null;
+  setPlacingItem: React.Dispatch<
+    React.SetStateAction<{ path: string; type: string } | null>
+  >;
+  currentItem: {
+    id: string;
+    path: string;
+    type: string;
+    position: [number, number, number];
+    rotation: [number, number, number];
+  } | null;
+  setCurrentItem: React.Dispatch<
+    React.SetStateAction<{
+      id: string;
+      path: string;
+      type: string;
+      position: [number, number, number];
+      rotation: [number, number, number];
+    } | null>
+  >;
+
+  placedItems: Array<{
+    id: string;
+    path: string;
+    type: string;
+    position: [number, number, number];
+    rotation: [number, number, number];
+  }>;
+  setPlacedItems: React.Dispatch<
+    React.SetStateAction<
+      Array<{
+        id: string;
+        path: string;
+        type: string;
+        position: [number, number, number];
+        rotation: [number, number, number];
+      }>
+    >
+  >;
+  transformMode: "translate" | "rotate";
 }> = ({
   lines,
   shapes,
@@ -111,8 +154,16 @@ const SceneContent: React.FC<{
   modelPathsByShapeId,
   shouldExport,
   setShouldExport,
+  placedItems,
+  placingItem,
+  setPlacingItem,
+  currentItem,
+  setPlacedItems,
+  setCurrentItem,
+  transformMode,
 }) => {
   const { scene } = useThree();
+  const modelRef = useRef<Object3D>(null);
 
   useEffect(() => {
     if (shouldExport) {
@@ -184,6 +235,19 @@ const SceneContent: React.FC<{
       Object.values(textures).forEach((texture) => texture.dispose());
     };
   }, [textures]);
+
+  useEffect(() => {
+    if (placingItem) {
+      setCurrentItem({
+        id: uid(),
+        path: placingItem.path,
+        type: placingItem.type,
+        position: [0, wallHeight / 2, 0],
+        rotation: [0, 0, 0],
+      });
+      setPlacingItem(null);
+    }
+  }, [placingItem]);
 
   const wallHeight = 120;
   const wallThickness = 10;
@@ -458,6 +522,42 @@ const SceneContent: React.FC<{
           </group>
         );
       })}
+
+      {currentItem && (
+        <TransformControls
+          mode={transformMode}
+          onObjectChange={() => {
+            if (modelRef.current) {
+              const position = modelRef.current.position.toArray();
+              const rotation = modelRef.current.rotation.toArray();
+              setCurrentItem({
+                ...currentItem,
+                position: [position[0], position[1], position[2]],
+                rotation: [rotation[0], rotation[1], rotation[2]],
+              });
+            }
+          }}
+        >
+          <Model
+            ref={modelRef}
+            path={currentItem.path}
+            position={currentItem.position}
+            rotation={currentItem.rotation}
+            type={currentItem.type}
+          />
+        </TransformControls>
+      )}
+
+      {/* Placed items */}
+      {placedItems.map((item) => (
+        <Model
+          key={item.id}
+          path={item.path}
+          position={item.position}
+          rotation={item.rotation}
+          type={item.type}
+        />
+      ))}
     </>
   );
 };
