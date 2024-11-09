@@ -41,7 +41,6 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
       const adjustedLocalX = position[0] - center.x * scaleX;
       const adjustedLocalY =
         position[1] - center.y * scaleY + dimensions.height / 2;
-      //   const adjustedLocalY = position[1] + dimensions.height / 2;
       const adjustedLocalZ = position[2] - center.z * scaleZ;
 
       return [

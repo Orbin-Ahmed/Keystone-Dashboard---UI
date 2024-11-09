@@ -76,9 +76,9 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           name: "Sofa",
           path: "items/sofa.glb",
           type: "sofa",
-          width: 200,
-          height: 100,
-          depth: 80,
+          width: 110,
+          height: 45,
+          depth: 50,
         },
         {
           name: "TV Bench",
