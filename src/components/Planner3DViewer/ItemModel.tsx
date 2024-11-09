@@ -63,13 +63,7 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
           }
         });
       };
-    }, [clonedScene]);
-
-    useEffect(() => {
-      return () => {
-        useGLTF.clear(`/models/${path}`);
-      };
-    }, [path]);
+    }, []);
 
     return (
       <primitive

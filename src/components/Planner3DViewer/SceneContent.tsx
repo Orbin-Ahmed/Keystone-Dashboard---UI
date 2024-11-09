@@ -329,6 +329,14 @@ const SceneContent: React.FC<SceneContentProps> = ({
     );
   }, [floorShape, showRoof]);
 
+  useEffect(() => {
+    console.log("placedItems", placedItems);
+  }, [placedItems]);
+
+  useEffect(() => {
+    console.log("-------placingItem-------", placingItem);
+  }, [placingItem]);
+
   return (
     <>
       <CameraController

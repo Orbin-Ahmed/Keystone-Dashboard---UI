@@ -206,7 +206,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const handleModelClick = (shape: ShapeData) => {
     setSelectedShape(shape);
     setIsTourOpen(false);
-    // Don't clear placing item or placed items here
   };
 
   const handleModelChange = (newModelPath: string) => {
@@ -294,7 +293,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
             variant="primary"
             onClick={() => setIsItemsOpen((prev) => !prev)}
           >
-            {isItemsOpen ? "Hide Items" : "Items"}
+            {isItemsOpen ? "Hide Items" : "Show Items"}
           </CustomButton>
 
           {/* Tour Points List */}
