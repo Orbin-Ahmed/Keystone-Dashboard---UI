@@ -208,8 +208,8 @@ const SceneContent: React.FC<SceneContentProps> = ({
   }, [floorPlanPoints]);
 
   const textures = {
-    floor: useLoader(TextureLoader, "/textures/hardwood.png"),
-    wall: useLoader(TextureLoader, "/textures/marbletiles.jpg"),
+    floor: useLoader(TextureLoader, "/textures/marbel.jpg"),
+    wall: useLoader(TextureLoader, "/textures/wallmap_yellow.png"),
     roof: useLoader(TextureLoader, "/textures/wallmap_yellow.png"),
   };
 
@@ -416,8 +416,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
       {/* Lights */}
       <ambientLight intensity={0.8} />
       <directionalLight position={[10, 50, 25]} intensity={0.8} />
-      <directionalLight position={[-10, 50, -25]} intensity={0.6} />
-      <pointLight position={[0, 100, 0]} intensity={0.4} />
+      <directionalLight position={[-10, 50, -25]} intensity={0.8} />
       <hemisphereLight intensity={0.3} />
       {/* Tour Points */}
       {tourPoints.map((point) => (
