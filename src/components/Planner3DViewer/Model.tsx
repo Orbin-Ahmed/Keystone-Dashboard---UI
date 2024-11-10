@@ -1,10 +1,4 @@
-import React, {
-  useEffect,
-  useMemo,
-  useCallback,
-  useRef,
-  forwardRef,
-} from "react";
+import React, { useEffect, useMemo, useCallback, forwardRef } from "react";
 import { useGLTF } from "@react-three/drei";
 import {
   Box3,
@@ -48,7 +42,6 @@ const Model = React.memo(
       ref,
     ) => {
       const { scene, materials } = useGLTF(`/models/${path}`);
-      const sceneRef = useRef(null);
 
       const dimensions = useMemo<Dimensions>(
         () =>

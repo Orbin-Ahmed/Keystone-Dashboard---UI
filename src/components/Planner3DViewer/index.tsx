@@ -1,10 +1,16 @@
 import React, { useMemo, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
-import { LineData, RoomName, ShapeData, TourPoint } from "@/types";
+import {
+  LineData,
+  PlacedItemType,
+  PlacingItemType,
+  RoomName,
+  ShapeData,
+  TourPoint,
+} from "@/types";
 import { PerspectiveCamera } from "three";
 import CustomButton from "@/components/CustomButton";
 import SceneContent from "@/components/Planner3DViewer/SceneContent";
-import { OrbitControls } from "@react-three/drei";
 
 interface Plan3DViewerProps {
   lines: LineData[];
@@ -17,24 +23,6 @@ interface Plan3DViewerProps {
   maxX: number;
   minY: number;
   maxY: number;
-}
-
-interface PlacingItemType {
-  id?: string;
-  name: string;
-  path: string;
-  type: string;
-  width: number;
-  height: number;
-  depth: number;
-  position?: [number, number, number];
-  rotation?: [number, number, number];
-}
-
-interface PlacedItemType extends PlacingItemType {
-  id: string;
-  position: [number, number, number];
-  rotation: [number, number, number];
 }
 
 const Plan3DViewer: React.FC<Plan3DViewerProps> = ({

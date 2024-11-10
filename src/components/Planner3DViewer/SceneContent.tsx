@@ -1,8 +1,9 @@
-// SceneContent.tsx
-import React, { useMemo, useEffect, useState, useRef } from "react";
+import React, { useMemo, useEffect, useRef } from "react";
 import { useLoader, useThree, ThreeEvent, useFrame } from "@react-three/fiber";
 import {
   LineData,
+  PlacingItemType,
+  Point,
   RoomName,
   ShapeData,
   TourPoint,
@@ -29,25 +30,6 @@ import ItemModel from "./ItemModel";
 import CameraController from "@/components/Planner3DViewer/CameraController";
 import RoomLabel from "@/components/Planner3DViewer/RoomLabel";
 import { GLTFExporter } from "three-stdlib";
-import { uid } from "uid";
-
-interface Point {
-  id: string;
-  x: number;
-  y: number;
-}
-
-interface PlacingItemType {
-  id?: string;
-  name: string;
-  path: string;
-  type: string;
-  width: number;
-  height: number;
-  depth: number;
-  position?: [number, number, number];
-  rotation?: [number, number, number];
-}
 
 interface SceneContentProps {
   lines: LineData[];
@@ -342,14 +324,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
       </mesh>
     );
   }, [floorShape, showRoof]);
-
-  useEffect(() => {
-    console.log("placedItems", placedItems);
-  }, [placedItems]);
-
-  useEffect(() => {
-    console.log("-------placingItem-------", placingItem);
-  }, [placingItem]);
 
   const handlePointerDown = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation();

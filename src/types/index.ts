@@ -233,6 +233,7 @@ export interface ShapeData {
 }
 
 export interface Point {
+  id?: string;
   x: number;
   y: number;
 }
@@ -276,4 +277,22 @@ export interface FloorPlanPoint {
   id: string;
   x: number;
   y: number;
+}
+
+export interface PlacingItemType {
+  id?: string;
+  name: string;
+  path: string;
+  type: string;
+  width: number;
+  height: number;
+  depth: number;
+  position?: [number, number, number];
+  rotation?: [number, number, number];
+}
+
+export interface PlacedItemType extends PlacingItemType {
+  id: string;
+  position: [number, number, number];
+  rotation: [number, number, number];
 }
