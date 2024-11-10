@@ -38,6 +38,7 @@ interface Point {
 }
 
 interface PlacingItemType {
+  id?: string;
   name: string;
   path: string;
   type: string;
@@ -389,10 +390,9 @@ const SceneContent: React.FC<SceneContentProps> = ({
     }
 
     // Update the position without triggering a re-render
-    placingItemRef.current.position = [newPosition.x, 0, newPosition.z];
-
-    // Force the component to re-render at most once per frame
-    setPlacingItem({ ...placingItemRef.current });
+    if (placingItemRef.current) {
+      placingItemRef.current.position = [newPosition.x, 0, newPosition.z];
+    }
   };
 
   const handlePointerUp = (e: ThreeEvent<PointerEvent>) => {
@@ -419,7 +419,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
       dragOffset.current = null;
       gl.domElement.style.cursor = "default";
     }
-  }, [placingItem]);
+  }, [placingItem, gl.domElement.style]);
 
   useFrame(() => {
     if (placingItemRef.current && modelRef.current) {
@@ -594,9 +594,9 @@ const SceneContent: React.FC<SceneContentProps> = ({
       )}
 
       {/* Placed items */}
-      {placedItems.map((item, index) => (
+      {placedItems.map((item) => (
         <ItemModel
-          key={`placed-${uid() || index}`}
+          key={item.id}
           path={item.path}
           position={item.position || [0, 0, 0]}
           rotation={item.rotation || [0, 0, 0]}
@@ -605,7 +605,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
             height: item.height,
             depth: item.depth,
           }}
-          // No event handlers here
         />
       ))}
     </>
