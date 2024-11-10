@@ -4,6 +4,7 @@ import { LineData, RoomName, ShapeData, TourPoint } from "@/types";
 import { PerspectiveCamera } from "three";
 import CustomButton from "@/components/CustomButton";
 import SceneContent from "@/components/Planner3DViewer/SceneContent";
+import { OrbitControls } from "@react-three/drei";
 
 interface Plan3DViewerProps {
   lines: LineData[];
@@ -279,6 +280,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           shouldExport={shouldExport}
           setShouldExport={setShouldExport}
           placingItem={placingItem}
+          setPlacingItem={setPlacingItem}
           placedItems={placedItems}
         />
       </Canvas>

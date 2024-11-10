@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, forwardRef, useRef } from "react";
 import { useGLTF } from "@react-three/drei";
 import { Box3, Mesh, Object3D, Vector3 } from "three";
+import { ThreeEvent } from "@react-three/fiber";
 
 interface ItemModelProps {
   path: string;
@@ -11,10 +12,28 @@ interface ItemModelProps {
     height: number;
     depth: number;
   };
+  onPointerDown?: (e: ThreeEvent<PointerEvent>) => void;
+  onPointerMove?: (e: ThreeEvent<PointerEvent>) => void;
+  onPointerUp?: (e: ThreeEvent<PointerEvent>) => void;
+  onPointerOver?: (e: ThreeEvent<PointerEvent>) => void;
+  onPointerOut?: (e: ThreeEvent<PointerEvent>) => void;
 }
 
 const ItemModel = forwardRef<Object3D, ItemModelProps>(
-  ({ path, position, rotation, dimensions }, ref) => {
+  (
+    {
+      path,
+      position,
+      rotation,
+      dimensions,
+      onPointerDown,
+      onPointerMove,
+      onPointerUp,
+      onPointerOver,
+      onPointerOut,
+    },
+    ref,
+  ) => {
     const { scene } = useGLTF(`/models/${path}`);
     const modelRef = useRef<Object3D | null>(null);
 
@@ -99,6 +118,11 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
         position={adjustedPosition}
         rotation={rotation}
         scale={adjustedScale}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerOver={onPointerOver}
+        onPointerOut={onPointerOut}
       />
     );
   },

@@ -264,6 +264,7 @@ export interface CameraControllerProps {
   setIsTransitioning: (value: boolean) => void;
   isAutoRotating: boolean;
   setIsAutoRotating: (value: boolean) => void;
+  disableControls?: boolean;
 }
 
 export interface WallClassification {

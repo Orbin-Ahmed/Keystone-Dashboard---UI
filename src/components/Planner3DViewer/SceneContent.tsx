@@ -1,6 +1,6 @@
 // SceneContent.tsx
-import React, { useMemo, useEffect } from "react";
-import { useLoader, useThree } from "@react-three/fiber";
+import React, { useMemo, useEffect, useState, useRef } from "react";
+import { useLoader, useThree, ThreeEvent, useFrame } from "@react-three/fiber";
 import {
   LineData,
   RoomName,
@@ -19,10 +19,13 @@ import {
   ExtrudeGeometry,
   RepeatWrapping,
   Shape,
+  Raycaster,
+  Plane,
+  Object3D,
 } from "three";
 import { CSG } from "three-csg-ts";
 import Model from "./Model";
-import ItemModel from "./ItemModel"; // New component for items
+import ItemModel from "./ItemModel";
 import CameraController from "@/components/Planner3DViewer/CameraController";
 import RoomLabel from "@/components/Planner3DViewer/RoomLabel";
 import { GLTFExporter } from "three-stdlib";
@@ -70,6 +73,7 @@ interface SceneContentProps {
   setShouldExport: React.Dispatch<React.SetStateAction<boolean>>;
   placingItem: PlacingItemType | null;
   placedItems: PlacingItemType[];
+  setPlacingItem: React.Dispatch<React.SetStateAction<PlacingItemType | null>>;
 }
 
 const ensureWallPoints = (
@@ -130,14 +134,22 @@ const SceneContent: React.FC<SceneContentProps> = ({
   shouldExport,
   setShouldExport,
   placingItem,
+  setPlacingItem,
   placedItems,
 }) => {
-  const { scene } = useThree();
+  const { scene, camera, gl } = useThree();
+  const raycaster = new Raycaster();
+  const plane = new Plane(new Vector3(0, 1, 0), 0);
 
   const wallHeight = 120;
   const wallThickness = 10;
   const doorDimensions = { width: 50, height: 100 };
   const windowDimensions = { width: 60, height: 50 };
+
+  const isDragging = useRef(false);
+  const dragOffset = useRef<[number, number, number] | null>(null);
+  const placingItemRef = useRef<PlacingItemType | null>(placingItem);
+  const modelRef = useRef<Object3D | null>(null);
 
   const wallClassifications = useMemo(() => {
     const classifications: Record<string, WallClassification> = {};
@@ -338,6 +350,85 @@ const SceneContent: React.FC<SceneContentProps> = ({
     console.log("-------placingItem-------", placingItem);
   }, [placingItem]);
 
+  const handlePointerDown = (e: ThreeEvent<PointerEvent>) => {
+    e.stopPropagation();
+    if (!placingItemRef.current) return;
+
+    isDragging.current = true;
+
+    const mouse = new Vector2();
+    mouse.x = (e.clientX / gl.domElement.clientWidth) * 2 - 1;
+    mouse.y = -(e.clientY / gl.domElement.clientHeight) * 2 + 1;
+    raycaster.setFromCamera(mouse, camera);
+
+    const intersectPoint = new Vector3();
+    raycaster.ray.intersectPlane(plane, intersectPoint);
+
+    const itemPosition = new Vector3(
+      ...(placingItemRef.current.position || [0, 0, 0]),
+    );
+    const offset = itemPosition.clone().sub(intersectPoint);
+    dragOffset.current = [offset.x, offset.y, offset.z];
+  };
+
+  const handlePointerMove = (e: ThreeEvent<PointerEvent>) => {
+    if (!isDragging.current || !placingItemRef.current) return;
+    e.stopPropagation();
+
+    const mouse = new Vector2();
+    mouse.x = (e.clientX / gl.domElement.clientWidth) * 2 - 1;
+    mouse.y = -(e.clientY / gl.domElement.clientHeight) * 2 + 1;
+    raycaster.setFromCamera(mouse, camera);
+
+    const intersectPoint = new Vector3();
+    raycaster.ray.intersectPlane(plane, intersectPoint);
+
+    const newPosition = intersectPoint.clone();
+    if (dragOffset.current) {
+      newPosition.add(new Vector3(...dragOffset.current));
+    }
+
+    // Update the position without triggering a re-render
+    placingItemRef.current.position = [newPosition.x, 0, newPosition.z];
+
+    // Force the component to re-render at most once per frame
+    setPlacingItem({ ...placingItemRef.current });
+  };
+
+  const handlePointerUp = (e: ThreeEvent<PointerEvent>) => {
+    e.stopPropagation();
+    isDragging.current = false;
+    dragOffset.current = null;
+    gl.domElement.style.cursor = "default";
+  };
+
+  const handlePointerOver = () => {
+    if (placingItem) {
+      gl.domElement.style.cursor = "move";
+    }
+  };
+
+  const handlePointerOut = () => {
+    gl.domElement.style.cursor = "default";
+  };
+
+  useEffect(() => {
+    placingItemRef.current = placingItem;
+    if (!placingItem) {
+      isDragging.current = false;
+      dragOffset.current = null;
+      gl.domElement.style.cursor = "default";
+    }
+  }, [placingItem]);
+
+  useFrame(() => {
+    if (placingItemRef.current && modelRef.current) {
+      modelRef.current.position.set(
+        ...(placingItemRef.current.position || [0, 0, 0]),
+      );
+    }
+  });
+
   return (
     <>
       <CameraController
@@ -346,6 +437,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
         setIsTransitioning={setIsTransitioning}
         isAutoRotating={isAutoRotating}
         setIsAutoRotating={setIsAutoRotating}
+        disableControls={!!placingItem}
       />
       {/* Lights */}
       <ambientLight intensity={0.8} />
@@ -483,7 +575,8 @@ const SceneContent: React.FC<SceneContentProps> = ({
       {/* Currently placing item */}
       {placingItem && (
         <ItemModel
-          key={`placing-${uid()}`}
+          ref={modelRef}
+          key="placing-item"
           path={placingItem.path}
           position={placingItem.position || [0, 0, 0]}
           rotation={placingItem.rotation || [0, 0, 0]}
@@ -492,9 +585,15 @@ const SceneContent: React.FC<SceneContentProps> = ({
             height: placingItem.height,
             depth: placingItem.depth,
           }}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerOver={handlePointerOver}
+          onPointerOut={handlePointerOut}
         />
       )}
 
+      {/* Placed items */}
       {placedItems.map((item, index) => (
         <ItemModel
           key={`placed-${uid() || index}`}
@@ -506,6 +605,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
             height: item.height,
             depth: item.depth,
           }}
+          // No event handlers here
         />
       ))}
     </>
