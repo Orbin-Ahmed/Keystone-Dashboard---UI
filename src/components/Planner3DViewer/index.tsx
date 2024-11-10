@@ -20,6 +20,7 @@ interface Plan3DViewerProps {
 }
 
 interface PlacingItemType {
+  id?: string;
   name: string;
   path: string;
   type: string;
