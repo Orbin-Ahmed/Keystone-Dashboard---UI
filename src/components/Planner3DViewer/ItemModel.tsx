@@ -50,26 +50,22 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
       return scene.clone(true);
     }, [scene]);
 
-    const [adjustedPosition, adjustedScale] = useMemo(() => {
+    const [adjustedScale, adjustedPosition] = useMemo(() => {
       const { size, center } = initialBounds;
 
       const scaleX = dimensions.width / size.x;
       const scaleY = dimensions.height / size.y;
       const scaleZ = dimensions.depth / size.z;
 
-      const adjustedLocalX = position[0] - center.x * scaleX;
-      const adjustedLocalY =
-        position[1] - center.y * scaleY + dimensions.height / 2;
-      const adjustedLocalZ = position[2] - center.z * scaleZ;
+      const adjustedScale: [number, number, number] = [scaleX, scaleY, scaleZ];
 
-      return [
-        [adjustedLocalX, adjustedLocalY, adjustedLocalZ] as [
-          number,
-          number,
-          number,
-        ],
-        [scaleX, scaleY, scaleZ] as [number, number, number],
+      const adjustedPosition: [number, number, number] = [
+        position[0] - center.x * scaleX,
+        position[1] - center.y * scaleY + dimensions.height / 2,
+        position[2] - center.z * scaleZ,
       ];
+
+      return [adjustedScale, adjustedPosition];
     }, [initialBounds, dimensions, position]);
 
     useEffect(() => {
