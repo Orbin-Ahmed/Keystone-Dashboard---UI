@@ -2,6 +2,7 @@ import React, { useMemo, useEffect, useRef } from "react";
 import { useLoader, useThree, ThreeEvent, useFrame } from "@react-three/fiber";
 import {
   LineData,
+  PlacedItemType,
   PlacingItemType,
   Point,
   RoomName,
@@ -57,6 +58,8 @@ interface SceneContentProps {
   placingItem: PlacingItemType | null;
   placedItems: PlacingItemType[];
   setPlacingItem: React.Dispatch<React.SetStateAction<PlacingItemType | null>>;
+  selectedItem: PlacedItemType | null;
+  setSelectedItem: React.Dispatch<React.SetStateAction<PlacedItemType | null>>;
 }
 
 const ensureWallPoints = (
@@ -119,6 +122,8 @@ const SceneContent: React.FC<SceneContentProps> = ({
   placingItem,
   setPlacingItem,
   placedItems,
+  selectedItem,
+  setSelectedItem,
 }) => {
   const { scene, camera, gl } = useThree();
   const raycaster = new Raycaster();
@@ -386,6 +391,10 @@ const SceneContent: React.FC<SceneContentProps> = ({
     gl.domElement.style.cursor = "default";
   };
 
+  const handlePlacedItemClick = (item: PlacedItemType) => {
+    setSelectedItem(item);
+  };
+
   useEffect(() => {
     placingItemRef.current = placingItem;
     if (!placingItem) {
@@ -570,19 +579,22 @@ const SceneContent: React.FC<SceneContentProps> = ({
       )}
 
       {/* Placed items */}
-      {placedItems.map((item) => (
-        <ItemModel
-          key={item.id}
-          path={item.path}
-          position={item.position || [0, 0, 0]}
-          rotation={item.rotation || [0, 0, 0]}
-          dimensions={{
-            width: item.width,
-            height: item.height,
-            depth: item.depth,
-          }}
-        />
-      ))}
+      {placedItems
+        .filter((item) => item.id !== (placingItem?.id || selectedItem?.id))
+        .map((item) => (
+          <ItemModel
+            key={item.id}
+            path={item.path}
+            position={item.position || [0, 0, 0]}
+            rotation={item.rotation || [0, 0, 0]}
+            dimensions={{
+              width: item.width,
+              height: item.height,
+              depth: item.depth,
+            }}
+            onClick={() => handlePlacedItemClick(item)}
+          />
+        ))}
     </>
   );
 };

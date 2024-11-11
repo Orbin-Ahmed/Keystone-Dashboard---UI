@@ -17,6 +17,7 @@ interface ItemModelProps {
   onPointerUp?: (e: ThreeEvent<PointerEvent>) => void;
   onPointerOver?: (e: ThreeEvent<PointerEvent>) => void;
   onPointerOut?: (e: ThreeEvent<PointerEvent>) => void;
+  onClick?: (e: ThreeEvent<MouseEvent>) => void;
 }
 
 const ItemModel = forwardRef<Object3D, ItemModelProps>(
@@ -31,6 +32,7 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
       onPointerUp,
       onPointerOver,
       onPointerOut,
+      onClick,
     },
     ref,
   ) => {
@@ -119,6 +121,7 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
         onPointerUp={onPointerUp}
         onPointerOver={onPointerOver}
         onPointerOut={onPointerOut}
+        onClick={onClick}
       />
     );
   },

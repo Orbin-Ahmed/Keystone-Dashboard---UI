@@ -56,6 +56,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [placingItem, setPlacingItem] = useState<PlacingItemType | null>(null);
   const [placedItems, setPlacedItems] = useState<PlacedItemType[]>([]);
   const [lastPlacedItemId, setLastPlacedItemId] = useState(0);
+  const [selectedItem, setSelectedItem] = useState<PlacedItemType | null>(null);
 
   // Items categories
   const categories = [
@@ -257,6 +258,65 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     }
   };
 
+  const deselectItem = () => {
+    setSelectedItem(null);
+  };
+
+  const moveSelectedItem = () => {
+    if (selectedItem) {
+      setPlacingItem(selectedItem);
+      setPlacedItems((prevItems) =>
+        prevItems.filter((item) => item.id !== selectedItem.id),
+      );
+      setSelectedItem(null);
+    }
+  };
+
+  const rotateSelectedItemLeft = () => {
+    if (selectedItem) {
+      const currentRotation = selectedItem.rotation || [0, 0, 0];
+      const newRotationY = currentRotation[1] - Math.PI / 8;
+      updateSelectedItemRotation(newRotationY);
+    }
+  };
+
+  const rotateSelectedItemRight = () => {
+    if (selectedItem) {
+      const currentRotation = selectedItem.rotation || [0, 0, 0];
+      const newRotationY = currentRotation[1] + Math.PI / 8;
+      updateSelectedItemRotation(newRotationY);
+    }
+  };
+
+  const deleteSelectedItem = () => {
+    if (selectedItem) {
+      setPlacedItems((prevItems) =>
+        prevItems.filter((item) => item.id !== selectedItem.id),
+      );
+      setSelectedItem(null);
+    }
+  };
+
+  const updateSelectedItemRotation = (newRotationY: number) => {
+    if (selectedItem) {
+      const updatedRotation: [number, number, number] = [
+        selectedItem.rotation![0],
+        newRotationY,
+        selectedItem.rotation![2],
+      ];
+      const updatedItem: PlacedItemType = {
+        ...selectedItem,
+        rotation: updatedRotation,
+      };
+      setPlacedItems((prevItems) =>
+        prevItems.map((item) =>
+          item.id === selectedItem.id ? updatedItem : item,
+        ),
+      );
+      setSelectedItem(updatedItem);
+    }
+  };
+
   return (
     <>
       <Canvas
@@ -293,6 +353,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           placingItem={placingItem}
           setPlacingItem={setPlacingItem}
           placedItems={placedItems}
+          selectedItem={selectedItem}
+          setSelectedItem={setSelectedItem}
         />
       </Canvas>
 
@@ -434,6 +496,27 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
             <CustomButton variant="secondary" onClick={rotatePlacingItemRight}>
               Rotate Right
             </CustomButton>
+          </div>
+        </div>
+      )}
+
+      {/* Controls for Selected Item */}
+      {selectedItem && (
+        <div className="absolute bottom-20 right-4 flex flex-col gap-2">
+          <CustomButton variant="primary" onClick={deselectItem}>
+            Deselect Item
+          </CustomButton>
+          <div className="flex gap-2">
+            <CustomButton variant="secondary" onClick={moveSelectedItem}>
+              Move
+            </CustomButton>
+            <CustomButton variant="secondary" onClick={rotateSelectedItemLeft}>
+              Rotate Left
+            </CustomButton>
+            <CustomButton variant="secondary" onClick={rotateSelectedItemRight}>
+              Rotate Right
+            </CustomButton>
+            <CustomButton onClick={deleteSelectedItem}>Delete</CustomButton>
           </div>
         </div>
       )}
