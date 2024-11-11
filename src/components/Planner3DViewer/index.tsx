@@ -235,6 +235,28 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     }
   };
 
+  const rotatePlacingItemLeft = () => {
+    if (placingItem) {
+      const currentRotation = placingItem.rotation || [0, 0, 0];
+      const newRotationY = currentRotation[1] - Math.PI / 8;
+      setPlacingItem({
+        ...placingItem,
+        rotation: [currentRotation[0], newRotationY, currentRotation[2]],
+      });
+    }
+  };
+
+  const rotatePlacingItemRight = () => {
+    if (placingItem) {
+      const currentRotation = placingItem.rotation || [0, 0, 0];
+      const newRotationY = currentRotation[1] + Math.PI / 8;
+      setPlacingItem({
+        ...placingItem,
+        rotation: [currentRotation[0], newRotationY, currentRotation[2]],
+      });
+    }
+  };
+
   return (
     <>
       <Canvas
@@ -401,10 +423,18 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
       {/* Confirm Placement Button */}
       {placingItem && (
-        <div className="absolute bottom-20 right-4">
+        <div className="absolute bottom-20 right-4 flex flex-col gap-2">
           <CustomButton variant="primary" onClick={confirmPlacement}>
             Place Item
           </CustomButton>
+          <div className="flex gap-2">
+            <CustomButton variant="secondary" onClick={rotatePlacingItemLeft}>
+              Rotate Left
+            </CustomButton>
+            <CustomButton variant="secondary" onClick={rotatePlacingItemRight}>
+              Rotate Right
+            </CustomButton>
+          </div>
         </div>
       )}
     </>

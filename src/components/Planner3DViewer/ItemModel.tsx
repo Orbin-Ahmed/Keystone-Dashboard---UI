@@ -60,9 +60,9 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
       const adjustedScale: [number, number, number] = [scaleX, scaleY, scaleZ];
 
       const adjustedPosition: [number, number, number] = [
-        position[0] - center.x * scaleX,
+        position[0] - center.x,
         position[1] - center.y * scaleY + dimensions.height / 2,
-        position[2] - center.z * scaleZ,
+        position[2] - center.z,
       ];
 
       return [adjustedScale, adjustedPosition];
@@ -72,9 +72,9 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
       if (modelRef.current) {
         modelRef.current.position.set(...adjustedPosition);
         modelRef.current.scale.set(...adjustedScale);
-        modelRef.current.rotation.set(...rotation);
+        // modelRef.current.rotation.set(...rotation);
       }
-    }, [adjustedPosition, adjustedScale, rotation]);
+    }, [adjustedPosition, adjustedScale]);
 
     useEffect(() => {
       const currentScene = clonedScene;

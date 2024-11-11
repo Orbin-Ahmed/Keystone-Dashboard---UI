@@ -400,6 +400,9 @@ const SceneContent: React.FC<SceneContentProps> = ({
       modelRef.current.position.set(
         ...(placingItemRef.current.position || [0, 0, 0]),
       );
+      modelRef.current.rotation.set(
+        ...(placingItemRef.current.rotation || [0, 0, 0]),
+      );
     }
   });
 
