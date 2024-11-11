@@ -391,7 +391,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
     gl.domElement.style.cursor = "default";
   };
 
-  const handlePlacedItemClick = (item: PlacedItemType) => {
+  const handlePlacedItemClick = (item: any) => {
     setSelectedItem(item);
   };
 
