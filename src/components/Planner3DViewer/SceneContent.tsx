@@ -500,8 +500,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
           const dx = shapeWorldX - wallPosition.x;
           const dz = shapeWorldZ - wallPosition.z;
           const localX = dx * Math.cos(angle) + dz * Math.sin(angle);
-          const localY =
-            type === "window" ? 0 : -wallHeight / 2 + doorDimensions.height / 2;
+          const localY = type === "window" ? 0 : -wallHeight / 2 + height / 2;
           cutoutGeometry.translate(localX, localY, 0);
           const cutoutMesh = new Mesh(cutoutGeometry);
           wallMesh = CSG.subtract(
@@ -537,9 +536,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
               const dz = shapeWorldZ - wallPosition.z;
               const localX = dx * Math.cos(angle) + dz * Math.sin(angle);
               const localY =
-                type === "window"
-                  ? 0
-                  : -wallHeight / 2 + doorDimensions.height / 2;
+                type === "window" ? 0 : -wallHeight / 2 + height / 2;
               const rotationY =
                 type === "door"
                   ? isFacingInward
