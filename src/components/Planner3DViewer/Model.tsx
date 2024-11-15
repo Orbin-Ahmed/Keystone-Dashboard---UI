@@ -18,6 +18,8 @@ interface ModelProps {
   wallHeight?: number;
   doorDimensions?: { width: number; height: number };
   windowDimensions?: { width: number; height: number };
+  width: number;
+  height: number;
   onClick?: () => void;
 }
 
@@ -29,26 +31,17 @@ interface Dimensions {
 const Model = React.memo(
   forwardRef<Object3D, ModelProps>(
     (
-      {
-        path,
-        position,
-        rotation,
-        type,
-        wallThickness,
-        doorDimensions,
-        windowDimensions,
-        onClick,
-      },
+      { path, position, rotation, wallThickness, width, height, onClick },
       ref,
     ) => {
       const { scene, materials } = useGLTF(`/models/${path}`);
 
       const dimensions = useMemo<Dimensions>(
-        () =>
-          type === "door"
-            ? (doorDimensions ?? { width: 50, height: 100 })
-            : (windowDimensions ?? { width: 60, height: 50 }),
-        [type, doorDimensions, windowDimensions],
+        () => ({
+          width,
+          height,
+        }),
+        [width, height],
       );
 
       const cloneMaterial = useCallback((material: Material) => {

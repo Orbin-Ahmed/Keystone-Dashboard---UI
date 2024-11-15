@@ -53,6 +53,7 @@ interface SceneContentProps {
   maxY: number;
   onModelClick: (shape: ShapeData) => void;
   modelPathsByShapeId: Record<string, string>;
+  shapeDimensionsById: Record<string, { width: number; height: number }>;
   shouldExport: boolean;
   setShouldExport: React.Dispatch<React.SetStateAction<boolean>>;
   placingItem: PlacingItemType | null;
@@ -117,6 +118,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
   maxY,
   onModelClick,
   modelPathsByShapeId,
+  shapeDimensionsById,
   shouldExport,
   setShouldExport,
   placingItem,
@@ -479,11 +481,15 @@ const SceneContent: React.FC<SceneContentProps> = ({
         const shapesOnWall = shapesByWallId[line.id] || [];
 
         shapesOnWall.forEach((shape) => {
-          const { type, x, y } = shape;
-          const cutoutWidth =
-            type === "door" ? doorDimensions.width : windowDimensions.width;
-          const cutoutHeight =
-            type === "door" ? doorDimensions.height : windowDimensions.height;
+          const { type, x, y, id } = shape;
+          const defaultDims =
+            type === "door" ? doorDimensions : windowDimensions;
+          const { width: defaultWidth, height: defaultHeight } = defaultDims;
+          const shapeDims = shapeDimensionsById[id] || {};
+          const width = shapeDims.width || defaultWidth;
+          const height = shapeDims.height || defaultHeight;
+          const cutoutWidth = width;
+          const cutoutHeight = height;
           const cutoutGeometry = new BoxGeometry(
             cutoutWidth,
             cutoutHeight,
@@ -521,6 +527,10 @@ const SceneContent: React.FC<SceneContentProps> = ({
                     : "door/door_wooden.glb";
 
               const modelPath = modelPathsByShapeId[id] || defaultModelPath;
+              const defaultDims =
+                type === "door" ? doorDimensions : windowDimensions;
+              const shapeDims = shapeDimensionsById[id] || defaultDims;
+              const { width, height } = shapeDims;
               const shapeWorldX = x - centerX;
               const shapeWorldZ = y - centerY;
               const dx = shapeWorldX - wallPosition.x;
@@ -548,8 +558,8 @@ const SceneContent: React.FC<SceneContentProps> = ({
                   type={type}
                   wallThickness={wallThickness}
                   wallHeight={wallHeight}
-                  doorDimensions={doorDimensions}
-                  windowDimensions={windowDimensions}
+                  width={width}
+                  height={height}
                   onClick={() => onModelClick(shape)}
                 />
               );

@@ -3,14 +3,14 @@ import { twMerge } from "tailwind-merge";
 
 type InputFieldProps = {
   className?: string;
-  type: "text" | "email" | "password" | "file";
+  type: "text" | "email" | "password" | "file" | "number";
   name: string;
   id: string;
   placeholder?: string;
   defaultValue?: string;
   required?: boolean;
   accept?: string;
-  value?: string;
+  value?: string | number;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 };
 

@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import {
   LineData,
@@ -11,6 +11,7 @@ import {
 import { PerspectiveCamera } from "three";
 import CustomButton from "@/components/CustomButton";
 import SceneContent from "@/components/Planner3DViewer/SceneContent";
+import InputField from "../InputField";
 
 interface Plan3DViewerProps {
   lines: LineData[];
@@ -50,6 +51,15 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [modelPathsByShapeId, setModelPathsByShapeId] = useState<
     Record<string, string>
   >({});
+
+  const [newWidth, setNewWidth] = useState<number | "">("");
+  const [newHeight, setNewHeight] = useState<number | "">("");
+  const [shapeDimensionsById, setShapeDimensionsById] = useState<
+    Record<string, { width: number; height: number }>
+  >({});
+  const [selectedModelPath, setSelectedModelPath] = useState<string | null>(
+    null,
+  );
 
   // Item states with persistence
   const [isItemsOpen, setIsItemsOpen] = useState(false);
@@ -165,6 +175,50 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     },
   ];
 
+  const defaultDimensions = {
+    door: { width: 50, height: 100 },
+    window: { width: 60, height: 50 },
+  };
+
+  const handleModelClick = (shape: ShapeData) => {
+    setSelectedShape(shape);
+    setIsTourOpen(false);
+
+    const dimensions = shapeDimensionsById[shape.id];
+    const defaultDims = defaultDimensions[shape.type];
+
+    setNewWidth(dimensions?.width || defaultDims.width);
+    setNewHeight(dimensions?.height || defaultDims.height);
+  };
+
+  const handleSaveChanges = () => {
+    if (selectedShape) {
+      // Update dimensions
+      if (newWidth && newHeight) {
+        setShapeDimensionsById((prev) => ({
+          ...prev,
+          [selectedShape.id]: { width: newWidth, height: newHeight },
+        }));
+      }
+      // Update model path
+      if (selectedModelPath) {
+        setModelPathsByShapeId((prev) => ({
+          ...prev,
+          [selectedShape.id]: selectedModelPath,
+        }));
+      }
+      // Reset selection
+      setSelectedShape(null);
+      setNewWidth("");
+      setNewHeight("");
+      setSelectedModelPath(null);
+    }
+  };
+
+  const handleModelChange = (newModelPath: string) => {
+    setSelectedModelPath(newModelPath);
+  };
+
   const EYE_LEVEL = 70;
 
   const tourPoints = useMemo(
@@ -232,21 +286,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
   const toggleTourList = () => {
     setIsTourOpen((prev) => !prev);
-  };
-
-  const handleModelClick = (shape: ShapeData) => {
-    setSelectedShape(shape);
-    setIsTourOpen(false);
-  };
-
-  const handleModelChange = (newModelPath: string) => {
-    if (selectedShape) {
-      setModelPathsByShapeId((prev) => ({
-        ...prev,
-        [selectedShape.id]: newModelPath,
-      }));
-      setSelectedShape(null);
-    }
   };
 
   const handleCloseSidebar = () => {
@@ -388,6 +427,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           maxY={maxY}
           onModelClick={handleModelClick}
           modelPathsByShapeId={modelPathsByShapeId}
+          shapeDimensionsById={shapeDimensionsById}
           shouldExport={shouldExport}
           setShouldExport={setShouldExport}
           placingItem={placingItem}
@@ -475,11 +515,34 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       </div>
 
       {/* Sidebar for Model Selection */}
+      {/* Sidebar for Model Selection */}
       {selectedShape && (
         <div className="border-gray-200 fixed right-4 top-4 z-50 w-64 rounded-lg border bg-white p-4 shadow-lg">
           <h3 className="text-gray-800 mb-4 text-lg font-semibold">
-            Select a {selectedShape.type} Model
+            {selectedShape.type.toUpperCase()} Model
           </h3>
+          {/* Dimension Inputs */}
+          <div className="my-3">
+            <InputField
+              className="my-2 px-3.5 py-2"
+              name="width"
+              id="width_id"
+              type="number"
+              placeholder="Width"
+              value={newWidth}
+              onChange={(e) => setNewWidth(Number(e.target.value))}
+            />
+            <InputField
+              className="my-2 px-3.5 py-2"
+              name="height"
+              id="height_id"
+              type="number"
+              placeholder="Height"
+              value={newHeight}
+              onChange={(e) => setNewHeight(Number(e.target.value))}
+            />
+          </div>
+          {/* Model Variant Buttons */}
           {selectedShape.type === "door" ? (
             <>
               <CustomButton
@@ -513,10 +576,18 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
               </CustomButton>
             </>
           )}
+          {/* Save Changes Button */}
+          <CustomButton
+            onClick={handleSaveChanges}
+            variant="primary"
+            className="m-auto w-full"
+          >
+            Save Changes
+          </CustomButton>
           <CustomButton
             onClick={handleCloseSidebar}
             variant="secondary"
-            className="m-auto w-full"
+            className="m-auto mt-2 w-full"
           >
             Close
           </CustomButton>
