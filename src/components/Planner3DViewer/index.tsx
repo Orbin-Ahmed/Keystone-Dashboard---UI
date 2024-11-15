@@ -47,11 +47,12 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [showRoof, setShowRoof] = useState(false);
   const cameraRef = useRef<PerspectiveCamera | null>(null);
   const [isTourOpen, setIsTourOpen] = useState(false);
+
+  // Window and Door Shape Data
   const [selectedShape, setSelectedShape] = useState<ShapeData | null>(null);
   const [modelPathsByShapeId, setModelPathsByShapeId] = useState<
     Record<string, string>
   >({});
-
   const [newWidth, setNewWidth] = useState<number | "">("");
   const [newHeight, setNewHeight] = useState<number | "">("");
   const [shapeDimensionsById, setShapeDimensionsById] = useState<
@@ -61,7 +62,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     null,
   );
 
-  // Item states with persistence
+  // Item states
   const [isItemsOpen, setIsItemsOpen] = useState(false);
   const [placingItem, setPlacingItem] = useState<PlacingItemType | null>(null);
   const [placedItems, setPlacedItems] = useState<PlacedItemType[]>([]);
@@ -178,45 +179,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const defaultDimensions = {
     door: { width: 50, height: 100 },
     window: { width: 60, height: 50 },
-  };
-
-  const handleModelClick = (shape: ShapeData) => {
-    setSelectedShape(shape);
-    setIsTourOpen(false);
-
-    const dimensions = shapeDimensionsById[shape.id];
-    const defaultDims = defaultDimensions[shape.type];
-
-    setNewWidth(dimensions?.width || defaultDims.width);
-    setNewHeight(dimensions?.height || defaultDims.height);
-  };
-
-  const handleSaveChanges = () => {
-    if (selectedShape) {
-      // Update dimensions
-      if (newWidth && newHeight) {
-        setShapeDimensionsById((prev) => ({
-          ...prev,
-          [selectedShape.id]: { width: newWidth, height: newHeight },
-        }));
-      }
-      // Update model path
-      if (selectedModelPath) {
-        setModelPathsByShapeId((prev) => ({
-          ...prev,
-          [selectedShape.id]: selectedModelPath,
-        }));
-      }
-      // Reset selection
-      setSelectedShape(null);
-      setNewWidth("");
-      setNewHeight("");
-      setSelectedModelPath(null);
-    }
-  };
-
-  const handleModelChange = (newModelPath: string) => {
-    setSelectedModelPath(newModelPath);
   };
 
   const EYE_LEVEL = 70;
@@ -394,6 +356,45 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       );
       setSelectedItem(updatedItem);
     }
+  };
+
+  const handleModelClick = (shape: ShapeData) => {
+    setSelectedShape(shape);
+    setIsTourOpen(false);
+
+    const dimensions = shapeDimensionsById[shape.id];
+    const defaultDims = defaultDimensions[shape.type];
+
+    setNewWidth(dimensions?.width || defaultDims.width);
+    setNewHeight(dimensions?.height || defaultDims.height);
+  };
+
+  const handleSaveChanges = () => {
+    if (selectedShape) {
+      // Update dimensions
+      if (newWidth && newHeight) {
+        setShapeDimensionsById((prev) => ({
+          ...prev,
+          [selectedShape.id]: { width: newWidth, height: newHeight },
+        }));
+      }
+      // Update model path
+      if (selectedModelPath) {
+        setModelPathsByShapeId((prev) => ({
+          ...prev,
+          [selectedShape.id]: selectedModelPath,
+        }));
+      }
+      // Reset selection
+      setSelectedShape(null);
+      setNewWidth("");
+      setNewHeight("");
+      setSelectedModelPath(null);
+    }
+  };
+
+  const handleModelChange = (newModelPath: string) => {
+    setSelectedModelPath(newModelPath);
   };
 
   return (
