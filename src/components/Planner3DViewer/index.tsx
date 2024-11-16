@@ -13,6 +13,8 @@ import CustomButton from "@/components/CustomButton";
 import SceneContent from "@/components/Planner3DViewer/SceneContent";
 import InputField from "../InputField";
 import ItemSidebar from "./ItemSidebar";
+import { FaCog, FaFileExport } from "react-icons/fa";
+import { BsZoomIn, BsZoomOut } from "react-icons/bs";
 
 interface Plan3DViewerProps {
   lines: LineData[];
@@ -56,12 +58,16 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   >({});
   const [newWidth, setNewWidth] = useState<number | "">("");
   const [newHeight, setNewHeight] = useState<number | "">("");
+  const [flipShape, setFlipShape] = useState<boolean>(false);
   const [shapeDimensionsById, setShapeDimensionsById] = useState<
     Record<string, { width: number; height: number }>
   >({});
   const [selectedModelPath, setSelectedModelPath] = useState<string | null>(
     null,
   );
+  const [shapeFlipStatusById, setShapeFlipStatusById] = useState<
+    Record<string, boolean>
+  >({});
 
   // Item states
   const [isItemsOpen, setIsItemsOpen] = useState(false);
@@ -69,6 +75,17 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [placedItems, setPlacedItems] = useState<PlacedItemType[]>([]);
   const [lastPlacedItemId, setLastPlacedItemId] = useState(0);
   const [selectedItem, setSelectedItem] = useState<PlacedItemType | null>(null);
+
+  // settings State
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [wallHeightSetting, setWallHeightSetting] = useState<number>(120);
+  const [wallThicknessSetting, setWallThicknessSetting] = useState<number>(6);
+  const [wallTextureSetting, setWallTextureSetting] =
+    useState<string>("wallmap_yellow.png");
+  const [floorTextureSetting, setFloorTextureSetting] =
+    useState<string>("white_marble.jpg");
+  const [ceilingTextureSetting, setCeilingTextureSetting] =
+    useState<string>("wallmap_yellow.png");
 
   // Items categories
   const categories = [
@@ -177,6 +194,17 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     },
   ];
 
+  // Door & Window Model Options
+  const doorOptions = [
+    { label: "Glass Door", value: "door/door.glb" },
+    { label: "Wooden Door", value: "door/door_wooden.glb" },
+  ];
+
+  const windowOptions = [
+    { label: "Standard Window", value: "window/window_twin_casement.glb" },
+    { label: "Slide Window", value: "window/window_slide.glb" },
+  ];
+
   const defaultDimensions = {
     door: { width: 50, height: 100 },
     window: { width: 60, height: 50 },
@@ -248,6 +276,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   };
 
   const toggleTourList = () => {
+    setIsSettingsOpen(false);
     setIsTourOpen((prev) => !prev);
   };
 
@@ -256,6 +285,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   };
 
   const handleItemClick = (item: PlacingItemType) => {
+    setIsSettingsOpen(false);
     setPlacingItem((prev) => ({
       ...item,
       position: prev?.position || [0, 0, 0],
@@ -362,35 +392,47 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const handleModelClick = (shape: ShapeData) => {
     setSelectedShape(shape);
     setIsTourOpen(false);
+    setIsSettingsOpen(false);
 
     const dimensions = shapeDimensionsById[shape.id];
     const defaultDims = defaultDimensions[shape.type];
 
     setNewWidth(dimensions?.width || defaultDims.width);
     setNewHeight(dimensions?.height || defaultDims.height);
+
+    const flipStatus = shapeFlipStatusById[shape.id] || false;
+    setFlipShape(flipStatus);
+
+    const defaultModelPath =
+      shape.type === "window" ? "window/window.glb" : "door/door.glb";
+    const currentModelPath = modelPathsByShapeId[shape.id] || defaultModelPath;
+    setSelectedModelPath(currentModelPath);
   };
 
   const handleSaveChanges = () => {
     if (selectedShape) {
-      // Update dimensions
       if (newWidth && newHeight) {
         setShapeDimensionsById((prev) => ({
           ...prev,
           [selectedShape.id]: { width: newWidth, height: newHeight },
         }));
       }
-      // Update model path
       if (selectedModelPath) {
         setModelPathsByShapeId((prev) => ({
           ...prev,
           [selectedShape.id]: selectedModelPath,
         }));
       }
-      // Reset selection
+      setShapeFlipStatusById((prev) => ({
+        ...prev,
+        [selectedShape.id]: flipShape,
+      }));
+
       setSelectedShape(null);
       setNewWidth("");
       setNewHeight("");
       setSelectedModelPath(null);
+      setFlipShape(false);
     }
   };
 
@@ -437,6 +479,12 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           placedItems={placedItems}
           selectedItem={selectedItem}
           setSelectedItem={setSelectedItem}
+          wallHeight={wallHeightSetting}
+          wallThickness={wallThicknessSetting}
+          wallTexture={wallTextureSetting}
+          floorTexture={floorTextureSetting}
+          ceilingTexture={ceilingTextureSetting}
+          shapeFlipStatusById={shapeFlipStatusById}
         />
       </Canvas>
 
@@ -449,7 +497,10 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
             </CustomButton>
             <CustomButton
               variant="tertiary"
-              onClick={() => setIsItemsOpen((prev) => !prev)}
+              onClick={() => {
+                setIsItemsOpen((prev) => !prev);
+                setIsSettingsOpen(false);
+              }}
             >
               Add Items
             </CustomButton>
@@ -493,14 +544,24 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
       {/* Render Zoom Controls and Export Button */}
       <div className="absolute bottom-4 right-4 flex gap-2">
-        <CustomButton variant="secondary" onClick={handleZoomIn}>
-          Zoom In
+        <CustomButton variant="tertiary" onClick={handleZoomIn}>
+          <BsZoomIn />
         </CustomButton>
-        <CustomButton variant="secondary" onClick={handleZoomOut}>
-          Zoom Out
+        <CustomButton variant="tertiary" onClick={handleZoomOut}>
+          <BsZoomOut />
         </CustomButton>
-        <CustomButton variant="secondary" onClick={() => setShouldExport(true)}>
-          Export Scene
+        <CustomButton variant="tertiary" onClick={() => setShouldExport(true)}>
+          <FaFileExport />
+        </CustomButton>
+        <CustomButton
+          variant="tertiary"
+          onClick={() => {
+            setIsSettingsOpen((prev) => !prev);
+            setIsItemsOpen(false);
+            setIsTourOpen(false);
+          }}
+        >
+          <FaCog />
         </CustomButton>
       </div>
 
@@ -508,8 +569,19 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       {selectedShape && (
         <div className="border-gray-200 fixed right-4 top-4 z-50 w-64 rounded-lg border bg-white p-4 shadow-lg">
           <h3 className="text-gray-800 mb-4 text-lg font-semibold">
-            {selectedShape.type.toUpperCase()} Model
+            {selectedShape.type.toUpperCase()} Model (Inch)
           </h3>
+          {/* Flip Checkbox */}
+          <div className="my-3 flex items-center">
+            <input
+              type="checkbox"
+              id="flip_checkbox"
+              checked={flipShape}
+              onChange={(e) => setFlipShape(e.target.checked)}
+              className="mr-2"
+            />
+            <label htmlFor="flip_checkbox">Flip</label>
+          </div>
           {/* Dimension Inputs */}
           <div className="my-3">
             <InputField
@@ -531,40 +603,30 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
               onChange={(e) => setNewHeight(Number(e.target.value))}
             />
           </div>
-          {/* Model Variant Buttons */}
-          {selectedShape.type === "door" ? (
-            <>
-              <CustomButton
-                onClick={() => handleModelChange("door/door.glb")}
-                className="mb-2 w-full text-left"
-              >
-                Glass Door
-              </CustomButton>
-              <CustomButton
-                onClick={() => handleModelChange("door/door_wooden.glb")}
-                className="mb-2 w-full text-left"
-              >
-                Wooden Door
-              </CustomButton>
-            </>
-          ) : (
-            <>
-              <CustomButton
-                onClick={() =>
-                  handleModelChange("window/window_twin_casement.glb")
-                }
-                className="mb-2 w-full text-left"
-              >
-                Standard Window
-              </CustomButton>
-              <CustomButton
-                onClick={() => handleModelChange("window/window_slide.glb")}
-                className="mb-2 w-full text-left"
-              >
-                Slide Window
-              </CustomButton>
-            </>
-          )}
+          {/* Model Selection Dropdown */}
+          <div className="my-3">
+            <label htmlFor="model_select" className="mb-1 block">
+              Select Model
+            </label>
+            <select
+              id="model_select"
+              value={selectedModelPath || ""}
+              onChange={(e) => handleModelChange(e.target.value)}
+              className="w-full rounded border p-2"
+            >
+              <option value="" disabled>
+                Select a model
+              </option>
+              {(selectedShape.type === "door"
+                ? doorOptions
+                : windowOptions
+              ).map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
           {/* Save Changes Button */}
           <CustomButton
             onClick={handleSaveChanges}
@@ -618,6 +680,125 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
               Rotate Right
             </CustomButton>
             <CustomButton onClick={deleteSelectedItem}>Delete</CustomButton>
+          </div>
+        </div>
+      )}
+
+      {/* settings  */}
+      {isSettingsOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+          <div className="border-gray-200 w-72 rounded-lg border bg-white p-6 shadow-lg">
+            <h3 className="text-gray-800 mb-4 text-lg font-semibold">
+              Settings
+            </h3>
+
+            {/* Wall Height Input */}
+            <div className="mb-4">
+              <label
+                htmlFor="wall_height"
+                className="text-gray-700 block text-sm font-medium"
+              >
+                Wall Height (Inch)
+              </label>
+              <InputField
+                className="border-gray-300 mt-2 w-full rounded border px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                name="wall_height"
+                id="wall_height"
+                type="number"
+                placeholder="Wall Height"
+                value={wallHeightSetting}
+                onChange={(e) => setWallHeightSetting(Number(e.target.value))}
+              />
+            </div>
+
+            {/* Wall Thickness Input */}
+            <div className="mb-4">
+              <label
+                htmlFor="wall_thickness"
+                className="text-gray-700 block text-sm font-medium"
+              >
+                Wall Thickness (Inch)
+              </label>
+              <InputField
+                className="border-gray-300 mt-2 w-full rounded border px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                name="wall_thickness"
+                id="wall_thickness"
+                type="number"
+                placeholder="Wall Thickness"
+                value={wallThicknessSetting}
+                onChange={(e) =>
+                  setWallThicknessSetting(Number(e.target.value))
+                }
+              />
+            </div>
+
+            {/* Wall Texture Selection */}
+            <div className="mb-4">
+              <label
+                htmlFor="wall_texture"
+                className="text-gray-700 block text-sm font-medium"
+              >
+                Wall Texture
+              </label>
+              <select
+                id="wall_texture"
+                value={wallTextureSetting}
+                onChange={(e) => setWallTextureSetting(e.target.value)}
+                className="border-gray-300 mt-2 w-full rounded border bg-white px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+              >
+                <option value="wallmap_yellow.png">Yellow Wall</option>
+                <option value="wallmap.png">White Wall</option>
+                <option value="marbletiles.jpg">Brick Wall</option>
+              </select>
+            </div>
+
+            {/* Floor Texture Selection */}
+            <div className="mb-4">
+              <label
+                htmlFor="floor_texture"
+                className="text-gray-700 block text-sm font-medium"
+              >
+                Floor Texture
+              </label>
+              <select
+                id="floor_texture"
+                value={floorTextureSetting}
+                onChange={(e) => setFloorTextureSetting(e.target.value)}
+                className="border-gray-300 mt-2 w-full rounded border bg-white px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+              >
+                <option value="white_marble.jpg">White Marble</option>
+                <option value="golden.jpeg">Golden Marble</option>
+                <option value="hardwood.png">Wooden Floor</option>
+                <option value="light_fine_wood.jpg">Light Wooden Floor</option>
+              </select>
+            </div>
+
+            {/* Ceiling Texture Selection */}
+            <div className="mb-4">
+              <label
+                htmlFor="ceiling_texture"
+                className="text-gray-700 block text-sm font-medium"
+              >
+                Ceiling Texture
+              </label>
+              <select
+                id="ceiling_texture"
+                value={ceilingTextureSetting}
+                onChange={(e) => setCeilingTextureSetting(e.target.value)}
+                className="border-gray-300 mt-2 w-full rounded border bg-white px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+              >
+                <option value="wallmap_yellow.jpg">White Ceiling</option>
+              </select>
+            </div>
+
+            {/* Close Button */}
+            <CustomButton
+              onClick={() => setIsSettingsOpen(false)}
+              variant="secondary"
+              className="bg-gray-200 text-gray-800 hover:bg-gray-300 w-full rounded px-4 py-2 text-sm font-medium"
+            >
+              Close
+            </CustomButton>
           </div>
         </div>
       )}

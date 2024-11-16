@@ -25,7 +25,7 @@ const RoomLabelComponent = ({
     <Text
       ref={labelRef}
       position={[position[0], 1, position[2]]}
-      fontSize={10}
+      fontSize={14}
       color="black"
       anchorX="center"
       anchorY="bottom"

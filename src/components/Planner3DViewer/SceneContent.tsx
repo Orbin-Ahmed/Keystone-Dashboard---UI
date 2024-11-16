@@ -65,6 +65,12 @@ interface SceneContentProps {
   setPlacingItem: React.Dispatch<React.SetStateAction<PlacingItemType | null>>;
   selectedItem: PlacedItemType | null;
   setSelectedItem: React.Dispatch<React.SetStateAction<PlacedItemType | null>>;
+  wallHeight: number;
+  wallThickness: number;
+  wallTexture: string;
+  floorTexture: string;
+  ceilingTexture: string;
+  shapeFlipStatusById: Record<string, boolean>;
 }
 
 const ensureWallPoints = (
@@ -130,13 +136,17 @@ const SceneContent: React.FC<SceneContentProps> = ({
   placedItems,
   selectedItem,
   setSelectedItem,
+  wallHeight,
+  wallThickness,
+  wallTexture,
+  floorTexture,
+  ceilingTexture,
+  shapeFlipStatusById,
 }) => {
   const { scene, camera, gl } = useThree();
   const raycaster = new Raycaster();
   const plane = new Plane(new Vector3(0, 1, 0), 0);
 
-  const wallHeight = 120;
-  const wallThickness = 10;
   const doorDimensions = { width: 50, height: 100 };
   const windowDimensions = { width: 60, height: 50 };
 
@@ -218,13 +228,23 @@ const SceneContent: React.FC<SceneContentProps> = ({
     return shape;
   }, [floorPlanPoints]);
 
+  // Texure Data
+  const floorTextureData = useLoader(
+    TextureLoader,
+    `/textures/${floorTexture}`,
+  );
+  const wallTextureData = useLoader(TextureLoader, `/textures/${wallTexture}`);
+  const ceilingTextureData = useLoader(
+    TextureLoader,
+    `/textures/${ceilingTexture}`,
+  );
+
   const textures = {
-    floor: useLoader(TextureLoader, "/textures/marbel.jpg"),
-    wall: useLoader(TextureLoader, "/textures/wallmap_yellow.png"),
-    roof: useLoader(TextureLoader, "/textures/wallmap_yellow.png"),
+    floor: floorTextureData,
+    wall: wallTextureData,
+    roof: ceilingTextureData,
   };
 
-  // Mapping from model paths to display names & image paths
   const modelTypeNames: { [key: string]: string } = {
     "door/door.glb": "Glass Door",
     "door/door_wooden.glb": "Wooden Door",
@@ -451,31 +471,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
     return zipBlob;
   };
 
-  // useEffect(() => {
-  //   if (shouldExport) {
-  //     const exporter = new GLTFExporter();
-  //     exporter.parse(
-  //       scene,
-  //       (result) => {
-  //         const output =
-  //           result instanceof ArrayBuffer ? result : JSON.stringify(result);
-  //         const blob = new Blob([output], { type: "model/gltf-binary" });
-  //         const link = document.createElement("a");
-  //         link.href = URL.createObjectURL(blob);
-  //         link.download = "scene.glb";
-  //         link.click();
-  //         URL.revokeObjectURL(link.href);
-  //         setShouldExport(false);
-  //       },
-  //       (error) => {
-  //         console.error("An error occurred during GLTF export", error);
-  //         setShouldExport(false);
-  //       },
-  //       { binary: true },
-  //     );
-  //   }
-  // }, [shouldExport, scene, setShouldExport]);
-
   useEffect(() => {
     return () => {
       const disposeObject = (obj: any) => {
@@ -543,7 +538,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
         <meshStandardMaterial map={floorTexture} side={DoubleSide} />
       </mesh>
     );
-  }, [floorShape]);
+  }, [floorShape, textures.floor]);
 
   const Roof = useMemo(() => {
     if (!showRoof || !floorShape) return null;
@@ -561,7 +556,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
         <meshStandardMaterial map={textures.roof} side={DoubleSide} />
       </mesh>
     );
-  }, [floorShape, showRoof]);
+  }, [floorShape, showRoof, textures.roof]);
 
   const handlePointerDown = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation();
@@ -755,6 +750,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
                     : "door/door_wooden.glb";
 
               const modelPath = modelPathsByShapeId[id] || defaultModelPath;
+              const flipStatus = shapeFlipStatusById[id] || false;
               const defaultDims =
                 type === "door" ? doorDimensions : windowDimensions;
               const shapeDims = shapeDimensionsById[id] || defaultDims;
@@ -774,13 +770,16 @@ const SceneContent: React.FC<SceneContentProps> = ({
                   : isFacingInward
                     ? 0
                     : Math.PI;
+              const adjustedRotationY = flipStatus
+                ? rotationY + Math.PI
+                : rotationY;
 
               return (
                 <Model
                   key={id}
                   path={modelPath}
                   position={[localX, localY, 0]}
-                  rotation={[0, rotationY, 0]}
+                  rotation={[0, adjustedRotationY, 0]}
                   type={type}
                   wallThickness={wallThickness}
                   wallHeight={wallHeight}
