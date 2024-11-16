@@ -443,26 +443,29 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       {/* Render UI Controls and the "Items" button when no shape is selected */}
       {!selectedShape && (
         <div className="absolute right-4 top-4">
-          <CustomButton variant="primary" onClick={toggleTourList}>
-            {isTourOpen ? "Hide Tour Points" : "Show Tour Points"}
-          </CustomButton>
-          <CustomButton
-            variant="primary"
-            onClick={() => setIsItemsOpen((prev) => !prev)}
-          >
-            {isItemsOpen ? "Hide Items" : "Show Items"}
-          </CustomButton>
+          <div className="flex gap-4">
+            <CustomButton variant="tertiary" onClick={toggleTourList}>
+              Tour Points
+            </CustomButton>
+            <CustomButton
+              variant="tertiary"
+              onClick={() => setIsItemsOpen((prev) => !prev)}
+            >
+              Add Items
+            </CustomButton>
+          </div>
 
           {/* Tour Points List */}
           {isTourOpen && (
             <div className="mt-4 rounded-lg bg-white p-4 shadow-lg">
-              <h3 className="text-lg font-bold">Virtual Tour</h3>
               <div className="flex flex-col gap-2">
                 {tourPoints.map((point) => (
                   <CustomButton
                     key={point.id}
                     variant={
-                      activeTourPoint?.id === point.id ? "primary" : "secondary"
+                      activeTourPoint?.id === point.id
+                        ? "secondary"
+                        : "tertiary"
                     }
                     onClick={() => handleTourPointClick(point)}
                   >
@@ -470,7 +473,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
                   </CustomButton>
                 ))}
                 {activeTourPoint && (
-                  <CustomButton variant="secondary" onClick={handleExitTour}>
+                  <CustomButton variant="tertiary" onClick={handleExitTour}>
                     Exit Tour
                   </CustomButton>
                 )}

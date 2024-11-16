@@ -466,8 +466,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
           (y1 + y2) / 2 - centerY,
         );
         const angle = Math.atan2(y2 - y1, x2 - x1);
-
-        // Determine if wall is facing inward
         const wallClass = wallClassifications[line.id];
         const { isOuter, isFacingInward } = wallClass;
 
