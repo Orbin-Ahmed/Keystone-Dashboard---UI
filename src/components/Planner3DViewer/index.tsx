@@ -852,7 +852,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
                 onChange={(e) => setCeilingTextureSetting(e.target.value)}
                 className="border-gray-300 mt-2 w-full rounded border bg-white px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
               >
-                <option value="wallmap_yellow.jpg">White Ceiling</option>
+                <option value="wallmap_yellow.png">Yellow Ceiling</option>
+                <option value="wallmap.png">White Ceiling</option>
               </select>
             </div>
 
