@@ -6,6 +6,7 @@ import {
   PlacingItemType,
   Point,
   RoomName,
+  ScheduleItem,
   ShapeData,
   TourPoint,
   WallClassification,
@@ -30,6 +31,9 @@ import Model from "./Model";
 import ItemModel from "./ItemModel";
 import CameraController from "@/components/Planner3DViewer/CameraController";
 import RoomLabel from "@/components/Planner3DViewer/RoomLabel";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import JSZip from "jszip";
 import { GLTFExporter } from "three-stdlib";
 
 interface SceneContentProps {
@@ -220,30 +224,257 @@ const SceneContent: React.FC<SceneContentProps> = ({
     roof: useLoader(TextureLoader, "/textures/wallmap_yellow.png"),
   };
 
+  // Mapping from model paths to display names & image paths
+  const modelTypeNames: { [key: string]: string } = {
+    "door/door.glb": "Glass Door",
+    "door/door_wooden.glb": "Wooden Door",
+    "window/window.glb": "Casement Window",
+    "window/window_arch.glb": "Arch Window",
+    "window/window_slide.glb": "Slide Window",
+  };
+
+  const modelImagePaths: { [key: string]: string } = {
+    "door/door.glb": "/models/door/door.png",
+    "door/door_wooden.glb": "/models/door/door_wooden.png",
+    "window/window.glb": "/models/window/window.png",
+    "window/window_arch.glb": "/models/window/window_arch.png",
+    "window/window_slide.glb": "/models/window/window_slide.png",
+  };
+
   useEffect(() => {
     if (shouldExport) {
+      const exportScene = async () => {
+        try {
+          const scheduleItems = collectScheduleData();
+          const pdfBlob = await generateSchedulePDF(scheduleItems);
+          const gltfBlob = await exportGLTF();
+          const zipBlob = await createZipFile(gltfBlob, pdfBlob);
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(zipBlob);
+          link.download = "scene_and_schedule.zip";
+          link.click();
+          URL.revokeObjectURL(link.href);
+
+          setShouldExport(false);
+        } catch (error) {
+          console.error("An error occurred during export", error);
+          setShouldExport(false);
+        }
+      };
+
+      exportScene();
+    }
+  }, [shouldExport]);
+
+  const collectScheduleData = (): ScheduleItem[] => {
+    const scheduleMap = new Map<string, ScheduleItem>();
+
+    const typeCounters: { [key: string]: number } = {};
+
+    shapes.forEach((shape) => {
+      const { id: shapeId, type, wallId } = shape;
+
+      // Get wall classification
+      const wallClassification = wallClassifications[wallId];
+      const isOuter = wallClassification ? wallClassification.isOuter : false;
+
+      // Get dimensions
+      const dimensions =
+        shapeDimensionsById[shapeId] ||
+        (type === "door" ? doorDimensions : windowDimensions);
+      const width = dimensions.width;
+      const height = dimensions.height;
+
+      const defaultModelPath =
+        type === "window"
+          ? "window/window.glb"
+          : isOuter
+            ? "door/door.glb"
+            : "door/door_wooden.glb";
+      const modelPath = modelPathsByShapeId[shapeId] || defaultModelPath;
+      const modelName = modelPath.split("/").pop()?.split(".").shift() || "";
+      const typeName = modelTypeNames[modelPath] || type;
+      const area = width * height;
+      const imagePath = modelImagePaths[modelPath];
+      const key = `${type}-${modelName}-${width}-${height}`;
+
+      if (scheduleMap.has(key)) {
+        const item = scheduleMap.get(key)!;
+        item.count += 1;
+      } else {
+        const typeInitial = type === "door" ? "D" : "W";
+        typeCounters[type] = (typeCounters[type] || 0) + 1;
+        const groupId = `${typeInitial}${typeCounters[type]}`;
+
+        scheduleMap.set(key, {
+          id: groupId,
+          type: typeName,
+          modelName: modelName,
+          width: width,
+          height: height,
+          area: area,
+          count: 1,
+          image: imagePath,
+        });
+      }
+    });
+
+    const scheduleItems = Array.from(scheduleMap.values());
+
+    return scheduleItems;
+  };
+
+  const loadImageAsDataURL = async (imagePath: string): Promise<string> => {
+    try {
+      const response = await fetch(imagePath);
+      const blob = await response.blob();
+      return new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const dataURL = reader.result as string;
+          resolve(dataURL);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.error(`Failed to load image at path: ${imagePath}`, error);
+      return "";
+    }
+  };
+
+  const generateSchedulePDF = async (
+    scheduleItems: ScheduleItem[],
+  ): Promise<Blob> => {
+    const doc = new jsPDF();
+
+    doc.setFontSize(16);
+    doc.text("Door and Window Schedule", 14, 20);
+
+    const tableColumn = [
+      "ID",
+      "Type",
+      "Model Name",
+      "Width",
+      "Height",
+      "Area",
+      "Count",
+      "3D Elevation View",
+    ];
+    const tableRows: any[][] = [];
+
+    for (const item of scheduleItems) {
+      const imageDataURL = await loadImageAsDataURL(item.image);
+
+      const rowData = [
+        item.id,
+        item.type,
+        item.modelName,
+        item.width.toString(),
+        item.height.toString(),
+        item.area.toString(),
+        item.count.toString(),
+        { content: "", image: imageDataURL },
+      ];
+
+      tableRows.push(rowData);
+    }
+
+    autoTable(doc, {
+      startY: 30,
+      head: [tableColumn],
+      body: tableRows,
+      columnStyles: {
+        7: { cellWidth: 40 },
+      },
+      bodyStyles: {
+        minCellHeight: 40,
+      },
+      didDrawCell: (data: any) => {
+        if (data.column.index === 7 && data.cell.section === "body") {
+          const imageDataURL = data.row.raw[7].image;
+
+          if (imageDataURL) {
+            const formatMatch = imageDataURL.match(
+              /^data:image\/(png|jpeg);base64,/,
+            );
+            const format = formatMatch ? formatMatch[1].toUpperCase() : "PNG";
+            const imgWidth = 30;
+            const imgHeight = 30;
+            const paddingX = (data.cell.width - imgWidth) / 2;
+            const paddingY = (data.cell.height - imgHeight) / 2;
+
+            doc.addImage(
+              imageDataURL,
+              format,
+              data.cell.x + paddingX,
+              data.cell.y + paddingY,
+              imgWidth,
+              imgHeight,
+            );
+          }
+        }
+      },
+    });
+
+    return doc.output("blob");
+  };
+
+  const exportGLTF = (): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
       const exporter = new GLTFExporter();
       exporter.parse(
         scene,
         (result) => {
           const output =
             result instanceof ArrayBuffer ? result : JSON.stringify(result);
-          const blob = new Blob([output], { type: "model/gltf-binary" });
-          const link = document.createElement("a");
-          link.href = URL.createObjectURL(blob);
-          link.download = "scene.glb";
-          link.click();
-          URL.revokeObjectURL(link.href);
-          setShouldExport(false);
+          const gltfBlob = new Blob([output], { type: "model/gltf-binary" });
+          resolve(gltfBlob);
         },
         (error) => {
           console.error("An error occurred during GLTF export", error);
-          setShouldExport(false);
+          reject(error);
         },
         { binary: true },
       );
-    }
-  }, [shouldExport, scene, setShouldExport]);
+    });
+  };
+
+  const createZipFile = async (
+    gltfBlob: Blob,
+    pdfBlob: Blob,
+  ): Promise<Blob> => {
+    const zip = new JSZip();
+    zip.file("scene.glb", gltfBlob);
+    zip.file("door_and_window_schedule.pdf", pdfBlob);
+    const zipBlob = await zip.generateAsync({ type: "blob" });
+    return zipBlob;
+  };
+
+  // useEffect(() => {
+  //   if (shouldExport) {
+  //     const exporter = new GLTFExporter();
+  //     exporter.parse(
+  //       scene,
+  //       (result) => {
+  //         const output =
+  //           result instanceof ArrayBuffer ? result : JSON.stringify(result);
+  //         const blob = new Blob([output], { type: "model/gltf-binary" });
+  //         const link = document.createElement("a");
+  //         link.href = URL.createObjectURL(blob);
+  //         link.download = "scene.glb";
+  //         link.click();
+  //         URL.revokeObjectURL(link.href);
+  //         setShouldExport(false);
+  //       },
+  //       (error) => {
+  //         console.error("An error occurred during GLTF export", error);
+  //         setShouldExport(false);
+  //       },
+  //       { binary: true },
+  //     );
+  //   }
+  // }, [shouldExport, scene, setShouldExport]);
 
   useEffect(() => {
     return () => {

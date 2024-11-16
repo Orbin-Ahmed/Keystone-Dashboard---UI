@@ -17,7 +17,7 @@ const RoomLabelComponent = ({
   useFrame(() => {
     if (labelRef.current) {
       const distance = camera.position.distanceTo(labelPosition);
-      labelRef.current.visible = distance < 500;
+      labelRef.current.visible = distance < 1000;
     }
   });
 

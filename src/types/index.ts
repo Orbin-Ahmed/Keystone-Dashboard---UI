@@ -296,3 +296,14 @@ export interface PlacedItemType extends PlacingItemType {
   position: [number, number, number];
   rotation: [number, number, number];
 }
+
+export interface ScheduleItem {
+  id: string;
+  type: string;
+  modelName: string;
+  width: number;
+  height: number;
+  area: number;
+  count: number;
+  image: string;
+}
