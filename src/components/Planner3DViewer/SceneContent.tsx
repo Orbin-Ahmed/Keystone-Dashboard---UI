@@ -370,6 +370,9 @@ const SceneContent: React.FC<SceneContentProps> = ({
 
     doc.setFontSize(16);
     doc.text("Door and Window Schedule", 14, 20);
+    doc.setFontSize(10);
+    doc.setTextColor(150);
+    doc.text("Dimensions are measured in inches", 14, 26);
 
     const tableColumn = [
       "ID",
@@ -405,10 +408,15 @@ const SceneContent: React.FC<SceneContentProps> = ({
       head: [tableColumn],
       body: tableRows,
       columnStyles: {
-        7: { cellWidth: 40 },
+        7: { cellWidth: 40, halign: "center" },
       },
       bodyStyles: {
         minCellHeight: 40,
+        halign: "center",
+        valign: "middle",
+      },
+      headStyles: {
+        halign: "center",
       },
       didDrawCell: (data: any) => {
         if (data.column.index === 7 && data.cell.section === "body") {
@@ -419,7 +427,8 @@ const SceneContent: React.FC<SceneContentProps> = ({
               /^data:image\/(png|jpeg);base64,/,
             );
             const format = formatMatch ? formatMatch[1].toUpperCase() : "PNG";
-            const imgWidth = 30;
+            const isDoor = data.row.raw[1].toLowerCase().includes("door");
+            const imgWidth = isDoor ? 20 : 30;
             const imgHeight = 30;
             const paddingX = (data.cell.width - imgWidth) / 2;
             const paddingY = (data.cell.height - imgHeight) / 2;
