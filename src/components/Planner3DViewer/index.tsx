@@ -12,6 +12,7 @@ import { PerspectiveCamera } from "three";
 import CustomButton from "@/components/CustomButton";
 import SceneContent from "@/components/Planner3DViewer/SceneContent";
 import InputField from "../InputField";
+import ItemSidebar from "./ItemSidebar";
 
 interface Plan3DViewerProps {
   lines: LineData[];
@@ -83,9 +84,9 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           depth: 50,
         },
         {
-          name: "TV Bench",
-          path: "items/tv_bench.glb",
-          type: "tv_bench",
+          name: "TV Stand",
+          path: "items/tv_stand.glb",
+          type: "tv_stand",
           width: 100,
           height: 38,
           depth: 30,
@@ -141,16 +142,16 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           depth: 35,
         },
         {
-          name: "Selves",
-          path: "items/cabinets_sleves.glb",
-          type: "selves",
+          name: "shelf",
+          path: "items/shelf.glb",
+          type: "shelf",
           width: 60,
           height: 108,
           depth: 35,
         },
         {
           name: "Drawer",
-          path: "items/kitchen_bottom.glb",
+          path: "items/drawer.glb",
           type: "drawer",
           width: 90,
           height: 48,
@@ -159,7 +160,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         {
           name: "Table",
           path: "items/side_table.glb",
-          type: "table",
+          type: "side_table",
           width: 20,
           height: 48,
           depth: 35,
@@ -479,25 +480,10 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
           {/* Items Sidebar */}
           {isItemsOpen && (
-            <div className="mt-4 rounded-lg bg-white p-4 shadow-lg">
-              <h3 className="text-lg font-bold">Items</h3>
-              <div className="flex flex-col gap-2">
-                {categories.map((category) => (
-                  <div key={category.name}>
-                    <h4 className="font-semibold">{category.name}</h4>
-                    {category.items.map((item) => (
-                      <CustomButton
-                        key={item.name}
-                        variant="secondary"
-                        onClick={() => handleItemClick(item)}
-                      >
-                        {item.name}
-                      </CustomButton>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            </div>
+            <ItemSidebar
+              categories={categories}
+              onItemClick={handleItemClick}
+            />
           )}
         </div>
       )}
@@ -515,7 +501,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         </CustomButton>
       </div>
 
-      {/* Sidebar for Model Selection */}
       {/* Sidebar for Model Selection */}
       {selectedShape && (
         <div className="border-gray-200 fixed right-4 top-4 z-50 w-64 rounded-lg border bg-white p-4 shadow-lg">
@@ -594,6 +579,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           </CustomButton>
         </div>
       )}
+      {/* Sidebar for Model Selection */}
 
       {/* Confirm Placement Button */}
       {placingItem && (
@@ -612,7 +598,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         </div>
       )}
 
-      {/* Controls for Selected Item */}
+      {/* Controls for Re-Selected Item */}
       {selectedItem && (
         <div className="absolute bottom-20 right-4 flex flex-col gap-2">
           <CustomButton variant="primary" onClick={deselectItem}>
