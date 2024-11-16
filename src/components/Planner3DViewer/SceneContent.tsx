@@ -73,7 +73,7 @@ interface SceneContentProps {
   shapeFlipStatusById: Record<string, boolean>;
 }
 
-const ensureWallPoints = (
+export const ensureWallPoints = (
   points: number[],
 ): [number, number, number, number] => {
   if (points.length !== 4) {

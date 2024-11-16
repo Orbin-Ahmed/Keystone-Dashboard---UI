@@ -7,10 +7,13 @@ import {
   RoomName,
   ShapeData,
   TourPoint,
+  WallClassification,
 } from "@/types";
-import { PerspectiveCamera } from "three";
+import { PerspectiveCamera, Vector2 } from "three";
 import CustomButton from "@/components/CustomButton";
-import SceneContent from "@/components/Planner3DViewer/SceneContent";
+import SceneContent, {
+  ensureWallPoints,
+} from "@/components/Planner3DViewer/SceneContent";
 import InputField from "../InputField";
 import ItemSidebar from "./ItemSidebar";
 import { FaCog, FaFileExport } from "react-icons/fa";
@@ -52,6 +55,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [isTourOpen, setIsTourOpen] = useState(false);
 
   // Window and Door Shape Data
+  const [defaultModelPath, setDefaultModelPath] = useState<string>("");
   const [selectedShape, setSelectedShape] = useState<ShapeData | null>(null);
   const [modelPathsByShapeId, setModelPathsByShapeId] = useState<
     Record<string, string>
@@ -250,6 +254,57 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     setShowRoof(true);
   };
 
+  const wallClassifications = useMemo(() => {
+    const classifications: Record<string, WallClassification> = {};
+    const tolerance = 5;
+
+    const wallEndpoints: Array<[number, number, number, number]> = [];
+    const wallIds: string[] = [];
+
+    lines.forEach((line) => {
+      wallEndpoints.push(ensureWallPoints(line.points));
+      wallIds.push(line.id);
+    });
+
+    wallEndpoints.forEach((wall, wallIndex) => {
+      const [x1, y1, x2, y2] = wall;
+      const wallId = wallIds[wallIndex];
+      const wallCenter = new Vector2((x1 + x2) / 2, (y1 + y2) / 2);
+      const wallNormal = new Vector2(-(y2 - y1), x2 - x1).normalize();
+      const toCenterVector = new Vector2(
+        centerX - wallCenter.x,
+        centerY - wallCenter.y,
+      ).normalize();
+
+      const isFacingInward = wallNormal.dot(toCenterVector) > 0;
+      const isHorizontal = Math.abs(y1 - y2) < tolerance;
+      const isVertical = Math.abs(x1 - x2) < tolerance;
+
+      const isAtHorizontalBoundary =
+        Math.abs(y1 - minY) < tolerance ||
+        Math.abs(y1 - maxY) < tolerance ||
+        Math.abs(y2 - minY) < tolerance ||
+        Math.abs(y2 - maxY) < tolerance;
+
+      const isAtVerticalBoundary =
+        Math.abs(x1 - minX) < tolerance ||
+        Math.abs(x1 - maxX) < tolerance ||
+        Math.abs(x2 - minX) < tolerance ||
+        Math.abs(x2 - maxX) < tolerance;
+
+      const isOuter =
+        (isHorizontal && isAtHorizontalBoundary) ||
+        (isVertical && isAtVerticalBoundary);
+
+      classifications[wallId] = {
+        isOuter,
+        isFacingInward,
+      };
+    });
+
+    return classifications;
+  }, [lines, centerX, centerY, minX, maxX, minY, maxY]);
+
   const handleExitTour = () => {
     setActiveTourPoint(null);
     setIsAutoRotating(false);
@@ -402,11 +457,17 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
     const flipStatus = shapeFlipStatusById[shape.id] || false;
     setFlipShape(flipStatus);
-
+    const wallClassification = wallClassifications[shape.wallId];
+    const isOuter = wallClassification ? wallClassification.isOuter : false;
     const defaultModelPath =
-      shape.type === "window" ? "window/window.glb" : "door/door.glb";
-    const currentModelPath = modelPathsByShapeId[shape.id] || defaultModelPath;
+      shape.type === "window"
+        ? "window/window.glb"
+        : isOuter
+          ? "door/door.glb"
+          : "door/door_wooden.glb";
+    const currentModelPath = modelPathsByShapeId[shape.id] || "";
     setSelectedModelPath(currentModelPath);
+    setDefaultModelPath(defaultModelPath);
   };
 
   const handleSaveChanges = () => {
@@ -422,6 +483,12 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           ...prev,
           [selectedShape.id]: selectedModelPath,
         }));
+      } else {
+        setModelPathsByShapeId((prev) => {
+          const updated = { ...prev };
+          delete updated[selectedShape.id];
+          return updated;
+        });
       }
       setShapeFlipStatusById((prev) => ({
         ...prev,
@@ -614,9 +681,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
               onChange={(e) => handleModelChange(e.target.value)}
               className="w-full rounded border p-2"
             >
-              <option value="" disabled>
-                Select a model
-              </option>
+              <option value="">Select a model</option>
               {(selectedShape.type === "door"
                 ? doorOptions
                 : windowOptions
