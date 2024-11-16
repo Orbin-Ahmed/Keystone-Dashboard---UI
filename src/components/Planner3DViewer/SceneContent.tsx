@@ -723,17 +723,19 @@ const SceneContent: React.FC<SceneContentProps> = ({
           const height = shapeDims.height || defaultHeight;
           const cutoutWidth = width;
           const cutoutHeight = height;
+          const shapeWorldX = x - centerX;
+          const shapeWorldZ = y - centerY;
+          const dx = shapeWorldX - wallPosition.x;
+          const dz = shapeWorldZ - wallPosition.z;
+          // const alignmentFactor = 1;
+          // const localX = dx + (width / 2) * alignmentFactor;
+          const localX = dx * Math.cos(angle) + dz * Math.sin(angle);
+          const localY = type === "window" ? 0 : -wallHeight / 2 + height / 2;
           const cutoutGeometry = new BoxGeometry(
             cutoutWidth,
             cutoutHeight,
             wallThickness,
           );
-          const shapeWorldX = x - centerX;
-          const shapeWorldZ = y - centerY;
-          const dx = shapeWorldX - wallPosition.x;
-          const dz = shapeWorldZ - wallPosition.z;
-          const localX = dx * Math.cos(angle) + dz * Math.sin(angle);
-          const localY = type === "window" ? 0 : -wallHeight / 2 + height / 2;
           cutoutGeometry.translate(localX, localY, 0);
           const cutoutMesh = new Mesh(cutoutGeometry);
           wallMesh = CSG.subtract(
@@ -769,6 +771,8 @@ const SceneContent: React.FC<SceneContentProps> = ({
               const dx = shapeWorldX - wallPosition.x;
               const dz = shapeWorldZ - wallPosition.z;
               const localX = dx * Math.cos(angle) + dz * Math.sin(angle);
+              // const alignmentFactor = 1;
+              // const localX = dx + (width / 2) * alignmentFactor;
               const localY =
                 type === "window" ? 0 : -wallHeight / 2 + height / 2;
               const rotationY =
