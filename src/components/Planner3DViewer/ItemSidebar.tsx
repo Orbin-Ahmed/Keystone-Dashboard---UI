@@ -17,7 +17,7 @@ const ItemSidebar: React.FC<{
 
   return (
     <div
-      className="mt-4 h-[80vh] w-80 overflow-y-auto rounded-lg bg-white p-4 shadow-lg"
+      className="mt-4 h-[70vh] w-80 overflow-y-auto rounded-lg bg-white p-4 shadow-lg"
       style={{ scrollbarWidth: "thin", scrollbarColor: "#888 #f1f1f1" }}
     >
       <h3 className="text-lg font-bold">Items</h3>

@@ -520,7 +520,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
               const { type, x, y, id } = shape;
               const defaultModelPath =
                 type === "window"
-                  ? "window/window_twin_casement.glb"
+                  ? "window/window.glb"
                   : isOuter
                     ? "door/door.glb"
                     : "door/door_wooden.glb";
