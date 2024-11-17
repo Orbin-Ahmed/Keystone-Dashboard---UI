@@ -155,9 +155,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
   const dragOffset = useRef<[number, number, number] | null>(null);
   const placingItemRef = useRef<PlacingItemType | null>(placingItem);
   const modelRef = useRef<Object3D | null>(null);
-  const [itemPosition, setItemPosition] = useState<[number, number, number]>(
-    placingItem?.position || [0, 0, 0],
-  );
 
   const wallClassifications = useMemo(() => {
     const classifications: Record<string, WallClassification> = {};
@@ -684,12 +681,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
     }
   });
 
-  useEffect(() => {
-    if (placingItemRef.current) {
-      placingItemRef.current.position = itemPosition;
-    }
-  }, [itemPosition]);
-
   return (
     <>
       <CameraController
@@ -849,7 +840,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
           ref={modelRef}
           key="placing-item"
           path={placingItem.path}
-          position={itemPosition}
+          position={placingItem.position || [0, 0, 0]}
           rotation={placingItem.rotation || [0, 0, 0]}
           dimensions={{
             width: placingItem.width,
