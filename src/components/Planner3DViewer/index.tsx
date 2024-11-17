@@ -103,7 +103,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   ];
 
   const windowOptions = [
-    { label: "Standard Window", value: "window/window_twin_casement.glb" },
+    { label: "Standard Window", value: "window/window.glb" },
     { label: "Slide Window", value: "window/window_slide.glb" },
   ];
 
@@ -404,7 +404,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       const camera = cameraRef.current;
       const scene = sceneRef.current;
       renderer.render(scene, camera);
-      const dataURL = renderer.domElement.toDataURL("image/jpg");
+      const dataURL = renderer.domElement.toDataURL("image/jpeg");
+
       const link = document.createElement("a");
       link.download = "scene.jpg";
       link.href = dataURL;
