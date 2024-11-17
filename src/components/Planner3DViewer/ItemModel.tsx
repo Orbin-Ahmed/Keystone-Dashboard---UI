@@ -1,14 +1,7 @@
 import React, { useEffect, useMemo, forwardRef, useRef, useState } from "react";
 import throttle from "lodash.throttle";
 import { useGLTF } from "@react-three/drei";
-import {
-  Box3,
-  Material,
-  Mesh,
-  MeshStandardMaterial,
-  Object3D,
-  Vector3,
-} from "three";
+import { Box3, Mesh, MeshStandardMaterial, Object3D, Vector3 } from "three";
 import { ThreeEvent, useFrame } from "@react-three/fiber";
 
 interface ItemModelProps {
@@ -49,7 +42,6 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
     const { scene } = useGLTF(`/models/${path}`);
     const modelRef = useRef<Object3D | null>(null);
     const [isColliding, setIsColliding] = useState(false);
-    const originalMaterials = useRef<Material[]>([]);
 
     const initialBounds = useMemo(() => {
       const bbox = new Box3().setFromObject(scene);
@@ -60,26 +52,15 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
       return { size, center };
     }, [scene]);
 
-    const checkCollision = useMemo(
-      () =>
-        throttle(() => {
-          if (modelRef.current) {
-            modelRef.current.updateMatrixWorld(true);
+    const collisionMaterial = useMemo(() => {
+      return new MeshStandardMaterial({ color: "red" });
+    }, []);
 
-            const itemBox = new Box3().setFromObject(modelRef.current);
-
-            let collisionDetected = false;
-            for (const wallBox of wallBoundingBoxes) {
-              if (itemBox.intersectsBox(wallBox)) {
-                collisionDetected = true;
-                break;
-              }
-            }
-            setIsColliding(collisionDetected);
-          }
-        }, 50),
-      [modelRef, wallBoundingBoxes],
-    );
+    useEffect(() => {
+      return () => {
+        collisionMaterial.dispose();
+      };
+    }, [collisionMaterial]);
 
     const clonedScene = useMemo(() => {
       return scene.clone(true);
@@ -112,92 +93,32 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
 
     useEffect(() => {
       if (modelRef.current) {
-        modelRef.current.position.set(...adjustedPosition);
-        modelRef.current.scale.set(...adjustedScale);
-      }
-    }, [adjustedPosition, adjustedScale]);
-
-    useEffect(() => {
-      if (modelRef.current) {
-        const materials: Material[] = [];
         modelRef.current.traverse((child) => {
           if (child instanceof Mesh) {
-            if (Array.isArray(child.material)) {
-              materials.push(...child.material);
-            } else {
-              materials.push(child.material);
-            }
+            (child as any).originalMaterial = child.material;
           }
         });
-        originalMaterials.current = materials;
       }
     }, []);
 
     useEffect(() => {
-      if (modelRef.current) {
-        modelRef.current.traverse((child) => {
-          if (child instanceof Mesh) {
-            if (isColliding) {
-              child.material = new MeshStandardMaterial({ color: "red" });
-            } else {
-              const index = originalMaterials.current.indexOf(child.material);
-              if (index !== -1) {
-                child.material = originalMaterials.current[index];
-              }
-            }
+      if (!modelRef.current) return;
+
+      modelRef.current.traverse((child) => {
+        if (child instanceof Mesh) {
+          if (isColliding) {
+            child.material = collisionMaterial;
+          } else {
+            child.material = (child as any).originalMaterial;
           }
-        });
-      }
-    }, [isColliding]);
-
-    useEffect(() => {
-      const currentScene = clonedScene;
-
-      return () => {
-        currentScene.traverse((object) => {
-          if (object instanceof Mesh) {
-            object.geometry?.dispose();
-            if (Array.isArray(object.material)) {
-              object.material.forEach((material) => material?.dispose());
-            } else if (object.material) {
-              object.material.dispose();
-            }
-          }
-        });
-      };
-    }, [clonedScene]);
-
-    useEffect(() => {
-      useGLTF.preload(`/models/${path}`);
-      return () => {
-        useGLTF.clear(`/models/${path}`);
-      };
-    }, [path]);
-
-    useEffect(() => {
-      checkCollision();
-    }, [position, rotation, adjustedScale, checkCollision]);
-
-    useEffect(() => {
-      return () => {
-        if (modelRef.current) {
-          modelRef.current.traverse((child) => {
-            if (child instanceof Mesh) {
-              child.geometry.dispose();
-              if (Array.isArray(child.material)) {
-                child.material.forEach((material) => material.dispose());
-              } else {
-                child.material.dispose();
-              }
-            }
-          });
         }
-      };
-    }, []);
+      });
+    }, [isColliding, collisionMaterial]);
 
     useFrame(() => {
       if (modelRef.current) {
         modelRef.current.updateMatrixWorld(true);
+
         const itemBox = new Box3().setFromObject(modelRef.current);
 
         let collisionDetected = false;
@@ -212,6 +133,30 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
         }
       }
     });
+
+    useEffect(() => {
+      const currentScene = clonedScene;
+
+      return () => {
+        currentScene.traverse((object) => {
+          if (object instanceof Mesh) {
+            object.geometry.dispose();
+            if (Array.isArray(object.material)) {
+              object.material.forEach((material) => material.dispose());
+            } else if (object.material) {
+              object.material.dispose();
+            }
+          }
+        });
+      };
+    }, [clonedScene]);
+
+    useEffect(() => {
+      useGLTF.preload(`/models/${path}`);
+      return () => {
+        useGLTF.clear(`/models/${path}`);
+      };
+    }, [path]);
 
     return (
       <primitive
