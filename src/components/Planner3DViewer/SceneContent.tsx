@@ -1,7 +1,9 @@
 import React, { useMemo, useEffect, useRef } from "react";
 import { useLoader, useThree, ThreeEvent } from "@react-three/fiber";
 import {
+  categories,
   LineData,
+  PDFItemData,
   PlacedItemType,
   PlacingItemType,
   Point,
@@ -38,6 +40,7 @@ import autoTable from "jspdf-autotable";
 import JSZip from "jszip";
 import { GLTFExporter } from "three-stdlib";
 import throttle from "lodash.throttle";
+import { it } from "node:test";
 
 interface SceneContentProps {
   lines: LineData[];
@@ -278,14 +281,29 @@ const SceneContent: React.FC<SceneContentProps> = ({
   };
   // Export Functionality
 
+  const itemToRoomName: Record<string, string> = categories.reduce(
+    (acc, room) => {
+      room.items.forEach((item) => {
+        acc[item.type] = room.name;
+      });
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
+
   useEffect(() => {
     if (shouldExport) {
       const exportScene = async () => {
         try {
           const scheduleItems = collectScheduleData();
           const pdfBlob = await generateSchedulePDF(scheduleItems);
+
+          const itemData = collectItemData();
+          const itemPdfBlob = await generateItemPDF(itemData);
+
           const gltfBlob = await exportGLTF();
-          const zipBlob = await createZipFile(gltfBlob, pdfBlob);
+
+          const zipBlob = await createZipFile(gltfBlob, pdfBlob, itemPdfBlob);
           const link = document.createElement("a");
           link.href = URL.createObjectURL(zipBlob);
           link.download = "scene_and_schedule.zip";
@@ -359,6 +377,44 @@ const SceneContent: React.FC<SceneContentProps> = ({
     const scheduleItems = Array.from(scheduleMap.values());
 
     return scheduleItems;
+  };
+
+  const collectItemData = (): PDFItemData[] => {
+    const itemMap = new Map<string, PDFItemData>();
+    const typeCounters: { [key: string]: number } = {};
+
+    placedItems.forEach((item) => {
+      const { type, width, height, depth, name } = item;
+
+      const roomName = itemToRoomName[type] || "N/A";
+
+      const area = width * height;
+      const imagePath = `/models/items/${type}.png`;
+      const key = `${type}-${width}-${height}-${depth}`;
+
+      if (itemMap.has(key)) {
+        const itemData = itemMap.get(key)!;
+        itemData.count += 1;
+      } else {
+        typeCounters[roomName] = (typeCounters[roomName] || 0) + 1;
+        const groupId = `${roomName[0].toUpperCase()}${typeCounters[roomName]}`;
+
+        itemMap.set(key, {
+          id: groupId,
+          name: name,
+          roomName: roomName,
+          type: type,
+          width: width,
+          height: height,
+          depth: depth,
+          area: area,
+          count: 1,
+          image: imagePath,
+        });
+      }
+    });
+
+    return Array.from(itemMap.values());
   };
 
   const loadImageAsDataURL = async (imagePath: string): Promise<string> => {
@@ -466,6 +522,99 @@ const SceneContent: React.FC<SceneContentProps> = ({
     return doc.output("blob");
   };
 
+  const generateItemPDF = async (itemData: PDFItemData[]): Promise<Blob> => {
+    const doc = new jsPDF();
+
+    doc.setFontSize(16);
+    doc.text("Items Schedule", 14, 20);
+    doc.setFontSize(10);
+    doc.setTextColor(150);
+    doc.text("Dimensions are measured in inches", 14, 26);
+
+    const tableColumn = [
+      "ID",
+      "Name",
+      "Room Name",
+      "Type",
+      "Width",
+      "Height",
+      "Depth",
+      "Count",
+      "Item Image",
+    ];
+    const tableRows: any[][] = [];
+
+    for (const item of itemData) {
+      const imageDataURL = await loadImageAsDataURL(item.image);
+
+      const rowData = [
+        item.id,
+        item.name,
+        item.roomName,
+        item.type,
+        item.width.toString(),
+        item.height.toString(),
+        item.depth.toString(),
+        item.count.toString(),
+        { content: "", image: imageDataURL },
+      ];
+
+      tableRows.push(rowData);
+    }
+
+    autoTable(doc, {
+      startY: 30,
+      head: [tableColumn],
+      body: tableRows,
+      columnStyles: {
+        0: { cellWidth: 10, halign: "center" }, // ID
+        1: { cellWidth: 20, halign: "center" }, // Name
+        2: { cellWidth: 30, halign: "center" }, // Room Name
+        3: { cellWidth: 20, halign: "center" }, // Type
+        4: { cellWidth: 15, halign: "center" }, // Width
+        5: { cellWidth: 15, halign: "center" }, // Height
+        6: { cellWidth: 15, halign: "center" }, // Depth
+        7: { cellWidth: 15, halign: "center" }, // Count
+        8: { cellWidth: 40, halign: "center" }, // Item Image
+      },
+      bodyStyles: {
+        minCellHeight: 40,
+        halign: "center",
+        valign: "middle",
+      },
+      headStyles: {
+        halign: "center",
+      },
+      didDrawCell: (data: any) => {
+        if (data.column.index === 8 && data.cell.section === "body") {
+          const imageDataURL = data.row.raw[8].image;
+
+          if (imageDataURL) {
+            const formatMatch = imageDataURL.match(
+              /^data:image\/(png|jpeg);base64,/,
+            );
+            const format = formatMatch ? formatMatch[1].toUpperCase() : "PNG";
+            const imgWidth = 30;
+            const imgHeight = 30;
+            const paddingX = (data.cell.width - imgWidth) / 2;
+            const paddingY = (data.cell.height - imgHeight) / 2;
+
+            doc.addImage(
+              imageDataURL,
+              format,
+              data.cell.x + paddingX,
+              data.cell.y + paddingY,
+              imgWidth,
+              imgHeight,
+            );
+          }
+        }
+      },
+    });
+
+    return doc.output("blob");
+  };
+
   const exportGLTF = (): Promise<Blob> => {
     return new Promise((resolve, reject) => {
       const exporter = new GLTFExporter();
@@ -489,10 +638,12 @@ const SceneContent: React.FC<SceneContentProps> = ({
   const createZipFile = async (
     gltfBlob: Blob,
     pdfBlob: Blob,
+    itemPdfBlob: Blob,
   ): Promise<Blob> => {
     const zip = new JSZip();
     zip.file("scene.glb", gltfBlob);
     zip.file("door_and_window_schedule.pdf", pdfBlob);
+    zip.file("items_schedule.pdf", itemPdfBlob);
     const zipBlob = await zip.generateAsync({ type: "blob" });
     return zipBlob;
   };
