@@ -9,7 +9,7 @@ import {
   Object3D,
   Vector3,
 } from "three";
-import { ThreeEvent } from "@react-three/fiber";
+import { ThreeEvent, useFrame } from "@react-three/fiber";
 
 interface ItemModelProps {
   path: string;
@@ -133,22 +133,22 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
       }
     }, []);
 
-    useEffect(() => {
-      if (modelRef.current) {
-        modelRef.current.updateMatrixWorld(true);
+    // useEffect(() => {
+    //   if (modelRef.current) {
+    //     modelRef.current.updateMatrixWorld(true);
 
-        const itemBox = new Box3().setFromObject(modelRef.current);
+    //     const itemBox = new Box3().setFromObject(modelRef.current);
 
-        let collisionDetected = false;
-        for (const wallBox of wallBoundingBoxes) {
-          if (itemBox.intersectsBox(wallBox)) {
-            collisionDetected = true;
-            break;
-          }
-        }
-        setIsColliding(collisionDetected);
-      }
-    }, [modelRef, position, rotation, adjustedScale, wallBoundingBoxes]);
+    //     let collisionDetected = false;
+    //     for (const wallBox of wallBoundingBoxes) {
+    //       if (itemBox.intersectsBox(wallBox)) {
+    //         collisionDetected = true;
+    //         break;
+    //       }
+    //     }
+    //     setIsColliding(collisionDetected);
+    //   }
+    // }, [modelRef, position, rotation, adjustedScale, wallBoundingBoxes]);
 
     useEffect(() => {
       if (modelRef.current) {
@@ -211,6 +211,24 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
         }
       };
     }, []);
+
+    useFrame(() => {
+      if (modelRef.current) {
+        modelRef.current.updateMatrixWorld(true);
+        const itemBox = new Box3().setFromObject(modelRef.current);
+
+        let collisionDetected = false;
+        for (const wallBox of wallBoundingBoxes) {
+          if (itemBox.intersectsBox(wallBox)) {
+            collisionDetected = true;
+            break;
+          }
+        }
+        if (collisionDetected !== isColliding) {
+          setIsColliding(collisionDetected);
+        }
+      }
+    });
 
     return (
       <primitive

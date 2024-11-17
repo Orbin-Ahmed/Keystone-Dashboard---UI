@@ -609,11 +609,13 @@ const SceneContent: React.FC<SceneContentProps> = ({
       newPosition.add(new Vector3(...dragOffset.current));
     }
 
-    // Update the position without triggering a re-render
     if (placingItemRef.current) {
       placingItemRef.current.position = [newPosition.x, 0, newPosition.z];
     }
-    setItemPosition([newPosition.x, 0, newPosition.z]);
+
+    if (modelRef.current) {
+      modelRef.current.position.set(newPosition.x, 0, newPosition.z);
+    }
   };
 
   const handlePointerUp = (e: ThreeEvent<PointerEvent>) => {
