@@ -50,7 +50,7 @@ interface SceneContentProps {
   isTransitioning: boolean;
   setIsTransitioning: (value: boolean) => void;
   isAutoRotating: boolean;
-  setIsAutoRotating: (value: boolean) => void;
+  setIsAutoRotating: React.Dispatch<React.SetStateAction<boolean>>;
   showRoof: boolean;
   tourPoints: TourPoint[];
   onTourPointClick: (point: TourPoint) => void;

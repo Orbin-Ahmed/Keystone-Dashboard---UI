@@ -10,14 +10,14 @@ import {
   TourPoint,
   WallClassification,
 } from "@/types";
-import { PerspectiveCamera, Vector2 } from "three";
+import { PerspectiveCamera, Vector2, WebGLRenderer } from "three";
 import CustomButton from "@/components/CustomButton";
 import SceneContent, {
   ensureWallPoints,
 } from "@/components/Planner3DViewer/SceneContent";
 import InputField from "../InputField";
 import ItemSidebar from "./ItemSidebar";
-import { FaCog, FaFileExport } from "react-icons/fa";
+import { FaCamera, FaCog, FaFileExport } from "react-icons/fa";
 import { BsZoomIn, BsZoomOut } from "react-icons/bs";
 
 interface Plan3DViewerProps {
@@ -53,6 +53,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [isAutoRotating, setIsAutoRotating] = useState(false);
   const [showRoof, setShowRoof] = useState(false);
   const cameraRef = useRef<PerspectiveCamera | null>(null);
+  const glRef = useRef<WebGLRenderer | null>(null);
   const [isTourOpen, setIsTourOpen] = useState(false);
 
   // Window and Door Shape Data
@@ -405,14 +406,25 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     setSelectedModelPath(newModelPath);
   };
 
+  const handleSnap = () => {
+    if (glRef.current) {
+      const dataURL = glRef.current.domElement.toDataURL("image/png");
+      const link = document.createElement("a");
+      link.download = "scene.png";
+      link.href = dataURL;
+      link.click();
+    }
+  };
+
   return (
     <>
       <Canvas
         camera={{ position: [0, 300, 500], fov: 65, near: 1, far: 2000 }}
-        onCreated={({ camera }) => {
+        onCreated={({ camera, gl }) => {
           if (camera instanceof PerspectiveCamera) {
             cameraRef.current = camera;
           }
+          glRef.current = gl;
         }}
       >
         <SceneContent
@@ -510,6 +522,9 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
       {/* Render Zoom Controls and Export Button */}
       <div className="absolute bottom-4 right-4 flex gap-2">
+        <CustomButton variant="tertiary" onClick={handleSnap}>
+          <FaCamera />
+        </CustomButton>
         <CustomButton variant="tertiary" onClick={handleZoomIn}>
           <BsZoomIn />
         </CustomButton>
