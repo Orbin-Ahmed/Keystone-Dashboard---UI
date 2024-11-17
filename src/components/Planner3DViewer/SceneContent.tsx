@@ -925,7 +925,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
           // const alignmentFactor = 1;
           // const localX = dx + (width / 2) * alignmentFactor;
           const localX = dx * Math.cos(angle) + dz * Math.sin(angle);
-          const localY = type === "window" ? 0 : -wallHeight / 2 + height / 2;
+          const localY = type === "window" ? 10 : -wallHeight / 2 + height / 2;
           const cutoutGeometry = new BoxGeometry(
             cutoutWidth,
             cutoutHeight,
@@ -969,7 +969,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
               // const alignmentFactor = 1;
               // const localX = dx + (width / 2) * alignmentFactor;
               const localY =
-                type === "window" ? 0 : -wallHeight / 2 + height / 2;
+                type === "window" ? 10 : -wallHeight / 2 + height / 2;
               const rotationY =
                 type === "door"
                   ? isFacingInward
