@@ -143,7 +143,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         ] as [number, number, number],
         title: room.name,
       })),
-    [roomNames, lines],
+    [roomNames],
   );
 
   const handleTourPointClick = (point: TourPoint) => {
@@ -202,7 +202,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     });
 
     return classifications;
-  }, [lines, centerX, centerY, minX, maxX, minY, maxY]);
+  }, [lines]);
 
   const handleExitTour = () => {
     setActiveTourPoint(null);
@@ -359,15 +359,16 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     setFlipShape(flipStatus);
     const wallClassification = wallClassifications[shape.wallId];
     const isOuter = wallClassification ? wallClassification.isOuter : false;
-    const defaultModelPath =
-      shape.type === "window"
-        ? "window/window.glb"
-        : isOuter
-          ? "door/door.glb"
-          : "door/door_wooden.glb";
-    const currentModelPath = modelPathsByShapeId[shape.id] || "";
-    setSelectedModelPath(currentModelPath);
+    // const defaultModelPath =
+    //   shape.type === "window"
+    //     ? "window/window.glb"
+    //     : isOuter
+    //       ? "door/door.glb"
+    //       : "door/door_wooden.glb";
+    // const currentModelPath = modelPathsByShapeId[shape.id] || "";
+    // setSelectedModelPath(currentModelPath);
     // setDefaultModelPath(defaultModelPath);
+    setSelectedModelPath(modelPathsByShapeId[shape.id] || "");
   };
 
   const handleSaveChanges = () => {
@@ -414,17 +415,17 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       const scene = sceneRef.current;
 
       // Set the renderer size to match the display
-      renderer.setSize(window.innerWidth, window.innerHeight);
+      // renderer.setSize(window.innerWidth, window.innerHeight);
 
       // Render the scene
       renderer.render(scene, camera);
 
       // Capture the scene as a data URL
-      const dataURL = renderer.domElement.toDataURL("image/png");
+      const dataURL = renderer.domElement.toDataURL("image/jpg");
 
       // Download the snapshot
       const link = document.createElement("a");
-      link.download = "scene.png";
+      link.download = "scene.jpg";
       link.href = dataURL;
       link.click();
     }
