@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useRef } from "react";
+import React, { useMemo, useEffect, useRef, useState } from "react";
 import { useLoader, useThree, ThreeEvent, useFrame } from "@react-three/fiber";
 import {
   LineData,
@@ -25,6 +25,7 @@ import {
   Raycaster,
   Plane,
   Object3D,
+  Box3,
 } from "three";
 import { CSG } from "three-csg-ts";
 import Model from "./Model";
@@ -154,6 +155,9 @@ const SceneContent: React.FC<SceneContentProps> = ({
   const dragOffset = useRef<[number, number, number] | null>(null);
   const placingItemRef = useRef<PlacingItemType | null>(placingItem);
   const modelRef = useRef<Object3D | null>(null);
+  const [itemPosition, setItemPosition] = useState<[number, number, number]>(
+    placingItem?.position || [0, 0, 0],
+  );
 
   const wallClassifications = useMemo(() => {
     const classifications: Record<string, WallClassification> = {};
@@ -609,6 +613,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
     if (placingItemRef.current) {
       placingItemRef.current.position = [newPosition.x, 0, newPosition.z];
     }
+    setItemPosition([newPosition.x, 0, newPosition.z]);
   };
 
   const handlePointerUp = (e: ThreeEvent<PointerEvent>) => {
@@ -632,6 +637,29 @@ const SceneContent: React.FC<SceneContentProps> = ({
     setSelectedItem(item);
   };
 
+  const wallBoundingBoxes = useMemo(() => {
+    return lines.map((line) => {
+      const points = ensureWallPoints(line.points);
+      const [x1, y1, x2, y2] = points;
+      const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+      const wallPosition = new Vector3(
+        (x1 + x2) / 2 - centerX,
+        wallHeight / 2,
+        (y1 + y2) / 2 - centerY,
+      );
+      const angle = Math.atan2(y2 - y1, x2 - x1);
+
+      const wallGeometry = new BoxGeometry(length, wallHeight, wallThickness);
+      wallGeometry.translate(wallPosition.x, wallPosition.y, wallPosition.z);
+      wallGeometry.rotateY(-angle);
+
+      const wallBox = new Box3().setFromObject(new Mesh(wallGeometry));
+      wallGeometry.dispose();
+
+      return wallBox;
+    });
+  }, [lines, wallHeight, wallThickness, centerX, centerY]);
+
   useEffect(() => {
     placingItemRef.current = placingItem;
     if (!placingItem) {
@@ -651,6 +679,12 @@ const SceneContent: React.FC<SceneContentProps> = ({
       );
     }
   });
+
+  useEffect(() => {
+    if (placingItemRef.current) {
+      placingItemRef.current.position = itemPosition;
+    }
+  }, [itemPosition]);
 
   return (
     <>
@@ -818,6 +852,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
             height: placingItem.height,
             depth: placingItem.depth,
           }}
+          wallBoundingBoxes={wallBoundingBoxes}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
@@ -840,6 +875,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
               height: item.height,
               depth: item.depth,
             }}
+            wallBoundingBoxes={wallBoundingBoxes}
             onClick={() => handlePlacedItemClick(item)}
           />
         ))}
