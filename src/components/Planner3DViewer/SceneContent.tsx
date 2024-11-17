@@ -257,7 +257,10 @@ const SceneContent: React.FC<SceneContentProps> = ({
 
   const modelTypeNames: { [key: string]: string } = {
     "door/door.glb": "Glass Door",
-    "door/door_wooden.glb": "Wooden Door",
+    "door/door_wooden.glb": "Wooden Door 1",
+    "door/door_wooden_1.glb": "Wooden Door 2",
+    "door/blastDoor.glb": "Blast Door",
+    "door/doorFrame.glb": "Door Frame",
     "window/window.glb": "Casement Window",
     "window/window_arch.glb": "Arch Window",
     "window/window_slide.glb": "Slide Window",
@@ -266,6 +269,9 @@ const SceneContent: React.FC<SceneContentProps> = ({
   const modelImagePaths: { [key: string]: string } = {
     "door/door.glb": "/models/door/door.png",
     "door/door_wooden.glb": "/models/door/door_wooden.png",
+    "door/door_wooden_1.glb": "/models/door/door_wooden_1.png",
+    "door/blastDoor.glb": "/models/door/blastDoor.png",
+    "door/doorFrame.glb": "/models/door/doorFrame.png",
     "window/window.glb": "/models/window/window.png",
     "window/window_arch.glb": "/models/window/window_arch.png",
     "window/window_slide.glb": "/models/window/window_slide.png",

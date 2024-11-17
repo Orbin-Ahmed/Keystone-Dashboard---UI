@@ -112,6 +112,14 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           height: 38,
           depth: 30,
         },
+        {
+          name: "Tea Table",
+          path: "items/tea_table.glb",
+          type: "tea_table",
+          width: 85,
+          height: 30,
+          depth: 51,
+        },
       ],
     },
     {
@@ -187,12 +195,83 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           depth: 35,
         },
         {
-          name: "Stove",
+          name: "Stove 1",
           path: "items/stove.glb",
           type: "stove",
           width: 32,
           height: 48,
           depth: 35,
+        },
+        {
+          name: "Stove 2",
+          path: "items/kitchenStove.glb",
+          type: "kitchenStove",
+          width: 45,
+          height: 48,
+          depth: 48,
+        },
+      ],
+    },
+    {
+      name: "BathRoom",
+      items: [
+        {
+          name: "Bathtub",
+          path: "items/bathtub.glb",
+          type: "bathtub",
+          width: 100,
+          height: 35,
+          depth: 47,
+        },
+      ],
+    },
+    {
+      name: "Kid's Room",
+      items: [
+        {
+          name: "BunkBed",
+          path: "items/bedBunk.glb",
+          type: "bedBunk",
+          width: 57,
+          height: 83,
+          depth: 110,
+        },
+      ],
+    },
+    {
+      name: "Common",
+      items: [
+        {
+          name: "Bookself 1",
+          path: "items/bookself_1.glb",
+          type: "bookself_1",
+          width: 33,
+          height: 70,
+          depth: 21,
+        },
+        {
+          name: "Bookself 2",
+          path: "items/bookself_2.glb",
+          type: "bookself_2",
+          width: 33,
+          height: 70,
+          depth: 21,
+        },
+        {
+          name: "Rack",
+          path: "items/rack.glb",
+          type: "rack",
+          width: 30,
+          height: 85,
+          depth: 30,
+        },
+        {
+          name: "Rug",
+          path: "items/rug.glb",
+          type: "rug",
+          width: 157,
+          height: 0.5,
+          depth: 92,
         },
       ],
     },
@@ -201,7 +280,10 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   // Door & Window Model Options
   const doorOptions = [
     { label: "Glass Door", value: "door/door.glb" },
-    { label: "Wooden Door", value: "door/door_wooden.glb" },
+    { label: "Wooden Door 1", value: "door/door_wooden.glb" },
+    { label: "Blast Door", value: "door/blastDoor.glb" },
+    { label: "Open Doorway", value: "door/doorFrame.glb" },
+    { label: "Wooden Door 2", value: "door/door_wooden_1.glb" },
   ];
 
   const windowOptions = [
