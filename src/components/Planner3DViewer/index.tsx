@@ -58,7 +58,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [isTourOpen, setIsTourOpen] = useState(false);
 
   // Window and Door Shape Data
-  const [defaultModelPath, setDefaultModelPath] = useState<string>("");
+  // const [defaultModelPath, setDefaultModelPath] = useState<string>("");
   const [selectedShape, setSelectedShape] = useState<ShapeData | null>(null);
   const [modelPathsByShapeId, setModelPathsByShapeId] = useState<
     Record<string, string>
@@ -367,7 +367,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           : "door/door_wooden.glb";
     const currentModelPath = modelPathsByShapeId[shape.id] || "";
     setSelectedModelPath(currentModelPath);
-    setDefaultModelPath(defaultModelPath);
+    // setDefaultModelPath(defaultModelPath);
   };
 
   const handleSaveChanges = () => {
