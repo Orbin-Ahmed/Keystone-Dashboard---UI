@@ -650,10 +650,12 @@ const SceneContent: React.FC<SceneContentProps> = ({
       const angle = Math.atan2(y2 - y1, x2 - x1);
 
       const wallGeometry = new BoxGeometry(length, wallHeight, wallThickness);
-      wallGeometry.translate(wallPosition.x, wallPosition.y, wallPosition.z);
-      wallGeometry.rotateY(-angle);
+      const wallMesh = new Mesh(wallGeometry);
+      wallMesh.position.copy(wallPosition);
+      wallMesh.rotation.y = -angle;
+      wallMesh.updateMatrixWorld(true);
 
-      const wallBox = new Box3().setFromObject(new Mesh(wallGeometry));
+      const wallBox = new Box3().setFromObject(wallMesh);
       wallGeometry.dispose();
 
       return wallBox;
@@ -845,7 +847,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
           ref={modelRef}
           key="placing-item"
           path={placingItem.path}
-          position={placingItem.position || [0, 0, 0]}
+          position={itemPosition}
           rotation={placingItem.rotation || [0, 0, 0]}
           dimensions={{
             width: placingItem.width,

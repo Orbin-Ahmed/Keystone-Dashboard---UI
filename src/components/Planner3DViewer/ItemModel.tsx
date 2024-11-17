@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, forwardRef, useRef, useState } from "react";
+import throttle from "lodash.throttle";
 import { useGLTF } from "@react-three/drei";
 import {
   Box3,
@@ -59,6 +60,27 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
       return { size, center };
     }, [scene]);
 
+    const checkCollision = useMemo(
+      () =>
+        throttle(() => {
+          if (modelRef.current) {
+            modelRef.current.updateMatrixWorld(true);
+
+            const itemBox = new Box3().setFromObject(modelRef.current);
+
+            let collisionDetected = false;
+            for (const wallBox of wallBoundingBoxes) {
+              if (itemBox.intersectsBox(wallBox)) {
+                collisionDetected = true;
+                break;
+              }
+            }
+            setIsColliding(collisionDetected);
+          }
+        }, 50),
+      [modelRef, wallBoundingBoxes],
+    );
+
     const clonedScene = useMemo(() => {
       return scene.clone(true);
     }, [scene]);
@@ -73,13 +95,20 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
       const adjustedScale: [number, number, number] = [scaleX, scaleY, scaleZ];
 
       const adjustedPosition: [number, number, number] = [
-        position[0] - center.x,
+        position[0] - center.x * scaleX,
         position[1] - center.y * scaleY + dimensions.height / 2,
-        position[2] - center.z,
+        position[2] - center.z * scaleZ,
       ];
 
       return [adjustedScale, adjustedPosition];
     }, [initialBounds, dimensions, position]);
+
+    useEffect(() => {
+      if (modelRef.current) {
+        modelRef.current.position.set(...adjustedPosition);
+        modelRef.current.scale.set(...adjustedScale);
+      }
+    }, [adjustedPosition, adjustedScale]);
 
     useEffect(() => {
       if (modelRef.current) {
@@ -106,6 +135,8 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
 
     useEffect(() => {
       if (modelRef.current) {
+        modelRef.current.updateMatrixWorld(true);
+
         const itemBox = new Box3().setFromObject(modelRef.current);
 
         let collisionDetected = false;
@@ -117,7 +148,7 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
         }
         setIsColliding(collisionDetected);
       }
-    }, [position, wallBoundingBoxes]);
+    }, [modelRef, position, rotation, adjustedScale, wallBoundingBoxes]);
 
     useEffect(() => {
       if (modelRef.current) {
@@ -126,7 +157,6 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
             if (isColliding) {
               child.material = new MeshStandardMaterial({ color: "red" });
             } else {
-              // Restore original material
               const index = originalMaterials.current.indexOf(child.material);
               if (index !== -1) {
                 child.material = originalMaterials.current[index];
@@ -160,6 +190,27 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
         useGLTF.clear(`/models/${path}`);
       };
     }, [path]);
+
+    useEffect(() => {
+      checkCollision();
+    }, [position, rotation, adjustedScale, checkCollision]);
+
+    useEffect(() => {
+      return () => {
+        if (modelRef.current) {
+          modelRef.current.traverse((child) => {
+            if (child instanceof Mesh) {
+              child.geometry.dispose();
+              if (Array.isArray(child.material)) {
+                child.material.forEach((material) => material.dispose());
+              } else {
+                child.material.dispose();
+              }
+            }
+          });
+        }
+      };
+    }, []);
 
     return (
       <primitive
