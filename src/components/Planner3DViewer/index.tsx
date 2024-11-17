@@ -10,7 +10,7 @@ import {
   TourPoint,
   WallClassification,
 } from "@/types";
-import { PerspectiveCamera, Vector2, WebGLRenderer } from "three";
+import { PerspectiveCamera, Scene, Vector2, WebGLRenderer } from "three";
 import CustomButton from "@/components/CustomButton";
 import SceneContent, {
   ensureWallPoints,
@@ -54,6 +54,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [showRoof, setShowRoof] = useState(false);
   const cameraRef = useRef<PerspectiveCamera | null>(null);
   const glRef = useRef<WebGLRenderer | null>(null);
+  const sceneRef = useRef<Scene | null>(null);
   const [isTourOpen, setIsTourOpen] = useState(false);
 
   // Window and Door Shape Data
@@ -407,8 +408,21 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   };
 
   const handleSnap = () => {
-    if (glRef.current) {
-      const dataURL = glRef.current.domElement.toDataURL("image/png");
+    if (glRef.current && cameraRef.current && sceneRef.current) {
+      const renderer = glRef.current;
+      const camera = cameraRef.current;
+      const scene = sceneRef.current;
+
+      // Set the renderer size to match the display
+      renderer.setSize(window.innerWidth, window.innerHeight);
+
+      // Render the scene
+      renderer.render(scene, camera);
+
+      // Capture the scene as a data URL
+      const dataURL = renderer.domElement.toDataURL("image/png");
+
+      // Download the snapshot
       const link = document.createElement("a");
       link.download = "scene.png";
       link.href = dataURL;
@@ -420,11 +434,12 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     <>
       <Canvas
         camera={{ position: [0, 300, 500], fov: 65, near: 1, far: 2000 }}
-        onCreated={({ camera, gl }) => {
+        onCreated={({ camera, gl, scene }) => {
           if (camera instanceof PerspectiveCamera) {
             cameraRef.current = camera;
           }
           glRef.current = gl;
+          sceneRef.current = scene;
         }}
       >
         <SceneContent
