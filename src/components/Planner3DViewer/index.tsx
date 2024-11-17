@@ -745,6 +745,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
               >
                 <option value="white_marble.jpg">White Marble</option>
                 <option value="golden.jpeg">Golden Marble</option>
+                <option value="blue.jpg">Blue Marble</option>
+                <option value="tiles.jpg">White Tiles</option>
                 <option value="hardwood.png">Wooden Floor</option>
                 <option value="light_fine_wood.jpg">Light Wooden Floor</option>
               </select>
