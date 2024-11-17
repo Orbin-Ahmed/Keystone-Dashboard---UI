@@ -1,5 +1,5 @@
-import React, { useMemo, useEffect, useRef, useState } from "react";
-import { useLoader, useThree, ThreeEvent, useFrame } from "@react-three/fiber";
+import React, { useMemo, useEffect, useRef } from "react";
+import { useLoader, useThree, ThreeEvent } from "@react-three/fiber";
 import {
   LineData,
   PlacedItemType,
@@ -26,6 +26,7 @@ import {
   Plane,
   Object3D,
   Box3,
+  Material,
 } from "three";
 import { CSG } from "three-csg-ts";
 import Model from "./Model";
@@ -36,6 +37,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import JSZip from "jszip";
 import { GLTFExporter } from "three-stdlib";
+import throttle from "lodash.throttle";
 
 interface SceneContentProps {
   lines: LineData[];
@@ -205,7 +207,8 @@ const SceneContent: React.FC<SceneContentProps> = ({
     });
 
     return classifications;
-  }, [lines, centerX, centerY, minX, maxX, minY, maxY]);
+  }, [lines]);
+  // }, [lines, centerX, centerY, minX, maxX, minY, maxY]);
 
   const shapesByWallId = useMemo(() => {
     return shapes.reduce(
@@ -246,6 +249,12 @@ const SceneContent: React.FC<SceneContentProps> = ({
     roof: ceilingTextureData,
   };
 
+  useEffect(() => {
+    return () => {
+      Object.values(textures).forEach((texture) => texture.dispose());
+    };
+  }, [textures.floor, textures.wall, textures.roof]);
+
   const modelTypeNames: { [key: string]: string } = {
     "door/door.glb": "Glass Door",
     "door/door_wooden.glb": "Wooden Door",
@@ -261,6 +270,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
     "window/window_arch.glb": "/models/window/window_arch.png",
     "window/window_slide.glb": "/models/window/window_slide.png",
   };
+  // Export Functionality
 
   useEffect(() => {
     if (shouldExport) {
@@ -481,6 +491,8 @@ const SceneContent: React.FC<SceneContentProps> = ({
     return zipBlob;
   };
 
+  // Export Functionality Ends
+
   useEffect(() => {
     return () => {
       const disposeObject = (obj: any) => {
@@ -490,7 +502,9 @@ const SceneContent: React.FC<SceneContentProps> = ({
 
         if (obj.material) {
           if (Array.isArray(obj.material)) {
-            obj.material.forEach((material: any) => disposeMaterial(material));
+            obj.material.forEach((material: Material) =>
+              disposeMaterial(material),
+            );
           } else {
             disposeMaterial(obj.material);
           }
@@ -659,7 +673,8 @@ const SceneContent: React.FC<SceneContentProps> = ({
 
       return wallBox;
     });
-  }, [lines, wallHeight, wallThickness, centerX, centerY]);
+  }, [lines, wallThickness]);
+  // }, [lines, wallHeight, wallThickness, centerX, centerY]);
 
   useEffect(() => {
     placingItemRef.current = placingItem;
@@ -670,16 +685,10 @@ const SceneContent: React.FC<SceneContentProps> = ({
     }
   }, [placingItem, gl.domElement.style]);
 
-  useFrame(() => {
-    if (placingItemRef.current && modelRef.current) {
-      modelRef.current.position.set(
-        ...(placingItemRef.current.position || [0, 0, 0]),
-      );
-      modelRef.current.rotation.set(
-        ...(placingItemRef.current.rotation || [0, 0, 0]),
-      );
-    }
-  });
+  const throttledHandlePointerMove = useMemo(
+    () => throttle(handlePointerMove, 16),
+    [handlePointerMove],
+  );
 
   return (
     <>
@@ -849,7 +858,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
           }}
           wallBoundingBoxes={wallBoundingBoxes}
           onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
+          onPointerMove={throttledHandlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerOver={handlePointerOver}
           onPointerOut={handlePointerOut}
