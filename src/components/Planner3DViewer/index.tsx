@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import {
   categories,
@@ -58,7 +58,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [isTourOpen, setIsTourOpen] = useState(false);
 
   // Window and Door Shape Data
-  // const [defaultModelPath, setDefaultModelPath] = useState<string>("");
   const [selectedShape, setSelectedShape] = useState<ShapeData | null>(null);
   const [modelPathsByShapeId, setModelPathsByShapeId] = useState<
     Record<string, string>
@@ -359,15 +358,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     setFlipShape(flipStatus);
     const wallClassification = wallClassifications[shape.wallId];
     const isOuter = wallClassification ? wallClassification.isOuter : false;
-    // const defaultModelPath =
-    //   shape.type === "window"
-    //     ? "window/window.glb"
-    //     : isOuter
-    //       ? "door/door.glb"
-    //       : "door/door_wooden.glb";
-    // const currentModelPath = modelPathsByShapeId[shape.id] || "";
-    // setSelectedModelPath(currentModelPath);
-    // setDefaultModelPath(defaultModelPath);
     setSelectedModelPath(modelPathsByShapeId[shape.id] || "");
   };
 
@@ -413,17 +403,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       const renderer = glRef.current;
       const camera = cameraRef.current;
       const scene = sceneRef.current;
-
-      // Set the renderer size to match the display
-      // renderer.setSize(window.innerWidth, window.innerHeight);
-
-      // Render the scene
       renderer.render(scene, camera);
-
-      // Capture the scene as a data URL
       const dataURL = renderer.domElement.toDataURL("image/jpg");
-
-      // Download the snapshot
       const link = document.createElement("a");
       link.download = "scene.jpg";
       link.href = dataURL;
