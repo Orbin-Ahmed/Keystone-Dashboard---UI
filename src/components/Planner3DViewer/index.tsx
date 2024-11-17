@@ -230,6 +230,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const toggleTourList = () => {
     setIsSettingsOpen(false);
     setIsTourOpen((prev) => !prev);
+    setIsItemsOpen(false);
   };
 
   const handleCloseSidebar = () => {
@@ -464,6 +465,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
               onClick={() => {
                 setIsItemsOpen((prev) => !prev);
                 setIsSettingsOpen(false);
+                setIsTourOpen(false);
               }}
             >
               Add Items

@@ -858,10 +858,10 @@ const SceneContent: React.FC<SceneContentProps> = ({
         disableControls={!!placingItem}
       />
       {/* Lights */}
-      <ambientLight intensity={0.8} />
-      <directionalLight position={[10, 50, 25]} intensity={0.8} />
-      <directionalLight position={[-10, 50, -25]} intensity={0.8} />
-      <hemisphereLight intensity={0.3} />
+      <ambientLight intensity={0.6} />
+      <directionalLight position={[10, 50, 25]} intensity={0.6} />
+      <directionalLight position={[-10, 50, -25]} intensity={0.6} />
+      <hemisphereLight intensity={0.8} />
       {/* Tour Points */}
       {tourPoints.map((point) => (
         <mesh
