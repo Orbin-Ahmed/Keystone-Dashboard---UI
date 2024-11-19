@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useEffect, useMemo } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import dynamic from "next/dynamic";
 import PlanEditorSideBar from "@/components/PlanEditor/PlanEditorSideBar";
 import useImage from "use-image";
@@ -14,6 +14,7 @@ import {
 import { detectWallPosition } from "@/api";
 import { uid } from "uid";
 import CreateBuildingShape from "@/components/PlanEditor/CreateBuildingShape";
+import { GrLinkNext, GrLinkPrevious } from "react-icons/gr";
 
 const PlanEditor = dynamic(() => import("@/components/PlanEditor"), {
   ssr: false,
@@ -38,11 +39,24 @@ const FloorPlanner = () => {
   const [selectedWall, setSelectedWall] = useState<string | null>(null);
   const [selectedShape, setSelectedShape] = useState<string | null>(null);
 
-  // Floor Data
+  // Single Floor Data
   const [lines, setLines] = useState<Line[]>([]);
   const [shapes, setShapes] = useState<ShapeType[]>([]);
   const [roomNames, setRoomNames] = useState<RoomName[]>([]);
   const [floorPlanPoints, setFloorPlanPoints] = useState<FloorPlanPoint[]>([]);
+
+  // Multi Floor Data
+  const floorNames = Array.from({ length: 10 }, (_, i) => `Floor ${i}`);
+  const [currentFloorIndex, setCurrentFloorIndex] = useState(0);
+  const [currentFloor, setCurrentFloor] = useState<string>(floorNames[0]);
+  const [floors, setFloors] = useState<Record<string, FloorData>>({
+    ground_floor: {
+      lines: [],
+      shapes: [],
+      roomNames: [],
+      floorPlanPoints: [],
+    },
+  });
 
   // Misc states
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -379,6 +393,39 @@ const FloorPlanner = () => {
     };
   }, [lines]);
 
+  // Floor Data helper Function
+  const handleNextFloor = () => {
+    const nextIndex = (currentFloorIndex + 1) % floorNames.length;
+    const nextFloorName = floorNames[nextIndex];
+    handleFloorSwitch(nextFloorName, nextIndex);
+  };
+
+  const handlePreviousFloor = () => {
+    const prevIndex =
+      (currentFloorIndex - 1 + floorNames.length) % floorNames.length;
+    const prevFloorName = floorNames[prevIndex];
+    handleFloorSwitch(prevFloorName, prevIndex);
+  };
+
+  const handleFloorSwitch = (floorName: string, floorIndex: number) => {
+    // const updatedFloors = getUpdatedFloors();
+    // setFloors(updatedFloors);
+    // const newFloorData = updatedFloors[floorName] || {
+    //   lines: [],
+    //   shapes: [],
+    //   roomNames: [],
+    //   floorPlanPoints: [],
+    // };
+    // setCurrentFloor(floorName);
+    // setCurrentFloorIndex(floorIndex);
+    // setLines(newFloorData.lines);
+    // setShapes(newFloorData.shapes);
+    // setRoomNames(newFloorData.roomNames);
+    // setFloorPlanPoints(newFloorData.floorPlanPoints);
+  };
+
+  // Floor Data helper Function end
+
   if (!windowImage || !doorImage) {
     return <div>Loading...</div>;
   }
@@ -487,6 +534,21 @@ const FloorPlanner = () => {
           deleteRoomName={deleteRoomName}
         />
       )}
+      <div className="fixed bottom-8 left-1/2 z-50 flex -translate-x-1/2 transform items-center gap-4">
+        <button
+          className="rounded-full p-4 shadow-xl"
+          onClick={handlePreviousFloor}
+        >
+          <GrLinkPrevious />
+        </button>
+        <p>{currentFloor}</p>
+        <button
+          className="rounded-full p-4 shadow-xl"
+          onClick={handleNextFloor}
+        >
+          <GrLinkNext />
+        </button>
+      </div>
     </div>
   );
 };
