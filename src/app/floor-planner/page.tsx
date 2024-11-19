@@ -3,7 +3,14 @@ import React, { useState, useRef, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
 import PlanEditorSideBar from "@/components/PlanEditor/PlanEditorSideBar";
 import useImage from "use-image";
-import { FloorPlanPoint, Line, RoomName, ShapeType } from "@/types";
+import {
+  FloorData,
+  FloorPlanPoint,
+  Line,
+  LineData,
+  RoomName,
+  ShapeType,
+} from "@/types";
 import { detectWallPosition } from "@/api";
 import { uid } from "uid";
 import CreateBuildingShape from "@/components/PlanEditor/CreateBuildingShape";
@@ -41,6 +48,11 @@ const FloorPlanner = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [windowImage] = useImage("/textures/window.svg");
   const [doorImage] = useImage("/textures/door.svg");
+
+  if (!windowImage || !doorImage) {
+    return <div>Loading...</div>;
+  }
+
   // Helper function
   const distance = (point1: any, point2: any) =>
     Math.sqrt(
@@ -65,7 +77,7 @@ const FloorPlanner = () => {
     }
   };
 
-  const connectCloseLinesByExtending = (lines: any[]) => {
+  const connectCloseLinesByExtending = (lines: Line[]) => {
     const updatedLines = lines.map((line) => ({
       ...line,
       points: [...line.points],
@@ -143,6 +155,105 @@ const FloorPlanner = () => {
 
     return updatedLines;
   };
+
+  const processFloorData = (floorData: FloorData): FloorData => {
+    // Floor plan line
+    const processedLines = connectCloseLinesByExtending(
+      floorData.lines.map((line: Line) => {
+        return {
+          ...line,
+          id: line.id || uid(),
+          thickness: line.thickness || 8,
+        };
+      }),
+    );
+    // Floor plan line end
+
+    // Floor plan shape
+    const processedShapes = floorData.shapes.map((shape: any) => {
+      let image = null;
+      if (!image) {
+        if (shape.type === "window") {
+          image = windowImage;
+        } else if (shape.type === "door") {
+          image = doorImage;
+        }
+      }
+      return {
+        ...shape,
+        id: shape.id || uid(),
+        image,
+      };
+    });
+    // Floor plan shape end
+
+    // Room Name Process
+    const processedRoomNames = floorData.roomNames.map((room: RoomName) => {
+      const textWidth = measureTextWidth(room.name);
+      return {
+        ...room,
+        id: room.id || roomIdCounter++,
+        offsetX: textWidth / 2,
+      };
+    });
+    // Room Name Process end
+
+    // Floor plan point process
+    let processedFloorPlanPoints;
+
+    if (floorData.floorPlanPoints && floorData.floorPlanPoints.length > 0) {
+      processedFloorPlanPoints = floorData.floorPlanPoints.map((point) => ({
+        ...point,
+        id: point.id || uid(),
+      }));
+    } else {
+      const allPoints = processedLines.flatMap((line: Line) => [
+        { x: line.points[0], y: line.points[1] },
+        { x: line.points[2], y: line.points[3] },
+      ]);
+
+      const calculatedCenterX =
+        allPoints.reduce((sum, point) => sum + point.x, 0) /
+        (allPoints.length || 1);
+      const calculatedCenterY =
+        allPoints.reduce((sum, point) => sum + point.y, 0) /
+        (allPoints.length || 1);
+
+      const result = CreateBuildingShape(
+        processedLines,
+        calculatedCenterX,
+        calculatedCenterY,
+      );
+
+      if (result.floorPlanPoints.length > 0) {
+        processedFloorPlanPoints = result.floorPlanPoints.map((point) => ({
+          x: point.x + calculatedCenterX,
+          y: point.y + calculatedCenterY,
+          id: uid(),
+        }));
+      } else {
+        console.error(
+          "Failed to generate floor plan points from building shape",
+          {
+            processedLines,
+          },
+        );
+        processedFloorPlanPoints = allPoints.map((point) => ({
+          ...point,
+          id: uid(),
+        }));
+      }
+    }
+    // Floor plan point process end
+
+    return {
+      lines: processedLines,
+      shapes: processedShapes,
+      roomNames: processedRoomNames,
+      floorPlanPoints: processedFloorPlanPoints,
+    };
+  };
+
   // Helper function
 
   // Upload download function
@@ -432,10 +543,6 @@ const FloorPlanner = () => {
   // useEffect(() => {
   //   console.log(floorPlanPoints);
   // }, [floorPlanPoints]);
-
-  if (!windowImage || !doorImage) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <div className="editor-container">
