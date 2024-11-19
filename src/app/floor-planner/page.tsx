@@ -39,19 +39,15 @@ const FloorPlanner = () => {
   const [selectedShape, setSelectedShape] = useState<string | null>(null);
 
   // Floor Data
-  const [shapes, setShapes] = useState<ShapeType[]>([]);
   const [lines, setLines] = useState<Line[]>([]);
-  const [floorPlanPoints, setFloorPlanPoints] = useState<FloorPlanPoint[]>([]);
+  const [shapes, setShapes] = useState<ShapeType[]>([]);
   const [roomNames, setRoomNames] = useState<RoomName[]>([]);
+  const [floorPlanPoints, setFloorPlanPoints] = useState<FloorPlanPoint[]>([]);
 
   // Misc states
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [windowImage] = useImage("/textures/window.svg");
   const [doorImage] = useImage("/textures/door.svg");
-
-  if (!windowImage || !doorImage) {
-    return <div>Loading...</div>;
-  }
 
   // Helper function
   const distance = (point1: any, point2: any) =>
@@ -306,87 +302,12 @@ const FloorPlanner = () => {
       reader.onload = (event) => {
         try {
           const data = JSON.parse(event.target?.result as string);
-          // Line Start
-          const connectedLines = connectCloseLinesByExtending(data.lines);
-
-          const linesWithThickness = connectedLines.map((line: Line) => {
-            return {
-              ...line,
-              id: line.id || uid(),
-              thickness: line.thickness || 8,
-            };
-          });
-          setLines(linesWithThickness || []);
-          // Line End
-
-          // Shape Start
-          const loadedShapes = data.shapes.map((shape: ShapeType) => {
-            let image = null;
-            if (shape.type === "window") {
-              image = windowImage;
-            } else if (shape.type === "door") {
-              image = doorImage;
-            }
-            return { ...shape, id: shape.id || uid(), image };
-          });
-
-          setShapes(loadedShapes || []);
-          // Shape End
-
-          // Room Name start
-          const loadedRoomNames = (data.roomNames || []).map(
-            (room: { x: number; y: number; name: string }) => {
-              const textWidth = measureTextWidth(room.name);
-              return {
-                ...room,
-                id: roomIdCounter++,
-                offsetX: textWidth / 2,
-              };
-            },
-          );
-          setRoomNames(loadedRoomNames);
-          // Room name end
-
-          // Floor Points
-          if (data.floorPlanPoints && data.floorPlanPoints.length > 0) {
-            const loadedFloorPlanPoints = data.floorPlanPoints.map(
-              (point: { id: string; x: number; y: number }) => ({
-                id: point.id || uid(),
-                x: point.x,
-                y: point.y,
-              }),
-            );
-            setFloorPlanPoints(loadedFloorPlanPoints);
-          } else {
-            setFloorPlanPoints([]);
-            // const allPoints = linesWithThickness.flatMap((line) => [
-            //   { x: line.points[0], y: line.points[1] },
-            //   { x: line.points[2], y: line.points[3] },
-            // ]);
-
-            // const calculatedCenterX =
-            //   allPoints.reduce((sum, point) => sum + point.x, 0) /
-            //   (allPoints.length || 1);
-            // const calculatedCenterY =
-            //   allPoints.reduce((sum, point) => sum + point.y, 0) /
-            //   (allPoints.length || 1);
-            // const result = CreateBuildingShape(
-            //   linesWithThickness,
-            //   calculatedCenterX,
-            //   calculatedCenterY,
-            // );
-
-            // if (result.floorPlanPoints.length > 0) {
-            //   const newPoints = result.floorPlanPoints.map((point) => ({
-            //     x: point.x + calculatedCenterX,
-            //     y: point.y + calculatedCenterY,
-            //     id: uid(),
-            //   }));
-
-            //   setFloorPlanPoints(newPoints);
-            // }
-          }
-          // Floor Points end
+          const { lines, shapes, roomNames, floorPlanPoints } =
+            processFloorData(data);
+          setLines(lines);
+          setShapes(shapes);
+          setRoomNames(roomNames);
+          setFloorPlanPoints(floorPlanPoints);
         } catch (err) {
           console.error("Failed to load design:", err);
         }
@@ -395,48 +316,12 @@ const FloorPlanner = () => {
     } else if (fileType.startsWith("image/")) {
       try {
         const responseData = await detectWallPosition(file);
-
-        if (responseData) {
-          const connectedLines = connectCloseLinesByExtending(
-            responseData.lines,
-          );
-
-          const linesWithThickness = connectedLines.map((line: any) => {
-            return {
-              ...line,
-              id: line.id || uid(),
-              thickness: line.thickness || 8,
-            };
-          });
-
-          setLines(linesWithThickness || []);
-
-          const loadedShapes = responseData.shapes.map((shape: any) => {
-            let image = null;
-            if (shape.type === "window") {
-              image = windowImage;
-            } else if (shape.type === "door") {
-              image = doorImage;
-            }
-            return { ...shape, id: shape.id || uid(), image };
-          });
-
-          setShapes(loadedShapes || []);
-
-          const loadedRoomNames = (responseData.roomNames || []).map(
-            (room: { x: number; y: number; name: string }) => {
-              const textWidth = measureTextWidth(room.name);
-              return {
-                ...room,
-                id: roomIdCounter++,
-                offsetX: textWidth / 2,
-              };
-            },
-          );
-          setRoomNames(loadedRoomNames);
-        } else {
-          console.error("No data returned from API");
-        }
+        const { lines, shapes, roomNames, floorPlanPoints } =
+          processFloorData(responseData);
+        setLines(lines);
+        setShapes(shapes);
+        setRoomNames(roomNames);
+        setFloorPlanPoints(floorPlanPoints);
       } catch (error) {
         console.error("Error uploading image:", error);
       }
@@ -493,6 +378,10 @@ const FloorPlanner = () => {
       centerY: (Math.min(...allY) + Math.max(...allY)) / 2,
     };
   }, [lines]);
+
+  if (!windowImage || !doorImage) {
+    return <div>Loading...</div>;
+  }
 
   // const mergeFloorPlanPoints = (
   //   existingPoints: FloorPlanPoint[],
