@@ -321,6 +321,13 @@ export interface PDFItemData {
   image: string;
 }
 
+export type FloorData = {
+  lines: Line[];
+  shapes: ShapeType[];
+  roomNames: RoomName[];
+  floorPlanPoints: FloorPlanPoint[];
+};
+
 export const categories = [
   {
     name: "Living Room",

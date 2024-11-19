@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
 import PlanEditorSideBar from "@/components/PlanEditor/PlanEditorSideBar";
 import useImage from "use-image";
-import { FloorPlanPoint, Line, ShapeType } from "@/types";
+import { FloorPlanPoint, Line, RoomName, ShapeType } from "@/types";
 import { detectWallPosition } from "@/api";
 import { uid } from "uid";
 import CreateBuildingShape from "@/components/PlanEditor/CreateBuildingShape";
@@ -21,6 +21,7 @@ const EXTENSION_LENGTH = 5;
 let roomIdCounter = 0;
 
 const FloorPlanner = () => {
+  // sidebar states
   const [tool, setTool] = useState<
     "wall" | "window" | "door" | "moveWall" | "floorPoint" | null
   >(null);
@@ -29,20 +30,18 @@ const FloorPlanner = () => {
 
   const [selectedWall, setSelectedWall] = useState<string | null>(null);
   const [selectedShape, setSelectedShape] = useState<string | null>(null);
-  const [floorPlanPoints, setFloorPlanPoints] = useState<
-    { id: string; x: number; y: number }[]
-  >([]);
-  const [roomNames, setRoomNames] = useState<
-    { id: number; x: number; y: number; name: string; offsetX: number }[]
-  >([]);
 
+  // Floor Data
   const [shapes, setShapes] = useState<ShapeType[]>([]);
   const [lines, setLines] = useState<Line[]>([]);
+  const [floorPlanPoints, setFloorPlanPoints] = useState<FloorPlanPoint[]>([]);
+  const [roomNames, setRoomNames] = useState<RoomName[]>([]);
 
+  // Misc states
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [windowImage] = useImage("/textures/window.svg");
   const [doorImage] = useImage("/textures/door.svg");
-
+  // Helper function
   const distance = (point1: any, point2: any) =>
     Math.sqrt(
       Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2),
@@ -64,42 +63,6 @@ const FloorPlanner = () => {
       console.error("Unable to get 2D context from canvas.");
       return 0;
     }
-  };
-
-  const handleDownload = () => {
-    const shapesToSave = shapes.map((shape) => ({
-      ...shape,
-      image: shape.type,
-    }));
-
-    const roomNamesToSave = roomNames.map((room) => ({
-      x: room.x,
-      y: room.y,
-      name: room.name,
-    }));
-
-    const floorPlanPointsToSave = floorPlanPoints.map((point) => ({
-      id: point.id,
-      x: point.x,
-      y: point.y,
-    }));
-
-    const dataStr = JSON.stringify({
-      lines,
-      shapes: shapesToSave,
-      roomNames: roomNamesToSave,
-      floorPlanPoints: floorPlanPointsToSave,
-    });
-
-    const dataUri =
-      "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
-
-    const exportFileDefaultName = "design.json";
-
-    let linkElement = document.createElement("a");
-    linkElement.setAttribute("href", dataUri);
-    linkElement.setAttribute("download", exportFileDefaultName);
-    linkElement.click();
   };
 
   const connectCloseLinesByExtending = (lines: any[]) => {
@@ -179,6 +142,44 @@ const FloorPlanner = () => {
     }
 
     return updatedLines;
+  };
+  // Helper function
+
+  // Upload download function
+  const handleDownload = () => {
+    const shapesToSave = shapes.map((shape) => ({
+      ...shape,
+      image: shape.type,
+    }));
+
+    const roomNamesToSave = roomNames.map((room) => ({
+      x: room.x,
+      y: room.y,
+      name: room.name,
+    }));
+
+    const floorPlanPointsToSave = floorPlanPoints.map((point) => ({
+      id: point.id,
+      x: point.x,
+      y: point.y,
+    }));
+
+    const dataStr = JSON.stringify({
+      lines,
+      shapes: shapesToSave,
+      roomNames: roomNamesToSave,
+      floorPlanPoints: floorPlanPointsToSave,
+    });
+
+    const dataUri =
+      "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
+
+    const exportFileDefaultName = "design.json";
+
+    let linkElement = document.createElement("a");
+    linkElement.setAttribute("href", dataUri);
+    linkElement.setAttribute("download", exportFileDefaultName);
+    linkElement.click();
   };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -334,7 +335,9 @@ const FloorPlanner = () => {
       );
     }
   };
+  // Upload download function
 
+  // Room helper Function
   const addRoomName = (x: number, y: number, name: string) => {
     const textWidth = measureTextWidth(name);
     setRoomNames((prevRoomNames) => [
@@ -365,6 +368,7 @@ const FloorPlanner = () => {
       prevRoomNames.filter((room) => room.id !== id),
     );
   };
+  // Room helper Function end
 
   const { centerX, centerY, minX, maxX, minY, maxY } = useMemo(() => {
     const allX = lines.flatMap((line) => [line.points[0], line.points[2]]);
@@ -432,6 +436,7 @@ const FloorPlanner = () => {
   if (!windowImage || !doorImage) {
     return <div>Loading...</div>;
   }
+
   return (
     <div className="editor-container">
       <PlanEditorSideBar
