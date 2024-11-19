@@ -118,49 +118,6 @@ const FloorPlanner = () => {
     linkElement.click();
   };
 
-  // const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files?.[0];
-  //   if (!file) return;
-
-  //   e.target.value = "";
-
-  //   const fileType = file.type;
-
-  //   if (fileType === "application/json") {
-  //     const reader = new FileReader();
-  //     reader.onload = (event) => {
-  //       try {
-  //         const data = JSON.parse(event.target?.result as string);
-  //         const { lines, shapes, roomNames, floorPlanPoints } =
-  //           processFloorData(data);
-  //         setLines(lines);
-  //         setShapes(shapes);
-  //         setRoomNames(roomNames);
-  //         setFloorPlanPoints(floorPlanPoints);
-  //       } catch (err) {
-  //         console.error("Failed to load design:", err);
-  //       }
-  //     };
-  //     reader.readAsText(file);
-  //   } else if (fileType.startsWith("image/")) {
-  //     try {
-  //       const responseData = await detectWallPosition(file);
-  //       const { lines, shapes, roomNames, floorPlanPoints } =
-  //         processFloorData(responseData);
-  //       setLines(lines);
-  //       setShapes(shapes);
-  //       setRoomNames(roomNames);
-  //       setFloorPlanPoints(floorPlanPoints);
-  //     } catch (error) {
-  //       console.error("Error uploading image:", error);
-  //     }
-  //   } else {
-  //     console.error(
-  //       "Unsupported file format. Please upload a JSON or an image.",
-  //     );
-  //   }
-  // };
-
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -176,13 +133,8 @@ const FloorPlanner = () => {
           const data = JSON.parse(event.target?.result as string);
           let parsedFloors: Record<string, FloorData> = {};
 
-          if (
-            data.lines &&
-            data.shapes &&
-            data.roomNames &&
-            data.floorPlanPoints
-          ) {
-            parsedFloors["Floor 1"] = processFloorData(data);
+          if (data.lines && data.shapes && data.roomNames) {
+            parsedFloors["Floor 0"] = processFloorData(data);
           } else {
             for (const floorName in data) {
               if (data.hasOwnProperty(floorName)) {
@@ -217,10 +169,9 @@ const FloorPlanner = () => {
         if (
           responseData.lines &&
           responseData.shapes &&
-          responseData.roomNames &&
-          responseData.floorPlanPoints
+          responseData.roomNames
         ) {
-          parsedFloors["Floor 1"] = processFloorData(responseData);
+          parsedFloors["Floor 0"] = processFloorData(responseData);
         } else {
           for (const floorName in responseData) {
             if (responseData.hasOwnProperty(floorName)) {
@@ -463,19 +414,23 @@ const FloorPlanner = () => {
 
   const processFloorData = (floorData: SerializedFloorData): FloorData => {
     // Process lines
-    const processedLines = connectCloseLinesByExtending(
-      floorData.lines.map((line: Line) => {
-        return {
-          ...line,
-          id: line.id || uid(),
-          thickness: line.thickness || 8,
-        };
-      }),
-    );
+    let processedLines: Line[] = [];
+    if (floorData.lines && floorData.lines.length > 0) {
+      processedLines = connectCloseLinesByExtending(
+        floorData.lines.map((line: Line) => {
+          return {
+            ...line,
+            id: line.id || uid(),
+            thickness: line.thickness || 8,
+          };
+        }),
+      );
+    }
 
     // Process shapes
-    const processedShapes: ShapeType[] = floorData.shapes.map(
-      (shape: SerializedShape) => {
+    let processedShapes: ShapeType[] = [];
+    if (floorData.shapes && floorData.shapes.length > 0) {
+      processedShapes = floorData.shapes.map((shape: SerializedShape) => {
         let image: HTMLImageElement | null = null;
         if (shape.image === "window") {
           image = windowImage;
@@ -486,26 +441,59 @@ const FloorPlanner = () => {
           ...shape,
           image: image!,
         };
-      },
-    );
+      });
+    }
 
     // Process room names
-    const processedRoomNames: RoomName[] = floorData.roomNames.map(
-      (room: SerializedRoomName) => {
-        const textWidth = measureTextWidth(room.name);
-        return {
-          ...room,
-          id: roomIdCounter++,
-          offsetX: textWidth / 2,
-        };
-      },
-    );
+    let processedRoomNames: RoomName[] = [];
+    if (floorData.roomNames && floorData.roomNames.length > 0) {
+      processedRoomNames = floorData.roomNames.map(
+        (room: SerializedRoomName) => {
+          const textWidth = measureTextWidth(room.name);
+          return {
+            ...room,
+            id: roomIdCounter++,
+            offsetX: textWidth / 2,
+          };
+        },
+      );
+    }
 
     // Process floor plan points
-    const processedFloorPlanPoints = floorData.floorPlanPoints.map((point) => ({
-      ...point,
-      id: point.id || uid(),
-    }));
+    let processedFloorPlanPoints: FloorPlanPoint[] = [];
+    if (floorData.floorPlanPoints && floorData.floorPlanPoints.length > 0) {
+      processedFloorPlanPoints = floorData.floorPlanPoints.map((point) => ({
+        ...point,
+        id: point.id || uid(),
+      }));
+    } else {
+      const allPoints = processedLines.flatMap((line) => [
+        { x: line.points[0], y: line.points[1] },
+        { x: line.points[2], y: line.points[3] },
+      ]);
+
+      const calculatedCenterX =
+        allPoints.reduce((sum, point) => sum + point.x, 0) /
+        (allPoints.length || 1);
+      const calculatedCenterY =
+        allPoints.reduce((sum, point) => sum + point.y, 0) /
+        (allPoints.length || 1);
+      const result = CreateBuildingShape(
+        processedLines,
+        calculatedCenterX,
+        calculatedCenterY,
+      );
+
+      if (result.floorPlanPoints.length > 0) {
+        const newPoints = result.floorPlanPoints.map((point) => ({
+          x: point.x + calculatedCenterX,
+          y: point.y + calculatedCenterY,
+          id: uid(),
+        }));
+
+        processedFloorPlanPoints = newPoints;
+      }
+    }
 
     return {
       lines: processedLines,
