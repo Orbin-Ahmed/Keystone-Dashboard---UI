@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useMemo } from "react";
+import React, { useState, useRef, useMemo, useEffect } from "react";
 import dynamic from "next/dynamic";
 import PlanEditorSideBar from "@/components/PlanEditor/PlanEditorSideBar";
 import useImage from "use-image";
@@ -9,6 +9,9 @@ import {
   Line,
   LineData,
   RoomName,
+  SerializedFloorData,
+  SerializedRoomName,
+  SerializedShape,
   ShapeType,
 } from "@/types";
 import { detectWallPosition } from "@/api";
@@ -50,7 +53,7 @@ const FloorPlanner = () => {
   const [currentFloorIndex, setCurrentFloorIndex] = useState(0);
   const [currentFloor, setCurrentFloor] = useState<string>(floorNames[0]);
   const [floors, setFloors] = useState<Record<string, FloorData>>({
-    ground_floor: {
+    [floorNames[0]]: {
       lines: [],
       shapes: [],
       roomNames: [],
@@ -62,6 +65,298 @@ const FloorPlanner = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [windowImage] = useImage("/textures/window.svg");
   const [doorImage] = useImage("/textures/door.svg");
+
+  // Upload download function
+  const handleDownload = () => {
+    const floorsToSave = Object.entries(floors).reduce(
+      (acc, [floorName, floorData]) => {
+        const shapesToSave: SerializedShape[] = floorData.shapes.map(
+          (shape) => ({
+            ...shape,
+            image: shape.type,
+          }),
+        );
+
+        const roomNamesToSave: SerializedRoomName[] = floorData.roomNames.map(
+          (room) => ({
+            x: room.x,
+            y: room.y,
+            name: room.name,
+          }),
+        );
+
+        const floorPlanPointsToSave = floorData.floorPlanPoints.map(
+          (point) => ({
+            id: point.id,
+            x: point.x,
+            y: point.y,
+          }),
+        );
+
+        acc[floorName] = {
+          lines: floorData.lines,
+          shapes: shapesToSave,
+          roomNames: roomNamesToSave,
+          floorPlanPoints: floorPlanPointsToSave,
+        };
+
+        return acc;
+      },
+      {} as Record<string, SerializedFloorData>,
+    );
+
+    const dataStr = JSON.stringify(floorsToSave);
+
+    const dataUri =
+      "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
+
+    const exportFileDefaultName = "design.json";
+
+    let linkElement = document.createElement("a");
+    linkElement.setAttribute("href", dataUri);
+    linkElement.setAttribute("download", exportFileDefaultName);
+    linkElement.click();
+  };
+
+  // const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   if (!file) return;
+
+  //   e.target.value = "";
+
+  //   const fileType = file.type;
+
+  //   if (fileType === "application/json") {
+  //     const reader = new FileReader();
+  //     reader.onload = (event) => {
+  //       try {
+  //         const data = JSON.parse(event.target?.result as string);
+  //         const { lines, shapes, roomNames, floorPlanPoints } =
+  //           processFloorData(data);
+  //         setLines(lines);
+  //         setShapes(shapes);
+  //         setRoomNames(roomNames);
+  //         setFloorPlanPoints(floorPlanPoints);
+  //       } catch (err) {
+  //         console.error("Failed to load design:", err);
+  //       }
+  //     };
+  //     reader.readAsText(file);
+  //   } else if (fileType.startsWith("image/")) {
+  //     try {
+  //       const responseData = await detectWallPosition(file);
+  //       const { lines, shapes, roomNames, floorPlanPoints } =
+  //         processFloorData(responseData);
+  //       setLines(lines);
+  //       setShapes(shapes);
+  //       setRoomNames(roomNames);
+  //       setFloorPlanPoints(floorPlanPoints);
+  //     } catch (error) {
+  //       console.error("Error uploading image:", error);
+  //     }
+  //   } else {
+  //     console.error(
+  //       "Unsupported file format. Please upload a JSON or an image.",
+  //     );
+  //   }
+  // };
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    e.target.value = "";
+
+    const fileType = file.type;
+
+    if (fileType === "application/json") {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const data = JSON.parse(event.target?.result as string);
+          let parsedFloors: Record<string, FloorData> = {};
+
+          if (
+            data.lines &&
+            data.shapes &&
+            data.roomNames &&
+            data.floorPlanPoints
+          ) {
+            parsedFloors["Floor 1"] = processFloorData(data);
+          } else {
+            for (const floorName in data) {
+              if (data.hasOwnProperty(floorName)) {
+                parsedFloors[floorName] = processFloorData(data[floorName]);
+              }
+            }
+          }
+
+          setFloors(parsedFloors);
+          const floorNameList = Object.keys(parsedFloors);
+          const firstFloorName = floorNameList[0];
+
+          setCurrentFloor(firstFloorName);
+          setCurrentFloorIndex(floorNames.indexOf(firstFloorName));
+
+          const firstFloorData = parsedFloors[firstFloorName];
+
+          setLines(firstFloorData.lines);
+          setShapes(firstFloorData.shapes);
+          setRoomNames(firstFloorData.roomNames);
+          setFloorPlanPoints(firstFloorData.floorPlanPoints);
+        } catch (err) {
+          console.error("Failed to load design:", err);
+        }
+      };
+      reader.readAsText(file);
+    } else if (fileType.startsWith("image/")) {
+      try {
+        const responseData = await detectWallPosition(file);
+        let parsedFloors: Record<string, FloorData> = {};
+
+        if (
+          responseData.lines &&
+          responseData.shapes &&
+          responseData.roomNames &&
+          responseData.floorPlanPoints
+        ) {
+          parsedFloors["Floor 1"] = processFloorData(responseData);
+        } else {
+          for (const floorName in responseData) {
+            if (responseData.hasOwnProperty(floorName)) {
+              parsedFloors[floorName] = processFloorData(
+                responseData[floorName],
+              );
+            }
+          }
+        }
+
+        setFloors(parsedFloors);
+        const floorNameList = Object.keys(parsedFloors);
+        const firstFloorName = floorNameList[0];
+        setCurrentFloor(firstFloorName);
+        setCurrentFloorIndex(floorNames.indexOf(firstFloorName));
+        const firstFloorData = parsedFloors[firstFloorName];
+        setLines(firstFloorData.lines);
+        setShapes(firstFloorData.shapes);
+        setRoomNames(firstFloorData.roomNames);
+        setFloorPlanPoints(firstFloorData.floorPlanPoints);
+      } catch (error) {
+        console.error("Error uploading image:", error);
+      }
+    } else {
+      console.error(
+        "Unsupported file format. Please upload a JSON or an image.",
+      );
+    }
+  };
+
+  // Upload download function
+
+  // Room helper Function
+  const addRoomName = (x: number, y: number, name: string) => {
+    const textWidth = measureTextWidth(name);
+    setRoomNames((prevRoomNames) => [
+      ...prevRoomNames,
+      {
+        id: roomIdCounter++,
+        x,
+        y,
+        name,
+        offsetX: textWidth / 2,
+      },
+    ]);
+  };
+
+  const editRoomName = (id: number, newName: string) => {
+    const textWidth = measureTextWidth(newName);
+    setRoomNames((prevRoomNames) =>
+      prevRoomNames.map((room) =>
+        room.id === id
+          ? { ...room, name: newName, offsetX: textWidth / 2 }
+          : room,
+      ),
+    );
+  };
+
+  const deleteRoomName = (id: number) => {
+    setRoomNames((prevRoomNames) =>
+      prevRoomNames.filter((room) => room.id !== id),
+    );
+  };
+  // Room helper Function end
+
+  const { centerX, centerY, minX, maxX, minY, maxY } = useMemo(() => {
+    const allX = lines.flatMap((line) => [line.points[0], line.points[2]]);
+    const allY = lines.flatMap((line) => [line.points[1], line.points[3]]);
+    return {
+      minX: Math.min(...allX),
+      maxX: Math.max(...allX),
+      minY: Math.min(...allY),
+      maxY: Math.max(...allY),
+      centerX: (Math.min(...allX) + Math.max(...allX)) / 2,
+      centerY: (Math.min(...allY) + Math.max(...allY)) / 2,
+    };
+  }, [lines]);
+
+  // Floor Data helper Function
+  const handleNextFloor = () => {
+    const nextIndex = (currentFloorIndex + 1) % floorNames.length;
+    const nextFloorName = floorNames[nextIndex];
+    handleFloorSwitch(nextFloorName, nextIndex);
+  };
+
+  const handlePreviousFloor = () => {
+    const prevIndex =
+      (currentFloorIndex - 1 + floorNames.length) % floorNames.length;
+    const prevFloorName = floorNames[prevIndex];
+    handleFloorSwitch(prevFloorName, prevIndex);
+  };
+
+  const handleFloorSwitch = (floorName: string, floorIndex: number) => {
+    const updatedFloors = {
+      ...floors,
+      [currentFloor]: {
+        lines: lines,
+        shapes: shapes,
+        roomNames: roomNames,
+        floorPlanPoints: floorPlanPoints,
+      },
+    };
+
+    const newFloorData = updatedFloors[floorName] || {
+      lines: [],
+      shapes: [],
+      roomNames: [],
+      floorPlanPoints: [],
+    };
+
+    setFloors(updatedFloors);
+    setCurrentFloor(floorName);
+    setCurrentFloorIndex(floorIndex);
+    setLines(newFloorData.lines);
+    setShapes(newFloorData.shapes);
+    setRoomNames(newFloorData.roomNames);
+    setFloorPlanPoints(newFloorData.floorPlanPoints);
+  };
+
+  useEffect(() => {
+    setFloors((prevFloors) => ({
+      ...prevFloors,
+      [currentFloor]: {
+        lines,
+        shapes,
+        roomNames,
+        floorPlanPoints,
+      },
+    }));
+  }, [lines, shapes, roomNames, floorPlanPoints, currentFloor]);
+
+  // Floor Data helper Function end
+
+  if (!windowImage || !doorImage) {
+    return <div>Loading...</div>;
+  }
 
   // Helper function
   const distance = (point1: any, point2: any) =>
@@ -166,8 +461,8 @@ const FloorPlanner = () => {
     return updatedLines;
   };
 
-  const processFloorData = (floorData: FloorData): FloorData => {
-    // Floor plan line
+  const processFloorData = (floorData: SerializedFloorData): FloorData => {
+    // Process lines
     const processedLines = connectCloseLinesByExtending(
       floorData.lines.map((line: Line) => {
         return {
@@ -177,84 +472,40 @@ const FloorPlanner = () => {
         };
       }),
     );
-    // Floor plan line end
 
-    // Floor plan shape
-    const processedShapes = floorData.shapes.map((shape: any) => {
-      let image = null;
-      if (!image) {
-        if (shape.type === "window") {
+    // Process shapes
+    const processedShapes: ShapeType[] = floorData.shapes.map(
+      (shape: SerializedShape) => {
+        let image: HTMLImageElement | null = null;
+        if (shape.image === "window") {
           image = windowImage;
-        } else if (shape.type === "door") {
+        } else if (shape.image === "door") {
           image = doorImage;
         }
-      }
-      return {
-        ...shape,
-        id: shape.id || uid(),
-        image,
-      };
-    });
-    // Floor plan shape end
+        return {
+          ...shape,
+          image: image!,
+        };
+      },
+    );
 
-    // Room Name Process
-    const processedRoomNames = floorData.roomNames.map((room: RoomName) => {
-      const textWidth = measureTextWidth(room.name);
-      return {
-        ...room,
-        id: room.id || roomIdCounter++,
-        offsetX: textWidth / 2,
-      };
-    });
-    // Room Name Process end
+    // Process room names
+    const processedRoomNames: RoomName[] = floorData.roomNames.map(
+      (room: SerializedRoomName) => {
+        const textWidth = measureTextWidth(room.name);
+        return {
+          ...room,
+          id: roomIdCounter++,
+          offsetX: textWidth / 2,
+        };
+      },
+    );
 
-    // Floor plan point process
-    let processedFloorPlanPoints;
-
-    if (floorData.floorPlanPoints && floorData.floorPlanPoints.length > 0) {
-      processedFloorPlanPoints = floorData.floorPlanPoints.map((point) => ({
-        ...point,
-        id: point.id || uid(),
-      }));
-    } else {
-      const allPoints = processedLines.flatMap((line: Line) => [
-        { x: line.points[0], y: line.points[1] },
-        { x: line.points[2], y: line.points[3] },
-      ]);
-
-      const calculatedCenterX =
-        allPoints.reduce((sum, point) => sum + point.x, 0) /
-        (allPoints.length || 1);
-      const calculatedCenterY =
-        allPoints.reduce((sum, point) => sum + point.y, 0) /
-        (allPoints.length || 1);
-
-      const result = CreateBuildingShape(
-        processedLines,
-        calculatedCenterX,
-        calculatedCenterY,
-      );
-
-      if (result.floorPlanPoints.length > 0) {
-        processedFloorPlanPoints = result.floorPlanPoints.map((point) => ({
-          x: point.x + calculatedCenterX,
-          y: point.y + calculatedCenterY,
-          id: uid(),
-        }));
-      } else {
-        console.error(
-          "Failed to generate floor plan points from building shape",
-          {
-            processedLines,
-          },
-        );
-        processedFloorPlanPoints = allPoints.map((point) => ({
-          ...point,
-          id: uid(),
-        }));
-      }
-    }
-    // Floor plan point process end
+    // Process floor plan points
+    const processedFloorPlanPoints = floorData.floorPlanPoints.map((point) => ({
+      ...point,
+      id: point.id || uid(),
+    }));
 
     return {
       lines: processedLines,
@@ -263,172 +514,7 @@ const FloorPlanner = () => {
       floorPlanPoints: processedFloorPlanPoints,
     };
   };
-
   // Helper function
-
-  // Upload download function
-  const handleDownload = () => {
-    const shapesToSave = shapes.map((shape) => ({
-      ...shape,
-      image: shape.type,
-    }));
-
-    const roomNamesToSave = roomNames.map((room) => ({
-      x: room.x,
-      y: room.y,
-      name: room.name,
-    }));
-
-    const floorPlanPointsToSave = floorPlanPoints.map((point) => ({
-      id: point.id,
-      x: point.x,
-      y: point.y,
-    }));
-
-    const dataStr = JSON.stringify({
-      lines,
-      shapes: shapesToSave,
-      roomNames: roomNamesToSave,
-      floorPlanPoints: floorPlanPointsToSave,
-    });
-
-    const dataUri =
-      "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
-
-    const exportFileDefaultName = "design.json";
-
-    let linkElement = document.createElement("a");
-    linkElement.setAttribute("href", dataUri);
-    linkElement.setAttribute("download", exportFileDefaultName);
-    linkElement.click();
-  };
-
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    e.target.value = "";
-
-    const fileType = file.type;
-
-    if (fileType === "application/json") {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        try {
-          const data = JSON.parse(event.target?.result as string);
-          const { lines, shapes, roomNames, floorPlanPoints } =
-            processFloorData(data);
-          setLines(lines);
-          setShapes(shapes);
-          setRoomNames(roomNames);
-          setFloorPlanPoints(floorPlanPoints);
-        } catch (err) {
-          console.error("Failed to load design:", err);
-        }
-      };
-      reader.readAsText(file);
-    } else if (fileType.startsWith("image/")) {
-      try {
-        const responseData = await detectWallPosition(file);
-        const { lines, shapes, roomNames, floorPlanPoints } =
-          processFloorData(responseData);
-        setLines(lines);
-        setShapes(shapes);
-        setRoomNames(roomNames);
-        setFloorPlanPoints(floorPlanPoints);
-      } catch (error) {
-        console.error("Error uploading image:", error);
-      }
-    } else {
-      console.error(
-        "Unsupported file format. Please upload a JSON or an image.",
-      );
-    }
-  };
-  // Upload download function
-
-  // Room helper Function
-  const addRoomName = (x: number, y: number, name: string) => {
-    const textWidth = measureTextWidth(name);
-    setRoomNames((prevRoomNames) => [
-      ...prevRoomNames,
-      {
-        id: roomIdCounter++,
-        x,
-        y,
-        name,
-        offsetX: textWidth / 2,
-      },
-    ]);
-  };
-
-  const editRoomName = (id: number, newName: string) => {
-    const textWidth = measureTextWidth(newName);
-    setRoomNames((prevRoomNames) =>
-      prevRoomNames.map((room) =>
-        room.id === id
-          ? { ...room, name: newName, offsetX: textWidth / 2 }
-          : room,
-      ),
-    );
-  };
-
-  const deleteRoomName = (id: number) => {
-    setRoomNames((prevRoomNames) =>
-      prevRoomNames.filter((room) => room.id !== id),
-    );
-  };
-  // Room helper Function end
-
-  const { centerX, centerY, minX, maxX, minY, maxY } = useMemo(() => {
-    const allX = lines.flatMap((line) => [line.points[0], line.points[2]]);
-    const allY = lines.flatMap((line) => [line.points[1], line.points[3]]);
-    return {
-      minX: Math.min(...allX),
-      maxX: Math.max(...allX),
-      minY: Math.min(...allY),
-      maxY: Math.max(...allY),
-      centerX: (Math.min(...allX) + Math.max(...allX)) / 2,
-      centerY: (Math.min(...allY) + Math.max(...allY)) / 2,
-    };
-  }, [lines]);
-
-  // Floor Data helper Function
-  const handleNextFloor = () => {
-    const nextIndex = (currentFloorIndex + 1) % floorNames.length;
-    const nextFloorName = floorNames[nextIndex];
-    handleFloorSwitch(nextFloorName, nextIndex);
-  };
-
-  const handlePreviousFloor = () => {
-    const prevIndex =
-      (currentFloorIndex - 1 + floorNames.length) % floorNames.length;
-    const prevFloorName = floorNames[prevIndex];
-    handleFloorSwitch(prevFloorName, prevIndex);
-  };
-
-  const handleFloorSwitch = (floorName: string, floorIndex: number) => {
-    // const updatedFloors = getUpdatedFloors();
-    // setFloors(updatedFloors);
-    // const newFloorData = updatedFloors[floorName] || {
-    //   lines: [],
-    //   shapes: [],
-    //   roomNames: [],
-    //   floorPlanPoints: [],
-    // };
-    // setCurrentFloor(floorName);
-    // setCurrentFloorIndex(floorIndex);
-    // setLines(newFloorData.lines);
-    // setShapes(newFloorData.shapes);
-    // setRoomNames(newFloorData.roomNames);
-    // setFloorPlanPoints(newFloorData.floorPlanPoints);
-  };
-
-  // Floor Data helper Function end
-
-  if (!windowImage || !doorImage) {
-    return <div>Loading...</div>;
-  }
 
   // const mergeFloorPlanPoints = (
   //   existingPoints: FloorPlanPoint[],

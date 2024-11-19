@@ -156,18 +156,6 @@ export interface InteriorDesignInput {
   seed?: number;
 }
 
-export interface ShapeType {
-  id: string;
-  type: "window" | "door";
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  rotation?: number;
-  image: HTMLImageElement;
-  wallId: string;
-}
-
 export interface PlanEditorProps {
   tool: "wall" | "window" | "door" | "moveWall" | "floorPoint" | null;
   setTool: React.Dispatch<
@@ -218,6 +206,18 @@ export interface PlanEditorProps {
 export interface LineData {
   id: string;
   points: number[];
+}
+
+export interface ShapeType {
+  id: string;
+  type: "window" | "door";
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation?: number;
+  image: HTMLImageElement;
+  wallId: string;
 }
 
 export interface ShapeData {
@@ -327,6 +327,31 @@ export type FloorData = {
   roomNames: RoomName[];
   floorPlanPoints: FloorPlanPoint[];
 };
+
+export interface SerializedShape {
+  id: string;
+  type: "window" | "door";
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation?: number;
+  image: "window" | "door";
+  wallId: string;
+}
+
+export interface SerializedRoomName {
+  x: number;
+  y: number;
+  name: string;
+}
+
+export interface SerializedFloorData {
+  lines: Line[];
+  shapes: SerializedShape[];
+  roomNames: SerializedRoomName[];
+  floorPlanPoints: FloorPlanPoint[];
+}
 
 export const categories = [
   {
