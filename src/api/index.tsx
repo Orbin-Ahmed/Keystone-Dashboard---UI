@@ -736,12 +736,12 @@ export const getAllImageCount = async () => {
   }
 };
 
-export const detectWallPosition = async (imageFile: File) => {
+export const detectWallPosition = async (file: File) => {
   const url = `${API_BASE_URL}api/detect-walls-shapes/`;
 
   try {
     const formData = new FormData();
-    formData.append("image", imageFile);
+    formData.append("image", file);
 
     const response = await fetch(url, {
       method: "POST",

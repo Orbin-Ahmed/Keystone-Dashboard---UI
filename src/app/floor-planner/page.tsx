@@ -7,7 +7,6 @@ import {
   FloorData,
   FloorPlanPoint,
   Line,
-  LineData,
   RoomName,
   SerializedFloorData,
   SerializedRoomName,
@@ -194,6 +193,32 @@ const FloorPlanner = () => {
         setFloorPlanPoints(firstFloorData.floorPlanPoints);
       } catch (error) {
         console.error("Error uploading image:", error);
+      }
+    } else if (fileType === "application/pdf") {
+      try {
+        const responseData = await detectWallPosition(file);
+        let parsedFloors: Record<string, FloorData> = {};
+
+        for (const floorName in responseData) {
+          if (responseData.hasOwnProperty(floorName)) {
+            parsedFloors[floorName] = processFloorData(responseData[floorName]);
+          }
+        }
+
+        setFloors(parsedFloors);
+        const floorNameList = Object.keys(parsedFloors);
+        const firstFloorName = floorNameList[0];
+        setCurrentFloor(firstFloorName);
+        setCurrentFloorIndex(floorNames.indexOf(firstFloorName));
+
+        const firstFloorData = parsedFloors[firstFloorName];
+
+        setLines(firstFloorData.lines);
+        setShapes(firstFloorData.shapes);
+        setRoomNames(firstFloorData.roomNames);
+        setFloorPlanPoints(firstFloorData.floorPlanPoints);
+      } catch (error) {
+        console.error("Error processing PDF:", error);
       }
     } else {
       console.error(
