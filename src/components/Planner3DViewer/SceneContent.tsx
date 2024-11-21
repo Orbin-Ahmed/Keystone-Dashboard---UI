@@ -835,7 +835,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
       return wallBox;
     });
   }, [lines, wallThickness]);
-  // }, [lines, wallHeight, wallThickness, centerX, centerY]);
 
   useEffect(() => {
     placingItemRef.current = placingItem;
@@ -862,33 +861,9 @@ const SceneContent: React.FC<SceneContentProps> = ({
         disableControls={!!placingItem}
       />
       {/* Lights */}
-      <ambientLight intensity={0.5} />
-      <directionalLight
-        position={[10, 50, 25]}
-        intensity={0.5}
-        castShadow
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
-        shadow-camera-near={0.1}
-        shadow-camera-far={500}
-        shadow-camera-left={-100}
-        shadow-camera-right={100}
-        shadow-camera-top={100}
-        shadow-camera-bottom={-100}
-      />
-      <directionalLight
-        position={[-10, 50, -25]}
-        intensity={0.5}
-        castShadow
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
-        shadow-camera-near={0.1}
-        shadow-camera-far={500}
-        shadow-camera-left={-100}
-        shadow-camera-right={100}
-        shadow-camera-top={100}
-        shadow-camera-bottom={-100}
-      />
+      <ambientLight intensity={0.8} />
+      <directionalLight position={[10, 50, 25]} intensity={0.8} />
+      <directionalLight position={[-10, 50, -25]} intensity={0.8} />
       <hemisphereLight intensity={0.7} />
       {/* Tour Points */}
       {tourPoints.map((point) => (

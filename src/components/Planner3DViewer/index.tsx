@@ -89,11 +89,12 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [wallHeightSetting, setWallHeightSetting] = useState<number>(120);
   const [wallThicknessSetting, setWallThicknessSetting] = useState<number>(6);
   const [wallTextureSetting, setWallTextureSetting] =
-    useState<string>("wallmap_yellow.png");
-  const [floorTextureSetting, setFloorTextureSetting] =
-    useState<string>("golden.jpeg");
+    useState<string>("walllightmap.png");
+  const [floorTextureSetting, setFloorTextureSetting] = useState<string>(
+    "white_marble_tiles_1.jpg",
+  );
   const [ceilingTextureSetting, setCeilingTextureSetting] =
-    useState<string>("wallmap_yellow.png");
+    useState<string>("walllightmap.png");
 
   // Door & Window Model Options
   const doorOptions = [
@@ -741,8 +742,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
                 onChange={(e) => setWallTextureSetting(e.target.value)}
                 className="border-gray-300 mt-2 w-full rounded border bg-white px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
               >
-                <option value="wallmap_yellow.png">Yellow Wall</option>
                 <option value="walllightmap.png">White Wall</option>
+                <option value="wallmap_yellow.png">Yellow Wall</option>
                 <option value="marbletiles.jpg">Brick Wall</option>
               </select>
             </div>
@@ -761,6 +762,9 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
                 onChange={(e) => setFloorTextureSetting(e.target.value)}
                 className="border-gray-300 mt-2 w-full rounded border bg-white px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
               >
+                <option value="white_marble_tiles_1.jpg">
+                  White Marble Tiles
+                </option>
                 <option value="golden.jpeg">Golden Marble</option>
                 <option value="white_marble.jpg">White Marble</option>
                 <option value="blue.jpg">Blue Marble</option>
@@ -769,9 +773,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
                 <option value="light_fine_wood.jpg">Light Wooden Floor</option>
                 <option value="golden_marble_tiles.jpg">
                   Golden Marble Tiles
-                </option>
-                <option value="white_marble_tiles_1.jpg">
-                  White Marble Tiles
                 </option>
                 <option value="dark_brown_marble_tiles.jpg">
                   Dark Brown Marble Tiles
@@ -797,8 +798,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
                 onChange={(e) => setCeilingTextureSetting(e.target.value)}
                 className="border-gray-300 mt-2 w-full rounded border bg-white px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
               >
-                <option value="wallmap_yellow.png">Yellow Ceiling</option>
                 <option value="walllightmap.png">White Ceiling</option>
+                <option value="wallmap_yellow.png">Yellow Ceiling</option>
               </select>
             </div>
 
