@@ -40,7 +40,6 @@ import autoTable from "jspdf-autotable";
 import JSZip from "jszip";
 import { GLTFExporter } from "three-stdlib";
 import throttle from "lodash.throttle";
-import { it } from "node:test";
 
 interface SceneContentProps {
   lines: LineData[];
@@ -716,7 +715,12 @@ const SceneContent: React.FC<SceneContentProps> = ({
 
     return (
       <mesh geometry={geometry} position={[0, 0, 0]}>
-        <meshStandardMaterial map={floorTexture} side={DoubleSide} />
+        <meshStandardMaterial
+          map={floorTexture}
+          side={DoubleSide}
+          roughness={0.6}
+          metalness={0}
+        />
       </mesh>
     );
   }, [floorShape, textures.floor]);
@@ -859,8 +863,32 @@ const SceneContent: React.FC<SceneContentProps> = ({
       />
       {/* Lights */}
       <ambientLight intensity={0.5} />
-      <directionalLight position={[10, 50, 25]} intensity={0.5} />
-      <directionalLight position={[-10, 50, -25]} intensity={0.5} />
+      <directionalLight
+        position={[10, 50, 25]}
+        intensity={0.5}
+        castShadow
+        shadow-mapSize-width={1024}
+        shadow-mapSize-height={1024}
+        shadow-camera-near={0.1}
+        shadow-camera-far={500}
+        shadow-camera-left={-100}
+        shadow-camera-right={100}
+        shadow-camera-top={100}
+        shadow-camera-bottom={-100}
+      />
+      <directionalLight
+        position={[-10, 50, -25]}
+        intensity={0.5}
+        castShadow
+        shadow-mapSize-width={1024}
+        shadow-mapSize-height={1024}
+        shadow-camera-near={0.1}
+        shadow-camera-far={500}
+        shadow-camera-left={-100}
+        shadow-camera-right={100}
+        shadow-camera-top={100}
+        shadow-camera-bottom={-100}
+      />
       <hemisphereLight intensity={0.7} />
       {/* Tour Points */}
       {tourPoints.map((point) => (
