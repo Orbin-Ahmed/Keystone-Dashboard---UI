@@ -707,7 +707,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
 
     const floorTexture = textures.floor;
     floorTexture.wrapS = floorTexture.wrapT = RepeatWrapping;
-    const textureUnitSize = 100000;
+    const textureUnitSize = 200000;
     const floorWidth = maxX - minX;
     const floorHeight = maxY - minY;
     const textureRepeatX = floorWidth / textureUnitSize;

@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import {
   categories,
@@ -19,6 +19,7 @@ import InputField from "../InputField";
 import ItemSidebar from "./ItemSidebar";
 import { FaCamera, FaCog, FaFileExport } from "react-icons/fa";
 import { BsZoomIn, BsZoomOut } from "react-icons/bs";
+import Stats from "stats.js";
 
 interface Plan3DViewerProps {
   lines: LineData[];
@@ -55,6 +56,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const cameraRef = useRef<PerspectiveCamera | null>(null);
   const glRef = useRef<WebGLRenderer | null>(null);
   const sceneRef = useRef<Scene | null>(null);
+  const statsRef = useRef<Stats | null>(null);
   const [isTourOpen, setIsTourOpen] = useState(false);
 
   // Window and Door Shape Data
@@ -89,7 +91,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [wallTextureSetting, setWallTextureSetting] =
     useState<string>("wallmap_yellow.png");
   const [floorTextureSetting, setFloorTextureSetting] =
-    useState<string>("white_marble.jpg");
+    useState<string>("golden.jpeg");
   const [ceilingTextureSetting, setCeilingTextureSetting] =
     useState<string>("wallmap_yellow.png");
 
@@ -413,6 +415,17 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     }
   };
 
+  useEffect(() => {
+    const stats = new Stats();
+    stats.showPanel(0); // 0: FPS
+    statsRef.current = stats;
+    document.body.appendChild(stats.dom);
+
+    return () => {
+      document.body.removeChild(stats.dom);
+    };
+  }, []);
+
   return (
     <>
       <Canvas
@@ -423,6 +436,11 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           }
           glRef.current = gl;
           sceneRef.current = scene;
+          gl.setAnimationLoop(() => {
+            if (statsRef.current) statsRef.current.begin();
+            gl.render(scene, camera);
+            if (statsRef.current) statsRef.current.end();
+          });
         }}
       >
         <SceneContent
@@ -724,7 +742,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
                 className="border-gray-300 mt-2 w-full rounded border bg-white px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
               >
                 <option value="wallmap_yellow.png">Yellow Wall</option>
-                <option value="wallmap.png">White Wall</option>
+                <option value="walllightmap.png">White Wall</option>
                 <option value="marbletiles.jpg">Brick Wall</option>
               </select>
             </div>
@@ -743,12 +761,25 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
                 onChange={(e) => setFloorTextureSetting(e.target.value)}
                 className="border-gray-300 mt-2 w-full rounded border bg-white px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
               >
-                <option value="white_marble.jpg">White Marble</option>
                 <option value="golden.jpeg">Golden Marble</option>
+                <option value="white_marble.jpg">White Marble</option>
                 <option value="blue.jpg">Blue Marble</option>
-                <option value="tiles.jpg">White Tiles</option>
+                <option value="white_tiles.jpg">White Tiles</option>
                 <option value="hardwood.png">Wooden Floor</option>
                 <option value="light_fine_wood.jpg">Light Wooden Floor</option>
+                <option value="golden_marble_tiles.jpg">
+                  Golden Marble Tiles
+                </option>
+                <option value="white_marble_tiles_1.jpg">
+                  White Marble Tiles
+                </option>
+                <option value="dark_brown_marble_tiles.jpg">
+                  Dark Brown Marble Tiles
+                </option>
+                <option value="brown_marble_tiles.jpg">
+                  Brown Marble Tiles
+                </option>
+                <option value="gray_marble_tiles.jpg">Gray Marble Tiles</option>
               </select>
             </div>
 
@@ -767,7 +798,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
                 className="border-gray-300 mt-2 w-full rounded border bg-white px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
               >
                 <option value="wallmap_yellow.png">Yellow Ceiling</option>
-                <option value="wallmap.png">White Ceiling</option>
+                <option value="walllightmap.png">White Ceiling</option>
               </select>
             </div>
 
