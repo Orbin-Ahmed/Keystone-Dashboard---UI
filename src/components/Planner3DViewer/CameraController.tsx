@@ -36,7 +36,6 @@ const CameraController: React.FC<CameraControllerProps> = ({
       camera.position.lerp(targetPosition.current, 0.1);
       camera.lookAt(targetX, EYE_LEVEL, targetZ);
     } else {
-      // Keep the camera at the same height
       camera.position.y = EYE_LEVEL;
     }
   });
@@ -64,7 +63,7 @@ const CameraController: React.FC<CameraControllerProps> = ({
       minPolarAngle={0.1}
       maxDistance={1000}
       enabled={!disableControls}
-      enablePan={false} // Disable panning
+      enablePan={false}
       onStart={() => {
         if (isAutoRotating) {
           setIsAutoRotating(false);
