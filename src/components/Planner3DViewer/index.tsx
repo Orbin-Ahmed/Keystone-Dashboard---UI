@@ -20,6 +20,13 @@ import ItemSidebar from "./ItemSidebar";
 import { FaCamera, FaCog, FaFileExport } from "react-icons/fa";
 import { BsZoomIn, BsZoomOut } from "react-icons/bs";
 import Stats from "stats.js";
+import TourPointsList from "./sidebar/TourPointsList";
+import ZoomControls from "./sidebar/ZoomControls";
+import ModelSelectionSidebar from "./sidebar/ModelSelectionSidebar";
+import ConfirmPlacementControls from "./sidebar/ConfirmPlacementControls";
+import SelectedItemControls from "./sidebar/SelectedItemControls";
+import SettingsModal from "./sidebar/SettingsModal";
+import AddItemSidebar from "./sidebar/AddItemSidebar";
 
 interface Plan3DViewerProps {
   lines: LineData[];
@@ -89,12 +96,12 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [wallHeightSetting, setWallHeightSetting] = useState<number>(120);
   const [wallThicknessSetting, setWallThicknessSetting] = useState<number>(6);
   const [wallTextureSetting, setWallTextureSetting] =
-    useState<string>("walllightmap.png");
+    useState<string>("wallmap_yellow.png");
   const [floorTextureSetting, setFloorTextureSetting] = useState<string>(
-    "white_marble_tiles_1.jpg",
+    "crema_marfi_marble_tile_1.jpg",
   );
   const [ceilingTextureSetting, setCeilingTextureSetting] =
-    useState<string>("walllightmap.png");
+    useState<string>("wallmap_yellow.png");
 
   // Door & Window Model Options
   const doorOptions = [
@@ -482,49 +489,29 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         />
       </Canvas>
 
-      {/* Render UI Controls and the "Items" button when no shape is selected */}
       {!selectedShape && (
         <div className="absolute right-4 top-4">
           <div className="flex gap-4">
             <CustomButton variant="tertiary" onClick={toggleTourList}>
               Tour Points
             </CustomButton>
-            <CustomButton
-              variant="tertiary"
-              onClick={() => {
+            <AddItemSidebar
+              onToggleItems={() => {
                 setIsItemsOpen((prev) => !prev);
                 setIsSettingsOpen(false);
                 setIsTourOpen(false);
               }}
-            >
-              Add Items
-            </CustomButton>
+            />
           </div>
 
           {/* Tour Points List */}
           {isTourOpen && (
-            <div className="mt-4 rounded-lg bg-white p-4 shadow-lg">
-              <div className="flex flex-col gap-2">
-                {tourPoints.map((point) => (
-                  <CustomButton
-                    key={point.id}
-                    variant={
-                      activeTourPoint?.id === point.id
-                        ? "secondary"
-                        : "tertiary"
-                    }
-                    onClick={() => handleTourPointClick(point)}
-                  >
-                    {point.title}
-                  </CustomButton>
-                ))}
-                {activeTourPoint && (
-                  <CustomButton variant="tertiary" onClick={handleExitTour}>
-                    Exit Tour
-                  </CustomButton>
-                )}
-              </div>
-            </div>
+            <TourPointsList
+              tourPoints={tourPoints}
+              activeTourPoint={activeTourPoint}
+              onTourPointClick={handleTourPointClick}
+              onExitTour={handleExitTour}
+            />
           )}
 
           {/* Items Sidebar */}
@@ -537,282 +524,73 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         </div>
       )}
 
-      {/* Render Zoom Controls and Export Button */}
-      <div className="absolute bottom-4 right-4 flex gap-2">
-        <CustomButton variant="tertiary" onClick={handleSnap}>
-          <FaCamera />
-        </CustomButton>
-        <CustomButton variant="tertiary" onClick={handleZoomIn}>
-          <BsZoomIn />
-        </CustomButton>
-        <CustomButton variant="tertiary" onClick={handleZoomOut}>
-          <BsZoomOut />
-        </CustomButton>
-        <CustomButton variant="tertiary" onClick={() => setShouldExport(true)}>
-          <FaFileExport />
-        </CustomButton>
-        <CustomButton
-          variant="tertiary"
-          onClick={() => {
-            setIsSettingsOpen((prev) => !prev);
-            setIsItemsOpen(false);
-            setIsTourOpen(false);
-          }}
-        >
-          <FaCog />
-        </CustomButton>
-      </div>
+      {/* Zoom Controls and Export Button */}
+      <ZoomControls
+        onSnap={handleSnap}
+        onZoomIn={handleZoomIn}
+        onZoomOut={handleZoomOut}
+        onExport={() => setShouldExport(true)}
+        onToggleSettings={() => {
+          setIsSettingsOpen((prev) => !prev);
+          setIsItemsOpen(false);
+          setIsTourOpen(false);
+        }}
+      />
 
       {/* Sidebar for Model Selection */}
       {selectedShape && (
-        <div className="border-gray-200 fixed right-4 top-4 z-50 w-64 rounded-lg border bg-white p-4 shadow-lg">
-          <h3 className="text-gray-800 mb-4 text-lg font-semibold">
-            {selectedShape.type.toUpperCase()} Model (Inch)
-          </h3>
-          {/* Flip Checkbox */}
-          <div className="my-3 flex items-center">
-            <input
-              type="checkbox"
-              id="flip_checkbox"
-              checked={flipShape}
-              onChange={(e) => setFlipShape(e.target.checked)}
-              className="mr-2"
-            />
-            <label htmlFor="flip_checkbox">Flip</label>
-          </div>
-          {/* Dimension Inputs */}
-          <div className="my-3">
-            <InputField
-              className="my-2 px-3.5 py-2"
-              name="width"
-              id="width_id"
-              type="number"
-              placeholder="Width"
-              value={newWidth}
-              onChange={(e) => setNewWidth(Number(e.target.value))}
-            />
-            <InputField
-              className="my-2 px-3.5 py-2"
-              name="height"
-              id="height_id"
-              type="number"
-              placeholder="Height"
-              value={newHeight}
-              onChange={(e) => setNewHeight(Number(e.target.value))}
-            />
-          </div>
-          {/* Model Selection Dropdown */}
-          <div className="my-3">
-            <label htmlFor="model_select" className="mb-1 block">
-              Select Model
-            </label>
-            <select
-              id="model_select"
-              value={selectedModelPath || ""}
-              onChange={(e) => handleModelChange(e.target.value)}
-              className="w-full rounded border p-2"
-            >
-              <option value="">Select a model</option>
-              {(selectedShape.type === "door"
-                ? doorOptions
-                : windowOptions
-              ).map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          {/* Save Changes Button */}
-          <CustomButton
-            onClick={handleSaveChanges}
-            variant="primary"
-            className="m-auto w-full"
-          >
-            Save Changes
-          </CustomButton>
-          <CustomButton
-            onClick={handleCloseSidebar}
-            variant="secondary"
-            className="m-auto mt-2 w-full"
-          >
-            Close
-          </CustomButton>
-        </div>
+        <ModelSelectionSidebar
+          selectedShape={selectedShape}
+          flipShape={flipShape}
+          setFlipShape={setFlipShape}
+          newWidth={newWidth}
+          setNewWidth={setNewWidth}
+          newHeight={newHeight}
+          setNewHeight={setNewHeight}
+          selectedModelPath={selectedModelPath}
+          setSelectedModelPath={setSelectedModelPath}
+          doorOptions={doorOptions}
+          windowOptions={windowOptions}
+          onSaveChanges={handleSaveChanges}
+          onClose={handleCloseSidebar}
+        />
       )}
-      {/* Sidebar for Model Selection */}
 
-      {/* Confirm Placement Button */}
+      {/* Confirm Placement Controls */}
       {placingItem && (
-        <div className="absolute bottom-20 right-4 flex flex-col gap-2">
-          <CustomButton variant="primary" onClick={confirmPlacement}>
-            Place Item
-          </CustomButton>
-          <div className="flex gap-2">
-            <CustomButton variant="secondary" onClick={rotatePlacingItemLeft}>
-              Rotate Left
-            </CustomButton>
-            <CustomButton variant="secondary" onClick={rotatePlacingItemRight}>
-              Rotate Right
-            </CustomButton>
-          </div>
-        </div>
+        <ConfirmPlacementControls
+          onConfirmPlacement={confirmPlacement}
+          onRotateLeft={rotatePlacingItemLeft}
+          onRotateRight={rotatePlacingItemRight}
+        />
       )}
 
-      {/* Controls for Re-Selected Item */}
+      {/* Controls for Selected Item */}
       {selectedItem && (
-        <div className="absolute bottom-20 right-4 flex flex-col gap-2">
-          <CustomButton variant="primary" onClick={deselectItem}>
-            Deselect Item
-          </CustomButton>
-          <div className="flex gap-2">
-            <CustomButton variant="secondary" onClick={moveSelectedItem}>
-              Move
-            </CustomButton>
-            <CustomButton variant="secondary" onClick={rotateSelectedItemLeft}>
-              Rotate Left
-            </CustomButton>
-            <CustomButton variant="secondary" onClick={rotateSelectedItemRight}>
-              Rotate Right
-            </CustomButton>
-            <CustomButton onClick={deleteSelectedItem}>Delete</CustomButton>
-          </div>
-        </div>
+        <SelectedItemControls
+          onDeselect={deselectItem}
+          onMove={moveSelectedItem}
+          onRotateLeft={rotateSelectedItemLeft}
+          onRotateRight={rotateSelectedItemRight}
+          onDelete={deleteSelectedItem}
+        />
       )}
 
-      {/* settings  */}
+      {/* Settings Modal */}
       {isSettingsOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-          <div className="border-gray-200 w-72 rounded-lg border bg-white p-6 shadow-lg">
-            <h3 className="text-gray-800 mb-4 text-lg font-semibold">
-              Settings
-            </h3>
-
-            {/* Wall Height Input */}
-            <div className="mb-4">
-              <label
-                htmlFor="wall_height"
-                className="text-gray-700 block text-sm font-medium"
-              >
-                Wall Height (Inch)
-              </label>
-              <InputField
-                className="border-gray-300 mt-2 w-full rounded border px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
-                name="wall_height"
-                id="wall_height"
-                type="number"
-                placeholder="Wall Height"
-                value={wallHeightSetting}
-                onChange={(e) => setWallHeightSetting(Number(e.target.value))}
-              />
-            </div>
-
-            {/* Wall Thickness Input */}
-            <div className="mb-4">
-              <label
-                htmlFor="wall_thickness"
-                className="text-gray-700 block text-sm font-medium"
-              >
-                Wall Thickness (Inch)
-              </label>
-              <InputField
-                className="border-gray-300 mt-2 w-full rounded border px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
-                name="wall_thickness"
-                id="wall_thickness"
-                type="number"
-                placeholder="Wall Thickness"
-                value={wallThicknessSetting}
-                onChange={(e) =>
-                  setWallThicknessSetting(Number(e.target.value))
-                }
-              />
-            </div>
-
-            {/* Wall Texture Selection */}
-            <div className="mb-4">
-              <label
-                htmlFor="wall_texture"
-                className="text-gray-700 block text-sm font-medium"
-              >
-                Wall Texture
-              </label>
-              <select
-                id="wall_texture"
-                value={wallTextureSetting}
-                onChange={(e) => setWallTextureSetting(e.target.value)}
-                className="border-gray-300 mt-2 w-full rounded border bg-white px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
-              >
-                <option value="walllightmap.png">White Wall</option>
-                <option value="wallmap_yellow.png">Yellow Wall</option>
-                <option value="marbletiles.jpg">Brick Wall</option>
-              </select>
-            </div>
-
-            {/* Floor Texture Selection */}
-            <div className="mb-4">
-              <label
-                htmlFor="floor_texture"
-                className="text-gray-700 block text-sm font-medium"
-              >
-                Floor Texture
-              </label>
-              <select
-                id="floor_texture"
-                value={floorTextureSetting}
-                onChange={(e) => setFloorTextureSetting(e.target.value)}
-                className="border-gray-300 mt-2 w-full rounded border bg-white px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
-              >
-                <option value="white_marble_tiles_1.jpg">
-                  White Marble Tiles
-                </option>
-                <option value="golden.jpeg">Golden Marble</option>
-                <option value="white_marble.jpg">White Marble</option>
-                <option value="blue.jpg">Blue Marble</option>
-                <option value="white_tiles.jpg">White Tiles</option>
-                <option value="hardwood.png">Wooden Floor</option>
-                <option value="light_fine_wood.jpg">Light Wooden Floor</option>
-                <option value="golden_marble_tiles.jpg">
-                  Golden Marble Tiles
-                </option>
-                <option value="dark_brown_marble_tiles.jpg">
-                  Dark Brown Marble Tiles
-                </option>
-                <option value="brown_marble_tiles.jpg">
-                  Brown Marble Tiles
-                </option>
-                <option value="gray_marble_tiles.jpg">Gray Marble Tiles</option>
-              </select>
-            </div>
-
-            {/* Ceiling Texture Selection */}
-            <div className="mb-4">
-              <label
-                htmlFor="ceiling_texture"
-                className="text-gray-700 block text-sm font-medium"
-              >
-                Ceiling Texture
-              </label>
-              <select
-                id="ceiling_texture"
-                value={ceilingTextureSetting}
-                onChange={(e) => setCeilingTextureSetting(e.target.value)}
-                className="border-gray-300 mt-2 w-full rounded border bg-white px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
-              >
-                <option value="walllightmap.png">White Ceiling</option>
-                <option value="wallmap_yellow.png">Yellow Ceiling</option>
-              </select>
-            </div>
-
-            {/* Close Button */}
-            <CustomButton
-              onClick={() => setIsSettingsOpen(false)}
-              variant="secondary"
-              className="bg-gray-200 text-gray-800 hover:bg-gray-300 w-full rounded px-4 py-2 text-sm font-medium"
-            >
-              Close
-            </CustomButton>
-          </div>
-        </div>
+        <SettingsModal
+          wallHeight={wallHeightSetting}
+          wallThickness={wallThicknessSetting}
+          wallTexture={wallTextureSetting}
+          floorTexture={floorTextureSetting}
+          ceilingTexture={ceilingTextureSetting}
+          onWallHeightChange={setWallHeightSetting}
+          onWallThicknessChange={setWallThicknessSetting}
+          onWallTextureChange={setWallTextureSetting}
+          onFloorTextureChange={setFloorTextureSetting}
+          onCeilingTextureChange={setCeilingTextureSetting}
+          onClose={() => setIsSettingsOpen(false)}
+        />
       )}
     </>
   );
