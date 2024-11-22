@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { Vector3 } from "three";
-import { CameraControllerProps, TourPoint } from "@/types";
+import { CameraControllerProps } from "@/types";
 
 const CameraController: React.FC<CameraControllerProps> = ({
   activeTourPoint,

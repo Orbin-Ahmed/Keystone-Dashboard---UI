@@ -15,10 +15,7 @@ import CustomButton from "@/components/CustomButton";
 import SceneContent, {
   ensureWallPoints,
 } from "@/components/Planner3DViewer/SceneContent";
-import InputField from "../InputField";
 import ItemSidebar from "./ItemSidebar";
-import { FaCamera, FaCog, FaFileExport } from "react-icons/fa";
-import { BsZoomIn, BsZoomOut } from "react-icons/bs";
 import Stats from "stats.js";
 import TourPointsList from "./sidebar/TourPointsList";
 import ZoomControls from "./sidebar/ZoomControls";
@@ -402,10 +399,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       setSelectedModelPath(null);
       setFlipShape(false);
     }
-  };
-
-  const handleModelChange = (newModelPath: string) => {
-    setSelectedModelPath(newModelPath);
   };
 
   const handleSnap = () => {

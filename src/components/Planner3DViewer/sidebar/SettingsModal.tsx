@@ -1,5 +1,3 @@
-// components/Planner3DViewer/SettingsModal.tsx
-
 import React from "react";
 import CustomButton from "@/components/CustomButton";
 import InputField from "@/components/InputField";
