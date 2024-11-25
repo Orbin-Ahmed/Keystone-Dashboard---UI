@@ -877,13 +877,14 @@ const SceneContent: React.FC<SceneContentProps> = ({
         </mesh>
       ))}
       {/* Room Labels */}
-      {roomNames.map((room) => (
-        <RoomLabel
-          key={room.id}
-          position={[room.x - centerX, wallHeight / 2, room.y - centerY]}
-          name={room.name}
-        />
-      ))}
+      {!shouldExport &&
+        roomNames.map((room) => (
+          <RoomLabel
+            key={room.id}
+            position={[room.x - centerX, wallHeight / 2, room.y - centerY]}
+            name={room.name}
+          />
+        ))}
       {/* Roof  */}
       {Roof}
       {/* Floor  */}

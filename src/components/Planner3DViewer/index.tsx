@@ -416,16 +416,16 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     }
   };
 
-  useEffect(() => {
-    const stats = new Stats();
-    stats.showPanel(0); // 0: FPS
-    statsRef.current = stats;
-    document.body.appendChild(stats.dom);
+  // useEffect(() => {
+  //   const stats = new Stats();
+  //   stats.showPanel(0);
+  //   statsRef.current = stats;
+  //   document.body.appendChild(stats.dom);
 
-    return () => {
-      document.body.removeChild(stats.dom);
-    };
-  }, []);
+  //   return () => {
+  //     document.body.removeChild(stats.dom);
+  //   };
+  // }, []);
 
   return (
     <>
@@ -437,11 +437,11 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           }
           glRef.current = gl;
           sceneRef.current = scene;
-          gl.setAnimationLoop(() => {
-            if (statsRef.current) statsRef.current.begin();
-            gl.render(scene, camera);
-            if (statsRef.current) statsRef.current.end();
-          });
+          // gl.setAnimationLoop(() => {
+          //   if (statsRef.current) statsRef.current.begin();
+          //   gl.render(scene, camera);
+          //   if (statsRef.current) statsRef.current.end();
+          // });
         }}
       >
         <SceneContent
