@@ -928,7 +928,11 @@ const SceneContent: React.FC<SceneContentProps> = ({
           const dz = shapeWorldZ - wallPosition.z;
           // const alignmentFactor = 1;
           // const localX = dx + (width / 2) * alignmentFactor;
-          const localX = dx * Math.cos(angle) + dz * Math.sin(angle);
+          // const localX = dx * Math.cos(angle) + dz * Math.sin(angle);
+          const localX =
+            type === "window"
+              ? dx * Math.cos(angle) + dz * Math.sin(angle) - 30
+              : dx * Math.cos(angle) + dz * Math.sin(angle) + 20;
           const localY = type === "window" ? 10 : -wallHeight / 2 + height / 2;
           const cutoutGeometry = new BoxGeometry(
             cutoutWidth,
@@ -969,7 +973,11 @@ const SceneContent: React.FC<SceneContentProps> = ({
               const shapeWorldZ = y - centerY;
               const dx = shapeWorldX - wallPosition.x;
               const dz = shapeWorldZ - wallPosition.z;
-              const localX = dx * Math.cos(angle) + dz * Math.sin(angle);
+              // const localX = dx * Math.cos(angle) + dz * Math.sin(angle);
+              const localX =
+                type === "window"
+                  ? dx * Math.cos(angle) + dz * Math.sin(angle) - 30
+                  : dx * Math.cos(angle) + dz * Math.sin(angle) + 20;
               // const alignmentFactor = 1;
               // const localX = dx + (width / 2) * alignmentFactor;
               const localY =
