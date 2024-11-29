@@ -690,6 +690,7 @@ const PlanEditor = ({
           id: uid(),
           x: pos.x,
           y: pos.y,
+          name: item.name,
           width: item.width,
           height: item.height,
           rotation: 0,

@@ -96,11 +96,23 @@ const FloorPlanner = () => {
           }),
         );
 
+        const furnitureItemsToSave = furnitureItems.map((item) => ({
+          id: item.id,
+          x: item.x,
+          y: item.y,
+          name: item.name,
+          width: item.width,
+          height: item.height,
+          rotation: item.rotation,
+          category: item.category,
+        }));
+
         acc[floorName] = {
           lines: floorData.lines,
           shapes: shapesToSave,
           roomNames: roomNamesToSave,
           floorPlanPoints: floorPlanPointsToSave,
+          furniture: furnitureItemsToSave,
         };
 
         return acc;

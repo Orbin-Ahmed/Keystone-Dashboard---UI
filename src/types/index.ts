@@ -354,12 +354,24 @@ export interface SerializedFloorData {
   shapes: SerializedShape[];
   roomNames: SerializedRoomName[];
   floorPlanPoints: FloorPlanPoint[];
+  furniture: SerializedFurnitureItem[];
+}
+export interface SerializedFurnitureItem {
+  id: string;
+  name: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation: number;
+  category: string;
 }
 
 export interface FurnitureItem {
   id: string;
   x: number;
   y: number;
+  name: string;
   width: number;
   height: number;
   rotation: number;
