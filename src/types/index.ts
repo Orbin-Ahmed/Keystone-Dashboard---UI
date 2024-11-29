@@ -201,6 +201,8 @@ export interface PlanEditorProps {
   addRoomName: (x: number, y: number, name: string) => void;
   editRoomName: (id: number, newName: string) => void;
   deleteRoomName: (id: number) => void;
+  furnitureItems: FurnitureItem[];
+  setFurnitureItems: React.Dispatch<React.SetStateAction<FurnitureItem[]>>;
 }
 
 export interface LineData {
@@ -326,6 +328,7 @@ export type FloorData = {
   shapes: ShapeType[];
   roomNames: RoomName[];
   floorPlanPoints: FloorPlanPoint[];
+  furnitureItems?: FurnitureItem[];
 };
 
 export interface SerializedShape {
@@ -351,6 +354,23 @@ export interface SerializedFloorData {
   shapes: SerializedShape[];
   roomNames: SerializedRoomName[];
   floorPlanPoints: FloorPlanPoint[];
+}
+
+export interface FurnitureItem {
+  id: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation: number;
+  imageSrc: string;
+  category: string;
+}
+
+export interface SidebarItem {
+  name: string;
+  imageSrc: string;
+  category: string;
 }
 
 export const categories = [

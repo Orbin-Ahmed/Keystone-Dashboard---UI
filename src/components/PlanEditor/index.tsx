@@ -12,8 +12,15 @@ import {
 import useImage from "use-image";
 import { Text } from "react-konva";
 import Konva from "konva";
-import { Line, PlanEditorProps, ShapeType } from "@/types";
+import {
+  FurnitureItem,
+  Line,
+  PlanEditorProps,
+  ShapeType,
+  SidebarItem,
+} from "@/types";
 import { uid } from "uid";
+import FurnitureItemComponent from "./FurnitureItemComponent";
 
 const GRID_SIZE = 50;
 const PIXELS_PER_METER = 100;
@@ -45,6 +52,8 @@ const PlanEditor = ({
   addRoomName,
   editRoomName,
   deleteRoomName,
+  furnitureItems,
+  setFurnitureItems,
 }: PlanEditorProps) => {
   const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(
     null,
@@ -56,6 +65,7 @@ const PlanEditor = ({
   const [selectedFloorPoint, setSelectedFloorPoint] = useState<string | null>(
     null,
   );
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
 
   const [rotateIcon] = useImage("/icons/rotate.svg");
   const [deleteIcon] = useImage("/icons/delete.svg");
@@ -611,8 +621,82 @@ const PlanEditor = ({
     }
   };
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Delete" || event.key === "Backspace") {
+        if (selectedItemId) {
+          setFurnitureItems((prevItems) =>
+            prevItems.filter((item) => item.id !== selectedItemId),
+          );
+          setSelectedItemId(null);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [selectedItemId]);
+
   return (
-    <div className="canvas-container">
+    <div
+      className="canvas-container"
+      onDragOver={(e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "copy";
+      }}
+      onDrop={(e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+
+        const stage = stageRef.current;
+        if (!stage) {
+          console.error("No stage reference");
+          return;
+        }
+        const rect = stage.container().getBoundingClientRect();
+        const pos = {
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top,
+        };
+
+        const dataTransfer = e.dataTransfer;
+        if (!dataTransfer) {
+          console.error("No dataTransfer");
+          return;
+        }
+
+        const itemData = dataTransfer.getData("application/json");
+        if (!itemData) {
+          console.error("No item data found in dataTransfer");
+          return;
+        }
+
+        let item: SidebarItem;
+        try {
+          item = JSON.parse(itemData);
+        } catch (error) {
+          console.error("Invalid item data:", error);
+          return;
+        }
+
+        const imageSrc = item.imageSrc;
+
+        const newItem: FurnitureItem = {
+          id: uid(),
+          x: pos.x,
+          y: pos.y,
+          width: 100,
+          height: 100,
+          rotation: 0,
+          imageSrc,
+          category: item.category,
+        };
+
+        setFurnitureItems((prevItems) => [...prevItems, newItem]);
+      }}
+    >
       {isMounted && typeof window !== "undefined" && (
         <Stage
           width={width}
@@ -836,7 +920,7 @@ const PlanEditor = ({
                           room.name,
                         );
                         if (newName) {
-                          editRoomName(room.id, newName); // Use editRoomName function
+                          editRoomName(room.id, newName);
                           setSelectedRoomId(null);
                         }
                       }}
@@ -844,6 +928,26 @@ const PlanEditor = ({
                   </>
                 )}
               </React.Fragment>
+            ))}
+
+            {furnitureItems.map((item) => (
+              <FurnitureItemComponent
+                key={item.id}
+                item={item}
+                isSelected={selectedItemId === item.id}
+                onSelect={(id) => {
+                  setSelectedItemId(id);
+                  setSelectedShape(null);
+                  setSelectedWall(null);
+                }}
+                onChange={(id, newAttrs) => {
+                  setFurnitureItems((prevItems) =>
+                    prevItems.map((i) =>
+                      i.id === id ? { ...i, ...newAttrs } : i,
+                    ),
+                  );
+                }}
+              />
             ))}
           </Layer>
         </Stage>

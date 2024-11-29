@@ -6,6 +6,7 @@ import useImage from "use-image";
 import {
   FloorData,
   FloorPlanPoint,
+  FurnitureItem,
   Line,
   RoomName,
   SerializedFloorData,
@@ -17,6 +18,7 @@ import { detectWallPosition } from "@/api";
 import { uid } from "uid";
 import CreateBuildingShape from "@/components/PlanEditor/CreateBuildingShape";
 import { GrLinkNext, GrLinkPrevious } from "react-icons/gr";
+import ItemSidebar from "@/components/PlanEditor/Sidebar/ItemSidebar";
 
 const PlanEditor = dynamic(() => import("@/components/PlanEditor"), {
   ssr: false,
@@ -46,6 +48,7 @@ const FloorPlanner = () => {
   const [shapes, setShapes] = useState<ShapeType[]>([]);
   const [roomNames, setRoomNames] = useState<RoomName[]>([]);
   const [floorPlanPoints, setFloorPlanPoints] = useState<FloorPlanPoint[]>([]);
+  const [furnitureItems, setFurnitureItems] = useState<FurnitureItem[]>([]);
 
   // Multi Floor Data
   const floorNames = Array.from({ length: 10 }, (_, i) => `Floor ${i}`);
@@ -57,6 +60,7 @@ const FloorPlanner = () => {
       shapes: [],
       roomNames: [],
       floorPlanPoints: [],
+      furnitureItems: [],
     },
   });
 
@@ -293,10 +297,11 @@ const FloorPlanner = () => {
     const updatedFloors = {
       ...floors,
       [currentFloor]: {
-        lines: lines,
-        shapes: shapes,
-        roomNames: roomNames,
-        floorPlanPoints: floorPlanPoints,
+        lines,
+        shapes,
+        roomNames,
+        floorPlanPoints,
+        furnitureItems,
       },
     };
 
@@ -305,6 +310,7 @@ const FloorPlanner = () => {
       shapes: [],
       roomNames: [],
       floorPlanPoints: [],
+      furnitureItems: [],
     };
 
     setFloors(updatedFloors);
@@ -314,6 +320,7 @@ const FloorPlanner = () => {
     setShapes(newFloorData.shapes);
     setRoomNames(newFloorData.roomNames);
     setFloorPlanPoints(newFloorData.floorPlanPoints);
+    setFurnitureItems(newFloorData.furnitureItems ?? []);
   };
 
   useEffect(() => {
@@ -631,8 +638,11 @@ const FloorPlanner = () => {
           addRoomName={addRoomName}
           editRoomName={editRoomName}
           deleteRoomName={deleteRoomName}
+          furnitureItems={furnitureItems}
+          setFurnitureItems={setFurnitureItems}
         />
       )}
+      {viewMode === "2D" && <ItemSidebar />}
       <div
         className={`fixed bottom-8 ${viewMode === "2D" ? "left-32" : "left-8"} z-50`}
       >
