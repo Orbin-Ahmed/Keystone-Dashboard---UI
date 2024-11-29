@@ -630,6 +630,8 @@ const PlanEditor = ({
           );
           setSelectedItemId(null);
         }
+      } else if (event.key === "Escape") {
+        setSelectedItemId(null);
       }
     };
 
