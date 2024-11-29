@@ -48,8 +48,8 @@ const ItemSidebar: React.FC<ItemSidebarProps> = () => {
                     alt={item.name}
                     draggable={true}
                     onDragStart={(event) => handleDragStart(event, item)}
-                    width={50}
-                    height={50}
+                    width={item.width}
+                    height={item.height}
                   />
                   <div>{item.name}</div>
                 </div>
