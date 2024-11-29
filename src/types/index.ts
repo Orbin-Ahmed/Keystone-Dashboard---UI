@@ -387,6 +387,80 @@ export interface SidebarItem {
   height: number;
 }
 
+export interface SceneContentProps {
+  lines: LineData[];
+  shapes: ShapeData[];
+  roomNames: RoomName[];
+  activeTourPoint: TourPoint | null;
+  isTransitioning: boolean;
+  setIsTransitioning: (value: boolean) => void;
+  isAutoRotating: boolean;
+  setIsAutoRotating: React.Dispatch<React.SetStateAction<boolean>>;
+  showRoof: boolean;
+  tourPoints: TourPoint[];
+  onTourPointClick: (point: TourPoint) => void;
+  floorPlanPoints: Point[];
+  centerX: number;
+  centerY: number;
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
+  onModelClick: (shape: ShapeData) => void;
+  modelPathsByShapeId: Record<string, string>;
+  shapeDimensionsById: Record<string, { width: number; height: number }>;
+  shouldExport: boolean;
+  setShouldExport: React.Dispatch<React.SetStateAction<boolean>>;
+  placingItem: PlacingItemType | null;
+  placedItems: PlacingItemType[];
+  setPlacingItem: React.Dispatch<React.SetStateAction<PlacingItemType | null>>;
+  selectedItem: PlacedItemType | null;
+  setSelectedItem: React.Dispatch<React.SetStateAction<PlacedItemType | null>>;
+  wallHeight: number;
+  wallThickness: number;
+  wallTexture: string;
+  floorTexture: string;
+  ceilingTexture: string;
+  shapeFlipStatusById: Record<string, boolean>;
+  furnitureItems: FurnitureItem[];
+  setFurnitureItems: React.Dispatch<React.SetStateAction<FurnitureItem[]>>;
+}
+
+export const items: { [category: string]: SidebarItem[] } = {
+  "Living Room": [
+    {
+      name: "Sofa-Double",
+      imageSrc: "/2DViewerAssets/Sofa-Double.svg",
+      category: "living",
+      width: 115,
+      height: 45,
+    },
+    {
+      name: "Tv",
+      imageSrc: "/2DViewerAssets/Tv.svg",
+      category: "living",
+      width: 60,
+      height: 10,
+    },
+  ],
+  Kitchen: [
+    {
+      name: "kitchen-Fridge",
+      imageSrc: "/2DViewerAssets/Kitchen-Fridge.svg",
+      category: "kitchen",
+      width: 50,
+      height: 50,
+    },
+    {
+      name: "Stove",
+      imageSrc: "/2DViewerAssets/Stove.svg",
+      category: "kitchen",
+      width: 55,
+      height: 55,
+    },
+  ],
+};
+
 export const categories = [
   {
     name: "Living Room",

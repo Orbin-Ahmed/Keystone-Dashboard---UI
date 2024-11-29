@@ -2,15 +2,12 @@ import React, { useMemo, useEffect, useRef } from "react";
 import { useLoader, useThree, ThreeEvent } from "@react-three/fiber";
 import {
   categories,
-  LineData,
   PDFItemData,
-  PlacedItemType,
   PlacingItemType,
   Point,
-  RoomName,
+  SceneContentProps,
   ScheduleItem,
   ShapeData,
-  TourPoint,
   WallClassification,
 } from "@/types";
 import {
@@ -40,43 +37,6 @@ import autoTable from "jspdf-autotable";
 import JSZip from "jszip";
 import { GLTFExporter } from "three-stdlib";
 import throttle from "lodash.throttle";
-
-interface SceneContentProps {
-  lines: LineData[];
-  shapes: ShapeData[];
-  roomNames: RoomName[];
-  activeTourPoint: TourPoint | null;
-  isTransitioning: boolean;
-  setIsTransitioning: (value: boolean) => void;
-  isAutoRotating: boolean;
-  setIsAutoRotating: React.Dispatch<React.SetStateAction<boolean>>;
-  showRoof: boolean;
-  tourPoints: TourPoint[];
-  onTourPointClick: (point: TourPoint) => void;
-  floorPlanPoints: Point[];
-  centerX: number;
-  centerY: number;
-  minX: number;
-  maxX: number;
-  minY: number;
-  maxY: number;
-  onModelClick: (shape: ShapeData) => void;
-  modelPathsByShapeId: Record<string, string>;
-  shapeDimensionsById: Record<string, { width: number; height: number }>;
-  shouldExport: boolean;
-  setShouldExport: React.Dispatch<React.SetStateAction<boolean>>;
-  placingItem: PlacingItemType | null;
-  placedItems: PlacingItemType[];
-  setPlacingItem: React.Dispatch<React.SetStateAction<PlacingItemType | null>>;
-  selectedItem: PlacedItemType | null;
-  setSelectedItem: React.Dispatch<React.SetStateAction<PlacedItemType | null>>;
-  wallHeight: number;
-  wallThickness: number;
-  wallTexture: string;
-  floorTexture: string;
-  ceilingTexture: string;
-  shapeFlipStatusById: Record<string, boolean>;
-}
 
 export const ensureWallPoints = (
   points: number[],
@@ -147,6 +107,8 @@ const SceneContent: React.FC<SceneContentProps> = ({
   floorTexture,
   ceilingTexture,
   shapeFlipStatusById,
+  furnitureItems,
+  setFurnitureItems,
 }) => {
   const { scene, camera, gl } = useThree();
   const raycaster = new Raycaster();

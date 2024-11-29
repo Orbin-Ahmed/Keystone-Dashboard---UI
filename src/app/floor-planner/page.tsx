@@ -347,9 +347,10 @@ const FloorPlanner = () => {
         shapes,
         roomNames,
         floorPlanPoints,
+        furnitureItems,
       },
     }));
-  }, [lines, shapes, roomNames, floorPlanPoints, currentFloor]);
+  }, [lines, shapes, roomNames, floorPlanPoints, currentFloor, furnitureItems]);
 
   // Floor Data helper Function end
 
@@ -642,6 +643,8 @@ const FloorPlanner = () => {
           maxX={maxX}
           minY={minY}
           maxY={maxY}
+          furnitureItems={furnitureItems}
+          setFurnitureItems={setFurnitureItems}
         />
       ) : (
         <PlanEditor

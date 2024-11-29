@@ -1,7 +1,8 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import {
   categories,
+  FurnitureItem,
   LineData,
   PlacedItemType,
   PlacingItemType,
@@ -36,6 +37,8 @@ interface Plan3DViewerProps {
   maxX: number;
   minY: number;
   maxY: number;
+  furnitureItems: FurnitureItem[];
+  setFurnitureItems: React.Dispatch<React.SetStateAction<FurnitureItem[]>>;
 }
 
 const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
@@ -49,6 +52,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   maxX,
   minY,
   maxY,
+  furnitureItems,
+  setFurnitureItems,
 }) => {
   const [activeTourPoint, setActiveTourPoint] = useState<TourPoint | null>(
     null,
@@ -479,6 +484,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           floorTexture={floorTextureSetting}
           ceilingTexture={ceilingTextureSetting}
           shapeFlipStatusById={shapeFlipStatusById}
+          furnitureItems={furnitureItems}
+          setFurnitureItems={setFurnitureItems}
         />
       </Canvas>
 

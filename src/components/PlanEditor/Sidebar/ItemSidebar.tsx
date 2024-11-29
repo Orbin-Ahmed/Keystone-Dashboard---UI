@@ -1,4 +1,4 @@
-import { SidebarItem } from "@/types";
+import { items, SidebarItem } from "@/types";
 import React, { useState } from "react";
 
 interface ItemSidebarProps {}
@@ -12,41 +12,6 @@ const ItemSidebar: React.FC<ItemSidebarProps> = () => {
   ) => {
     event.dataTransfer.setData("application/json", JSON.stringify(item));
     event.dataTransfer.effectAllowed = "copy";
-  };
-
-  const items: { [category: string]: SidebarItem[] } = {
-    "Living Room": [
-      {
-        name: "Sofa-Double",
-        imageSrc: "/2DViewerAssets/Sofa-Double.svg",
-        category: "living",
-        width: 70,
-        height: 30,
-      },
-      {
-        name: "Tv",
-        imageSrc: "/2DViewerAssets/Tv.svg",
-        category: "living",
-        width: 60,
-        height: 10,
-      },
-    ],
-    Kitchen: [
-      {
-        name: "kitchen-Fridge",
-        imageSrc: "/2DViewerAssets/Kitchen-Fridge.svg",
-        category: "kitchen",
-        width: 50,
-        height: 50,
-      },
-      {
-        name: "Stove",
-        imageSrc: "/2DViewerAssets/Stove.svg",
-        category: "kitchen",
-        width: 55,
-        height: 55,
-      },
-    ],
   };
 
   const handleCategoryClick = (category: string) => {
