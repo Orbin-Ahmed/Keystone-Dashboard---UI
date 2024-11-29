@@ -20,19 +20,31 @@ const ItemSidebar: React.FC<ItemSidebarProps> = () => {
         name: "Sofa",
         imageSrc: "/2DViewerAssets/sofaDouble.svg",
         category: "sofa",
+        width: 150,
+        height: 80,
       },
-      { name: "TV", imageSrc: "/2DViewerAssets/tv.svg", category: "tv" },
+      {
+        name: "TV",
+        imageSrc: "/2DViewerAssets/tv.svg",
+        category: "tv",
+        width: 100,
+        height: 70,
+      },
     ],
     Kitchen: [
       {
         name: "Fridge",
         imageSrc: "/2DViewerAssets/kitchenFridge.svg",
         category: "fridge",
+        width: 80,
+        height: 180,
       },
       {
         name: "Stove",
         imageSrc: "/2DViewerAssets/stove.svg",
         category: "stove",
+        width: 60,
+        height: 60,
       },
     ],
   };

@@ -371,6 +371,8 @@ export interface SidebarItem {
   name: string;
   imageSrc: string;
   category: string;
+  width: number;
+  height: number;
 }
 
 export const categories = [

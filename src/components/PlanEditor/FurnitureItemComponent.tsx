@@ -54,7 +54,6 @@ const FurnitureItemComponent: React.FC<{
           const scaleX = node.scaleX();
           const scaleY = node.scaleY();
 
-          // Reset the scale to 1
           node.scaleX(1);
           node.scaleY(1);
 

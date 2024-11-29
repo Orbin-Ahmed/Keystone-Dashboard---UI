@@ -657,6 +657,8 @@ const PlanEditor = ({
           console.error("No stage reference");
           return;
         }
+
+        // Calculate the position of the drop relative to the stage
         const rect = stage.container().getBoundingClientRect();
         const pos = {
           x: e.clientX - rect.left,
@@ -689,10 +691,10 @@ const PlanEditor = ({
           id: uid(),
           x: pos.x,
           y: pos.y,
-          width: 100,
-          height: 100,
+          width: item.width,
+          height: item.height,
           rotation: 0,
-          imageSrc,
+          imageSrc: imageSrc,
           category: item.category,
         };
 
