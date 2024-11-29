@@ -104,6 +104,7 @@ const FloorPlanner = () => {
           name: item.name,
           width: item.width,
           height: item.height,
+          depth: item.depth,
           rotation: item.rotation,
           category: item.category,
         }));

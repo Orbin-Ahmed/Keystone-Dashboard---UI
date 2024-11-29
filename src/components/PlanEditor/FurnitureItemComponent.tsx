@@ -62,12 +62,7 @@ const FurnitureItemComponent: React.FC<{
           }
         }}
       />
-      {isSelected && (
-        <Transformer
-          ref={transformerRef}
-          // Add any additional transformer options here
-        />
-      )}
+      {isSelected && <Transformer ref={transformerRef} />}
     </>
   );
 };

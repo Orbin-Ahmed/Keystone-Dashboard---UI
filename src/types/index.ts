@@ -363,6 +363,7 @@ export interface SerializedFurnitureItem {
   y: number;
   width: number;
   height: number;
+  depth: number;
   rotation: number;
   category: string;
 }
@@ -374,6 +375,7 @@ export interface FurnitureItem {
   name: string;
   width: number;
   height: number;
+  depth: number;
   rotation: number;
   imageSrc: string;
   category: string;
@@ -385,6 +387,7 @@ export interface SidebarItem {
   category: string;
   width: number;
   height: number;
+  depth: number;
 }
 
 export interface SceneContentProps {
@@ -434,6 +437,7 @@ export const items: { [category: string]: SidebarItem[] } = {
       category: "living",
       width: 115,
       height: 45,
+      depth: 45,
     },
     {
       name: "Tv",
@@ -441,6 +445,7 @@ export const items: { [category: string]: SidebarItem[] } = {
       category: "living",
       width: 60,
       height: 10,
+      depth: 45,
     },
   ],
   Kitchen: [
@@ -450,6 +455,7 @@ export const items: { [category: string]: SidebarItem[] } = {
       category: "kitchen",
       width: 50,
       height: 50,
+      depth: 45,
     },
     {
       name: "Stove",
@@ -457,6 +463,7 @@ export const items: { [category: string]: SidebarItem[] } = {
       category: "kitchen",
       width: 55,
       height: 55,
+      depth: 45,
     },
   ],
 };

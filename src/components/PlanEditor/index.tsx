@@ -693,6 +693,7 @@ const PlanEditor = ({
           name: item.name,
           width: item.width,
           height: item.height,
+          depth: 45,
           rotation: 0,
           imageSrc: imageSrc,
           category: item.category,
