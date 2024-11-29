@@ -36,7 +36,7 @@ const FloorPlanner = () => {
     "wall" | "window" | "door" | "moveWall" | "floorPoint" | null
   >(null);
   const [showDimensions, setShowDimensions] = useState(false);
-  const [viewMode, setViewMode] = useState<"2D" | "3D">("3D");
+  const [viewMode, setViewMode] = useState<"2D" | "3D">("2D");
 
   const [selectedWall, setSelectedWall] = useState<string | null>(null);
   const [selectedShape, setSelectedShape] = useState<string | null>(null);
@@ -581,20 +581,20 @@ const FloorPlanner = () => {
 
   return (
     <div className="editor-container">
-      <PlanEditorSideBar
-        tool={tool}
-        setTool={setTool}
-        showDimensions={showDimensions}
-        setShowDimensions={setShowDimensions}
-        handleDownload={handleDownload}
-        handleUpload={handleUpload}
-        fileInputRef={fileInputRef}
-        setSelectedShape={setSelectedShape}
-        setSelectedWall={setSelectedWall}
-        viewMode={viewMode}
-        setViewMode={setViewMode}
-      />
-      {viewMode === "2D" ? (
+      {viewMode === "2D" && (
+        <PlanEditorSideBar
+          tool={tool}
+          setTool={setTool}
+          showDimensions={showDimensions}
+          setShowDimensions={setShowDimensions}
+          handleDownload={handleDownload}
+          handleUpload={handleUpload}
+          fileInputRef={fileInputRef}
+          setSelectedShape={setSelectedShape}
+          setSelectedWall={setSelectedWall}
+        />
+      )}
+      {viewMode === "3D" ? (
         <Planner3DViewer
           lines={lines}
           shapes={shapes}
@@ -633,6 +633,42 @@ const FloorPlanner = () => {
           deleteRoomName={deleteRoomName}
         />
       )}
+      <div
+        className={`fixed bottom-8 ${viewMode === "2D" ? "left-32" : "left-8"} z-50`}
+      >
+        <label
+          htmlFor="viewModeToggle"
+          className="relative inline-flex cursor-pointer select-none items-center"
+        >
+          <input
+            type="checkbox"
+            id="viewModeToggle"
+            name="viewModeToggle"
+            className="sr-only"
+            checked={viewMode === "2D"}
+            onChange={() =>
+              setViewMode((prev) => (prev === "2D" ? "3D" : "2D"))
+            }
+          />
+          <div className="flex h-[46px] w-[82px] items-center justify-between rounded-md border border-stroke bg-white">
+            <span
+              className={`${
+                viewMode === "2D" ? "bg-primary text-white" : "text-body-color"
+              } flex h-full w-1/2 items-center justify-center rounded-md`}
+            >
+              2D
+            </span>
+            <span
+              className={`${
+                viewMode === "3D" ? "bg-primary text-white" : "text-body-color"
+              } flex h-full w-1/2 items-center justify-center rounded-md`}
+            >
+              3D
+            </span>
+          </div>
+        </label>
+      </div>
+
       <div className="fixed bottom-8 left-1/2 z-50 flex -translate-x-1/2 transform items-center gap-4">
         <button
           className="rounded-full p-4 shadow-xl"

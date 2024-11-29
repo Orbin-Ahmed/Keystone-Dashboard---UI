@@ -3,7 +3,6 @@ import CustomButton from "@/components/CustomButton";
 import {
   FaArrowsAlt,
   FaDownload,
-  FaEye,
   FaPencilAlt,
   FaRulerCombined,
   FaUpload,
@@ -25,8 +24,6 @@ interface SidebarProps {
   fileInputRef: React.RefObject<HTMLInputElement>;
   setSelectedShape: React.Dispatch<React.SetStateAction<string | null>>;
   setSelectedWall: React.Dispatch<React.SetStateAction<string | null>>;
-  viewMode: "2D" | "3D";
-  setViewMode: React.Dispatch<React.SetStateAction<"2D" | "3D">>;
 }
 
 const PlanEditorSideBar: React.FC<SidebarProps> = ({
@@ -39,13 +36,7 @@ const PlanEditorSideBar: React.FC<SidebarProps> = ({
   fileInputRef,
   setSelectedShape,
   setSelectedWall,
-  viewMode,
-  setViewMode,
 }) => {
-  const toggleViewMode = () => {
-    setViewMode((prevMode) => (prevMode === "3D" ? "2D" : "3D"));
-  };
-
   return (
     <div className="z-50 flex h-screen flex-col bg-[#f5f5f5] p-4 shadow-lg">
       {/* Top Group: Wall, Window, Door, Point */}
@@ -61,7 +52,6 @@ const PlanEditorSideBar: React.FC<SidebarProps> = ({
         >
           <div className="flex items-center gap-2">
             <FaPencilAlt />
-            {/* Wall */}
           </div>
         </CustomButton>
         <CustomButton
@@ -75,7 +65,6 @@ const PlanEditorSideBar: React.FC<SidebarProps> = ({
         >
           <div className="flex items-center gap-2">
             <TbWindow />
-            {/* Window */}
           </div>
         </CustomButton>
         <CustomButton
@@ -89,7 +78,6 @@ const PlanEditorSideBar: React.FC<SidebarProps> = ({
         >
           <div className="flex items-center gap-2">
             <BsDoorOpen />
-            {/* Door */}
           </div>
         </CustomButton>
         <CustomButton
@@ -103,7 +91,6 @@ const PlanEditorSideBar: React.FC<SidebarProps> = ({
         >
           <div className="flex items-center gap-2">
             <TbTransformPoint />
-            {/* Point */}
           </div>
         </CustomButton>
       </div>
@@ -121,7 +108,6 @@ const PlanEditorSideBar: React.FC<SidebarProps> = ({
         >
           <div className="flex items-center gap-2">
             <FaArrowsAlt />
-            {/* Move */}
           </div>
         </CustomButton>
         <CustomButton
@@ -131,17 +117,6 @@ const PlanEditorSideBar: React.FC<SidebarProps> = ({
         >
           <div className="flex items-center gap-2">
             <FaRulerCombined />
-            {/* {showDimensions ? "Hide" : "Show"} */}
-          </div>
-        </CustomButton>
-        <CustomButton
-          className="w-full"
-          variant="secondary"
-          onClick={toggleViewMode}
-        >
-          <div className="flex items-center gap-2">
-            <FaEye />
-            {/* {viewMode} */}
           </div>
         </CustomButton>
       </div>
