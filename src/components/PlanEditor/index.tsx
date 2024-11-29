@@ -658,7 +658,6 @@ const PlanEditor = ({
           return;
         }
 
-        // Calculate the position of the drop relative to the stage
         const rect = stage.container().getBoundingClientRect();
         const pos = {
           x: e.clientX - rect.left,
