@@ -10,6 +10,7 @@ import {
   Line,
   RoomName,
   SerializedFloorData,
+  SerializedFurnitureItem,
   SerializedRoomName,
   SerializedShape,
   ShapeType,
@@ -171,6 +172,7 @@ const FloorPlanner = () => {
           setShapes(firstFloorData.shapes);
           setRoomNames(firstFloorData.roomNames);
           setFloorPlanPoints(firstFloorData.floorPlanPoints);
+          setFurnitureItems(firstFloorData.furnitureItems ?? []);
         } catch (err) {
           console.error("Failed to load design:", err);
         }
@@ -207,6 +209,7 @@ const FloorPlanner = () => {
         setShapes(firstFloorData.shapes);
         setRoomNames(firstFloorData.roomNames);
         setFloorPlanPoints(firstFloorData.floorPlanPoints);
+        setFurnitureItems(firstFloorData.furnitureItems ?? []);
       } catch (error) {
         console.error("Error uploading image:", error);
       }
@@ -233,6 +236,7 @@ const FloorPlanner = () => {
         setShapes(firstFloorData.shapes);
         setRoomNames(firstFloorData.roomNames);
         setFloorPlanPoints(firstFloorData.floorPlanPoints);
+        setFurnitureItems(firstFloorData.furnitureItems ?? []);
       } catch (error) {
         console.error("Error processing PDF:", error);
       }
@@ -503,6 +507,17 @@ const FloorPlanner = () => {
       );
     }
 
+    // Process furniture names
+    let processedFurnitureNames: FurnitureItem[] = [];
+    if (floorData.furniture && floorData.furniture.length > 0) {
+      processedFurnitureNames = floorData.furniture.map(
+        (item: SerializedFurnitureItem) => ({
+          ...item,
+          imageSrc: `/2DViewerAssets/${item.name}.svg`,
+        }),
+      );
+    }
+
     // Process floor plan points
     let processedFloorPlanPoints: FloorPlanPoint[] = [];
     if (floorData.floorPlanPoints && floorData.floorPlanPoints.length > 0) {
@@ -544,8 +559,10 @@ const FloorPlanner = () => {
       shapes: processedShapes,
       roomNames: processedRoomNames,
       floorPlanPoints: processedFloorPlanPoints,
+      furnitureItems: processedFurnitureNames,
     };
   };
+
   // Helper function
 
   // const mergeFloorPlanPoints = (

@@ -17,15 +17,15 @@ const ItemSidebar: React.FC<ItemSidebarProps> = () => {
   const items: { [category: string]: SidebarItem[] } = {
     "Living Room": [
       {
-        name: "Sofa",
-        imageSrc: "/2DViewerAssets/sofaDouble.svg",
+        name: "Sofa-Double",
+        imageSrc: "/2DViewerAssets/Sofa-Double.svg",
         category: "living",
         width: 70,
         height: 30,
       },
       {
-        name: "TV",
-        imageSrc: "/2DViewerAssets/tv.svg",
+        name: "Tv",
+        imageSrc: "/2DViewerAssets/Tv.svg",
         category: "living",
         width: 60,
         height: 10,
@@ -33,15 +33,15 @@ const ItemSidebar: React.FC<ItemSidebarProps> = () => {
     ],
     Kitchen: [
       {
-        name: "Fridge",
-        imageSrc: "/2DViewerAssets/kitchenFridge.svg",
+        name: "kitchen-Fridge",
+        imageSrc: "/2DViewerAssets/Kitchen-Fridge.svg",
         category: "kitchen",
         width: 50,
         height: 50,
       },
       {
         name: "Stove",
-        imageSrc: "/2DViewerAssets/stove.svg",
+        imageSrc: "/2DViewerAssets/Stove.svg",
         category: "kitchen",
         width: 55,
         height: 55,
