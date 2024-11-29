@@ -2,8 +2,7 @@ import { FurnitureItem } from "@/types";
 import Konva from "konva";
 import { useEffect, useRef } from "react";
 import useImage from "use-image";
-
-import { Image as KonvaImage } from "react-konva";
+import { Image as KonvaImage, Transformer } from "react-konva";
 
 const FurnitureItemComponent: React.FC<{
   item: FurnitureItem;
@@ -13,17 +12,12 @@ const FurnitureItemComponent: React.FC<{
 }> = ({ item, isSelected, onSelect, onChange }) => {
   const [image] = useImage(item.imageSrc);
   const shapeRef = useRef<Konva.Image>(null);
+  const transformerRef = useRef<Konva.Transformer>(null);
 
   useEffect(() => {
-    if (isSelected && shapeRef.current) {
-      const transformer = new Konva.Transformer();
-      shapeRef.current.getLayer()?.add(transformer);
-      transformer.attachTo(shapeRef.current);
-      shapeRef.current.getLayer()?.batchDraw();
-
-      return () => {
-        transformer.destroy();
-      };
+    if (isSelected && shapeRef.current && transformerRef.current) {
+      transformerRef.current.nodes([shapeRef.current]);
+      transformerRef.current.getLayer()?.batchDraw();
     }
   }, [isSelected]);
 
@@ -32,41 +26,49 @@ const FurnitureItemComponent: React.FC<{
   }
 
   return (
-    <KonvaImage
-      image={image}
-      x={item.x}
-      y={item.y}
-      width={item.width}
-      height={item.height}
-      rotation={item.rotation}
-      draggable
-      onClick={() => onSelect(item.id)}
-      ref={shapeRef}
-      onDragEnd={(e) => {
-        onChange(item.id, {
-          x: e.target.x(),
-          y: e.target.y(),
-        });
-      }}
-      onTransformEnd={(e) => {
-        const node = shapeRef.current;
-        if (node) {
-          const scaleX = node.scaleX();
-          const scaleY = node.scaleY();
-
-          node.scaleX(1);
-          node.scaleY(1);
-
+    <>
+      <KonvaImage
+        image={image}
+        x={item.x}
+        y={item.y}
+        width={item.width}
+        height={item.height}
+        rotation={item.rotation}
+        draggable
+        onClick={() => onSelect(item.id)}
+        ref={shapeRef}
+        onDragEnd={(e) => {
           onChange(item.id, {
-            x: node.x(),
-            y: node.y(),
-            width: Math.max(5, node.width() * scaleX),
-            height: Math.max(5, node.height() * scaleY),
-            rotation: node.rotation(),
+            x: e.target.x(),
+            y: e.target.y(),
           });
-        }
-      }}
-    />
+        }}
+        onTransformEnd={(e) => {
+          const node = shapeRef.current;
+          if (node) {
+            const scaleX = node.scaleX();
+            const scaleY = node.scaleY();
+
+            node.scaleX(1);
+            node.scaleY(1);
+
+            onChange(item.id, {
+              x: node.x(),
+              y: node.y(),
+              width: Math.max(5, node.width() * scaleX),
+              height: Math.max(5, node.height() * scaleY),
+              rotation: node.rotation(),
+            });
+          }
+        }}
+      />
+      {isSelected && (
+        <Transformer
+          ref={transformerRef}
+          // Add any additional transformer options here
+        />
+      )}
+    </>
   );
 };
 
