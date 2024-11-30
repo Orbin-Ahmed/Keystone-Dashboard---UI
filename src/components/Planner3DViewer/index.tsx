@@ -476,6 +476,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           placingItem={placingItem}
           setPlacingItem={setPlacingItem}
           placedItems={placedItems}
+          setPlacedItems={setPlacedItems}
           selectedItem={selectedItem}
           setSelectedItem={setSelectedItem}
           wallHeight={wallHeightSetting}

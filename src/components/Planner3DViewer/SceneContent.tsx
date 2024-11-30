@@ -3,6 +3,7 @@ import { useLoader, useThree, ThreeEvent } from "@react-three/fiber";
 import {
   categories,
   PDFItemData,
+  PlacedItemType,
   PlacingItemType,
   Point,
   SceneContentProps,
@@ -37,6 +38,7 @@ import autoTable from "jspdf-autotable";
 import JSZip from "jszip";
 import { GLTFExporter } from "three-stdlib";
 import throttle from "lodash.throttle";
+import { uid } from "uid";
 
 export const ensureWallPoints = (
   points: number[],
@@ -99,6 +101,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
   placingItem,
   setPlacingItem,
   placedItems,
+  setPlacedItems,
   selectedItem,
   setSelectedItem,
   wallHeight,
@@ -811,6 +814,41 @@ const SceneContent: React.FC<SceneContentProps> = ({
     () => throttle(handlePointerMove, 16),
     [handlePointerMove],
   );
+
+  useEffect(() => {
+    const newPlacedItems: PlacedItemType[] = furnitureItems.map((item) => {
+      const id = item.id;
+      const name = item.name;
+      const type = name.toLowerCase().replace(/-/g, "_");
+      const path = `items/${type}.glb`;
+      const position: [number, number, number] = [
+        item.x - centerX,
+        0,
+        item.y - centerY,
+      ];
+      const rotation: [number, number, number] = [
+        0,
+        (item.rotation * Math.PI) / 180,
+        0,
+      ];
+      return {
+        id,
+        name,
+        type,
+        path,
+        width: item.width,
+        height: item.height,
+        depth: item.depth,
+        position,
+        rotation,
+      };
+    });
+
+    setPlacedItems((prevPlacedItems) => [
+      ...prevPlacedItems,
+      ...newPlacedItems,
+    ]);
+  }, [furnitureItems, centerX, centerY, setPlacedItems]);
 
   return (
     <>

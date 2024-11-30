@@ -415,8 +415,9 @@ export interface SceneContentProps {
   shouldExport: boolean;
   setShouldExport: React.Dispatch<React.SetStateAction<boolean>>;
   placingItem: PlacingItemType | null;
-  placedItems: PlacingItemType[];
   setPlacingItem: React.Dispatch<React.SetStateAction<PlacingItemType | null>>;
+  placedItems: PlacedItemType[];
+  setPlacedItems: React.Dispatch<React.SetStateAction<PlacedItemType[]>>;
   selectedItem: PlacedItemType | null;
   setSelectedItem: React.Dispatch<React.SetStateAction<PlacedItemType | null>>;
   wallHeight: number;
@@ -435,9 +436,9 @@ export const items: { [category: string]: SidebarItem[] } = {
       name: "Sofa-Double",
       imageSrc: "/2DViewerAssets/Sofa-Double.svg",
       category: "living",
-      width: 115,
+      width: 110,
       height: 45,
-      depth: 45,
+      depth: 50,
     },
     {
       name: "Tv",
@@ -474,7 +475,7 @@ export const categories = [
     items: [
       {
         name: "Sofa",
-        path: "items/sofa.glb",
+        path: "items/sofa_double.glb",
         type: "sofa",
         width: 110,
         height: 45,
