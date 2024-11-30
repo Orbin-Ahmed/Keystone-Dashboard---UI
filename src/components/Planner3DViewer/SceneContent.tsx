@@ -821,16 +821,25 @@ const SceneContent: React.FC<SceneContentProps> = ({
       const name = item.name;
       const type = name.toLowerCase().replace(/-/g, "_");
       const path = `items/${type}.glb`;
-      const position: [number, number, number] = [
-        item.x - centerX + item.width / 2,
-        0,
-        item.y - centerY + item.depth / 2,
-      ];
-      const rotation: [number, number, number] = [
-        0,
-        (item.rotation * Math.PI) / 180,
-        0,
-      ];
+
+      // Convert rotation from degrees to radians
+      const rotationInRadians = -(item.rotation * Math.PI) / 180;
+
+      // Calculate position adjustments based on rotation
+      const adjustedX =
+        item.x -
+        centerX +
+        (Math.cos(rotationInRadians) * item.width) / 2 -
+        (Math.sin(rotationInRadians) * item.depth) / 2;
+      const adjustedZ =
+        item.y -
+        centerY +
+        (Math.sin(rotationInRadians) * item.width) / 2 +
+        (Math.cos(rotationInRadians) * item.depth) / 2;
+
+      const position: [number, number, number] = [adjustedX, 0, adjustedZ];
+      const rotation: [number, number, number] = [0, rotationInRadians, 0];
+
       return {
         id,
         name,

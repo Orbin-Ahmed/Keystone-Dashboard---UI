@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import {
   categories,
@@ -420,6 +420,10 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       link.click();
     }
   };
+
+  useEffect(() => {
+    console.log(placingItem?.rotation);
+  }, [placingItem]);
 
   // useEffect(() => {
   //   const stats = new Stats();
