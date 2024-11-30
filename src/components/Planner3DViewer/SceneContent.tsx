@@ -816,24 +816,22 @@ const SceneContent: React.FC<SceneContentProps> = ({
   );
 
   useEffect(() => {
-    const newPlacedItems: PlacedItemType[] = furnitureItems.map((item) => {
+    const newPlacedItems = furnitureItems.map((item) => {
       const id = item.id;
       const name = item.name;
       const type = name.toLowerCase().replace(/-/g, "_");
       const path = `items/${type}.glb`;
-
-      // Convert rotation from degrees to radians
       const rotationInRadians = -(item.rotation * Math.PI) / 180;
 
-      // Calculate position adjustments based on rotation
       const adjustedX =
         item.x -
         centerX +
-        (Math.cos(rotationInRadians) * item.width) / 2 -
+        (Math.cos(rotationInRadians) * item.width) / 2 +
         (Math.sin(rotationInRadians) * item.depth) / 2;
+
       const adjustedZ =
         item.y -
-        centerY +
+        centerY -
         (Math.sin(rotationInRadians) * item.width) / 2 +
         (Math.cos(rotationInRadians) * item.depth) / 2;
 

@@ -846,6 +846,13 @@ const PlanEditor = ({
                   stroke="black"
                   strokeWidth={2}
                 />
+                <Text
+                  x={20} // Position text slightly to the right of the circle
+                  y={20} // Position text slightly above the circle
+                  text={`(${point.x.toFixed(2)}, ${point.y.toFixed(2)})`}
+                  fontSize={12}
+                  fill="black"
+                />
                 {selectedFloorPoint === point.id && (
                   <KonvaImage
                     image={deleteIcon}
