@@ -642,6 +642,10 @@ const PlanEditor = ({
     };
   }, [selectedItemId]);
 
+  useEffect(() => {
+    console.log(furnitureItems);
+  }, [furnitureItems]);
+
   return (
     <div
       className="canvas-container"
@@ -692,8 +696,8 @@ const PlanEditor = ({
           y: pos.y,
           name: item.name,
           width: item.width,
-          height: item.height,
           depth: item.depth,
+          height: item.height,
           rotation: 0,
           imageSrc: imageSrc,
           category: item.category,

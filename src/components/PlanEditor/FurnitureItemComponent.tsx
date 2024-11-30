@@ -32,7 +32,7 @@ const FurnitureItemComponent: React.FC<{
         x={item.x}
         y={item.y}
         width={item.width}
-        height={item.height}
+        height={item.depth}
         rotation={item.rotation}
         draggable
         onClick={() => onSelect(item.id)}
@@ -56,7 +56,7 @@ const FurnitureItemComponent: React.FC<{
               x: node.x(),
               y: node.y(),
               width: Math.max(5, node.width() * scaleX),
-              height: Math.max(5, node.height() * scaleY),
+              depth: Math.max(5, node.height() * scaleY),
               rotation: node.rotation(),
             });
           }

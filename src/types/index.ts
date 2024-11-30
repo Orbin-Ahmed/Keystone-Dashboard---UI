@@ -437,7 +437,7 @@ export const items: { [category: string]: SidebarItem[] } = {
       imageSrc: "/2DViewerAssets/Sofa-Double.svg",
       category: "living",
       width: 110,
-      height: 45,
+      height: 70,
       depth: 50,
     },
     {
