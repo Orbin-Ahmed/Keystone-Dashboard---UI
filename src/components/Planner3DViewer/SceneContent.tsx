@@ -822,9 +822,9 @@ const SceneContent: React.FC<SceneContentProps> = ({
       const type = name.toLowerCase().replace(/-/g, "_");
       const path = `items/${type}.glb`;
       const position: [number, number, number] = [
-        item.x - centerX + 55,
+        item.x - centerX,
         0,
-        item.y - centerY + 23,
+        item.y - centerY,
       ];
       const rotation: [number, number, number] = [
         0,
@@ -837,8 +837,8 @@ const SceneContent: React.FC<SceneContentProps> = ({
         type,
         path,
         width: item.width,
-        height: item.height,
-        depth: item.depth,
+        height: item.depth,
+        depth: item.height,
         position,
         rotation,
       };

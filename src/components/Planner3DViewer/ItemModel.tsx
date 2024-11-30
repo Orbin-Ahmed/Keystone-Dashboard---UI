@@ -41,6 +41,7 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
     const { scene } = useGLTF(`/models/${path}`);
     const modelRef = useRef<Object3D | null>(null);
     const [isColliding, setIsColliding] = useState(false);
+    const COLLISION_THRESHOLD = 3;
 
     const initialBounds = useMemo(() => {
       const bbox = new Box3().setFromObject(scene);
@@ -122,7 +123,10 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
 
         let collisionDetected = false;
         for (const wallBox of wallBoundingBoxes) {
-          if (itemBox.intersectsBox(wallBox)) {
+          const expandedWallBox = wallBox
+            .clone()
+            .expandByScalar(-COLLISION_THRESHOLD);
+          if (itemBox.intersectsBox(expandedWallBox)) {
             collisionDetected = true;
             break;
           }
