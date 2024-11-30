@@ -642,10 +642,6 @@ const PlanEditor = ({
     };
   }, [selectedItemId]);
 
-  useEffect(() => {
-    console.log(furnitureItems);
-  }, [furnitureItems]);
-
   return (
     <div
       className="canvas-container"
@@ -726,6 +722,7 @@ const PlanEditor = ({
                 dash={[10, 5]}
               />
             )}
+
             {guideLine && (
               <KonvaLine
                 points={guideLine.points}
@@ -734,6 +731,7 @@ const PlanEditor = ({
                 dash={[5, 5]}
               />
             )}
+
             {lines.map((line) => (
               <React.Fragment key={line.id}>
                 <Group
@@ -783,6 +781,7 @@ const PlanEditor = ({
                 {drawWallLength(line, line.id)}
               </React.Fragment>
             ))}
+
             {shapes.map((shape) => (
               <React.Fragment key={shape.id}>
                 <KonvaImage
@@ -821,6 +820,7 @@ const PlanEditor = ({
                 )}
               </React.Fragment>
             ))}
+
             {floorPlanPoints.map((point) => (
               <Group
                 draggable={tool === "floorPoint"}

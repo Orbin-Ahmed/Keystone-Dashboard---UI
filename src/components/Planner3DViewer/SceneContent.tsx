@@ -844,8 +844,8 @@ const SceneContent: React.FC<SceneContentProps> = ({
         type,
         path,
         width: item.width,
-        height: item.depth,
-        depth: item.height,
+        height: item.height,
+        depth: item.depth,
         position,
         rotation,
       };

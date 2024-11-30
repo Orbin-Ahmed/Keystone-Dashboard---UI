@@ -421,10 +421,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     }
   };
 
-  useEffect(() => {
-    console.log(placingItem?.rotation);
-  }, [placingItem]);
-
   // useEffect(() => {
   //   const stats = new Stats();
   //   stats.showPanel(0);
