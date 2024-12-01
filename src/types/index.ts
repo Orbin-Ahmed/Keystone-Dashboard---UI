@@ -448,6 +448,14 @@ export const items: { [category: string]: SidebarItem[] } = {
       height: 10,
       depth: 45,
     },
+    {
+      name: "Tea-Table",
+      imageSrc: "/2DViewerAssets/tea_table.svg",
+      category: "living",
+      width: 85,
+      height: 30,
+      depth: 51,
+    },
   ],
   "Bed Room": [
     {
@@ -561,8 +569,8 @@ export const items: { [category: string]: SidebarItem[] } = {
       depth: 21,
     },
     {
-      name: "Potted-Plant-1",
-      imageSrc: "/2DViewerAssets/potted_plant_1.svg",
+      name: "Potted-Plant",
+      imageSrc: "/2DViewerAssets/potted_plant.svg",
       category: "common",
       width: 33,
       height: 70,
