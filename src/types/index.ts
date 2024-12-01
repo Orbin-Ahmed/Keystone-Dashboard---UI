@@ -572,9 +572,9 @@ export const items: { [category: string]: SidebarItem[] } = {
       name: "Potted-Plant",
       imageSrc: "/2DViewerAssets/potted_plant.svg",
       category: "common",
-      width: 33,
-      height: 70,
-      depth: 21,
+      width: 25,
+      height: 25,
+      depth: 25,
     },
   ],
   "Bath Room": [
