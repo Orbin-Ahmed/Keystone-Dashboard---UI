@@ -460,7 +460,7 @@ export const items: { [category: string]: SidebarItem[] } = {
     },
     {
       name: "Tv",
-      imageSrc: "/2DViewerAssets/Tv.svg",
+      imageSrc: "/2DViewerAssets/tv.svg",
       category: "bed",
       width: 60,
       height: 10,
@@ -486,7 +486,7 @@ export const items: { [category: string]: SidebarItem[] } = {
     },
     {
       name: "Stove",
-      imageSrc: "/2DViewerAssets/Stove.svg",
+      imageSrc: "/2DViewerAssets/stove.svg",
       category: "kitchen",
       width: 55,
       height: 55,
@@ -510,7 +510,7 @@ export const items: { [category: string]: SidebarItem[] } = {
     },
     {
       name: "Cabinets",
-      imageSrc: "/2DViewerAssets/Drawer.svg",
+      imageSrc: "/2DViewerAssets/drawer.svg",
       category: "kitchen",
       width: 48,
       height: 96,
@@ -526,7 +526,7 @@ export const items: { [category: string]: SidebarItem[] } = {
     },
     {
       name: "Shelf",
-      imageSrc: "/2DViewerAssets/Selve.svg",
+      imageSrc: "/2DViewerAssets/selve.svg",
       category: "kitchen",
       width: 60,
       height: 108,
@@ -544,7 +544,7 @@ export const items: { [category: string]: SidebarItem[] } = {
   "Kid's Room": [
     {
       name: "BunkBed",
-      imageSrc: "/2DViewerAssets/Single-Bed.svg",
+      imageSrc: "/2DViewerAssets/single-Bed.svg",
       category: "kid",
       width: 57,
       height: 83,
@@ -554,7 +554,7 @@ export const items: { [category: string]: SidebarItem[] } = {
   Common: [
     {
       name: "Shoe-Rack",
-      imageSrc: "/2DViewerAssets/Shoe-Rack.svg",
+      imageSrc: "/2DViewerAssets/shoe-Rack.svg",
       category: "common",
       width: 33,
       height: 70,
@@ -564,7 +564,7 @@ export const items: { [category: string]: SidebarItem[] } = {
   "Bath Room": [
     {
       name: "Bathtub",
-      imageSrc: "/2DViewerAssets/Bathtub.svg",
+      imageSrc: "/2DViewerAssets/bathtub.svg",
       category: "bath",
       width: 100,
       height: 35,
