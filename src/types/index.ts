@@ -442,7 +442,7 @@ export const items: { [category: string]: SidebarItem[] } = {
     },
     {
       name: "Tv",
-      imageSrc: "/2DViewerAssets/Tv.svg",
+      imageSrc: "/2DViewerAssets/tv.svg",
       category: "living",
       width: 60,
       height: 10,
@@ -452,7 +452,7 @@ export const items: { [category: string]: SidebarItem[] } = {
   "Bed Room": [
     {
       name: "Bed",
-      imageSrc: "/2DViewerAssets/King-Size-Bed.svg",
+      imageSrc: "/2DViewerAssets/king-Size-Bed.svg",
       category: "bed",
       width: 136,
       height: 32,
@@ -468,7 +468,7 @@ export const items: { [category: string]: SidebarItem[] } = {
     },
     {
       name: "Wardrobe",
-      imageSrc: "/2DViewerAssets/Wardrobe.svg",
+      imageSrc: "/2DViewerAssets/wardrobe.svg",
       category: "bed",
       width: 130,
       height: 108,
