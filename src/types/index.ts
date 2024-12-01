@@ -582,9 +582,9 @@ export const items: { [category: string]: SidebarItem[] } = {
       name: "Bathtub",
       imageSrc: "/2DViewerAssets/bathtub.svg",
       category: "bath",
-      width: 25,
-      height: 25,
-      depth: 25,
+      width: 100,
+      height: 35,
+      depth: 47,
     },
   ],
 };
