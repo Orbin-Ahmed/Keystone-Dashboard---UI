@@ -45,8 +45,8 @@ const ItemSidebar: React.FC<ItemSidebarProps> = () => {
                       alt={item.name}
                       draggable={true}
                       onDragStart={(event) => handleDragStart(event, item)}
-                      width={item.width}
-                      height={item.height}
+                      width={50}
+                      height={50}
                     />
                     <span className="text-gray-700 mt-2 text-sm font-medium">
                       {item.name}
