@@ -562,7 +562,7 @@ export const items: { [category: string]: SidebarItem[] } = {
     },
     {
       name: "Potted-Plant",
-      imageSrc: "/2DViewerAssets/potted_plant_1.png",
+      imageSrc: "/2DViewerAssets/potted_plant_1.svg",
       category: "common",
       width: 33,
       height: 70,
