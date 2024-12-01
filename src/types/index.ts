@@ -437,7 +437,7 @@ export const items: { [category: string]: SidebarItem[] } = {
       imageSrc: "/2DViewerAssets/Sofa-Double.svg",
       category: "living",
       width: 110,
-      height: 70,
+      height: 45,
       depth: 50,
     },
     {
@@ -454,9 +454,9 @@ export const items: { [category: string]: SidebarItem[] } = {
       name: "kitchen-Fridge",
       imageSrc: "/2DViewerAssets/Kitchen-Fridge.svg",
       category: "kitchen",
-      width: 50,
-      height: 50,
-      depth: 45,
+      width: 48,
+      height: 115,
+      depth: 42,
     },
     {
       name: "Stove",
@@ -525,7 +525,7 @@ export const categories = [
     items: [
       {
         name: "Fridge",
-        path: "items/fridge.glb",
+        path: "items/Kitchen-Fridge.glb",
         type: "fridge",
         width: 48,
         height: 115,
