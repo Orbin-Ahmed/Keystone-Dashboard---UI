@@ -485,8 +485,8 @@ export const items: { [category: string]: SidebarItem[] } = {
   ],
   Kitchen: [
     {
-      name: "kitchen-Fridge",
-      imageSrc: "/2DViewerAssets/Kitchen_fridge.svg",
+      name: "Fridge",
+      imageSrc: "/2DViewerAssets/fridge.svg",
       category: "kitchen",
       width: 48,
       height: 115,
@@ -525,8 +525,8 @@ export const items: { [category: string]: SidebarItem[] } = {
       depth: 24,
     },
     {
-      name: "Kitchen-Sink",
-      imageSrc: "/2DViewerAssets/kitchen_sink.svg",
+      name: "Sink",
+      imageSrc: "/2DViewerAssets/sink.svg",
       category: "kitchen",
       width: 120,
       height: 70,
@@ -552,7 +552,7 @@ export const items: { [category: string]: SidebarItem[] } = {
   "Kid's Room": [
     {
       name: "BunkBed",
-      imageSrc: "/2DViewerAssets/single_bed.svg",
+      imageSrc: "/2DViewerAssets/bunkBed.svg",
       category: "kid",
       width: 57,
       height: 83,
@@ -645,7 +645,7 @@ export const categories = [
     items: [
       {
         name: "Fridge",
-        path: "items/kitchen_fridge.glb",
+        path: "items/fridge.glb",
         type: "fridge",
         width: 48,
         height: 115,
@@ -668,7 +668,7 @@ export const categories = [
         depth: 35,
       },
       {
-        name: "shelf",
+        name: "Shelf",
         path: "items/shelf.glb",
         type: "shelf",
         width: 60,
@@ -684,7 +684,7 @@ export const categories = [
         depth: 35,
       },
       {
-        name: "Table",
+        name: "Side-Table",
         path: "items/side_table.glb",
         type: "side_table",
         width: 20,
@@ -692,7 +692,7 @@ export const categories = [
         depth: 35,
       },
       {
-        name: "Stove 1",
+        name: "Stove",
         path: "items/stove.glb",
         type: "stove",
         width: 32,
@@ -700,9 +700,9 @@ export const categories = [
         depth: 35,
       },
       {
-        name: "Stove 2",
+        name: "Burner",
         path: "items/burner.glb",
-        type: "kitchenStove",
+        type: "burner",
         width: 45,
         height: 48,
         depth: 48,
@@ -727,8 +727,8 @@ export const categories = [
     items: [
       {
         name: "BunkBed",
-        path: "items/bedBunk.glb",
-        type: "bedBunk",
+        path: "items/bunkBed.glb",
+        type: "bunkBed",
         width: 57,
         height: 83,
         depth: 110,
