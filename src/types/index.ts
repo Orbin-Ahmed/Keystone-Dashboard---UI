@@ -637,7 +637,7 @@ export const categories = [
     items: [
       {
         name: "Fridge",
-        path: "items/Kitchen-Fridge.glb",
+        path: "items/kitchen_fridge.glb",
         type: "fridge",
         width: 48,
         height: 115,
