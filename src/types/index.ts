@@ -434,7 +434,7 @@ export const items: { [category: string]: SidebarItem[] } = {
   "Living Room": [
     {
       name: "Sofa-Double",
-      imageSrc: "/2DViewerAssets/Sofa-Double.svg",
+      imageSrc: "/2DViewerAssets/sofa_double.svg",
       category: "living",
       width: 110,
       height: 45,
@@ -452,7 +452,7 @@ export const items: { [category: string]: SidebarItem[] } = {
   "Bed Room": [
     {
       name: "Bed",
-      imageSrc: "/2DViewerAssets/king-Size-Bed.svg",
+      imageSrc: "/2DViewerAssets/king_size_bed.svg",
       category: "bed",
       width: 136,
       height: 32,
@@ -478,7 +478,7 @@ export const items: { [category: string]: SidebarItem[] } = {
   Kitchen: [
     {
       name: "kitchen-Fridge",
-      imageSrc: "/2DViewerAssets/Kitchen-Fridge.svg",
+      imageSrc: "/2DViewerAssets/Kitchen_fridge.svg",
       category: "kitchen",
       width: 48,
       height: 115,
@@ -502,7 +502,7 @@ export const items: { [category: string]: SidebarItem[] } = {
     },
     {
       name: "Side-Table",
-      imageSrc: "/2DViewerAssets/Dining-Table.svg",
+      imageSrc: "/2DViewerAssets/dining_table.svg",
       category: "kitchen",
       width: 20,
       height: 48,
@@ -518,7 +518,7 @@ export const items: { [category: string]: SidebarItem[] } = {
     },
     {
       name: "Sink",
-      imageSrc: "/2DViewerAssets/Kitchen-Sink.svg",
+      imageSrc: "/2DViewerAssets/kitchen_sink.svg",
       category: "kitchen",
       width: 120,
       height: 70,
@@ -534,7 +534,7 @@ export const items: { [category: string]: SidebarItem[] } = {
     },
     {
       name: "Drawer",
-      imageSrc: "/2DViewerAssets/Floor_Drawer.svg",
+      imageSrc: "/2DViewerAssets/floor_drawer.svg",
       category: "kitchen",
       width: 90,
       height: 48,
@@ -544,7 +544,7 @@ export const items: { [category: string]: SidebarItem[] } = {
   "Kid's Room": [
     {
       name: "BunkBed",
-      imageSrc: "/2DViewerAssets/single-Bed.svg",
+      imageSrc: "/2DViewerAssets/single_bed.svg",
       category: "kid",
       width: 57,
       height: 83,
@@ -554,7 +554,7 @@ export const items: { [category: string]: SidebarItem[] } = {
   Common: [
     {
       name: "Shoe-Rack",
-      imageSrc: "/2DViewerAssets/shoe-Rack.svg",
+      imageSrc: "/2DViewerAssets/shoe_rack.svg",
       category: "common",
       width: 33,
       height: 70,
