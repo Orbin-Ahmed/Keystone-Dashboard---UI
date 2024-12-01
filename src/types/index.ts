@@ -452,7 +452,7 @@ export const items: { [category: string]: SidebarItem[] } = {
   "Bed Room": [
     {
       name: "Bed",
-      imageSrc: "/2DViewerAssets/king_size_bed.svg",
+      imageSrc: "/2DViewerAssets/bed.svg",
       category: "bed",
       width: 136,
       height: 32,
@@ -502,7 +502,7 @@ export const items: { [category: string]: SidebarItem[] } = {
     },
     {
       name: "Side-Table",
-      imageSrc: "/2DViewerAssets/dining_table.svg",
+      imageSrc: "/2DViewerAssets/side_table.svg",
       category: "kitchen",
       width: 20,
       height: 48,
@@ -510,14 +510,14 @@ export const items: { [category: string]: SidebarItem[] } = {
     },
     {
       name: "Cabinets",
-      imageSrc: "/2DViewerAssets/drawer.svg",
+      imageSrc: "/2DViewerAssets/cabinets.svg",
       category: "kitchen",
       width: 48,
       height: 96,
       depth: 24,
     },
     {
-      name: "Sink",
+      name: "Kitchen-Sink",
       imageSrc: "/2DViewerAssets/kitchen_sink.svg",
       category: "kitchen",
       width: 120,
@@ -526,7 +526,7 @@ export const items: { [category: string]: SidebarItem[] } = {
     },
     {
       name: "Shelf",
-      imageSrc: "/2DViewerAssets/selve.svg",
+      imageSrc: "/2DViewerAssets/shelf.svg",
       category: "kitchen",
       width: 60,
       height: 108,
@@ -561,7 +561,7 @@ export const items: { [category: string]: SidebarItem[] } = {
       depth: 21,
     },
     {
-      name: "Potted-Plant",
+      name: "Potted-Plant-1",
       imageSrc: "/2DViewerAssets/potted_plant_1.svg",
       category: "common",
       width: 33,
