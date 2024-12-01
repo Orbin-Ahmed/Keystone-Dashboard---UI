@@ -515,7 +515,7 @@ const FloorPlanner = () => {
       processedFurnitureNames = floorData.furniture.map(
         (item: SerializedFurnitureItem) => ({
           ...item,
-          imageSrc: `/2DViewerAssets/${item.name}.svg`,
+          imageSrc: `/2DViewerAssets/${item.name.toLowerCase().replace(/-/g, "_")}.svg`,
         }),
       );
     }
