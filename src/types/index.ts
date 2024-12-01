@@ -560,6 +560,14 @@ export const items: { [category: string]: SidebarItem[] } = {
       height: 70,
       depth: 21,
     },
+    {
+      name: "Potted-Plant",
+      imageSrc: "/2DViewerAssets/potted_plant.png",
+      category: "common",
+      width: 33,
+      height: 70,
+      depth: 21,
+    },
   ],
   "Bath Room": [
     {
@@ -753,6 +761,14 @@ export const categories = [
         width: 157,
         height: 0.5,
         depth: 92,
+      },
+      {
+        name: "Potted-Plant",
+        path: "items/potted_plant.glb",
+        type: "plant",
+        width: 33,
+        height: 70,
+        depth: 21,
       },
     ],
   },
