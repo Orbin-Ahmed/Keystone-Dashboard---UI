@@ -27,6 +27,7 @@ import {
   Object3D,
   Box3,
   Material,
+  EquirectangularReflectionMapping,
 } from "three";
 import { CSG } from "three-csg-ts";
 import Model from "./Model";
@@ -38,7 +39,8 @@ import autoTable from "jspdf-autotable";
 import JSZip from "jszip";
 import { GLTFExporter } from "three-stdlib";
 import throttle from "lodash.throttle";
-import { uid } from "uid";
+import { RGBELoader } from "three-stdlib";
+import { Reflector } from "three/examples/jsm/objects/Reflector.js";
 
 export const ensureWallPoints = (
   points: number[],
@@ -124,6 +126,9 @@ const SceneContent: React.FC<SceneContentProps> = ({
   const dragOffset = useRef<[number, number, number] | null>(null);
   const placingItemRef = useRef<PlacingItemType | null>(placingItem);
   const modelRef = useRef<Object3D | null>(null);
+
+  const envMap = useLoader(RGBELoader, "indoor_env.hdr");
+  envMap.mapping = EquirectangularReflectionMapping;
 
   const wallClassifications = useMemo(() => {
     const classifications: Record<string, WallClassification> = {};
@@ -680,11 +685,16 @@ const SceneContent: React.FC<SceneContentProps> = ({
 
     return (
       <mesh geometry={geometry} position={[0, 0, 0]}>
-        <meshStandardMaterial
+        <meshPhysicalMaterial
           map={floorTexture}
+          envMap={envMap}
           side={DoubleSide}
-          roughness={0.6}
-          metalness={0}
+          roughness={0.05}
+          metalness={0.5}
+          reflectivity={0.8}
+          clearcoat={0.5}
+          clearcoatRoughness={0}
+          envMapIntensity={0.5}
         />
       </mesh>
     );
@@ -856,6 +866,18 @@ const SceneContent: React.FC<SceneContentProps> = ({
       ...newPlacedItems,
     ]);
   }, [furnitureItems, centerX, centerY, setPlacedItems]);
+
+  useEffect(() => {
+    return () => {
+      envMap.dispose();
+    };
+  }, [envMap]);
+
+  useEffect(() => {
+    return () => {
+      Object.values(textures).forEach((texture) => texture.dispose());
+    };
+  }, [textures]);
 
   return (
     <>
