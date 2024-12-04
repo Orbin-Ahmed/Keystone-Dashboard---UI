@@ -127,8 +127,11 @@ const SceneContent: React.FC<SceneContentProps> = ({
   const placingItemRef = useRef<PlacingItemType | null>(placingItem);
   const modelRef = useRef<Object3D | null>(null);
 
-  const envMap = useLoader(RGBELoader, "indoor_env.hdr");
+  const envMap = useLoader(RGBELoader, "beach_2k_env.hdr");
   envMap.mapping = EquirectangularReflectionMapping;
+
+  const envMap_floor = useLoader(RGBELoader, "indoor_env.hdr");
+  envMap_floor.mapping = EquirectangularReflectionMapping;
 
   const wallClassifications = useMemo(() => {
     const classifications: Record<string, WallClassification> = {};
@@ -687,14 +690,14 @@ const SceneContent: React.FC<SceneContentProps> = ({
       <mesh geometry={geometry} position={[0, 0, 0]}>
         <meshPhysicalMaterial
           map={floorTexture}
-          envMap={envMap}
+          envMap={envMap_floor}
           side={DoubleSide}
-          roughness={0.05}
-          metalness={0.5}
-          reflectivity={0.8}
-          clearcoat={0.5}
-          clearcoatRoughness={0}
-          envMapIntensity={0.5}
+          roughness={0.1}
+          metalness={0.2}
+          reflectivity={0.2}
+          clearcoat={0.1}
+          clearcoatRoughness={0.7}
+          envMapIntensity={0.3}
         />
       </mesh>
     );
@@ -868,16 +871,24 @@ const SceneContent: React.FC<SceneContentProps> = ({
   }, [furnitureItems, centerX, centerY, setPlacedItems]);
 
   useEffect(() => {
+    if (envMap && showRoof) {
+      scene.background = envMap;
+    }
     return () => {
-      envMap.dispose();
+      scene.background = null;
     };
-  }, [envMap]);
+  }, [envMap, showRoof]);
 
   useEffect(() => {
     return () => {
-      Object.values(textures).forEach((texture) => texture.dispose());
+      Object.values(textures).forEach((texture) => {
+        if (texture) texture.dispose();
+      });
+
+      if (envMap) envMap.dispose();
+      if (envMap_floor) envMap_floor.dispose();
     };
-  }, [textures]);
+  }, [textures, envMap, envMap_floor]);
 
   return (
     <>
