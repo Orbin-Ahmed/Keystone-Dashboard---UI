@@ -45,7 +45,7 @@ export async function POST(req: Request) {
       input.seed = parseInt(seed.toString());
     }
 
-    const callbackURL = `https://www.idealhomeuae.com/webhooks/replicate`;
+    const callbackURL = `https://1d23-2603-7000-c7f0-a340-484d-fd50-798b-4493.ngrok-free.app/api/webhooks/revampv2`;
 
     const prediction = await replicate.predictions.create({
       version:
@@ -55,7 +55,7 @@ export async function POST(req: Request) {
       webhook_events_filter: ["completed"],
     });
 
-    return new Response(JSON.stringify("Your image is being processed."), {
+    return new Response(JSON.stringify("rendering"), {
       status: 200,
     });
   } catch (error) {

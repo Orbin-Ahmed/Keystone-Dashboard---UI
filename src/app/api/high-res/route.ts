@@ -1,0 +1,46 @@
+import Replicate from "replicate";
+
+const replicate = new Replicate({
+  auth: process.env.REPLICATE_API_TOKEN,
+});
+
+const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
+
+export async function POST(req: Request) {
+  try {
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader || authHeader !== `Bearer ${API_KEY}`) {
+      return new Response(JSON.stringify({ detail: "Unauthorized" }), {
+        status: 401,
+      });
+    }
+
+    const body = await req.json();
+    const imageUrl = body.imageUrl;
+
+    const input: any = {
+      image: imageUrl,
+      downscaling: true,
+      scale_factor: 4,
+    };
+
+    const callbackURL = `https://1d23-2603-7000-c7f0-a340-484d-fd50-798b-4493.ngrok-free.app/api/webhooks/high-res`;
+
+    const prediction = await replicate.predictions.create({
+      version:
+        "dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e",
+      input,
+      webhook: callbackURL,
+      webhook_events_filter: ["completed"],
+    });
+
+    return new Response(JSON.stringify("upscaling"), {
+      status: 200,
+    });
+  } catch (error) {
+    console.error("Error processing request:", error);
+    return new Response(JSON.stringify({ detail: "Internal Server Error" }), {
+      status: 500,
+    });
+  }
+}
