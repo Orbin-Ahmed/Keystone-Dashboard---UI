@@ -3,7 +3,6 @@ import { useLoader, useThree, ThreeEvent } from "@react-three/fiber";
 import {
   categories,
   PDFItemData,
-  PlacedItemType,
   PlacingItemType,
   Point,
   SceneContentProps,
@@ -40,7 +39,6 @@ import JSZip from "jszip";
 import { GLTFExporter } from "three-stdlib";
 import throttle from "lodash.throttle";
 import { RGBELoader } from "three-stdlib";
-import { Reflector } from "three/examples/jsm/objects/Reflector.js";
 
 export const ensureWallPoints = (
   points: number[],

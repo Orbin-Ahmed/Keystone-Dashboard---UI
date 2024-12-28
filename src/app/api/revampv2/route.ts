@@ -17,6 +17,7 @@ export async function POST(req: Request) {
 
     const formData = await req.formData();
 
+    const requestId = formData.get("requestId") as string;
     const imageFile = formData.get("image") as File;
     const imageBuffer = Buffer.from(await imageFile.arrayBuffer());
     const prompt = formData.get("prompt") as string;
@@ -39,6 +40,7 @@ export async function POST(req: Request) {
       negative_prompt: negative_prompt,
       prompt_strength: prompt_strength,
       num_inference_steps: num_inference_steps,
+      requestId,
     };
 
     if (seed && parseInt(seed.toString()) !== 0) {
@@ -55,9 +57,13 @@ export async function POST(req: Request) {
       webhook_events_filter: ["completed"],
     });
 
-    return new Response(JSON.stringify("rendering"), {
-      status: 200,
-    });
+    return new Response(
+      JSON.stringify({
+        detail: "Rendering started",
+        predictionId: prediction.id,
+      }),
+      { status: 200 },
+    );
   } catch (error) {
     console.error("Error processing request:", error);
     return new Response(JSON.stringify({ detail: "Internal Server Error" }), {
