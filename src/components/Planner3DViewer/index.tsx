@@ -426,12 +426,12 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
             .then(
               (blob) => new File([blob], "scene.jpg", { type: "image/jpeg" }),
             ),
-          prompt: `A ${activeTourPoint.title.toLowerCase()}, sunny, real, realistic, 4k, 2k, 8k, ultra-detailed, photorealistic, high-definition, professional, vibrant colors, natural lighting, hyper-realistic, balanced light, eye soothing`,
+          prompt: `A ${activeTourPoint.title.toLowerCase()}`,
           guidance_scale: 15,
           prompt_strength: 0.8,
           num_inference_steps: 50,
           negative_prompt:
-            "lowres, watermark, banner, logo, contactinfo, text, deformed, blurry, blur, out of focus, out of frame, surreal, extra, ugly, upholstered walls, fabric walls, plush walls, mirror, mirrored, unrealistic, cartoon, anime, sketch, drawing, semi-realistic, worst quality, low quality, jpeg artifacts, over-saturation, over-exposed, unbalanced light",
+            "lowres, watermark, banner, logo, watermark, contactinfo, text, deformed, blurry, blur, out of focus, out of frame, surreal, extra, ugly, upholstered walls, fabric walls, plush walls, mirror, mirrored, functional, realistic",
         };
 
         formData.append("image", input.image);
