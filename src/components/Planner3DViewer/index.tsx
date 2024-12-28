@@ -406,7 +406,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     }
   };
 
-  const handleSnap = () => {
+  const handleSnap = async () => {
     if (glRef.current && cameraRef.current && sceneRef.current) {
       const renderer = glRef.current;
       const camera = cameraRef.current;
@@ -418,6 +418,52 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       link.download = "scene.jpg";
       link.href = dataURL;
       link.click();
+      if (activeTourPoint) {
+        const formData = new FormData();
+        const input = {
+          image: await fetch(dataURL)
+            .then((res) => res.blob())
+            .then(
+              (blob) => new File([blob], "scene.jpg", { type: "image/jpeg" }),
+            ),
+          prompt: `A ${activeTourPoint.title.toLowerCase()}, sunny, real, realistic, 4k, 2k, 8k, ultra-detailed, photorealistic, high-definition, professional, vibrant colors, natural lighting, hyper-realistic, balanced light, eye soothing`,
+          guidance_scale: 15,
+          prompt_strength: 0.8,
+          num_inference_steps: 50,
+          negative_prompt:
+            "lowres, watermark, banner, logo, contactinfo, text, deformed, blurry, blur, out of focus, out of frame, surreal, extra, ugly, upholstered walls, fabric walls, plush walls, mirror, mirrored, unrealistic, cartoon, anime, sketch, drawing, semi-realistic, worst quality, low quality, jpeg artifacts, over-saturation, over-exposed, unbalanced light",
+        };
+
+        formData.append("image", input.image);
+        formData.append("prompt", input.prompt);
+        formData.append("guidance_scale", input.guidance_scale.toString());
+        formData.append("prompt_strength", input.prompt_strength.toString());
+        formData.append(
+          "num_inference_steps",
+          input.num_inference_steps.toString(),
+        );
+        formData.append("negative_prompt", input.negative_prompt);
+
+        // Send the API request
+        try {
+          const response = await fetch("/api/revampv2", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
+            },
+            body: formData,
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            console.log("API Response:", data);
+          } else {
+            console.error("API Error:", response.status, response.statusText);
+          }
+        } catch (error) {
+          console.error("Fetch Error:", error);
+        }
+      }
     }
   };
 
