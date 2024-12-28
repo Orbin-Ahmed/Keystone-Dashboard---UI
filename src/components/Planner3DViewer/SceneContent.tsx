@@ -688,7 +688,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
       <mesh geometry={geometry} position={[0, 0, 0]}>
         <meshPhysicalMaterial
           map={floorTexture}
-          envMap={envMap_floor}
+          // envMap={envMap_floor}
           side={DoubleSide}
           roughness={0.1}
           metalness={0.2}

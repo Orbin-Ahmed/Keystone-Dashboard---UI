@@ -16,8 +16,6 @@ export async function POST(req: Request) {
     }
 
     const formData = await req.formData();
-
-    const requestId = formData.get("requestId") as string;
     const imageFile = formData.get("image") as File;
     const imageBuffer = Buffer.from(await imageFile.arrayBuffer());
     const prompt = formData.get("prompt") as string;
@@ -32,6 +30,7 @@ export async function POST(req: Request) {
       (formData.get("num_inference_steps") ?? "50").toString(),
     );
     const seed = formData.get("seed");
+    const imageID = formData.get("imageID");
 
     const input: any = {
       image: imageBuffer,
@@ -40,14 +39,13 @@ export async function POST(req: Request) {
       negative_prompt: negative_prompt,
       prompt_strength: prompt_strength,
       num_inference_steps: num_inference_steps,
-      requestId,
     };
 
     if (seed && parseInt(seed.toString()) !== 0) {
       input.seed = parseInt(seed.toString());
     }
 
-    const callbackURL = `https://1d23-2603-7000-c7f0-a340-484d-fd50-798b-4493.ngrok-free.app/api/webhooks/revampv2`;
+    const callbackURL = `https://0d21-2603-7000-c7f0-a340-f79a-fcae-6a6-c11d.ngrok-free.app/api/webhooks/revampv2`;
 
     const prediction = await replicate.predictions.create({
       version:
@@ -57,10 +55,31 @@ export async function POST(req: Request) {
       webhook_events_filter: ["completed"],
     });
 
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+      const response = await fetch(`${backendUrl}api/create-prediction/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          prediction1ID: prediction.id,
+          imageID: imageID,
+        }),
+      });
+
+      if (!response.ok) {
+        console.error("Failed to notify the API:", response.statusText);
+      } else {
+        console.log("API notified successfully");
+      }
+    } catch (apiError) {
+      console.error("Error during API call:", apiError);
+    }
+
     return new Response(
       JSON.stringify({
         detail: "Rendering started",
-        predictionId: prediction.id,
       }),
       { status: 200 },
     );

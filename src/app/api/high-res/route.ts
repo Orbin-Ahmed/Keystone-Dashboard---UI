@@ -17,6 +17,7 @@ export async function POST(req: Request) {
 
     const body = await req.json();
     const imageUrl = body.imageUrl;
+    const prediction1ID = body.prediction1ID;
 
     const input: any = {
       image: imageUrl,
@@ -24,7 +25,7 @@ export async function POST(req: Request) {
       scale_factor: 4,
     };
 
-    const callbackURL = `https://1d23-2603-7000-c7f0-a340-484d-fd50-798b-4493.ngrok-free.app/api/webhooks/high-res`;
+    const callbackURL = `https://0d21-2603-7000-c7f0-a340-f79a-fcae-6a6-c11d.ngrok-free.app/api/webhooks/high-res`;
 
     const prediction = await replicate.predictions.create({
       version:
@@ -34,9 +35,34 @@ export async function POST(req: Request) {
       webhook_events_filter: ["completed"],
     });
 
-    return new Response(JSON.stringify("upscaling"), {
-      status: 200,
-    });
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+      const response = await fetch(`${backendUrl}api/create-prediction/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          prediction1ID: prediction1ID,
+          prediction2ID: prediction.id,
+        }),
+      });
+
+      if (!response.ok) {
+        console.error("Failed to notify the API:", response.statusText);
+      } else {
+        console.log("API notified successfully");
+      }
+    } catch (apiError) {
+      console.error("Error during API call:", apiError);
+    }
+
+    return new Response(
+      JSON.stringify({
+        detail: "Upscalling started",
+      }),
+      { status: 200 },
+    );
   } catch (error) {
     console.error("Error processing request:", error);
     return new Response(JSON.stringify({ detail: "Internal Server Error" }), {
