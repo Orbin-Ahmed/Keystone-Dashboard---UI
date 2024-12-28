@@ -17,7 +17,7 @@ import SceneContent, {
   ensureWallPoints,
 } from "@/components/Planner3DViewer/SceneContent";
 import ItemSidebar from "./ItemSidebar";
-import Stats from "stats.js";
+// import Stats from "stats.js";
 import TourPointsList from "./sidebar/TourPointsList";
 import ZoomControls from "./sidebar/ZoomControls";
 import ModelSelectionSidebar from "./sidebar/ModelSelectionSidebar";
@@ -25,6 +25,8 @@ import ConfirmPlacementControls from "./sidebar/ConfirmPlacementControls";
 import SelectedItemControls from "./sidebar/SelectedItemControls";
 import SettingsModal from "./sidebar/SettingsModal";
 import AddItemSidebar from "./sidebar/AddItemSidebar";
+import { FaArrowLeft } from "react-icons/fa";
+import { Spinner } from "@radix-ui/themes";
 
 interface Plan3DViewerProps {
   lines: LineData[];
@@ -65,7 +67,11 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const cameraRef = useRef<PerspectiveCamera | null>(null);
   const glRef = useRef<WebGLRenderer | null>(null);
   const sceneRef = useRef<Scene | null>(null);
-  const statsRef = useRef<Stats | null>(null);
+  // const statsRef = useRef<Stats | null>(null);
+  const [isDesignOpen, setIsDesignOpen] = useState(false);
+  const [localSceneImages, setLocalSceneImages] = useState<string[]>([]);
+  // const [finalImageUrl, setFinalImageUrl] = useState<string | null>(null);
+  const [isDesignLoading, setIsDesignLoading] = useState(false);
   const [isTourOpen, setIsTourOpen] = useState(false);
 
   // Window and Door Shape Data
@@ -419,50 +425,52 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       link.href = dataURL;
       link.click();
       if (activeTourPoint) {
-        const formData = new FormData();
-        const input = {
-          image: await fetch(dataURL)
-            .then((res) => res.blob())
-            .then(
-              (blob) => new File([blob], "scene.jpg", { type: "image/jpeg" }),
-            ),
-          prompt: `A ${activeTourPoint.title.toLowerCase()}`,
-          guidance_scale: 15,
-          prompt_strength: 0.8,
-          num_inference_steps: 50,
-          negative_prompt:
-            "lowres, watermark, banner, logo, watermark, contactinfo, text, deformed, blurry, blur, out of focus, out of frame, surreal, extra, ugly, upholstered walls, fabric walls, plush walls, mirror, mirrored, functional, realistic",
-        };
+        setLocalSceneImages((prevImages) => [...prevImages, dataURL]);
+        setIsDesignLoading(true);
+        // const formData = new FormData();
+        // const input = {
+        //   image: await fetch(dataURL)
+        //     .then((res) => res.blob())
+        //     .then(
+        //       (blob) => new File([blob], "scene.jpg", { type: "image/jpeg" }),
+        //     ),
+        //   prompt: `A ${activeTourPoint.title.toLowerCase()}`,
+        //   guidance_scale: 15,
+        //   prompt_strength: 0.8,
+        //   num_inference_steps: 50,
+        //   negative_prompt:
+        //     "lowres, watermark, banner, logo, watermark, contactinfo, text, deformed, blurry, blur, out of focus, out of frame, surreal, extra, ugly, upholstered walls, fabric walls, plush walls, mirror, mirrored, functional, realistic",
+        // };
 
-        formData.append("image", input.image);
-        formData.append("prompt", input.prompt);
-        formData.append("guidance_scale", input.guidance_scale.toString());
-        formData.append("prompt_strength", input.prompt_strength.toString());
-        formData.append(
-          "num_inference_steps",
-          input.num_inference_steps.toString(),
-        );
-        formData.append("negative_prompt", input.negative_prompt);
+        // formData.append("image", input.image);
+        // formData.append("prompt", input.prompt);
+        // formData.append("guidance_scale", input.guidance_scale.toString());
+        // formData.append("prompt_strength", input.prompt_strength.toString());
+        // formData.append(
+        //   "num_inference_steps",
+        //   input.num_inference_steps.toString(),
+        // );
+        // formData.append("negative_prompt", input.negative_prompt);
 
-        // Send the API request
-        try {
-          const response = await fetch("/api/revampv2", {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
-            },
-            body: formData,
-          });
+        // // Send the API request
+        // try {
+        //   const response = await fetch("/api/revampv2", {
+        //     method: "POST",
+        //     headers: {
+        //       Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
+        //     },
+        //     body: formData,
+        //   });
 
-          if (response.ok) {
-            const data = await response.json();
-            console.log("API Response:", data);
-          } else {
-            console.error("API Error:", response.status, response.statusText);
-          }
-        } catch (error) {
-          console.error("Fetch Error:", error);
-        }
+        //   if (response.ok) {
+        //     const data = await response.json();
+        //     console.log("API Response:", data);
+        //   } else {
+        //     console.error("API Error:", response.status, response.statusText);
+        //   }
+        // } catch (error) {
+        //   console.error("Fetch Error:", error);
+        // }
       }
     }
   };
@@ -535,6 +543,43 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           setFurnitureItems={setFurnitureItems}
         />
       </Canvas>
+
+      <div className="absolute left-4 top-4 z-50">
+        <CustomButton
+          variant="tertiary"
+          onClick={() => setIsDesignOpen(!isDesignOpen)}
+        >
+          {!isDesignOpen ? "Design" : <FaArrowLeft />}
+        </CustomButton>
+      </div>
+
+      {isDesignOpen && (
+        <div className="absolute left-0 top-0 z-40 h-full w-80 overflow-auto bg-white p-4 shadow-md">
+          <h2 className="mb-4 mt-12 text-lg font-semibold">
+            AI Rendered Design
+          </h2>
+          {localSceneImages.length > 0 ? (
+            <div className="grid grid-cols-1 gap-4">
+              {localSceneImages.map((image, index) => (
+                <div key={index} className="relative">
+                  <img
+                    src={image}
+                    alt={`3D Scene ${index + 1}`}
+                    className="w-full rounded object-cover"
+                  />
+                  {isDesignLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40">
+                      <Spinner />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500">No scene snapshot yet.</p>
+          )}
+        </div>
+      )}
 
       {!selectedShape && (
         <div className="absolute right-4 top-4">

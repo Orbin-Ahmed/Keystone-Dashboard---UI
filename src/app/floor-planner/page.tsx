@@ -677,7 +677,7 @@ const FloorPlanner = () => {
       )}
       {viewMode === "2D" && <ItemSidebar />}
       <div
-        className={`fixed bottom-8 ${viewMode === "2D" ? "left-32" : "left-8"} z-50`}
+        className={`fixed bottom-8 ${viewMode === "2D" ? "left-32" : "left-8"} z-30`}
       >
         <label
           htmlFor="viewModeToggle"

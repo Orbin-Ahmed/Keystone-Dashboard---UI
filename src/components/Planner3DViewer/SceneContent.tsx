@@ -916,6 +916,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
       ))}
       {/* Room Labels */}
       {!shouldExport &&
+        !activeTourPoint &&
         roomNames.map((room) => (
           <RoomLabel
             key={room.id}
