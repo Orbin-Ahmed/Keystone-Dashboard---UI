@@ -22,10 +22,10 @@ export async function POST(req: Request) {
     const input: any = {
       image: imageUrl,
       downscaling: true,
-      scale_factor: 4,
+      scale_factor: 2,
     };
 
-    const callbackURL = `https://0d21-2603-7000-c7f0-a340-f79a-fcae-6a6-c11d.ngrok-free.app/api/webhooks/high-res`;
+    const callbackURL = `${process.env.NEXT_PUBLIC_FRONTEND_URL}api/webhooks/high-res`;
 
     const prediction = await replicate.predictions.create({
       version:

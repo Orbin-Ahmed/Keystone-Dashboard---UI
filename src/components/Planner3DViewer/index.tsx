@@ -484,38 +484,69 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const pollForFinalImages = async () => {
     try {
       const pendingImages = localSceneImages.filter((img) => img.loading);
-
       if (pendingImages.length === 0) {
         return;
       }
+      const updatedImages = await Promise.all(
+        pendingImages.map(async (img) => {
+          try {
+            const response = await fetch(
+              `${process.env.NEXT_PUBLIC_API_BASE_URL}api/get-image-url/?imageID=${img.id}`,
+              {
+                method: "GET",
+                headers: {
+                  Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
+                },
+              },
+            );
 
-      const ids = pendingImages.map((img) => img.id).join(",");
+            if (!response.ok) {
+              console.error(
+                `Error fetching image URL for ID ${img.id}:`,
+                response.status,
+                response.statusText,
+              );
+              return img;
+            }
 
-      const response = await fetch(`/api/get-images?imageIDs=${ids}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
-        },
+            const data = await response.json();
+            if (data.imageURL === "pending") {
+              return {
+                ...img,
+                loading: true,
+              };
+            }
+
+            const arrayString = data.imageURL.replace(/'/g, '"');
+            const urlArray = JSON.parse(arrayString);
+            const finalLink = urlArray[0];
+
+            return {
+              ...img,
+              finalUrl: finalLink,
+              loading: false,
+            };
+          } catch (error) {
+            console.error(`Error fetching image URL for ID ${img.id}:`, error);
+            return img;
+          }
+        }),
+      );
+      setLocalSceneImages((prevImages) => {
+        const updatedMap = new Map<string, (typeof updatedImages)[number]>();
+        for (const updatedImg of updatedImages) {
+          updatedMap.set(updatedImg.id, updatedImg);
+        }
+
+        return prevImages.map((origImg) => {
+          if (updatedMap.has(origImg.id)) {
+            return updatedMap.get(origImg.id)!;
+          }
+          return origImg;
+        });
       });
-
-      if (response.ok) {
-        const data = await response.json();
-        setLocalSceneImages((prevImages) =>
-          prevImages.map((img) =>
-            ids.includes(img.id)
-              ? {
-                  ...img,
-                  finalUrl: data[img.id] || img.finalUrl,
-                  loading: !data[img.id],
-                }
-              : img,
-          ),
-        );
-      } else {
-        console.error("API Error:", response.status, response.statusText);
-      }
     } catch (error) {
-      console.error("Fetch Error:", error);
+      console.error("Error in polling function:", error);
     }
   };
 
@@ -528,7 +559,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         clearInterval(interval);
       }
     }, 30000);
-
     return () => clearInterval(interval);
   }, [localSceneImages]);
 
@@ -615,8 +645,11 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           <h2 className="mb-4 mt-12 text-lg font-semibold">
             AI Rendered Design
           </h2>
+          {localSceneImages.length === 0 && (
+            <p className="text-gray-500">No scene snapshot yet.</p>
+          )}
           {localSceneImages.map((image, index) => (
-            <div key={image.id} className="relative">
+            <div key={image.id} className="relative mb-4">
               <img
                 src={image.finalUrl || image.url}
                 alt={`3D Scene ${index + 1}`}
@@ -628,16 +661,33 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
                 </div>
               ) : image.finalUrl ? (
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <a
-                    href={image.finalUrl}
-                    download={`final_scene_${image.id}.jpg`}
+                  <button
+                    onClick={async () => {
+                      if (image.finalUrl) {
+                        try {
+                          const response = await fetch(image.finalUrl);
+                          const blob = await response.blob();
+                          const objectUrl = URL.createObjectURL(blob);
+                          const link = document.createElement("a");
+                          link.href = objectUrl;
+                          link.download = `rendered_design_${image.id}.jpg`;
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
+                          URL.revokeObjectURL(objectUrl);
+                        } catch (err) {
+                          console.error("Download failed:", err);
+                        }
+                      } else {
+                        alert("The final image URL is not available yet.");
+                      }
+                    }}
+                    className="text-white hover:text-blue-500"
                   >
-                    <FaDownload />
-                  </a>
+                    <FaDownload size={24} />
+                  </button>
                 </div>
-              ) : (
-                <p className="text-gray-500">No scene snapshot yet.</p>
-              )}
+              ) : null}
             </div>
           ))}
         </div>

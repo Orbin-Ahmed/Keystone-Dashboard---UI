@@ -5,7 +5,7 @@ export async function POST(req: Request) {
 
     try {
       const apiResponse = await fetch(
-        "https://0d21-2603-7000-c7f0-a340-f79a-fcae-6a6-c11d.ngrok-free.app/api/high-res",
+        `${process.env.NEXT_PUBLIC_FRONTEND_URL}api/high-res`,
         {
           method: "POST",
           headers: {
