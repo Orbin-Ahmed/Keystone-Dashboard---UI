@@ -646,7 +646,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
             AI Rendered Design
           </h2>
           {localSceneImages.length === 0 && (
-            <p className="text-gray-500">No scene snapshot yet.</p>
+            <p className="text-gray-500">No scene snapshots yet.</p>
           )}
           {localSceneImages.map((image, index) => (
             <div key={image.id} className="relative mb-4">
