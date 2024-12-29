@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     const input: any = {
       image: imageUrl,
       downscaling: true,
-      scale_factor: 2,
+      scale_factor: 3,
     };
 
     const callbackURL = `${process.env.NEXT_PUBLIC_FRONTEND_URL}api/webhooks/high-res`;
