@@ -266,9 +266,36 @@ const FloorPlanner = () => {
             `DWG parse error: ${response.status} - ${response.statusText}`,
           );
         }
-        const data = await response.json();
-        const url = data.convertapi_result.Files[0].Url;
-        console.log("DWG parser response:", url);
+        const responseData = await response.json();
+        let parsedFloors: Record<string, FloorData> = {};
+
+        if (
+          responseData.lines &&
+          responseData.shapes &&
+          responseData.roomNames
+        ) {
+          parsedFloors["Floor 0"] = processFloorData(responseData);
+        } else {
+          for (const floorName in responseData) {
+            if (responseData.hasOwnProperty(floorName)) {
+              parsedFloors[floorName] = processFloorData(
+                responseData[floorName],
+              );
+            }
+          }
+        }
+
+        setFloors(parsedFloors);
+        const floorNameList = Object.keys(parsedFloors);
+        const firstFloorName = floorNameList[0];
+        setCurrentFloor(firstFloorName);
+        setCurrentFloorIndex(floorNames.indexOf(firstFloorName));
+        const firstFloorData = parsedFloors[firstFloorName];
+        setLines(firstFloorData.lines);
+        setShapes(firstFloorData.shapes);
+        setRoomNames(firstFloorData.roomNames);
+        setFloorPlanPoints(firstFloorData.floorPlanPoints);
+        setFurnitureItems(firstFloorData.furnitureItems ?? []);
       } catch (error) {
         console.error("Error uploading DWG file:", error);
       }
@@ -706,14 +733,18 @@ const FloorPlanner = () => {
           setFurnitureItems={setFurnitureItems}
         />
       )}
-      <CustomButton
-        variant="secondary"
-        className="py-2shadow-md absolute right-4 top-4 z-50 rounded-lg px-4"
-        onClick={toggleSidebar}
-      >
-        {isSidebarVisible ? <GrClose /> : "Decorate"}
-      </CustomButton>
+      {viewMode === "2D" && (
+        <CustomButton
+          variant="secondary"
+          className="py-2shadow-md absolute right-4 top-4 z-50 rounded-lg px-4"
+          onClick={toggleSidebar}
+        >
+          {isSidebarVisible ? <GrClose /> : "Decorate"}
+        </CustomButton>
+      )}
+
       {isSidebarVisible && <ItemSidebar />}
+
       <div
         className={`fixed bottom-8 ${viewMode === "2D" ? "left-32" : "left-8"} z-30`}
       >
