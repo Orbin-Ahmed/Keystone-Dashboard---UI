@@ -33,7 +33,7 @@ export async function POST(req: Request) {
     const imageID = formData.get("imageID");
 
     const input: any = {
-      image: imageBuffer,
+      input: imageBuffer,
       prompt: prompt,
       // guidance_scale: guidance_scale,
       negative_prompt: negative_prompt,
