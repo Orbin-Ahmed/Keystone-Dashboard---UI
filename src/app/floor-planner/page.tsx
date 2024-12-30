@@ -248,6 +248,30 @@ const FloorPlanner = () => {
       } catch (error) {
         console.error("Error processing PDF:", error);
       }
+    } else if (file.name.endsWith(".dwg")) {
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}api/dwg-parser/`,
+          {
+            method: "POST",
+            body: formData,
+          },
+        );
+
+        if (!response.ok) {
+          console.error(
+            `DWG parse error: ${response.status} - ${response.statusText}`,
+          );
+        }
+        const data = await response.json();
+        const url = data.convertapi_result.Files[0].Url;
+        console.log("DWG parser response:", url);
+      } catch (error) {
+        console.error("Error uploading DWG file:", error);
+      }
     } else {
       console.error(
         "Unsupported file format. Please upload a JSON or an image.",
