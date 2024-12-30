@@ -35,9 +35,9 @@ export async function POST(req: Request) {
     const input: any = {
       image: imageBuffer,
       prompt: prompt,
-      guidance_scale: guidance_scale,
+      // guidance_scale: guidance_scale,
       negative_prompt: negative_prompt,
-      prompt_strength: prompt_strength,
+      // prompt_strength: prompt_strength,
       num_inference_steps: num_inference_steps,
     };
 
