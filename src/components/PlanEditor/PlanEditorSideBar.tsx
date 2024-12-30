@@ -38,7 +38,7 @@ const PlanEditorSideBar: React.FC<SidebarProps> = ({
   setSelectedWall,
 }) => {
   return (
-    <div className="z-50 flex h-screen flex-col bg-[#f5f5f5] p-4 shadow-lg">
+    <div className="z-50 flex h-screen flex-col bg-[#f5f5f5] px-2 py-4 shadow-lg">
       {/* Top Group: Wall, Window, Door, Point */}
       <div className="mt-4 flex flex-col gap-2">
         <CustomButton

@@ -20,6 +20,8 @@ import { uid } from "uid";
 import CreateBuildingShape from "@/components/PlanEditor/CreateBuildingShape";
 import { GrLinkNext, GrLinkPrevious } from "react-icons/gr";
 import ItemSidebar from "@/components/PlanEditor/Sidebar/ItemSidebar";
+import CustomButton from "@/components/CustomButton";
+import { GrClose } from "react-icons/gr";
 
 const PlanEditor = dynamic(() => import("@/components/PlanEditor"), {
   ssr: false,
@@ -43,6 +45,7 @@ const FloorPlanner = () => {
 
   const [selectedWall, setSelectedWall] = useState<string | null>(null);
   const [selectedShape, setSelectedShape] = useState<string | null>(null);
+  const [isSidebarVisible, setIsSidebarVisible] = useState(false);
 
   // Single Floor Data
   const [lines, setLines] = useState<Line[]>([]);
@@ -133,6 +136,10 @@ const FloorPlanner = () => {
     linkElement.setAttribute("href", dataUri);
     linkElement.setAttribute("download", exportFileDefaultName);
     linkElement.click();
+  };
+
+  const toggleSidebar = () => {
+    setIsSidebarVisible((prev) => !prev);
   };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -675,7 +682,14 @@ const FloorPlanner = () => {
           setFurnitureItems={setFurnitureItems}
         />
       )}
-      {viewMode === "2D" && <ItemSidebar />}
+      <CustomButton
+        variant="secondary"
+        className="py-2shadow-md absolute right-4 top-4 z-50 rounded-lg px-4"
+        onClick={toggleSidebar}
+      >
+        {isSidebarVisible ? <GrClose /> : "Decorate"}
+      </CustomButton>
+      {isSidebarVisible && <ItemSidebar />}
       <div
         className={`fixed bottom-8 ${viewMode === "2D" ? "left-32" : "left-8"} z-30`}
       >
