@@ -903,33 +903,37 @@ const SceneContent: React.FC<SceneContentProps> = ({
     event.stopPropagation();
 
     const intersectionPoint = event.point.clone();
-    const wallNormal = event.face?.normal.clone();
-
-    if (!wallNormal) {
+    let normal = event.face?.normal.clone();
+    if (!normal) {
       console.error("Wall normal not found for intersection.");
       return;
     }
+    const wallId = (event.object as Mesh).uuid;
+    const wallClass = wallClassifications[wallId];
+    if (wallClass && wallClass.isFacingInward) {
+      normal.multiplyScalar(-1);
+    }
 
-    const adjustedPosition: [number, number, number] = [
-      intersectionPoint.x,
-      intersectionPoint.y,
-      intersectionPoint.z,
+    const offsetDistance = wallThickness / 2 + 0.1;
+    const offset = normal.clone().multiplyScalar(offsetDistance);
+
+    const finalPosition: [number, number, number] = [
+      intersectionPoint.x + offset.x,
+      intersectionPoint.y + offset.y,
+      intersectionPoint.z + offset.z,
     ];
 
-    const adjustedRotation: [number, number, number] = [
-      0,
-      Math.atan2(wallNormal.z, wallNormal.x) + Math.PI / 2,
-      0,
-    ];
+    const angle = Math.atan2(normal.z, normal.x) + Math.PI / 2;
+    const finalRotation: [number, number, number] = [0, angle, 0];
 
     const newWallItem: WallItem = {
       ...placingWallItem,
       id: uid(),
-      position: adjustedPosition,
-      rotation: adjustedRotation,
-      wallNormal,
+      position: finalPosition,
+      rotation: finalRotation,
+      wallNormal: normal.clone(),
       wallPlane: new Plane().setFromNormalAndCoplanarPoint(
-        wallNormal,
+        normal,
         intersectionPoint,
       ),
     };
@@ -947,9 +951,61 @@ const SceneContent: React.FC<SceneContentProps> = ({
     setSelectedWallItem({
       ...item,
       isDragging: false,
-      initialPosition: item.position,
     });
   };
+
+  const handleWallItemDrag = (
+    item: WallItem,
+    event: ThreeEvent<PointerEvent>,
+  ) => {
+    event.stopPropagation();
+
+    if (!item.wallPlane || !item.wallNormal) return;
+
+    const raycaster = new Raycaster();
+    const mouse = new Vector2();
+    mouse.x = (event.clientX / gl.domElement.clientWidth) * 2 - 1;
+    mouse.y = -(event.clientY / gl.domElement.clientHeight) * 2 + 1;
+    raycaster.setFromCamera(mouse, camera);
+
+    const intersectionPoint = new Vector3();
+    raycaster.ray.intersectPlane(item.wallPlane, intersectionPoint);
+
+    if (!intersectionPoint) return;
+
+    const offsetDistance = wallThickness / 2 + 0.1;
+    const offset = item.wallNormal.clone().multiplyScalar(offsetDistance);
+    const newPosition: [number, number, number] = [
+      intersectionPoint.x + offset.x,
+      intersectionPoint.y + offset.y,
+      intersectionPoint.z + offset.z,
+    ];
+
+    const updatedItem = {
+      ...item,
+      position: newPosition,
+    };
+
+    setWallItems((prev) =>
+      prev.map((wallItem) =>
+        wallItem.id === item.id ? updatedItem : wallItem,
+      ),
+    );
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setSelectedWallItem(null);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   return (
     <>
@@ -959,7 +1015,9 @@ const SceneContent: React.FC<SceneContentProps> = ({
         setIsTransitioning={setIsTransitioning}
         isAutoRotating={isAutoRotating}
         setIsAutoRotating={setIsAutoRotating}
-        disableControls={!!placingItem}
+        disableControls={
+          !!placingItem || !!placingWallItem || !!selectedWallItem
+        }
       />
       {/* Lights */}
       <ambientLight intensity={0.7} />
@@ -1054,7 +1112,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
             key={line.id}
             position={wallPosition}
             rotation={[0, -angle, 0]}
-            onClick={(event) => handleWallClick(event)}
+            onClick={handleWallClick}
           >
             <primitive object={wallMesh} />
             {shapesOnWall.map((shape) => {
@@ -1188,6 +1246,11 @@ const SceneContent: React.FC<SceneContentProps> = ({
           wallPlane={item.wallPlane}
           wallBoundingBoxes={wallBoundingBoxes}
           onClick={() => handleWallItemClick(item)}
+          onPointerDown={() => setSelectedWallItem(item)}
+          onPointerMove={(event) =>
+            selectedWallItem && handleWallItemDrag(selectedWallItem, event)
+          }
+          onPointerUp={() => setSelectedWallItem(null)}
         />
       ))}
     </>

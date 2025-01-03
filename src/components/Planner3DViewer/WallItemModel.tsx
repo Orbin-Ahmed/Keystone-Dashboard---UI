@@ -1,3 +1,4 @@
+// WallItemModel.tsx
 import React, { useEffect, useMemo, forwardRef, useRef, useState } from "react";
 import { useGLTF } from "@react-three/drei";
 import { Object3D, Vector3, Raycaster, Plane, Box3 } from "three";
@@ -28,24 +29,20 @@ const WallItemModel = forwardRef<Object3D, WallItemModelProps>(
     },
     ref,
   ) => {
-    const { scene, camera } = useThree();
-    const { scene: model } = useGLTF(`/models/${path}`);
+    const { scene: modelScene } = useGLTF(`/models/${path}`);
     const modelRef = useRef<Object3D | null>(null);
-    const [isColliding, setIsColliding] = useState(false);
-    const raycaster = useMemo(() => new Raycaster(), []);
 
     const initialBounds = useMemo(() => {
-      const bbox = new Box3().setFromObject(scene);
+      const bbox = new Box3().setFromObject(modelScene);
       const size = new Vector3();
       const center = new Vector3();
       bbox.getSize(size);
       bbox.getCenter(center);
       return { size, center };
-    }, [scene]);
+    }, [modelScene]);
 
     const [adjustedScale, adjustedPosition] = useMemo(() => {
       const { size, center } = initialBounds;
-
       const scaleX = dimensions.width / size.x;
       const scaleY = dimensions.height / size.y;
       const scaleZ = dimensions.depth / size.z;
@@ -53,25 +50,42 @@ const WallItemModel = forwardRef<Object3D, WallItemModelProps>(
       const adjustedScale: [number, number, number] = [scaleX, scaleY, scaleZ];
 
       const wallOffset = wallNormal
-        ? wallNormal.multiplyScalar(0.01)
+        ? wallNormal
+            .clone()
+            .multiplyScalar(wallBoundingBoxes.length > 0 ? 3 : 0.1)
         : new Vector3();
 
       const adjustedPosition: [number, number, number] = [
-        position[0] - center.x * scaleX + wallOffset.x,
-        position[1] - center.y * scaleY + dimensions.height / 2 + wallOffset.y,
-        position[2] - center.z * scaleZ + wallOffset.z,
+        position[0] + wallOffset.x,
+        position[1] + wallOffset.y,
+        position[2] + wallOffset.z,
       ];
 
       return [adjustedScale, adjustedPosition];
-    }, [initialBounds, dimensions, position, wallNormal]);
+    }, [initialBounds, dimensions, position, wallNormal, wallBoundingBoxes]);
 
     useEffect(() => {
-      if (modelRef.current && wallNormal) {
-        const upVector = new Vector3(0, 1, 0);
-        modelRef.current.lookAt(wallNormal);
-        modelRef.current.rotateY(Math.PI);
+      if (modelRef.current) {
+        modelRef.current.scale.set(...adjustedScale);
+        modelRef.current.position.set(
+          -initialBounds.center.x * adjustedScale[0],
+          -initialBounds.center.y * adjustedScale[1],
+          -initialBounds.center.z * adjustedScale[2],
+        );
+
+        modelRef.current.position.add(new Vector3(...adjustedPosition));
+
+        if (wallNormal) {
+          modelRef.current.lookAt(
+            new Vector3(
+              modelRef.current.position.x + wallNormal.x,
+              modelRef.current.position.y + wallNormal.y,
+              modelRef.current.position.z + wallNormal.z,
+            ),
+          );
+        }
       }
-    }, [wallNormal]);
+    }, [modelRef, adjustedScale, adjustedPosition, initialBounds, wallNormal]);
 
     return (
       <primitive
@@ -83,10 +97,7 @@ const WallItemModel = forwardRef<Object3D, WallItemModelProps>(
             (ref as React.MutableRefObject<Object3D | null>).current = obj;
           }
         }}
-        object={model.clone()}
-        position={adjustedPosition}
-        rotation={rotation}
-        scale={adjustedScale}
+        object={modelScene.clone()}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
