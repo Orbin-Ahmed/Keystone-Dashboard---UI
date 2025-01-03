@@ -3,7 +3,7 @@ import { useGLTF } from "@react-three/drei";
 import { Box3, Mesh, MeshStandardMaterial, Object3D, Vector3 } from "three";
 import { ThreeEvent, useFrame } from "@react-three/fiber";
 
-interface ItemModelProps {
+export interface ItemModelProps {
   path: string;
   position: [number, number, number];
   rotation: [number, number, number];

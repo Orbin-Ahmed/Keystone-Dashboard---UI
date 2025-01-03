@@ -7,12 +7,14 @@ import {
   PlacedItemType,
   PlacingItemType,
   RoomName,
+  SelectedWallItem,
   ShapeData,
   TourPoint,
   WallClassification,
+  WallItem,
   wallItemsCatgories,
 } from "@/types";
-import { PerspectiveCamera, Scene, Vector2, WebGLRenderer } from "three";
+import { PerspectiveCamera, Plane, Scene, Vector2, WebGLRenderer } from "three";
 import CustomButton from "@/components/CustomButton";
 import SceneContent, {
   ensureWallPoints,
@@ -100,6 +102,11 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [placedItems, setPlacedItems] = useState<PlacedItemType[]>([]);
   const [lastPlacedItemId, setLastPlacedItemId] = useState(0);
   const [selectedItem, setSelectedItem] = useState<PlacedItemType | null>(null);
+
+  const [placingWallItem, setPlacingWallItem] = useState<WallItem | null>(null);
+  const [wallItems, setWallItems] = useState<WallItem[]>([]);
+  const [selectedWallItem, setSelectedWallItem] =
+    useState<SelectedWallItem | null>(null);
 
   // settings State
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -266,6 +273,14 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       rotation: prev?.rotation || [0, 0, 0],
     }));
     setIsItemsOpen(false);
+  };
+
+  const handleWallItemSelect = (item: any) => {
+    setPlacingWallItem({
+      ...item,
+      position: null,
+      rotation: [0, 0, 0],
+    });
   };
 
   const confirmPlacement = () => {
@@ -628,6 +643,12 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           shapeFlipStatusById={shapeFlipStatusById}
           furnitureItems={furnitureItems}
           setFurnitureItems={setFurnitureItems}
+          placingWallItem={placingWallItem}
+          setPlacingWallItem={setPlacingWallItem}
+          wallItems={wallItems}
+          setWallItems={setWallItems}
+          selectedWallItem={selectedWallItem}
+          setSelectedWallItem={setSelectedWallItem}
         />
       </Canvas>
 
@@ -729,7 +750,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           {isItemsOpen && activeTourPoint && (
             <ItemSidebar
               categories={wallItemsCatgories}
-              onItemClick={handleItemClick}
+              onItemClick={handleWallItemSelect}
             />
           )}
         </div>

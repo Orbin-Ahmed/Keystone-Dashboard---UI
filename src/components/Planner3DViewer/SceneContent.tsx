@@ -9,6 +9,7 @@ import {
   ScheduleItem,
   ShapeData,
   WallClassification,
+  WallItem,
 } from "@/types";
 import {
   Vector3,
@@ -39,6 +40,8 @@ import JSZip from "jszip";
 import { GLTFExporter } from "three-stdlib";
 import throttle from "lodash.throttle";
 import { RGBELoader } from "three-stdlib";
+import { uid } from "uid";
+import WallItemModel from "./WallItemModel";
 
 export const ensureWallPoints = (
   points: number[],
@@ -112,6 +115,12 @@ const SceneContent: React.FC<SceneContentProps> = ({
   shapeFlipStatusById,
   furnitureItems,
   setFurnitureItems,
+  placingWallItem,
+  setPlacingWallItem,
+  wallItems,
+  setWallItems,
+  selectedWallItem,
+  setSelectedWallItem,
 }) => {
   const { scene, camera, gl } = useThree();
   const raycaster = new Raycaster();
@@ -888,6 +897,60 @@ const SceneContent: React.FC<SceneContentProps> = ({
     };
   }, [textures, envMap, envMap_floor]);
 
+  const handleWallClick = (event: ThreeEvent<MouseEvent>) => {
+    if (!placingWallItem) return;
+
+    event.stopPropagation();
+
+    const intersectionPoint = event.point.clone();
+    const wallNormal = event.face?.normal.clone();
+
+    if (!wallNormal) {
+      console.error("Wall normal not found for intersection.");
+      return;
+    }
+
+    const adjustedPosition: [number, number, number] = [
+      intersectionPoint.x,
+      intersectionPoint.y,
+      intersectionPoint.z,
+    ];
+
+    const adjustedRotation: [number, number, number] = [
+      0,
+      Math.atan2(wallNormal.z, wallNormal.x) + Math.PI / 2,
+      0,
+    ];
+
+    const newWallItem: WallItem = {
+      ...placingWallItem,
+      id: uid(),
+      position: adjustedPosition,
+      rotation: adjustedRotation,
+      wallNormal,
+      wallPlane: new Plane().setFromNormalAndCoplanarPoint(
+        wallNormal,
+        intersectionPoint,
+      ),
+    };
+
+    setWallItems((prev) => [...prev, newWallItem]);
+    setPlacingWallItem(null);
+  };
+
+  const handleWallItemClick = (item: WallItem) => {
+    if (selectedWallItem?.id === item.id) {
+      setSelectedWallItem(null);
+      return;
+    }
+
+    setSelectedWallItem({
+      ...item,
+      isDragging: false,
+      initialPosition: item.position,
+    });
+  };
+
   return (
     <>
       <CameraController
@@ -991,6 +1054,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
             key={line.id}
             position={wallPosition}
             rotation={[0, -angle, 0]}
+            onClick={(event) => handleWallClick(event)}
           >
             <primitive object={wallMesh} />
             {shapesOnWall.map((shape) => {
@@ -1091,6 +1155,41 @@ const SceneContent: React.FC<SceneContentProps> = ({
             onClick={() => handlePlacedItemClick(item)}
           />
         ))}
+
+      {placingWallItem && (
+        <WallItemModel
+          ref={modelRef}
+          key="placing-wall-item"
+          path={placingWallItem.path}
+          position={placingWallItem.position || [0, 0, 0]}
+          rotation={placingWallItem.rotation || [0, 0, 0]}
+          dimensions={{
+            width: placingWallItem.width,
+            height: placingWallItem.height,
+            depth: placingWallItem.depth,
+          }}
+          wallBoundingBoxes={wallBoundingBoxes}
+        />
+      )}
+
+      {/* Placed wall items */}
+      {wallItems.map((item) => (
+        <WallItemModel
+          key={item.id}
+          path={item.path}
+          position={item.position}
+          rotation={item.rotation}
+          dimensions={{
+            width: item.width,
+            height: item.height,
+            depth: item.depth,
+          }}
+          wallNormal={item.wallNormal}
+          wallPlane={item.wallPlane}
+          wallBoundingBoxes={wallBoundingBoxes}
+          onClick={() => handleWallItemClick(item)}
+        />
+      ))}
     </>
   );
 };

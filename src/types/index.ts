@@ -1,3 +1,5 @@
+import { Plane, Vector3 } from "three";
+
 export interface ImageFile {
   readonly file: File;
   readonly filename?: string;
@@ -428,6 +430,32 @@ export interface SceneContentProps {
   shapeFlipStatusById: Record<string, boolean>;
   furnitureItems: FurnitureItem[];
   setFurnitureItems: React.Dispatch<React.SetStateAction<FurnitureItem[]>>;
+  wallItems: any[];
+  setWallItems: React.Dispatch<React.SetStateAction<any[]>>;
+  placingWallItem: any | null;
+  setPlacingWallItem: React.Dispatch<React.SetStateAction<any | null>>;
+  selectedWallItem: SelectedWallItem | null;
+  setSelectedWallItem: React.Dispatch<
+    React.SetStateAction<SelectedWallItem | null>
+  >;
+}
+
+export interface WallItem {
+  id: string;
+  path: string;
+  type: "wall";
+  position: [number, number, number];
+  rotation: [number, number, number];
+  width: number;
+  height: number;
+  depth: number;
+  wallNormal?: Vector3;
+  wallPlane?: Plane;
+}
+
+export interface SelectedWallItem extends WallItem {
+  isDragging?: boolean;
+  initialPosition?: [number, number, number];
 }
 
 export const items: { [category: string]: SidebarItem[] } = {
