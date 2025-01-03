@@ -43,7 +43,6 @@ import throttle from "lodash.throttle";
 import { RGBELoader } from "three-stdlib";
 import { uid } from "uid";
 import WallItemModel from "./WallItemModel";
-import { log } from "console";
 
 export const ensureWallPoints = (
   points: number[],
@@ -141,26 +140,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
 
   const envMap_floor = useLoader(RGBELoader, "indoor_env.hdr");
   envMap_floor.mapping = EquirectangularReflectionMapping;
-
-  const linesCenter = useMemo(() => {
-    const allPoints: Vector2[] = [];
-
-    lines.forEach((line) => {
-      const [x1, y1, x2, y2] = line.points;
-      allPoints.push(new Vector2(x1, y1));
-      allPoints.push(new Vector2(x2, y2));
-    });
-
-    const sum = allPoints.reduce(
-      (acc, point) => acc.add(point),
-      new Vector2(0, 0),
-    );
-
-    const avgX = sum.x / allPoints.length;
-    const avgY = sum.y / allPoints.length;
-
-    return new Vector3(avgX, 0, avgY);
-  }, [lines]);
 
   const wallClassifications = useMemo(() => {
     const classifications: Record<string, WallClassification> = {};
