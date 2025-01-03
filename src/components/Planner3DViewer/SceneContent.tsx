@@ -42,6 +42,7 @@ import throttle from "lodash.throttle";
 import { RGBELoader } from "three-stdlib";
 import { uid } from "uid";
 import WallItemModel from "./WallItemModel";
+import { log } from "console";
 
 export const ensureWallPoints = (
   points: number[],
@@ -929,20 +930,24 @@ const SceneContent: React.FC<SceneContentProps> = ({
       return;
     }
 
-    const offsetDistance = wallThickness / 2 + 0.1;
+    const offsetDistance = wallThickness;
+    const lineId = (event.object as Mesh).userData.lineId;
+    const wallClass = wallClassifications[lineId];
 
-    const upVector = new Vector3(0, 1, 0);
-    const dotProduct = Math.abs(normal.dot(upVector));
-
-    const isHorizontalWall = dotProduct > 0.9;
-
-    let rotation: [number, number, number];
-    if (isHorizontalWall) {
-      rotation = [0, Math.atan2(normal.z, normal.x), 0];
-    } else {
-      const angle = Math.atan2(normal.z, normal.x) + Math.PI / 2;
-      rotation = [0, angle, 0];
+    const line = lines.find((line) => line.id === lineId);
+    if (!line) {
+      console.error("Line not found for wall click event.");
+      return;
     }
+
+    // rotation logic for wall items
+    const angle = Math.atan2(
+      line.points[3] - line.points[1],
+      line.points[2] - line.points[0],
+    );
+    const rotationY = wallClass?.isFacingInward ? Math.PI : 0;
+    const rotation: [number, number, number] = [0, angle + rotationY, 0];
+    // rotation logic ends
 
     const offset = normal.clone().multiplyScalar(offsetDistance);
     const finalPosition: [number, number, number] = [
@@ -950,7 +955,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
       intersectionPoint.y + offset.y,
       intersectionPoint.z + offset.z,
     ];
-
     const newWallItem: WallItem = {
       ...placingWallItem,
       id: uid(),
@@ -961,11 +965,17 @@ const SceneContent: React.FC<SceneContentProps> = ({
         normal,
         intersectionPoint,
       ),
+      lineId: lineId,
     };
 
     setWallItems((prev) => [...prev, newWallItem]);
     setPlacingWallItem(null);
   };
+
+  // useEffect(() => {
+  //   console.log("wallItems", wallItems);
+  //   console.log("placingWallItem", placingWallItem);
+  // }, [wallItems, placingWallItem]);
 
   const handleWallItemClick = (item: WallItem) => {
     if (selectedWallItem?.id === item.id) {
@@ -1130,7 +1140,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
             cutoutMesh as Mesh<BoxGeometry, MeshStandardMaterial>,
           ) as Mesh<BoxGeometry, MeshStandardMaterial>;
         });
-
+        wallMesh.userData.lineId = line.id;
         return (
           <group
             key={line.id}

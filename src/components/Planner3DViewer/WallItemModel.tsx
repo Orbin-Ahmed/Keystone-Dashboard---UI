@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, forwardRef, useRef, useState } from "react";
 import { useGLTF } from "@react-three/drei";
-import { Object3D, Vector3, Raycaster, Plane, Box3 } from "three";
-import { useThree } from "@react-three/fiber";
+import { Object3D, Vector3, Plane, Box3 } from "three";
 import { ItemModelProps } from "./ItemModel";
 
 interface WallItemModelProps extends ItemModelProps {
@@ -30,7 +29,6 @@ const WallItemModel = forwardRef<Object3D, WallItemModelProps>(
   ) => {
     const { scene: modelScene } = useGLTF(`/models/${path}`);
     const modelRef = useRef<Object3D | null>(null);
-
     const initialBounds = useMemo(() => {
       const bbox = new Box3().setFromObject(modelScene);
       const size = new Vector3();
@@ -76,30 +74,6 @@ const WallItemModel = forwardRef<Object3D, WallItemModelProps>(
         );
 
         modelRef.current.position.add(new Vector3(...adjustedPosition));
-
-        if (wallNormal) {
-          const upVector = new Vector3(0, 1, 0);
-          const dotProduct = Math.abs(wallNormal.dot(upVector));
-          const isHorizontalWall = dotProduct > 0.9;
-
-          if (isHorizontalWall) {
-            modelRef.current.lookAt(
-              new Vector3(
-                modelRef.current.position.x + wallNormal.x,
-                modelRef.current.position.y,
-                modelRef.current.position.z + wallNormal.z,
-              ),
-            );
-          } else {
-            modelRef.current.lookAt(
-              new Vector3(
-                modelRef.current.position.x + wallNormal.x,
-                modelRef.current.position.y + wallNormal.y,
-                modelRef.current.position.z + wallNormal.z,
-              ),
-            );
-          }
-        }
       }
     }, [modelRef, adjustedScale, adjustedPosition, initialBounds, wallNormal]);
 

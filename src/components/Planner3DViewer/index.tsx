@@ -279,7 +279,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     setPlacingWallItem({
       ...item,
       position: null,
-      rotation: [0, 0, 0],
+      rotation: null,
     });
   };
 
