@@ -924,14 +924,15 @@ const SceneContent: React.FC<SceneContentProps> = ({
     event.stopPropagation();
 
     const intersectionPoint = event.point.clone();
-    let normal = event.face?.normal.clone();
-    if (!normal) {
-      console.error("Wall normal not found for intersection.");
+    const faceNormal = event.face?.normal.clone();
+    if (!faceNormal) {
+      console.error("Face normal not found for intersection.");
       return;
     }
 
-    const offsetDistance = wallThickness;
-    const lineId = (event.object as Mesh).userData.lineId;
+    const wallMesh = event.object as Mesh;
+    const lineId = wallMesh.userData.lineId;
+    const wallNormal = wallMesh.userData.wallNormal;
     const wallClass = wallClassifications[lineId];
 
     const line = lines.find((line) => line.id === lineId);
@@ -940,29 +941,42 @@ const SceneContent: React.FC<SceneContentProps> = ({
       return;
     }
 
-    // rotation logic for wall items
+    // Determine which side was clicked
+    const isFrontSide = faceNormal.dot(wallNormal) > 0;
+
+    console.log("Face Normal:", faceNormal);
+    console.log("Wall Normal:", wallNormal);
+    console.log("Is Front Side:", isFrontSide);
+
+    // Rotation logic for wall items
     const angle = Math.atan2(
       line.points[3] - line.points[1],
       line.points[2] - line.points[0],
     );
-    const rotationY = wallClass?.isFacingInward ? Math.PI : 0;
+    const rotationY = isFrontSide ? 0 : Math.PI;
     const rotation: [number, number, number] = [0, angle + rotationY, 0];
-    // rotation logic ends
+    // Rotation logic ends
 
-    const offset = normal.clone().multiplyScalar(offsetDistance);
+    // Calculate offset based on wall thickness and side
+    const offsetDistance = wallThickness; // Slightly beyond wall thickness
+    const offset = wallNormal
+      .clone()
+      .multiplyScalar(isFrontSide ? offsetDistance : -offsetDistance);
+
     const finalPosition: [number, number, number] = [
       intersectionPoint.x + offset.x,
       intersectionPoint.y + offset.y,
       intersectionPoint.z + offset.z,
     ];
+
     const newWallItem: WallItem = {
       ...placingWallItem,
       id: uid(),
       position: finalPosition,
       rotation: rotation,
-      wallNormal: normal.clone(),
+      wallNormal: wallNormal.clone(),
       wallPlane: new Plane().setFromNormalAndCoplanarPoint(
-        normal,
+        wallNormal,
         intersectionPoint,
       ),
       lineId: lineId,
@@ -1095,6 +1109,11 @@ const SceneContent: React.FC<SceneContentProps> = ({
           (y1 + y2) / 2 - centerY,
         );
         const angle = Math.atan2(y2 - y1, x2 - x1);
+        const wallNormal = new Vector3(
+          -Math.sin(angle),
+          0,
+          Math.cos(angle),
+        ).normalize();
         const wallClass = wallClassifications[line.id];
         const { isOuter, isFacingInward } = wallClass;
         const wallGeometry = new BoxGeometry(length, wallHeight, wallThickness);
@@ -1141,6 +1160,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
           ) as Mesh<BoxGeometry, MeshStandardMaterial>;
         });
         wallMesh.userData.lineId = line.id;
+        wallMesh.userData.wallNormal = wallNormal;
         return (
           <group
             key={line.id}
