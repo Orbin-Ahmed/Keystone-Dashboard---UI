@@ -10,6 +10,7 @@ import {
   ShapeData,
   TourPoint,
   WallClassification,
+  wallItemsCatgories,
 } from "@/types";
 import { PerspectiveCamera, Scene, Vector2, WebGLRenderer } from "three";
 import CustomButton from "@/components/CustomButton";
@@ -73,7 +74,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [localSceneImages, setLocalSceneImages] = useState<
     { id: string; url: string; finalUrl?: string; loading: boolean }[]
   >([]);
-  const [isPolling, setIsPolling] = useState(false);
   const [isTourOpen, setIsTourOpen] = useState(false);
 
   // Window and Door Shape Data
@@ -719,9 +719,16 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           )}
 
           {/* Items Sidebar */}
-          {isItemsOpen && (
+          {isItemsOpen && !activeTourPoint && (
             <ItemSidebar
               categories={categories}
+              onItemClick={handleItemClick}
+            />
+          )}
+
+          {isItemsOpen && activeTourPoint && (
+            <ItemSidebar
+              categories={wallItemsCatgories}
               onItemClick={handleItemClick}
             />
           )}

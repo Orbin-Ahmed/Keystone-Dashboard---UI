@@ -781,3 +781,35 @@ export const categories = [
     ],
   },
 ];
+
+export const wallItemsCatgories = [
+  {
+    name: "Wall",
+    items: [
+      {
+        name: "Poster 1",
+        path: "wallItems/poster_1.glb",
+        type: "poster_1",
+        width: 30,
+        height: 40,
+        depth: 1,
+      },
+      {
+        name: "Poster 2",
+        path: "wallItems/poster_2.glb",
+        type: "poster_2",
+        width: 30,
+        height: 40,
+        depth: 1,
+      },
+      {
+        name: "Poster 3",
+        path: "wallItems/poster_3.glb",
+        type: "poster_3",
+        width: 30,
+        height: 40,
+        depth: 1,
+      },
+    ],
+  },
+];
