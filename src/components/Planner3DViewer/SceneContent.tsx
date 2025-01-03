@@ -140,6 +140,26 @@ const SceneContent: React.FC<SceneContentProps> = ({
   const envMap_floor = useLoader(RGBELoader, "indoor_env.hdr");
   envMap_floor.mapping = EquirectangularReflectionMapping;
 
+  const linesCenter = useMemo(() => {
+    const allPoints: Vector2[] = [];
+
+    lines.forEach((line) => {
+      const [x1, y1, x2, y2] = line.points;
+      allPoints.push(new Vector2(x1, y1));
+      allPoints.push(new Vector2(x2, y2));
+    });
+
+    const sum = allPoints.reduce(
+      (acc, point) => acc.add(point),
+      new Vector2(0, 0),
+    );
+
+    const avgX = sum.x / allPoints.length;
+    const avgY = sum.y / allPoints.length;
+
+    return new Vector3(avgX, 0, avgY);
+  }, [lines]);
+
   const wallClassifications = useMemo(() => {
     const classifications: Record<string, WallClassification> = {};
     const tolerance = 5;
@@ -908,29 +928,34 @@ const SceneContent: React.FC<SceneContentProps> = ({
       console.error("Wall normal not found for intersection.");
       return;
     }
-    const wallId = (event.object as Mesh).uuid;
-    const wallClass = wallClassifications[wallId];
-    if (wallClass && wallClass.isFacingInward) {
-      normal.multiplyScalar(-1);
-    }
 
     const offsetDistance = wallThickness / 2 + 0.1;
-    const offset = normal.clone().multiplyScalar(offsetDistance);
 
+    const upVector = new Vector3(0, 1, 0);
+    const dotProduct = Math.abs(normal.dot(upVector));
+
+    const isHorizontalWall = dotProduct > 0.9;
+
+    let rotation: [number, number, number];
+    if (isHorizontalWall) {
+      rotation = [0, Math.atan2(normal.z, normal.x), 0];
+    } else {
+      const angle = Math.atan2(normal.z, normal.x) + Math.PI / 2;
+      rotation = [0, angle, 0];
+    }
+
+    const offset = normal.clone().multiplyScalar(offsetDistance);
     const finalPosition: [number, number, number] = [
       intersectionPoint.x + offset.x,
       intersectionPoint.y + offset.y,
       intersectionPoint.z + offset.z,
     ];
 
-    const angle = Math.atan2(normal.z, normal.x) + Math.PI / 2;
-    const finalRotation: [number, number, number] = [0, angle, 0];
-
     const newWallItem: WallItem = {
       ...placingWallItem,
       id: uid(),
       position: finalPosition,
-      rotation: finalRotation,
+      rotation: rotation,
       wallNormal: normal.clone(),
       wallPlane: new Plane().setFromNormalAndCoplanarPoint(
         normal,
@@ -1062,7 +1087,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
         const angle = Math.atan2(y2 - y1, x2 - x1);
         const wallClass = wallClassifications[line.id];
         const { isOuter, isFacingInward } = wallClass;
-
         const wallGeometry = new BoxGeometry(length, wallHeight, wallThickness);
 
         let wallMesh = new Mesh(

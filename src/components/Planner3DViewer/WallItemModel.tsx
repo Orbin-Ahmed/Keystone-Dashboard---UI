@@ -1,4 +1,3 @@
-// WallItemModel.tsx
 import React, { useEffect, useMemo, forwardRef, useRef, useState } from "react";
 import { useGLTF } from "@react-three/drei";
 import { Object3D, Vector3, Raycaster, Plane, Box3 } from "three";
@@ -49,11 +48,14 @@ const WallItemModel = forwardRef<Object3D, WallItemModelProps>(
 
       const adjustedScale: [number, number, number] = [scaleX, scaleY, scaleZ];
 
-      const wallOffset = wallNormal
-        ? wallNormal
-            .clone()
-            .multiplyScalar(wallBoundingBoxes.length > 0 ? 3 : 0.1)
-        : new Vector3();
+      let wallOffset = new Vector3();
+      if (wallNormal && wallPlane) {
+        const itemPosition = new Vector3(...position);
+        wallPlane.projectPoint(itemPosition, new Vector3());
+        const distanceToPlane = wallPlane.distanceToPoint(itemPosition);
+        const offsetMultiplier = distanceToPlane >= 0 ? 1 : -1;
+        wallOffset = wallNormal.clone().multiplyScalar(offsetMultiplier);
+      }
 
       const adjustedPosition: [number, number, number] = [
         position[0] + wallOffset.x,
@@ -62,7 +64,7 @@ const WallItemModel = forwardRef<Object3D, WallItemModelProps>(
       ];
 
       return [adjustedScale, adjustedPosition];
-    }, [initialBounds, dimensions, position, wallNormal, wallBoundingBoxes]);
+    }, [initialBounds, dimensions, position, wallNormal, wallPlane]);
 
     useEffect(() => {
       if (modelRef.current) {
@@ -76,13 +78,27 @@ const WallItemModel = forwardRef<Object3D, WallItemModelProps>(
         modelRef.current.position.add(new Vector3(...adjustedPosition));
 
         if (wallNormal) {
-          modelRef.current.lookAt(
-            new Vector3(
-              modelRef.current.position.x + wallNormal.x,
-              modelRef.current.position.y + wallNormal.y,
-              modelRef.current.position.z + wallNormal.z,
-            ),
-          );
+          const upVector = new Vector3(0, 1, 0);
+          const dotProduct = Math.abs(wallNormal.dot(upVector));
+          const isHorizontalWall = dotProduct > 0.9;
+
+          if (isHorizontalWall) {
+            modelRef.current.lookAt(
+              new Vector3(
+                modelRef.current.position.x + wallNormal.x,
+                modelRef.current.position.y,
+                modelRef.current.position.z + wallNormal.z,
+              ),
+            );
+          } else {
+            modelRef.current.lookAt(
+              new Vector3(
+                modelRef.current.position.x + wallNormal.x,
+                modelRef.current.position.y + wallNormal.y,
+                modelRef.current.position.z + wallNormal.z,
+              ),
+            );
+          }
         }
       }
     }, [modelRef, adjustedScale, adjustedPosition, initialBounds, wallNormal]);

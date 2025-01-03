@@ -820,7 +820,7 @@ export const wallItemsCatgories = [
         type: "poster_1",
         width: 30,
         height: 40,
-        depth: 1,
+        depth: 2,
       },
       {
         name: "Poster 2",
@@ -828,7 +828,7 @@ export const wallItemsCatgories = [
         type: "poster_2",
         width: 30,
         height: 40,
-        depth: 1,
+        depth: 2,
       },
       {
         name: "Poster 3",
@@ -836,7 +836,7 @@ export const wallItemsCatgories = [
         type: "poster_3",
         width: 30,
         height: 40,
-        depth: 1,
+        depth: 2,
       },
     ],
   },
