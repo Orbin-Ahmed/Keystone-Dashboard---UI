@@ -97,6 +97,7 @@ const WallItemModel = forwardRef<Object3D, WallItemModelProps>(
             (ref as React.MutableRefObject<Object3D | null>).current = obj;
           }
         }}
+        rotation={rotation}
         object={modelScene.clone()}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
