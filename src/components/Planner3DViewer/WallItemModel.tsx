@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, forwardRef, useRef, useState } from "react";
+import React, { useEffect, useMemo, forwardRef, useRef } from "react";
 import { useGLTF } from "@react-three/drei";
 import { Object3D, Vector3, Plane, Box3 } from "three";
 import { ItemModelProps } from "./ItemModel";
@@ -15,9 +15,6 @@ const WallItemModel = forwardRef<Object3D, WallItemModelProps>(
       position,
       rotation,
       dimensions,
-      wallBoundingBoxes,
-      wallNormal,
-      wallPlane,
       onPointerDown,
       onPointerMove,
       onPointerUp,
@@ -38,31 +35,16 @@ const WallItemModel = forwardRef<Object3D, WallItemModelProps>(
       return { size, center };
     }, [modelScene]);
 
-    const [adjustedScale, adjustedPosition] = useMemo(() => {
-      const { size, center } = initialBounds;
+    const [adjustedScale] = useMemo(() => {
+      const { size } = initialBounds;
       const scaleX = dimensions.width / size.x;
       const scaleY = dimensions.height / size.y;
       const scaleZ = dimensions.depth / size.z;
 
       const adjustedScale: [number, number, number] = [scaleX, scaleY, scaleZ];
 
-      let wallOffset = new Vector3();
-      if (wallNormal && wallPlane) {
-        const itemPosition = new Vector3(...position);
-        wallPlane.projectPoint(itemPosition, new Vector3());
-        const distanceToPlane = wallPlane.distanceToPoint(itemPosition);
-        const offsetMultiplier = distanceToPlane >= 0 ? 1 : -1;
-        wallOffset = wallNormal.clone().multiplyScalar(offsetMultiplier);
-      }
-
-      const adjustedPosition: [number, number, number] = [
-        position[0] + wallOffset.x,
-        position[1] + wallOffset.y,
-        position[2] + wallOffset.z,
-      ];
-
-      return [adjustedScale, adjustedPosition];
-    }, [initialBounds, dimensions, position, wallNormal, wallPlane]);
+      return [adjustedScale];
+    }, [initialBounds, dimensions]);
 
     useEffect(() => {
       if (modelRef.current) {
@@ -73,9 +55,10 @@ const WallItemModel = forwardRef<Object3D, WallItemModelProps>(
           -initialBounds.center.z * adjustedScale[2],
         );
 
-        modelRef.current.position.add(new Vector3(...adjustedPosition));
+        modelRef.current.position.add(new Vector3(...position));
+        modelRef.current.rotation.y = rotation[1];
       }
-    }, [modelRef, adjustedScale, adjustedPosition, initialBounds, wallNormal]);
+    }, [modelRef, adjustedScale, position, initialBounds, rotation]);
 
     return (
       <primitive

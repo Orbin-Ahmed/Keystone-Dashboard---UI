@@ -28,6 +28,7 @@ import {
   Box3,
   Material,
   EquirectangularReflectionMapping,
+  FrontSide,
 } from "three";
 import { CSG } from "three-csg-ts";
 import Model from "./Model";
@@ -941,24 +942,15 @@ const SceneContent: React.FC<SceneContentProps> = ({
       return;
     }
 
-    // Determine which side was clicked
     const isFrontSide = faceNormal.dot(wallNormal) > 0;
 
-    console.log("Face Normal:", faceNormal);
-    console.log("Wall Normal:", wallNormal);
-    console.log("Is Front Side:", isFrontSide);
-
-    // Rotation logic for wall items
     const angle = Math.atan2(
       line.points[3] - line.points[1],
       line.points[2] - line.points[0],
     );
     const rotationY = isFrontSide ? 0 : Math.PI;
     const rotation: [number, number, number] = [0, angle + rotationY, 0];
-    // Rotation logic ends
-
-    // Calculate offset based on wall thickness and side
-    const offsetDistance = wallThickness; // Slightly beyond wall thickness
+    const offsetDistance = wallThickness / 2 + 0.1;
     const offset = wallNormal
       .clone()
       .multiplyScalar(isFrontSide ? offsetDistance : -offsetDistance);
@@ -985,11 +977,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
     setWallItems((prev) => [...prev, newWallItem]);
     setPlacingWallItem(null);
   };
-
-  // useEffect(() => {
-  //   console.log("wallItems", wallItems);
-  //   console.log("placingWallItem", placingWallItem);
-  // }, [wallItems, placingWallItem]);
 
   const handleWallItemClick = (item: WallItem) => {
     if (selectedWallItem?.id === item.id) {
@@ -1120,7 +1107,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
 
         let wallMesh = new Mesh(
           wallGeometry,
-          new MeshStandardMaterial({ map: textures.wall }),
+          new MeshStandardMaterial({ map: textures.wall, side: FrontSide }),
         );
 
         const shapesOnWall = shapesByWallId[line.id] || [];
