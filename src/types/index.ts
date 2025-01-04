@@ -205,6 +205,8 @@ export interface PlanEditorProps {
   deleteRoomName: (id: number) => void;
   furnitureItems: FurnitureItem[];
   setFurnitureItems: React.Dispatch<React.SetStateAction<FurnitureItem[]>>;
+  ceilingItems: CeilingItem[];
+  setCeilingItems: React.Dispatch<React.SetStateAction<CeilingItem[]>>;
   selectedPlane: string;
 }
 
@@ -372,6 +374,19 @@ export interface SerializedFurnitureItem {
 }
 
 export interface FurnitureItem {
+  id: string;
+  x: number;
+  y: number;
+  name: string;
+  width: number;
+  height: number;
+  depth: number;
+  rotation: number;
+  imageSrc: string;
+  category: string;
+}
+
+export interface CeilingItem {
   id: string;
   x: number;
   y: number;
@@ -614,6 +629,16 @@ export const items: { [category: string]: SidebarItem[] } = {
       width: 100,
       height: 35,
       depth: 47,
+    },
+  ],
+  Celling: [
+    {
+      name: "Chandieler-1",
+      imageSrc: "/2DViewerAssets/chandieler_1.svg",
+      category: "bath",
+      width: 45,
+      height: 33,
+      depth: 45,
     },
   ],
 };

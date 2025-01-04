@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import PlanEditorSideBar from "@/components/PlanEditor/PlanEditorSideBar";
 import useImage from "use-image";
 import {
+  CeilingItem,
   FloorData,
   FloorPlanPoint,
   FurnitureItem,
@@ -54,6 +55,7 @@ const FloorPlanner = () => {
   const [roomNames, setRoomNames] = useState<RoomName[]>([]);
   const [floorPlanPoints, setFloorPlanPoints] = useState<FloorPlanPoint[]>([]);
   const [furnitureItems, setFurnitureItems] = useState<FurnitureItem[]>([]);
+  const [ceilingItems, setCeilingItems] = useState<CeilingItem[]>([]);
 
   // Multi Floor Data
   const floorNames = Array.from({ length: 10 }, (_, i) => `Floor ${i}`);
@@ -737,6 +739,8 @@ const FloorPlanner = () => {
           furnitureItems={furnitureItems}
           setFurnitureItems={setFurnitureItems}
           selectedPlane={selectedPlane}
+          ceilingItems={ceilingItems}
+          setCeilingItems={setCeilingItems}
         />
       )}
       {viewMode === "2D" && (

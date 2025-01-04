@@ -13,6 +13,7 @@ import useImage from "use-image";
 import { Text } from "react-konva";
 import Konva from "konva";
 import {
+  CeilingItem,
   FurnitureItem,
   Line,
   PlanEditorProps,
@@ -54,6 +55,8 @@ const PlanEditor = ({
   deleteRoomName,
   furnitureItems,
   setFurnitureItems,
+  ceilingItems,
+  setCeilingItems,
   selectedPlane,
 }: PlanEditorProps) => {
   const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(
@@ -73,6 +76,11 @@ const PlanEditor = ({
   const [editIcon] = useImage("/icons/edit.svg");
 
   const stageRef = useRef<Konva.Stage>(null);
+
+  const floorLayerOpacity = selectedPlane === "roof" ? 0.5 : 1;
+  const floorLayerListening = selectedPlane !== "roof";
+  const ceilingLayerOpacity = selectedPlane === "roof" ? 1 : 0;
+  const ceilingLayerListening = selectedPlane === "roof";
 
   useEffect(() => {
     setIsMounted(true);
@@ -152,6 +160,7 @@ const PlanEditor = ({
   };
 
   const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
+    if (selectedPlane === "roof") return;
     const clickedOnEmpty = e.target === e.target.getStage();
     if (clickedOnEmpty) {
       setSelectedWall(null);
@@ -182,6 +191,7 @@ const PlanEditor = ({
   };
 
   const handleMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
+    if (selectedPlane === "roof") return;
     if (tool === "wall" && startPoint) {
       const pos = e.target.getStage()?.getPointerPosition();
       if (pos) {
@@ -216,6 +226,7 @@ const PlanEditor = ({
   };
 
   const handleMouseUp = (e: Konva.KonvaEventObject<MouseEvent>) => {
+    if (selectedPlane === "roof") return;
     const stage = e.target.getStage();
     if (!stage || !startPoint) return;
 
@@ -558,6 +569,11 @@ const PlanEditor = ({
     e: Konva.KonvaEventObject<DragEvent>,
     shapeId: string,
   ) => {
+    if (selectedPlane === "roof") {
+      e.target.stopDrag();
+      return;
+    }
+
     const pos = e.target.position();
     const closestLineId = findClosestLineById(pos);
     const shape = shapes.find((s) => s.id === shapeId);
@@ -610,6 +626,8 @@ const PlanEditor = ({
   };
 
   const handleDoubleClick = (e: Konva.KonvaEventObject<MouseEvent>) => {
+    if (selectedPlane === "roof") return;
+
     const stage = e.target.getStage();
     if (!stage) return;
 
@@ -643,65 +661,129 @@ const PlanEditor = ({
     };
   }, [selectedItemId]);
 
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const stage = stageRef.current;
+    if (!stage) return;
+
+    const rect = stage.container().getBoundingClientRect();
+    const pos = {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    };
+
+    const dataTransfer = e.dataTransfer;
+    if (!dataTransfer) return;
+
+    const itemData = dataTransfer.getData("application/json");
+    if (!itemData) return;
+
+    let item: SidebarItem;
+    try {
+      item = JSON.parse(itemData);
+    } catch (error) {
+      console.error("Invalid item data:", error);
+      return;
+    }
+
+    if (selectedPlane === "roof") {
+      const newCeilingItem: CeilingItem = {
+        id: uid(),
+        x: pos.x,
+        y: pos.y,
+        name: item.name,
+        width: item.width,
+        height: item.height,
+        depth: item.depth,
+        rotation: 0,
+        imageSrc: item.imageSrc,
+        category: item.category,
+      };
+      setCeilingItems((prev) => [...prev, newCeilingItem]);
+    } else {
+      const newFurniture: FurnitureItem = {
+        id: uid(),
+        x: pos.x,
+        y: pos.y,
+        name: item.name,
+        width: item.width,
+        height: item.height,
+        depth: item.depth,
+        rotation: 0,
+        imageSrc: item.imageSrc,
+        category: item.category,
+      };
+      setFurnitureItems((prev) => [...prev, newFurniture]);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  };
+
   return (
     <div
       className="canvas-container"
-      onDragOver={(e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = "copy";
-      }}
-      onDrop={(e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+      // style={{ position: "relative", width: `${width}px`, height: `${height}px` }}
+      // onDragOver={(e: React.DragEvent<HTMLDivElement>) => {
+      //   e.preventDefault();
+      //   e.dataTransfer.dropEffect = "copy";
+      // }}
+      // onDrop={(e: React.DragEvent<HTMLDivElement>) => {
+      //   e.preventDefault();
 
-        const stage = stageRef.current;
-        if (!stage) {
-          console.error("No stage reference");
-          return;
-        }
+      //   const stage = stageRef.current;
+      //   if (!stage) {
+      //     console.error("No stage reference");
+      //     return;
+      //   }
 
-        const rect = stage.container().getBoundingClientRect();
-        const pos = {
-          x: e.clientX - rect.left,
-          y: e.clientY - rect.top,
-        };
+      //   const rect = stage.container().getBoundingClientRect();
+      //   const pos = {
+      //     x: e.clientX - rect.left,
+      //     y: e.clientY - rect.top,
+      //   };
 
-        const dataTransfer = e.dataTransfer;
-        if (!dataTransfer) {
-          console.error("No dataTransfer");
-          return;
-        }
+      //   const dataTransfer = e.dataTransfer;
+      //   if (!dataTransfer) {
+      //     console.error("No dataTransfer");
+      //     return;
+      //   }
 
-        const itemData = dataTransfer.getData("application/json");
-        if (!itemData) {
-          console.error("No item data found in dataTransfer");
-          return;
-        }
+      //   const itemData = dataTransfer.getData("application/json");
+      //   if (!itemData) {
+      //     console.error("No item data found in dataTransfer");
+      //     return;
+      //   }
 
-        let item: SidebarItem;
-        try {
-          item = JSON.parse(itemData);
-        } catch (error) {
-          console.error("Invalid item data:", error);
-          return;
-        }
+      //   let item: SidebarItem;
+      //   try {
+      //     item = JSON.parse(itemData);
+      //   } catch (error) {
+      //     console.error("Invalid item data:", error);
+      //     return;
+      //   }
 
-        const imageSrc = item.imageSrc;
+      //   const imageSrc = item.imageSrc;
 
-        const newItem: FurnitureItem = {
-          id: uid(),
-          x: pos.x,
-          y: pos.y,
-          name: item.name,
-          width: item.width,
-          depth: item.depth,
-          height: item.height,
-          rotation: 0,
-          imageSrc: imageSrc,
-          category: item.category,
-        };
+      //   const newItem: FurnitureItem = {
+      //     id: uid(),
+      //     x: pos.x,
+      //     y: pos.y,
+      //     name: item.name,
+      //     width: item.width,
+      //     depth: item.depth,
+      //     height: item.height,
+      //     rotation: 0,
+      //     imageSrc: imageSrc,
+      //     category: item.category,
+      //   };
 
-        setFurnitureItems((prevItems) => [...prevItems, newItem]);
-      }}
+      //   setFurnitureItems((prevItems) => [...prevItems, newItem]);
+      // }}
     >
       {isMounted && typeof window !== "undefined" && (
         <Stage
@@ -713,7 +795,7 @@ const PlanEditor = ({
           onDblClick={handleDoubleClick}
           ref={stageRef}
         >
-          <Layer>
+          <Layer opacity={floorLayerOpacity} listening={floorLayerListening}>
             {drawGrid()}
             {tempLine && (
               <KonvaLine
@@ -963,6 +1045,24 @@ const PlanEditor = ({
                     prevItems.map((i) =>
                       i.id === id ? { ...i, ...newAttrs } : i,
                     ),
+                  );
+                }}
+              />
+            ))}
+          </Layer>
+          <Layer
+            opacity={ceilingLayerOpacity}
+            listening={ceilingLayerListening}
+          >
+            {ceilingItems.map((ci) => (
+              <FurnitureItemComponent
+                key={ci.id}
+                item={ci}
+                isSelected={false}
+                onSelect={() => {}}
+                onChange={(id, newAttrs) => {
+                  setCeilingItems((prev) =>
+                    prev.map((c) => (c.id === id ? { ...c, ...newAttrs } : c)),
                   );
                 }}
               />
