@@ -993,7 +993,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
     const newPosition: [number, number, number] = [
       intersectionPoint.x + offset.x,
       intersectionPoint.y + offset.y,
-      intersectionPoint.z + offset.z,
+      item.position[2],
     ];
 
     const updatedItem = {
