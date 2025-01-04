@@ -80,7 +80,7 @@ const PlanEditor = ({
 
   const stageRef = useRef<Konva.Stage>(null);
 
-  const floorLayerOpacity = selectedPlane === "roof" ? 0.5 : 1;
+  const floorLayerOpacity = selectedPlane === "roof" ? 0.3 : 1;
   const floorLayerListening = selectedPlane !== "roof";
   const ceilingLayerOpacity = selectedPlane === "roof" ? 1 : 0;
   const ceilingLayerListening = selectedPlane === "roof";
@@ -731,63 +731,6 @@ const PlanEditor = ({
       className="canvas-container"
       onDragOver={handleDragOver}
       onDrop={handleDrop}
-      // style={{ position: "relative", width: `${width}px`, height: `${height}px` }}
-      // onDragOver={(e: React.DragEvent<HTMLDivElement>) => {
-      //   e.preventDefault();
-      //   e.dataTransfer.dropEffect = "copy";
-      // }}
-      // onDrop={(e: React.DragEvent<HTMLDivElement>) => {
-      //   e.preventDefault();
-
-      //   const stage = stageRef.current;
-      //   if (!stage) {
-      //     console.error("No stage reference");
-      //     return;
-      //   }
-
-      //   const rect = stage.container().getBoundingClientRect();
-      //   const pos = {
-      //     x: e.clientX - rect.left,
-      //     y: e.clientY - rect.top,
-      //   };
-
-      //   const dataTransfer = e.dataTransfer;
-      //   if (!dataTransfer) {
-      //     console.error("No dataTransfer");
-      //     return;
-      //   }
-
-      //   const itemData = dataTransfer.getData("application/json");
-      //   if (!itemData) {
-      //     console.error("No item data found in dataTransfer");
-      //     return;
-      //   }
-
-      //   let item: SidebarItem;
-      //   try {
-      //     item = JSON.parse(itemData);
-      //   } catch (error) {
-      //     console.error("Invalid item data:", error);
-      //     return;
-      //   }
-
-      //   const imageSrc = item.imageSrc;
-
-      //   const newItem: FurnitureItem = {
-      //     id: uid(),
-      //     x: pos.x,
-      //     y: pos.y,
-      //     name: item.name,
-      //     width: item.width,
-      //     depth: item.depth,
-      //     height: item.height,
-      //     rotation: 0,
-      //     imageSrc: imageSrc,
-      //     category: item.category,
-      //   };
-
-      //   setFurnitureItems((prevItems) => [...prevItems, newItem]);
-      // }}
     >
       {isMounted && typeof window !== "undefined" && (
         <Stage
