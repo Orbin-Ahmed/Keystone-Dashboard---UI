@@ -779,14 +779,14 @@ const PlanEditor = ({
                   />
                 )}
                 {drawWallLength(line, line.id)}
-                <Text
+                {/* <Text
                   text={`ID: ${line.id}`}
                   x={(line.points[0] + line.points[2]) / 2}
                   y={(line.points[1] + line.points[3]) / 2 - 20}
                   fontSize={14}
                   fill="gray"
                   align="center"
-                />
+                /> */}
               </React.Fragment>
             ))}
 
