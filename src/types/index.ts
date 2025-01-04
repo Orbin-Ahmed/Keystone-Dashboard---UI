@@ -874,7 +874,7 @@ export const wallItemsCatgories = [
         name: "Wall Panel 3",
         path: "wallItems/wall_panel_3.glb",
         type: "wall_panel_3",
-        width: 60,
+        width: 70,
         height: 120,
         depth: 3,
       },
