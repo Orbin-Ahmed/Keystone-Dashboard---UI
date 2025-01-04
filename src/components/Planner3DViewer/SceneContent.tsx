@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useRef } from "react";
+import React, { useMemo, useEffect, useRef, useState } from "react";
 import { useLoader, useThree, ThreeEvent } from "@react-three/fiber";
 import {
   categories,
@@ -134,6 +134,9 @@ const SceneContent: React.FC<SceneContentProps> = ({
   const dragOffset = useRef<[number, number, number] | null>(null);
   const placingItemRef = useRef<PlacingItemType | null>(placingItem);
   const modelRef = useRef<Object3D | null>(null);
+  const [draggingWallItem, setDraggingWallItem] = useState<WallItem | null>(
+    null,
+  );
 
   const envMap = useLoader(RGBELoader, "beach_2k_env.hdr");
   envMap.mapping = EquirectangularReflectionMapping;
@@ -898,6 +901,10 @@ const SceneContent: React.FC<SceneContentProps> = ({
     };
   }, [textures, envMap, envMap_floor]);
 
+  // -----------------------------------------
+  //  Handle adding wall items (placing)
+  // -----------------------------------------
+
   const handleWallClick = (event: ThreeEvent<MouseEvent>) => {
     if (!placingWallItem) return;
 
@@ -913,7 +920,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
     const wallMesh = event.object as Mesh;
     const lineId = wallMesh.userData.lineId;
     const wallNormal = wallMesh.userData.wallNormal;
-    const wallClass = wallClassifications[lineId];
 
     const line = lines.find((line) => line.id === lineId);
     if (!line) {
@@ -965,7 +971,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
 
     setSelectedWallItem({
       ...item,
-      isDragging: false,
     });
   };
 
@@ -993,7 +998,8 @@ const SceneContent: React.FC<SceneContentProps> = ({
     const newPosition: [number, number, number] = [
       intersectionPoint.x + offset.x,
       intersectionPoint.y + offset.y,
-      item.position[2],
+      // item.position[2],
+      intersectionPoint.z + offset.z,
     ];
 
     const updatedItem = {
@@ -1013,6 +1019,16 @@ const SceneContent: React.FC<SceneContentProps> = ({
       if (event.key === "Escape") {
         setSelectedWallItem(null);
       }
+
+      if (event.key === "Delete" || event.key === "Backspace") {
+        event.preventDefault();
+        if (selectedWallItem) {
+          setWallItems((prev) =>
+            prev.filter((wi) => wi.id !== selectedWallItem.id),
+          );
+          setSelectedWallItem(null);
+        }
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -1020,7 +1036,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [selectedWallItem, setSelectedWallItem, setWallItems]);
 
   return (
     <>
@@ -1270,7 +1286,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
           onPointerMove={(event) =>
             selectedWallItem && handleWallItemDrag(selectedWallItem, event)
           }
-          onPointerUp={() => setSelectedWallItem(null)}
         />
       ))}
     </>

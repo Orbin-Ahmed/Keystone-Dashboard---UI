@@ -14,7 +14,13 @@ import {
   WallItem,
   wallItemsCatgories,
 } from "@/types";
-import { PerspectiveCamera, Plane, Scene, Vector2, WebGLRenderer } from "three";
+import {
+  PerspectiveCamera,
+  Scene,
+  Vector2,
+  Vector3,
+  WebGLRenderer,
+} from "three";
 import CustomButton from "@/components/CustomButton";
 import SceneContent, {
   ensureWallPoints,
@@ -28,6 +34,7 @@ import ConfirmPlacementControls from "./sidebar/ConfirmPlacementControls";
 import SelectedItemControls from "./sidebar/SelectedItemControls";
 import SettingsModal from "./sidebar/SettingsModal";
 import AddItemSidebar from "./sidebar/AddItemSidebar";
+import SelectedWallItemControls from "./sidebar/SelectedWallItemControls";
 import { FaArrowLeft, FaDownload } from "react-icons/fa";
 import { Spinner } from "@radix-ui/themes";
 import { uid } from "uid";
@@ -577,6 +584,116 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     return () => clearInterval(interval);
   }, [localSceneImages]);
 
+  // Wall Item Controls and Functions
+
+  const rotateWallItemLeft = () => {
+    if (!selectedWallItem) return;
+    const currentRotation = selectedWallItem.rotation || [0, 0, 0];
+    const newRotationY = currentRotation[1] - Math.PI / 8;
+
+    updateSelectedWallItemRotation(newRotationY);
+  };
+
+  const rotateWallItemRight = () => {
+    if (!selectedWallItem) return;
+    const currentRotation = selectedWallItem.rotation || [0, 0, 0];
+    const newRotationY = currentRotation[1] + Math.PI / 8;
+
+    updateSelectedWallItemRotation(newRotationY);
+  };
+
+  const updateSelectedWallItemRotation = (newRotationY: number) => {
+    if (!selectedWallItem) return;
+
+    const updatedRotation: [number, number, number] = [
+      selectedWallItem.rotation?.[0] || 0,
+      newRotationY,
+      selectedWallItem.rotation?.[2] || 0,
+    ];
+
+    setWallItems((prev) =>
+      prev.map((item) =>
+        item.id === selectedWallItem.id
+          ? {
+              ...item,
+              rotation: updatedRotation,
+            }
+          : item,
+      ),
+    );
+
+    setSelectedWallItem({
+      ...selectedWallItem,
+      rotation: updatedRotation,
+    });
+  };
+
+  const incrementWallItemZ = () => {
+    // if (!selectedWallItem || !selectedWallItem.wallNormal) return;
+    // const oldPos = new Vector3(...selectedWallItem.position);
+    // const moveVec = selectedWallItem.wallNormal.clone().multiplyScalar(1);
+    // const newPos = oldPos.add(moveVec).toArray() as [number, number, number];
+    // updateSelectedWallItemPosition(newPos);
+    if (!selectedWallItem || !selectedWallItem.wallNormal) return;
+
+    const oldPos = new Vector3(...selectedWallItem.position);
+    const moveVec = selectedWallItem.wallNormal.clone().multiplyScalar(1);
+
+    const newPos: [number, number, number] = [
+      oldPos.x,
+      oldPos.y,
+      oldPos.z + moveVec.z,
+    ];
+
+    updateSelectedWallItemPosition(newPos);
+  };
+
+  const decrementWallItemZ = () => {
+    // if (!selectedWallItem || !selectedWallItem.wallNormal) return;
+    // const oldPos = new Vector3(...selectedWallItem.position);
+    // const moveVec = selectedWallItem.wallNormal.clone().multiplyScalar(-1);
+    // const newPos = oldPos.add(moveVec).toArray() as [number, number, number];
+    // updateSelectedWallItemPosition(newPos);
+
+    if (!selectedWallItem || !selectedWallItem.wallNormal) return;
+
+    const oldPos = new Vector3(...selectedWallItem.position);
+    const moveVec = selectedWallItem.wallNormal.clone().multiplyScalar(-1);
+    const newPos: [number, number, number] = [
+      oldPos.x,
+      oldPos.y,
+      oldPos.z + moveVec.z,
+    ];
+
+    updateSelectedWallItemPosition(newPos);
+  };
+
+  const updateSelectedWallItemPosition = (
+    newPosition: [number, number, number],
+  ) => {
+    if (!selectedWallItem) return;
+
+    setWallItems((prev) =>
+      prev.map((item) =>
+        item.id === selectedWallItem.id
+          ? {
+              ...item,
+              position: newPosition,
+            }
+          : item,
+      ),
+    );
+
+    setSelectedWallItem({
+      ...selectedWallItem,
+      position: newPosition,
+    });
+  };
+
+  const handleDeselectWallItem = () => {
+    setSelectedWallItem(null);
+  };
+
   // useEffect(() => {
   //   const stats = new Stats();
   //   stats.showPanel(0);
@@ -805,6 +922,16 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           onRotateLeft={rotateSelectedItemLeft}
           onRotateRight={rotateSelectedItemRight}
           onDelete={deleteSelectedItem}
+        />
+      )}
+
+      {selectedWallItem && (
+        <SelectedWallItemControls
+          onDeselect={handleDeselectWallItem}
+          onRotateLeft={rotateWallItemLeft}
+          onRotateRight={rotateWallItemRight}
+          onIncrementZ={incrementWallItemZ}
+          onDecrementZ={decrementWallItemZ}
         />
       )}
 
