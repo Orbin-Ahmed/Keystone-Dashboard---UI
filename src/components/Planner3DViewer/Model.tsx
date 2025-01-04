@@ -47,7 +47,8 @@ const Model = React.memo(
       const cloneMaterial = useCallback((material: Material) => {
         const newMat = material.clone();
         if (newMat instanceof MeshStandardMaterial) {
-          newMat.metalness = 0.5;
+          newMat.metalness = 0.4;
+          // newMat.color.set("white"); // new line
         }
         return newMat;
       }, []);

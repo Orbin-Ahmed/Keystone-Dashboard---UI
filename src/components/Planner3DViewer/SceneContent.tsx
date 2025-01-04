@@ -134,9 +134,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
   const dragOffset = useRef<[number, number, number] | null>(null);
   const placingItemRef = useRef<PlacingItemType | null>(placingItem);
   const modelRef = useRef<Object3D | null>(null);
-  const [draggingWallItem, setDraggingWallItem] = useState<WallItem | null>(
-    null,
-  );
 
   const envMap = useLoader(RGBELoader, "beach_2k_env.hdr");
   envMap.mapping = EquirectangularReflectionMapping;
@@ -245,22 +242,32 @@ const SceneContent: React.FC<SceneContentProps> = ({
     "door/door.glb": "Glass Door",
     "door/door_wooden.glb": "Wooden Door 1",
     "door/door_wooden_1.glb": "Wooden Door 2",
+    "door/door_wooden_2.glb": "Wooden Door 3",
+    "door/door_wooden_3.glb": "Wooden Door 4",
+    "door/door_wooden_4.glb": "Wooden Door 5",
+    "door/door_wooden_5.glb": "Wooden Door 6",
     "door/blastDoor.glb": "Blast Door",
     "door/doorFrame.glb": "Door Frame",
     "window/window.glb": "Casement Window",
     "window/window_arch.glb": "Arch Window",
     "window/window_slide.glb": "Slide Window",
+    "window/window_curtain.glb": "Window with Curtain",
   };
 
   const modelImagePaths: { [key: string]: string } = {
     "door/door.glb": "/models/door/door.png",
     "door/door_wooden.glb": "/models/door/door_wooden.png",
     "door/door_wooden_1.glb": "/models/door/door_wooden_1.png",
+    "door/door_wooden_2.glb": "/models/door/door_wooden_2.png",
+    "door/door_wooden_3.glb": "/models/door/door_wooden_3.png",
+    "door/door_wooden_4.glb": "/models/door/door_wooden_4.png",
+    "door/door_wooden_5.glb": "/models/door/door_wooden_5.png",
     "door/blastDoor.glb": "/models/door/blastDoor.png",
     "door/doorFrame.glb": "/models/door/doorFrame.png",
     "window/window.glb": "/models/window/window.png",
     "window/window_arch.glb": "/models/window/window_arch.png",
     "window/window_slide.glb": "/models/window/window_slide.png",
+    "window/window_curtain.glb": "/models/window/window_curtain.png",
   };
   // Export Functionality
 
@@ -1050,10 +1057,10 @@ const SceneContent: React.FC<SceneContentProps> = ({
         }
       />
       {/* Lights */}
-      <ambientLight intensity={0.7} />
-      <directionalLight position={[10, 50, 25]} intensity={0.8} />
-      {/* <directionalLight position={[-10, 50, -25]} intensity={0.8} /> */}
-      <hemisphereLight intensity={0.8} />
+      <ambientLight intensity={0.9} />
+      <directionalLight position={[10, 50, 25]} intensity={0.7} />
+      <directionalLight position={[-10, 50, -25]} intensity={0.7} />
+      <hemisphereLight intensity={0.5} />
       {/* Tour Points */}
       {tourPoints.map((point) => (
         <mesh
@@ -1157,7 +1164,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
                   ? "window/window.glb"
                   : isOuter
                     ? "door/door.glb"
-                    : "door/door_wooden.glb";
+                    : "door/door_wooden_2.glb";
 
               const modelPath = modelPathsByShapeId[id] || defaultModelPath;
               const flipStatus = shapeFlipStatusById[id] || false;
@@ -1187,8 +1194,8 @@ const SceneContent: React.FC<SceneContentProps> = ({
                     ? 0
                     : Math.PI;
               const adjustedRotationY = flipStatus
-                ? rotationY + Math.PI
-                : rotationY;
+                ? rotationY
+                : rotationY + Math.PI;
 
               return (
                 <Model

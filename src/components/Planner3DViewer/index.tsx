@@ -134,11 +134,13 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     { label: "Blast Door", value: "door/blastDoor.glb" },
     { label: "Open Doorway", value: "door/doorFrame.glb" },
     { label: "Wooden Door 2", value: "door/door_wooden_1.glb" },
+    { label: "Wooden Door 3", value: "door/door_wooden_2.glb" },
   ];
 
   const windowOptions = [
     { label: "Standard Window", value: "window/window.glb" },
     { label: "Slide Window", value: "window/window_slide.glb" },
+    { label: "Window", value: "window/window_curtain.glb" },
   ];
 
   const defaultDimensions = {
