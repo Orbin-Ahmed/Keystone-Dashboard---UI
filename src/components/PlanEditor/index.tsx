@@ -70,6 +70,9 @@ const PlanEditor = ({
     null,
   );
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [selectedCeilingItemId, setSelectedCeilingItemId] = useState<
+    string | null
+  >(null);
 
   const [rotateIcon] = useImage("/icons/rotate.svg");
   const [deleteIcon] = useImage("/icons/delete.svg");
@@ -91,6 +94,22 @@ const PlanEditor = ({
         setSelectedShape(null);
         setSelectedWall(null);
         setGuideLine(null);
+        setSelectedItemId(null);
+        setSelectedCeilingItemId(null);
+      }
+
+      if (event.key === "Delete" || event.key === "Backspace") {
+        if (selectedItemId) {
+          setFurnitureItems((prev) =>
+            prev.filter((f) => f.id !== selectedItemId),
+          );
+          setSelectedItemId(null);
+        } else if (selectedCeilingItemId) {
+          setCeilingItems((prev) =>
+            prev.filter((c) => c.id !== selectedCeilingItemId),
+          );
+          setSelectedCeilingItemId(null);
+        }
       }
     };
 
@@ -99,7 +118,13 @@ const PlanEditor = ({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [setTool, setSelectedShape, setSelectedWall]);
+  }, [
+    setTool,
+    setSelectedShape,
+    setSelectedWall,
+    selectedItemId,
+    selectedCeilingItemId,
+  ]);
 
   const drawGrid = () => {
     const lines = [];
@@ -640,27 +665,6 @@ const PlanEditor = ({
     }
   };
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Delete" || event.key === "Backspace") {
-        if (selectedItemId) {
-          setFurnitureItems((prevItems) =>
-            prevItems.filter((item) => item.id !== selectedItemId),
-          );
-          setSelectedItemId(null);
-        }
-      } else if (event.key === "Escape") {
-        setSelectedItemId(null);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [selectedItemId]);
-
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const stage = stageRef.current;
@@ -1039,6 +1043,7 @@ const PlanEditor = ({
                   setSelectedItemId(id);
                   setSelectedShape(null);
                   setSelectedWall(null);
+                  setSelectedCeilingItemId(null);
                 }}
                 onChange={(id, newAttrs) => {
                   setFurnitureItems((prevItems) =>
@@ -1058,8 +1063,13 @@ const PlanEditor = ({
               <FurnitureItemComponent
                 key={ci.id}
                 item={ci}
-                isSelected={false}
-                onSelect={() => {}}
+                isSelected={selectedCeilingItemId === ci.id}
+                onSelect={(id) => {
+                  setSelectedCeilingItemId(id);
+                  setSelectedItemId(null);
+                  setSelectedShape(null);
+                  setSelectedWall(null);
+                }}
                 onChange={(id, newAttrs) => {
                   setCeilingItems((prev) =>
                     prev.map((c) => (c.id === id ? { ...c, ...newAttrs } : c)),
