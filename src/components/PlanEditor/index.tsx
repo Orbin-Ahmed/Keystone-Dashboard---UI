@@ -54,6 +54,7 @@ const PlanEditor = ({
   deleteRoomName,
   furnitureItems,
   setFurnitureItems,
+  selectedPlane,
 }: PlanEditorProps) => {
   const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(
     null,

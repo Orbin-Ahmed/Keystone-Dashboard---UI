@@ -205,6 +205,7 @@ export interface PlanEditorProps {
   deleteRoomName: (id: number) => void;
   furnitureItems: FurnitureItem[];
   setFurnitureItems: React.Dispatch<React.SetStateAction<FurnitureItem[]>>;
+  selectedPlane: string;
 }
 
 export interface LineData {

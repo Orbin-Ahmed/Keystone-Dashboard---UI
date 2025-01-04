@@ -42,6 +42,7 @@ const FloorPlanner = () => {
   >(null);
   const [showDimensions, setShowDimensions] = useState(false);
   const [viewMode, setViewMode] = useState<"2D" | "3D">("2D");
+  const [selectedPlane, setSelectedPlane] = useState<"floor" | "roof">("floor");
 
   const [selectedWall, setSelectedWall] = useState<string | null>(null);
   const [selectedShape, setSelectedShape] = useState<string | null>(null);
@@ -140,6 +141,10 @@ const FloorPlanner = () => {
 
   const toggleSidebar = () => {
     setIsSidebarVisible((prev) => !prev);
+  };
+
+  const handlePlaneChange = (plane: "floor" | "roof") => {
+    setSelectedPlane(plane);
   };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -731,6 +736,7 @@ const FloorPlanner = () => {
           deleteRoomName={deleteRoomName}
           furnitureItems={furnitureItems}
           setFurnitureItems={setFurnitureItems}
+          selectedPlane={selectedPlane}
         />
       )}
       {viewMode === "2D" && (
@@ -743,7 +749,7 @@ const FloorPlanner = () => {
         </CustomButton>
       )}
 
-      {isSidebarVisible && <ItemSidebar />}
+      {isSidebarVisible && viewMode === "2D" && <ItemSidebar />}
 
       <div
         className={`fixed bottom-8 ${viewMode === "2D" ? "left-32" : "left-8"} z-30`}
@@ -779,6 +785,29 @@ const FloorPlanner = () => {
             </span>
           </div>
         </label>
+      </div>
+
+      <div className="fixed bottom-8 right-8 z-50 flex -translate-x-1/2 transform items-center gap-4">
+        <button
+          className="rounded-full px-4 py-2 shadow-xl"
+          onClick={() => handlePlaneChange("floor")}
+          style={{
+            backgroundColor: selectedPlane === "floor" ? "#C2D605" : "#FFF",
+            color: selectedPlane === "floor" ? "#FFF" : "#000",
+          }}
+        >
+          Floor
+        </button>
+        <button
+          className="rounded-full px-4 py-2 shadow-xl"
+          onClick={() => handlePlaneChange("roof")}
+          style={{
+            backgroundColor: selectedPlane === "roof" ? "#C2D605" : "#FFF",
+            color: selectedPlane === "roof" ? "#FFF" : "#000",
+          }}
+        >
+          Roof
+        </button>
       </div>
 
       <div className="fixed bottom-8 left-1/2 z-50 flex -translate-x-1/2 transform items-center gap-4">
