@@ -122,6 +122,8 @@ const SceneContent: React.FC<SceneContentProps> = ({
   setWallItems,
   selectedWallItem,
   setSelectedWallItem,
+  ceilingItems,
+  setCeilingItems,
 }) => {
   const { scene, camera, gl } = useThree();
   const raycaster = new Raycaster();
@@ -887,6 +889,48 @@ const SceneContent: React.FC<SceneContentProps> = ({
       ...newPlacedItems,
     ]);
   }, [furnitureItems, centerX, centerY, setPlacedItems]);
+
+  useEffect(() => {
+    const newCeilingPlaced = ceilingItems.map((item) => {
+      const id = item.id;
+      const name = item.name;
+      const type = name.toLowerCase().replace(/-/g, "_");
+      const path = `items/${type}.glb`;
+
+      const rotationInRadians = -(item.rotation * Math.PI) / 180;
+      const adjustedX =
+        item.x -
+        centerX +
+        (Math.cos(rotationInRadians) * item.width) / 2 +
+        (Math.sin(rotationInRadians) * item.depth) / 2;
+
+      const adjustedZ =
+        item.y -
+        centerY -
+        (Math.sin(rotationInRadians) * item.width) / 2 +
+        (Math.cos(rotationInRadians) * item.depth) / 2;
+
+      const position: [number, number, number] = [
+        adjustedX,
+        wallHeight,
+        adjustedZ,
+      ];
+      const rotation: [number, number, number] = [0, rotationInRadians, 0];
+
+      return {
+        id,
+        name,
+        type,
+        path,
+        width: item.width,
+        height: item.height,
+        depth: item.depth,
+        position,
+        rotation,
+      };
+    });
+    setPlacedItems((prev) => [...prev, ...newCeilingPlaced]);
+  }, [ceilingItems, wallHeight, centerX, centerY, setPlacedItems]);
 
   useEffect(() => {
     if (envMap && showRoof) {

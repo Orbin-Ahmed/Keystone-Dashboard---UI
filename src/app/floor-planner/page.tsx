@@ -10,6 +10,7 @@ import {
   FurnitureItem,
   Line,
   RoomName,
+  SerializedceilingItem,
   SerializedFloorData,
   SerializedFurnitureItem,
   SerializedRoomName,
@@ -592,10 +593,21 @@ const FloorPlanner = () => {
     }
 
     // Process furniture names
-    let processedFurnitureNames: FurnitureItem[] = [];
+    let processedFurnitureItems: FurnitureItem[] = [];
     if (floorData.furniture && floorData.furniture.length > 0) {
-      processedFurnitureNames = floorData.furniture.map(
+      processedFurnitureItems = floorData.furniture.map(
         (item: SerializedFurnitureItem) => ({
+          ...item,
+          imageSrc: `/2DViewerAssets/${item.name.toLowerCase().replace(/-/g, "_")}.svg`,
+        }),
+      );
+    }
+
+    // Process furniture names
+    let processedCeilingItems: CeilingItem[] = [];
+    if (floorData.ceilingItems && floorData.ceilingItems.length > 0) {
+      processedCeilingItems = floorData.ceilingItems.map(
+        (item: SerializedceilingItem) => ({
           ...item,
           imageSrc: `/2DViewerAssets/${item.name.toLowerCase().replace(/-/g, "_")}.svg`,
         }),
@@ -643,7 +655,8 @@ const FloorPlanner = () => {
       shapes: processedShapes,
       roomNames: processedRoomNames,
       floorPlanPoints: processedFloorPlanPoints,
-      furnitureItems: processedFurnitureNames,
+      furnitureItems: processedFurnitureItems,
+      ceilingItems: processedCeilingItems,
     };
   };
 
@@ -728,6 +741,8 @@ const FloorPlanner = () => {
           maxY={maxY}
           furnitureItems={furnitureItems}
           setFurnitureItems={setFurnitureItems}
+          ceilingItems={ceilingItems}
+          setCeilingItems={setCeilingItems}
         />
       ) : (
         <PlanEditor
@@ -770,7 +785,9 @@ const FloorPlanner = () => {
         </CustomButton>
       )}
 
-      {isSidebarVisible && viewMode === "2D" && <ItemSidebar />}
+      {isSidebarVisible && viewMode === "2D" && (
+        <ItemSidebar selectedPlane={selectedPlane} />
+      )}
 
       <div
         className={`fixed bottom-8 ${viewMode === "2D" ? "left-32" : "left-8"} z-30`}

@@ -422,6 +422,23 @@ export interface SidebarItem {
   depth: number;
 }
 
+export interface Plan3DViewerProps {
+  lines: LineData[];
+  shapes: ShapeData[];
+  roomNames: RoomName[];
+  floorPlanPoints: { id: string; x: number; y: number }[];
+  centerX: number;
+  centerY: number;
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
+  furnitureItems: FurnitureItem[];
+  setFurnitureItems: React.Dispatch<React.SetStateAction<FurnitureItem[]>>;
+  ceilingItems: CeilingItem[];
+  setCeilingItems: React.Dispatch<React.SetStateAction<CeilingItem[]>>;
+}
+
 export interface SceneContentProps {
   lines: LineData[];
   shapes: ShapeData[];
@@ -468,6 +485,8 @@ export interface SceneContentProps {
   setSelectedWallItem: React.Dispatch<
     React.SetStateAction<SelectedWallItem | null>
   >;
+  ceilingItems: CeilingItem[];
+  setCeilingItems: React.Dispatch<React.SetStateAction<CeilingItem[]>>;
 }
 
 export interface WallItem {
@@ -645,11 +664,11 @@ export const items: { [category: string]: SidebarItem[] } = {
       depth: 47,
     },
   ],
-  Celling: [
+  Ceiling: [
     {
-      name: "Chandieler-1",
-      imageSrc: "/2DViewerAssets/chandieler_1.svg",
-      category: "bath",
+      name: "Chandelier-1",
+      imageSrc: "/2DViewerAssets/chandelier_1.svg",
+      category: "ceiling",
       width: 45,
       height: 33,
       depth: 45,

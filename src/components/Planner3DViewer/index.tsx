@@ -6,6 +6,7 @@ import {
   LineData,
   PlacedItemType,
   PlacingItemType,
+  Plan3DViewerProps,
   RoomName,
   SelectedWallItem,
   ShapeData,
@@ -39,21 +40,6 @@ import { FaArrowLeft, FaDownload } from "react-icons/fa";
 import { Spinner } from "@radix-ui/themes";
 import { uid } from "uid";
 
-interface Plan3DViewerProps {
-  lines: LineData[];
-  shapes: ShapeData[];
-  roomNames: RoomName[];
-  floorPlanPoints: { id: string; x: number; y: number }[];
-  centerX: number;
-  centerY: number;
-  minX: number;
-  maxX: number;
-  minY: number;
-  maxY: number;
-  furnitureItems: FurnitureItem[];
-  setFurnitureItems: React.Dispatch<React.SetStateAction<FurnitureItem[]>>;
-}
-
 const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   lines,
   shapes,
@@ -67,6 +53,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   maxY,
   furnitureItems,
   setFurnitureItems,
+  ceilingItems,
+  setCeilingItems,
 }) => {
   const [activeTourPoint, setActiveTourPoint] = useState<TourPoint | null>(
     null,
@@ -768,6 +756,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           setWallItems={setWallItems}
           selectedWallItem={selectedWallItem}
           setSelectedWallItem={setSelectedWallItem}
+          ceilingItems={ceilingItems}
+          setCeilingItems={setCeilingItems}
         />
       </Canvas>
 
