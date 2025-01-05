@@ -952,9 +952,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
     };
   }, [textures, envMap, envMap_floor]);
 
-  // -----------------------------------------
-  //  Handle adding wall items (placing)
-  // -----------------------------------------
+  // Wall Items and Wall Textures Settings
 
   const handleWallClick = (event: ThreeEvent<MouseEvent>) => {
     if (!placingWallItem) return;
