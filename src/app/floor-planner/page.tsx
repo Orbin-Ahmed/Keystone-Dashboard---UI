@@ -115,12 +115,25 @@ const FloorPlanner = () => {
           category: item.category,
         }));
 
+        const ceilingItemsToSave = ceilingItems.map((item) => ({
+          id: item.id,
+          x: item.x,
+          y: item.y,
+          name: item.name,
+          width: item.width,
+          height: item.height,
+          depth: item.depth,
+          rotation: item.rotation,
+          category: item.category,
+        }));
+
         acc[floorName] = {
           lines: floorData.lines,
           shapes: shapesToSave,
           roomNames: roomNamesToSave,
           floorPlanPoints: floorPlanPointsToSave,
           furniture: furnitureItemsToSave,
+          ceilingItems: ceilingItemsToSave,
         };
 
         return acc;
@@ -188,6 +201,7 @@ const FloorPlanner = () => {
           setRoomNames(firstFloorData.roomNames);
           setFloorPlanPoints(firstFloorData.floorPlanPoints);
           setFurnitureItems(firstFloorData.furnitureItems ?? []);
+          setCeilingItems(firstFloorData.ceilingItems ?? []);
         } catch (err) {
           console.error("Failed to load design:", err);
         }
@@ -225,6 +239,7 @@ const FloorPlanner = () => {
         setRoomNames(firstFloorData.roomNames);
         setFloorPlanPoints(firstFloorData.floorPlanPoints);
         setFurnitureItems(firstFloorData.furnitureItems ?? []);
+        setCeilingItems(firstFloorData.ceilingItems ?? []);
       } catch (error) {
         console.error("Error uploading image:", error);
       }
@@ -252,6 +267,7 @@ const FloorPlanner = () => {
         setRoomNames(firstFloorData.roomNames);
         setFloorPlanPoints(firstFloorData.floorPlanPoints);
         setFurnitureItems(firstFloorData.furnitureItems ?? []);
+        setCeilingItems(firstFloorData.ceilingItems ?? []);
       } catch (error) {
         console.error("Error processing PDF:", error);
       }
@@ -303,6 +319,7 @@ const FloorPlanner = () => {
         setRoomNames(firstFloorData.roomNames);
         setFloorPlanPoints(firstFloorData.floorPlanPoints);
         setFurnitureItems(firstFloorData.furnitureItems ?? []);
+        setCeilingItems(firstFloorData.ceilingItems ?? []);
       } catch (error) {
         console.error("Error uploading DWG file:", error);
       }

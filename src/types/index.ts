@@ -334,6 +334,7 @@ export type FloorData = {
   roomNames: RoomName[];
   floorPlanPoints: FloorPlanPoint[];
   furnitureItems?: FurnitureItem[];
+  ceilingItems?: CeilingItem[];
 };
 
 export interface SerializedShape {
@@ -360,8 +361,21 @@ export interface SerializedFloorData {
   roomNames: SerializedRoomName[];
   floorPlanPoints: FloorPlanPoint[];
   furniture: SerializedFurnitureItem[];
+  ceilingItems: SerializedceilingItem[];
 }
 export interface SerializedFurnitureItem {
+  id: string;
+  name: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  depth: number;
+  rotation: number;
+  category: string;
+}
+
+export interface SerializedceilingItem {
   id: string;
   name: string;
   x: number;
