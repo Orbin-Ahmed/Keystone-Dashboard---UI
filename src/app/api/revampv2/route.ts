@@ -20,14 +20,14 @@ export async function POST(req: Request) {
     const imageBuffer = Buffer.from(await imageFile.arrayBuffer());
     const prompt = formData.get("prompt") as string;
     const guidance_scale = parseFloat(
-      (formData.get("guidance_scale") ?? "15").toString(),
+      (formData.get("guidance_scale") ?? "6").toString(),
     );
     const negative_prompt = formData.get("negative_prompt") as string;
     const prompt_strength = parseFloat(
       (formData.get("prompt_strength") ?? "0.8").toString(),
     );
     const num_inference_steps = parseInt(
-      (formData.get("num_inference_steps") ?? "50").toString(),
+      (formData.get("num_inference_steps") ?? "60").toString(),
     );
     const seed = formData.get("seed");
     const imageID = formData.get("imageID");
@@ -35,9 +35,9 @@ export async function POST(req: Request) {
     const input: any = {
       input: imageBuffer,
       prompt: prompt,
-      // guidance_scale: guidance_scale,
+      guidance_scale: guidance_scale,
       negative_prompt: negative_prompt,
-      // prompt_strength: prompt_strength,
+      prompt_strength: prompt_strength,
       num_inference_steps: num_inference_steps,
     };
 
@@ -49,7 +49,7 @@ export async function POST(req: Request) {
 
     const prediction = await replicate.predictions.create({
       version:
-        "e299c531485aac511610a878ef44b554381355de5ee032d109fcae5352f39fa9",
+        "82889ab45063cf4fdaf7cf386fc739da0b5ddc4b6a6b0f8ff31a2951b0c1ca4d",
       input,
       webhook: callbackURL,
       webhook_events_filter: ["completed"],

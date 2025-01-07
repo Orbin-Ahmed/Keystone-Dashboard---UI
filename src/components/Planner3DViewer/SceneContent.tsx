@@ -1086,6 +1086,10 @@ const SceneContent: React.FC<SceneContentProps> = ({
     };
   }, [selectedWallItem, setSelectedWallItem, setWallItems]);
 
+  useEffect(() => {
+    console.log(placedItems);
+  }, [placedItems]);
+
   return (
     <>
       <CameraController
@@ -1280,9 +1284,30 @@ const SceneContent: React.FC<SceneContentProps> = ({
       )}
 
       {/* Placed items */}
-      {placedItems
-        .filter((item) => item.id !== (placingItem?.id || selectedItem?.id))
-        .map((item) => (
+      {!activeTourPoint &&
+        placedItems
+          .filter(
+            (item) =>
+              !ceilingItems.some((ceilingItem) => ceilingItem.id === item.id),
+          )
+          .map((item) => (
+            <ItemModel
+              key={item.id}
+              path={item.path}
+              position={item.position || [0, 0, 0]}
+              rotation={item.rotation || [0, 0, 0]}
+              dimensions={{
+                width: item.width,
+                height: item.height,
+                depth: item.depth,
+              }}
+              wallBoundingBoxes={wallBoundingBoxes}
+              onClick={() => handlePlacedItemClick(item)}
+            />
+          ))}
+
+      {activeTourPoint &&
+        placedItems.map((item) => (
           <ItemModel
             key={item.id}
             path={item.path}
