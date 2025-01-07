@@ -141,7 +141,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const tourPoints = useMemo(
     () =>
       roomNames.map((room) => ({
-        id: room.name.toLowerCase().replace(/\s+/g, "-"),
+        // id: room.name.toLowerCase().replace(/\s+/g, "-"),
+        id: uid(16),
         position: [
           room.x -
             (Math.min(...lines.flatMap((l) => [l.points[0], l.points[2]])) +
