@@ -55,6 +55,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   setFurnitureItems,
   ceilingItems,
   setCeilingItems,
+  currentFloorIndex,
 }) => {
   const [activeTourPoint, setActiveTourPoint] = useState<TourPoint | null>(
     null,
@@ -759,6 +760,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           setSelectedWallItem={setSelectedWallItem}
           ceilingItems={ceilingItems}
           setCeilingItems={setCeilingItems}
+          currentFloorIndex={currentFloorIndex}
         />
       </Canvas>
 

@@ -124,6 +124,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
   setSelectedWallItem,
   ceilingItems,
   setCeilingItems,
+  currentFloorIndex,
 }) => {
   const { scene, camera, gl } = useThree();
   const raycaster = new Raycaster();
@@ -888,7 +889,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
       ...prevPlacedItems,
       ...newPlacedItems,
     ]);
-  }, [furnitureItems, centerX, centerY, setPlacedItems]);
+  }, [furnitureItems, centerX, centerY, setPlacedItems, currentFloorIndex]);
 
   useEffect(() => {
     const newCeilingPlaced = ceilingItems.map((item) => {
@@ -930,7 +931,14 @@ const SceneContent: React.FC<SceneContentProps> = ({
       };
     });
     setPlacedItems((prev) => [...prev, ...newCeilingPlaced]);
-  }, [ceilingItems, wallHeight, centerX, centerY, setPlacedItems]);
+  }, [
+    ceilingItems,
+    wallHeight,
+    centerX,
+    centerY,
+    setPlacedItems,
+    currentFloorIndex,
+  ]);
 
   useEffect(() => {
     if (envMap && showRoof) {
@@ -1085,10 +1093,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [selectedWallItem, setSelectedWallItem, setWallItems]);
-
-  useEffect(() => {
-    console.log(placedItems);
-  }, [placedItems]);
 
   return (
     <>

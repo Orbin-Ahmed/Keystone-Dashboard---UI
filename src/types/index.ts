@@ -437,6 +437,7 @@ export interface Plan3DViewerProps {
   setFurnitureItems: React.Dispatch<React.SetStateAction<FurnitureItem[]>>;
   ceilingItems: CeilingItem[];
   setCeilingItems: React.Dispatch<React.SetStateAction<CeilingItem[]>>;
+  currentFloorIndex: number;
 }
 
 export interface SceneContentProps {
@@ -487,6 +488,7 @@ export interface SceneContentProps {
   >;
   ceilingItems: CeilingItem[];
   setCeilingItems: React.Dispatch<React.SetStateAction<CeilingItem[]>>;
+  currentFloorIndex: number;
 }
 
 export interface WallItem {

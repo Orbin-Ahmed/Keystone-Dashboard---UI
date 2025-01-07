@@ -379,7 +379,7 @@ const PlanEditor = ({
     const windowWidth = 60;
     const windowHeight = 8;
     const doorWidth = 40;
-    const doorHeight = 60;
+    const doorHeight = 40;
 
     let newShape: ShapeType;
 

@@ -756,6 +756,7 @@ const FloorPlanner = () => {
           setFurnitureItems={setFurnitureItems}
           ceilingItems={ceilingItems}
           setCeilingItems={setCeilingItems}
+          currentFloorIndex={currentFloorIndex}
         />
       ) : (
         <PlanEditor
