@@ -69,6 +69,7 @@ const FloorPlanner = () => {
       roomNames: [],
       floorPlanPoints: [],
       furnitureItems: [],
+      ceilingItems: [],
     },
   });
 
@@ -402,6 +403,7 @@ const FloorPlanner = () => {
         roomNames,
         floorPlanPoints,
         furnitureItems,
+        ceilingItems,
       },
     };
 
@@ -411,6 +413,7 @@ const FloorPlanner = () => {
       roomNames: [],
       floorPlanPoints: [],
       furnitureItems: [],
+      ceilingItems: [],
     };
 
     setFloors(updatedFloors);
@@ -421,6 +424,7 @@ const FloorPlanner = () => {
     setRoomNames(newFloorData.roomNames);
     setFloorPlanPoints(newFloorData.floorPlanPoints);
     setFurnitureItems(newFloorData.furnitureItems ?? []);
+    setCeilingItems(newFloorData.ceilingItems ?? []);
   };
 
   useEffect(() => {
@@ -432,9 +436,18 @@ const FloorPlanner = () => {
         roomNames,
         floorPlanPoints,
         furnitureItems,
+        ceilingItems,
       },
     }));
-  }, [lines, shapes, roomNames, floorPlanPoints, currentFloor, furnitureItems]);
+  }, [
+    lines,
+    shapes,
+    roomNames,
+    floorPlanPoints,
+    currentFloor,
+    furnitureItems,
+    ceilingItems,
+  ]);
 
   // Floor Data helper Function end
 
