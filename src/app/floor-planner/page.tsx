@@ -105,29 +105,36 @@ const FloorPlanner = () => {
           }),
         );
 
-        const furnitureItemsToSave = furnitureItems.map((item) => ({
-          id: item.id,
-          x: item.x,
-          y: item.y,
-          name: item.name,
-          width: item.width,
-          height: item.height,
-          depth: item.depth,
-          rotation: item.rotation,
-          category: item.category,
-        }));
+        let furnitureItemsToSave = [] as SerializedFurnitureItem[];
+        if (floorData.furnitureItems && floorData.furnitureItems.length > 0) {
+          furnitureItemsToSave = floorData.furnitureItems.map((item) => ({
+            id: item.id,
+            x: item.x,
+            y: item.y,
+            name: item.name,
+            width: item.width,
+            height: item.height,
+            depth: item.depth,
+            rotation: item.rotation,
+            category: item.category,
+          }));
+        }
 
-        const ceilingItemsToSave = ceilingItems.map((item) => ({
-          id: item.id,
-          x: item.x,
-          y: item.y,
-          name: item.name,
-          width: item.width,
-          height: item.height,
-          depth: item.depth,
-          rotation: item.rotation,
-          category: item.category,
-        }));
+        let ceilingItemsToSave = [] as SerializedceilingItem[];
+
+        if (floorData.ceilingItems && floorData.ceilingItems.length > 0) {
+          ceilingItemsToSave = floorData.ceilingItems.map((item) => ({
+            id: item.id,
+            x: item.x,
+            y: item.y,
+            name: item.name,
+            width: item.width,
+            height: item.height,
+            depth: item.depth,
+            rotation: item.rotation,
+            category: item.category,
+          }));
+        }
 
         acc[floorName] = {
           lines: floorData.lines,
