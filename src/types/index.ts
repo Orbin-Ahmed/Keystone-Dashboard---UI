@@ -942,3 +942,10 @@ export const wallItemsCatgories = [
     ],
   },
 ];
+
+
+export interface DimensionBoxProps {
+  width: number;
+  height: number;
+  depth: number;
+}

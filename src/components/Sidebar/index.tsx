@@ -26,6 +26,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     { route: "/dashboard/revamp", label: "Room Revamp" },
     { route: "/dashboard/variant", label: "View Variant" },
   ];
+  const items_1 = [
+    { route: "/dashboard/add-model", label: "3D Furnish Hub" },
+    { route: "/dashboard/generate-model", label: "Virtual Showcase" },
+  ];
   let storedSidebarExpanded = "true";
 
   const [sidebarExpanded, setSidebarExpanded] = useState(
@@ -326,6 +330,77 @@ l-212 -210 2 1139 3 1140 25 50 c31 64 91 124 155 155 l50 25 1575 0 1575 0
                   </Link>
                   <div className={`translate transform overflow-hidden`}>
                     <SidebarSubItem itemList={items} />
+                  </div>
+                </li>
+              )}
+              {/* <!-- Menu Item Edit Image --> */}
+              {/* <!-- Menu Item Edit Image --> */}
+              {role === 3 && (
+                <li>
+                  <Link
+                    href="/dashboard/add-model"
+                    className={`group relative flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
+                      pathname.includes("add-model") &&
+                      "bg-graydark dark:bg-meta-4"
+                    }`}
+                  >
+                    <svg
+                      version="1.0"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="22"
+                      height="18"
+                      viewBox="0 0 512.000000 512.000000"
+                      preserveAspectRatio="xMidYMid meet"
+                    >
+                      <g
+                        transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)"
+                        fill="#fff"
+                        stroke="none"
+                      >
+                        <path
+                          d="M821 4674 c-182 -49 -343 -217 -380 -396 -8 -37 -11 -524 -9 -1638
+l3 -1585 22 -60 c47 -122 141 -231 254 -290 126 -66 108 -65 992 -65 728 0
+801 1 827 17 55 32 67 112 26 160 l-24 28 -819 5 c-764 5 -821 6 -866 24 -66
+25 -149 104 -178 168 -23 51 -24 62 -27 338 l-3 285 278 277 c318 316 339 331
+467 332 113 0 162 -28 321 -184 158 -155 209 -185 320 -185 133 0 129 -3 525
+390 408 404 402 400 545 400 81 0 95 -3 144 -30 29 -17 65 -36 78 -43 59 -33
+143 23 143 94 0 51 -14 71 -82 115 -83 53 -174 80 -273 82 -100 1 -171 -16
+-260 -61 -62 -31 -111 -77 -421 -384 l-350 -348 -48 0 -48 0 -142 139 c-119
+116 -153 144 -216 174 -125 60 -233 71 -364 37 -128 -33 -171 -64 -404 -294
+l-212 -210 2 1139 3 1140 25 50 c31 64 91 124 155 155 l50 25 1575 0 1575 0
+53 -24 c65 -29 143 -112 168 -178 16 -43 19 -95 24 -471 l5 -424 28 -24 c51
+-44 135 -28 166 33 18 36 15 811 -4 892 -41 173 -171 320 -340 384 l-60 22
+-1595 2 c-1369 2 -1603 0 -1649 -13z"
+                        />
+                        <path
+                          d="M1680 4036 c-66 -19 -114 -41 -162 -74 -241 -167 -307 -485 -151
+-730 176 -277 571 -325 812 -98 184 173 219 463 83 671 -105 159 -264 246
+-449 244 -48 0 -108 -6 -133 -13z m274 -230 c60 -29 113 -82 148 -148 19 -36
+23 -58 23 -138 0 -80 -4 -102 -23 -138 -35 -66 -88 -119 -150 -149 -77 -38
+-190 -39 -269 -4 -62 28 -136 103 -165 169 -29 65 -29 179 -1 244 25 54 94
+133 137 155 97 51 208 54 300 9z"
+                        />
+                        <path
+                          d="M4013 3155 c-31 -16 -60 -40 -75 -63 -64 -96 -1095 -1894 -1118
+-1947 -25 -60 -25 -62 -22 -304 3 -264 8 -289 60 -344 47 -50 98 -70 166 -65
+55 3 79 14 250 108 145 80 203 118 244 160 46 46 144 210 594 990 297 514 549
+953 559 975 37 80 16 189 -47 246 -26 24 -320 197 -421 248 -58 29 -126 28
+-190 -4z m435 -454 c-365 -640 -1055 -1824 -1077 -1847 -16 -17 -100 -70 -187
+-119 -88 -48 -163 -90 -167 -92 -4 -3 -7 93 -5 214 l3 218 544 940 c299 517
+545 943 547 947 3 4 87 -41 189 -99 l184 -107 -31 -55z"
+                        />
+                        <path
+                          d="M4319 1595 c-14 -8 -31 -27 -37 -42 -6 -16 -12 -118 -14 -238 -3
+-202 -4 -212 -29 -265 -54 -115 -148 -182 -276 -196 -55 -5 -73 -12 -95 -35
+-44 -44 -41 -100 7 -146 27 -26 44 -33 73 -33 194 0 391 124 475 300 50 104
+59 171 55 408 l-3 204 -33 29 c-36 32 -80 37 -123 14z"
+                        />
+                      </g>
+                    </svg>
+                    Furniture Canvas
+                  </Link>
+                  <div className={`translate transform overflow-hidden`}>
+                    <SidebarSubItem itemList={items_1} />
                   </div>
                 </li>
               )}
