@@ -27,11 +27,6 @@ const DimensionLine = ({
 }) => {
   return (
     <group>
-      <Line
-        points={[start, end]}
-        color="black"
-        lineWidth={1}
-      />
       <Text
         position={[
           (start[0] + end[0]) / 2,
@@ -73,15 +68,15 @@ const DimensionBox: React.FC<DimensionBoxProps> = ({ width, height, depth }) => 
       />
 
       <DimensionLine
-        start={[-boxSize / 2 + 0.1, boxSize / 2 + 0.1, boxSize / 2]}
-        end={[boxSize / 2 + 0.1, boxSize / 2 + 0.1, boxSize / 2]}
+        start={[-boxSize / 2 + 0.3, boxSize / 2 + 0.1, boxSize / 2]}
+        end={[boxSize / 2 + 0.3, boxSize / 2 + 0.1, boxSize / 2]}
         label={`Width: ${width}m`}
         rotation={[0, 0, 0]}
       />
 
       <DimensionLine
-        start={[boxSize / 2, boxSize / 2 + 0.1, boxSize / 2 + 0.1]}
-        end={[boxSize / 2, boxSize / 2 + 0.1, -boxSize / 2 + 0.1]}
+        start={[boxSize / 2, boxSize / 2 + 0.1, boxSize / 2 + 0.3]}
+        end={[boxSize / 2, boxSize / 2 + 0.1, -boxSize / 2 + 0.3]}
         label={`Depth: ${depth}m`}
         rotation={[0, Math.PI / 2, 0]}
       />
@@ -285,7 +280,7 @@ const EditImage = () => {
             </div>
 
             <div className="space-y-4">
-              <p className="text-lg font-bold">Dimensions</p>
+              <p className="text-lg font-bold">Dimensions (cm)</p>
               <div className="grid grid-cols-2 gap-4">
                 <DimensionViewer 
                   width={formData.width}
