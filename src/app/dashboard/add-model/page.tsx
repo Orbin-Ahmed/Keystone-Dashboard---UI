@@ -1,8 +1,13 @@
-'use client'
-import React, { useState,  useEffect } from "react";
+"use client";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, useGLTF, PerspectiveCamera } from "@react-three/drei";
+import {
+  OrbitControls,
+  useGLTF,
+  PerspectiveCamera,
+  Environment,
+} from "@react-three/drei";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import InputField from "@/components/InputField";
@@ -11,8 +16,7 @@ import { GLTF } from "three-stdlib";
 import { Material, Mesh } from "three";
 import { Text } from "@react-three/drei";
 import { DimensionBoxProps } from "@/types";
-import * as THREE from 'three';
-import { Line } from "@react-three/drei";
+import * as THREE from "three";
 
 const DimensionLine = ({
   start,
@@ -45,18 +49,24 @@ const DimensionLine = ({
   );
 };
 
-const DimensionBox: React.FC<DimensionBoxProps> = ({ width, height, depth }) => {
+const DimensionBox: React.FC<DimensionBoxProps> = ({
+  width,
+  height,
+  depth,
+}) => {
   const boxSize = 2;
 
   return (
-    <group position={[0, boxSize / 2 -1, 0]}>
+    <group position={[0, boxSize / 2 - 1, 0]}>
       <mesh>
         <boxGeometry args={[boxSize, boxSize, boxSize]} />
         <meshStandardMaterial color="#e0e0e0" transparent opacity={0.5} />
       </mesh>
 
       <lineSegments>
-        <edgesGeometry args={[new THREE.BoxGeometry(boxSize, boxSize, boxSize)]} />
+        <edgesGeometry
+          args={[new THREE.BoxGeometry(boxSize, boxSize, boxSize)]}
+        />
         <lineBasicMaterial color="black" />
       </lineSegments>
 
@@ -84,12 +94,16 @@ const DimensionBox: React.FC<DimensionBoxProps> = ({ width, height, depth }) => 
   );
 };
 
-const DimensionViewer: React.FC<DimensionBoxProps> = ({ width, height, depth }) => {
+const DimensionViewer: React.FC<DimensionBoxProps> = ({
+  width,
+  height,
+  depth,
+}) => {
   return (
-    <div className="h-64 border rounded">
+    <div className="h-64 rounded border">
       <Canvas camera={{ position: [3, 3, 3], fov: 45 }}>
         <PerspectiveCamera position={[3, 3, 3]} makeDefault />
-        <OrbitControls 
+        <OrbitControls
           enableRotate={false}
           enableZoom={true}
           enablePan={false}
@@ -120,17 +134,31 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ glbUrl }) => {
 
   return (
     <>
-      <directionalLight position={[5, 5, 5]} intensity={1} />
-      <directionalLight position={[-5, -5, -5]} intensity={0.5} />
-      <ambientLight intensity={0.5} />
-      <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} />
+      <ambientLight intensity={0.6} />
+      <directionalLight position={[5, 5, 5]} intensity={0.7} />
+      <spotLight
+        position={[10, 10, 10]}
+        angle={0.15}
+        penumbra={1}
+        intensity={1}
+      />
       <primitive object={scene} />
     </>
   );
 };
 
 const EditImage = () => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    itemName: string;
+    glbFile: File | null;
+    viewer2D: File | null;
+    viewer3D: File | null;
+    width: number;
+    height: number;
+    depth: number;
+    category: string;
+    type: string;
+  }>({
     itemName: "",
     glbFile: null,
     viewer2D: null,
@@ -138,16 +166,25 @@ const EditImage = () => {
     width: 0,
     height: 0,
     depth: 0,
+    category: "",
+    type: "",
   });
 
   const [glbUrl, setGlbUrl] = useState("");
   const [viewer2DPreview, setViewer2DPreview] = useState("");
   const [viewer3DPreview, setViewer3DPreview] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
     if (["width", "height", "depth"].includes(name)) {
-      setFormData((prev) => ({ ...prev, [name]: Number(value) }));
+      const numericValue = Number(value);
+      if (name === "height" && numericValue > 119) {
+        alert("Height cannot exceed 119 inches.");
+        return;
+      }
+      setFormData((prev) => ({ ...prev, [name]: numericValue }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -159,16 +196,16 @@ const EditImage = () => {
 
     if (file) {
       if (name === "glbFile") {
-        const fileExtension = file.name.split('.').pop()?.toLowerCase();
-        if (fileExtension !== 'glb') {
+        const fileExtension = file.name.split(".").pop()?.toLowerCase();
+        if (fileExtension !== "glb") {
           alert("Please upload a .glb file only!");
-          e.target.value = '';
+          e.target.value = "";
           return;
         }
       }
 
       setFormData((prev) => ({ ...prev, [name]: file }));
-      
+
       if (name !== "glbFile" && file) {
         const reader = new FileReader();
         reader.onloadend = () => {
@@ -191,23 +228,143 @@ const EditImage = () => {
     }
   }, [formData.glbFile]);
 
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const sanitizedItemName = formData.itemName
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/-/g, "_");
+
+    const formDataObj = new FormData();
+
+    if (formData.glbFile) {
+      const glbFileExtension = formData.glbFile.name.split(".").pop();
+      const glbFileName = `${sanitizedItemName}.${glbFileExtension}`;
+      const glbFile = new File([formData.glbFile], glbFileName, {
+        type: formData.glbFile.type,
+      });
+      formDataObj.append("glb_file", glbFile);
+    }
+
+    if (formData.viewer3D) {
+      const viewer3DExtension = formData.viewer3D.name.split(".").pop();
+      const viewer3DFileName = `${sanitizedItemName}.${viewer3DExtension}`;
+      const viewer3DFile = new File([formData.viewer3D], viewer3DFileName, {
+        type: formData.viewer3D.type,
+      });
+      formDataObj.append("viewer3d", viewer3DFile);
+    }
+
+    if (formData.viewer2D) {
+      const viewer2DExtension = formData.viewer2D.name.split(".").pop();
+      const viewer2DFileName = `${sanitizedItemName}.${viewer2DExtension}`;
+      const viewer2DFile = new File([formData.viewer2D], viewer2DFileName, {
+        type: formData.viewer2D.type,
+      });
+      formDataObj.append("viewer2d", viewer2DFile);
+    }
+
+    formDataObj.append("item_name", formData.itemName);
+    formDataObj.append("category", formData.category);
+    formDataObj.append("type", formData.type);
+    formDataObj.append("width", formData.width.toString());
+    formDataObj.append("height", formData.height.toString());
+    formDataObj.append("depth", formData.depth.toString());
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}api/items/`,
+        {
+          method: "POST",
+          body: formDataObj,
+        },
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        const errorMessages = Object.entries(errorData)
+          .map(([key, value]: [string, any]) => `${value.join(", ")}`)
+          .join("\n");
+
+        alert(`Error:\n${errorMessages}`);
+        return;
+      }
+
+      const data = await response.json();
+      const formDataEntries: { [key: string]: string } = {};
+      formDataObj.forEach((value, key) => {
+        if (value instanceof File) {
+          formDataEntries[key] = `File: ${value.name}`;
+        } else {
+          formDataEntries[key] = value.toString();
+        }
+      });
+
+      console.log("FormData Contents:", formDataEntries);
+      alert("Item submitted successfully!");
+    } catch (error) {
+      console.error("Error:", error);
+      alert("An error occurred. Please try again.");
+    }
+  };
+
   return (
     <DefaultLayout>
       <div className="mx-auto p-4">
         <Breadcrumb pageName="3D Furnish Hub" />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+        <form
+          onSubmit={handleSubmit}
+          className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2"
+        >
           <div className="space-y-6">
-            <InputField
-              className="px-4.5 py-3"
-              id="item_name"
-              type="text"
-              name="itemName"
-              placeholder="Enter item name"
-              value={formData.itemName}
-              onChange={handleChange}
-              required
-            />
+            <div className="flex items-center gap-4">
+              {/* Item Name */}
+              <InputField
+                className="flex-1 px-4.5 py-3"
+                id="item_name"
+                type="text"
+                name="itemName"
+                placeholder="Item Name"
+                value={formData.itemName}
+                onChange={handleChange}
+                required
+              />
+
+              {/* Category Field */}
+              <InputField
+                className="flex-1 px-4.5 py-3"
+                id="category"
+                type="text"
+                name="category"
+                placeholder="Category"
+                value={formData.category || ""}
+                onChange={handleChange}
+                required
+              />
+
+              {/* Type Dropdown */}
+              <div className="flex-1">
+                <select
+                  id="type"
+                  name="type"
+                  className="w-full rounded border border-stroke px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  value={formData.type || ""}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="" disabled>
+                    Select Type
+                  </option>
+                  <option value="Wall">Wall</option>
+                  <option value="Ceiling">Ceiling</option>
+                  <option value="Floor">Floor</option>
+                  <option value="Door">Door</option>
+                  <option value="Window">Window</option>
+                </select>
+              </div>
+            </div>
 
             <div>
               <p className="text-lg font-bold">Upload 3D Model (.glb)</p>
@@ -240,7 +397,7 @@ const EditImage = () => {
                 </div>
               </div>
               {viewer2DPreview && (
-                <div className="w-48 h-48 relative">
+                <div className="relative h-48 w-48">
                   <Image
                     src={viewer2DPreview}
                     alt="2D Preview"
@@ -250,7 +407,6 @@ const EditImage = () => {
                 </div>
               )}
             </div>
-
 
             <div className="flex gap-4">
               <div className="flex-1">
@@ -268,7 +424,7 @@ const EditImage = () => {
                 </div>
               </div>
               {viewer3DPreview && (
-                <div className="w-48 h-48 relative">
+                <div className="relative h-48 w-48">
                   <Image
                     src={viewer3DPreview}
                     alt="3D Preview"
@@ -280,9 +436,9 @@ const EditImage = () => {
             </div>
 
             <div className="space-y-4">
-              <p className="text-lg font-bold">Dimensions (cm)</p>
+              <p className="text-lg font-bold">Dimensions (inch)</p>
               <div className="grid grid-cols-2 gap-4">
-                <DimensionViewer 
+                <DimensionViewer
                   width={formData.width}
                   height={formData.height}
                   depth={formData.depth}
@@ -325,21 +481,22 @@ const EditImage = () => {
           </div>
 
           {/* 3D Preview Section */}
-          <div className="h-[600px] border rounded-md overflow-hidden">
+          <div className="h-[600px] overflow-hidden rounded-md border">
             {glbUrl ? (
               <Canvas>
                 <PerspectiveCamera position={[2, 2, 2]} />
                 <OrbitControls autoRotate autoRotateSpeed={1} />
+                <Environment preset="city" background={false} />
                 <ModelViewer glbUrl={glbUrl} />
                 <gridHelper args={[10, 10]} />
               </Canvas>
             ) : (
-              <div className="flex items-center justify-center w-full h-full">
+              <div className="flex h-full w-full items-center justify-center">
                 <p className="text-gray-500">No 3D model uploaded</p>
               </div>
             )}
           </div>
-        </div>
+        </form>
       </div>
     </DefaultLayout>
   );
