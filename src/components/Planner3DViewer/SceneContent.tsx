@@ -382,8 +382,9 @@ const SceneContent: React.FC<SceneContentProps> = ({
       const roomName = itemToRoomName[type] || category || "N/A";
 
       const area = width * height;
-      const imagePath = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer3D_images/${type}.png`;
-      const key = `${type}-${width}-${height}-${depth}`;
+      const image_name = name.toLowerCase().replace(/[-\s]/g, "_");
+      const imagePath = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer3D_images/${image_name}.png`;
+      const key = `${image_name}-${width}-${height}-${depth}`;
 
       if (itemMap.has(key)) {
         const itemData = itemMap.get(key)!;
