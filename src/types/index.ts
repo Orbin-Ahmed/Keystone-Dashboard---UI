@@ -420,6 +420,7 @@ export interface SidebarItem {
   width: number;
   height: number;
   depth: number;
+  type?: string;
 }
 
 export interface Plan3DViewerProps {

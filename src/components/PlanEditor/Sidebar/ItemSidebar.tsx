@@ -1,12 +1,50 @@
-import { items, SidebarItem } from "@/types";
-import React, { useState } from "react";
+import { SidebarItem } from "@/types";
+import React, { useEffect, useState } from "react";
 
 interface ItemSidebarProps {
   selectedPlane: string;
 }
 
 const ItemSidebar: React.FC<ItemSidebarProps> = ({ selectedPlane }) => {
+  const [items, setItems] = useState<{ [category: string]: SidebarItem[] }>({});
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+
+  const fetchItems = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}api/items/`,
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch items.");
+      }
+      const data = await response.json();
+
+      const categorizedItems: { [category: string]: SidebarItem[] } = {};
+      data.forEach((item: any) => {
+        const category = item.category;
+        if (!categorizedItems[category]) {
+          categorizedItems[category] = [];
+        }
+        categorizedItems[category].push({
+          name: item.item_name,
+          imageSrc: `${process.env.NEXT_PUBLIC_API_MEDIA_URL + item.viewer2d}`,
+          category: item.category,
+          width: item.width,
+          height: item.height,
+          depth: item.depth,
+          type: item.type,
+        });
+      });
+
+      setItems(categorizedItems);
+    } catch (error) {
+      console.error("Error fetching items:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchItems();
+  }, []);
 
   const handleDragStart = (
     event: React.DragEvent<HTMLImageElement>,
@@ -27,8 +65,8 @@ const ItemSidebar: React.FC<ItemSidebarProps> = ({ selectedPlane }) => {
         {Object.entries(items).map(([category, itemsInCategory]) => {
           const filteredItems = itemsInCategory.filter(
             (item) =>
-              (selectedPlane === "floor" && item.category !== "ceiling") ||
-              (selectedPlane === "roof" && item.category === "ceiling"),
+              (selectedPlane === "floor" && item.type !== "Ceiling") ||
+              (selectedPlane === "roof" && item.type === "Ceiling"),
           );
 
           if (filteredItems.length === 0) return null;
