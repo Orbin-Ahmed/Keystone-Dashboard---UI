@@ -38,7 +38,7 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
     },
     ref,
   ) => {
-    const { scene } = useGLTF(`/models/${path}`);
+    const { scene } = useGLTF(`${path}`);
     const modelRef = useRef<Object3D | null>(null);
     const [isColliding, setIsColliding] = useState(false);
     const COLLISION_THRESHOLD = 3;
@@ -155,9 +155,9 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
     }, [clonedScene]);
 
     useEffect(() => {
-      useGLTF.preload(`/models/${path}`);
+      useGLTF.preload(`${path}`);
       return () => {
-        useGLTF.clear(`/models/${path}`);
+        useGLTF.clear(`${path}`);
       };
     }, [path]);
 

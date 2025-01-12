@@ -853,17 +853,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
           {/* Items Sidebar */}
           {isItemsOpen && !activeTourPoint && (
-            <ItemSidebar
-              categories={categories}
-              onItemClick={handleItemClick}
-            />
-          )}
-
-          {isItemsOpen && activeTourPoint && (
-            <ItemSidebar
-              categories={wallItemsCatgories}
-              onItemClick={handleWallItemSelect}
-            />
+            <ItemSidebar onItemClick={handleItemClick} />
           )}
         </div>
       )}
