@@ -871,21 +871,23 @@ const FloorPlanner = () => {
         </div>
       )}
 
-      <div className="fixed bottom-8 left-1/2 z-50 flex -translate-x-1/2 transform items-center gap-4">
-        <button
-          className="rounded-full p-4 shadow-xl"
-          onClick={handlePreviousFloor}
-        >
-          <GrLinkPrevious />
-        </button>
-        <p>{currentFloor}</p>
-        <button
-          className="rounded-full p-4 shadow-xl"
-          onClick={handleNextFloor}
-        >
-          <GrLinkNext />
-        </button>
-      </div>
+      {viewMode === "2D" && (
+        <div className="fixed bottom-8 left-1/2 z-50 flex -translate-x-1/2 transform items-center gap-4">
+          <button
+            className="rounded-full p-4 shadow-xl"
+            onClick={handlePreviousFloor}
+          >
+            <GrLinkPrevious />
+          </button>
+          <p>{currentFloor}</p>
+          <button
+            className="rounded-full p-4 shadow-xl"
+            onClick={handleNextFloor}
+          >
+            <GrLinkNext />
+          </button>
+        </div>
+      )}
     </div>
   );
 };
