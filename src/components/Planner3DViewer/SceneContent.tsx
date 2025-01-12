@@ -377,12 +377,12 @@ const SceneContent: React.FC<SceneContentProps> = ({
     const typeCounters: { [key: string]: number } = {};
 
     placedItems.forEach((item) => {
-      const { type, width, height, depth, name } = item;
+      const { type, width, height, depth, name, category } = item;
 
-      const roomName = itemToRoomName[type] || "N/A";
+      const roomName = itemToRoomName[type] || category || "N/A";
 
       const area = width * height;
-      const imagePath = `/models/items/${type}.png`;
+      const imagePath = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer3D_images/${type}.png`;
       const key = `${type}-${width}-${height}-${depth}`;
 
       if (itemMap.has(key)) {
@@ -853,8 +853,9 @@ const SceneContent: React.FC<SceneContentProps> = ({
     const newPlacedItems = furnitureItems.map((item) => {
       const id = item.id;
       const name = item.name;
-      const type = name.toLowerCase().replace(/-/g, "_");
-      const path = `items/${type}.glb`;
+      const type = name.toLowerCase().replace(/[-\s]/g, "_");
+      const path = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/${type}.glb`;
+      console.log(path);
       const rotationInRadians = -(item.rotation * Math.PI) / 180;
 
       const adjustedX =
@@ -882,6 +883,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
         depth: item.depth,
         position,
         rotation,
+        category: item.category,
       };
     });
 
@@ -895,8 +897,8 @@ const SceneContent: React.FC<SceneContentProps> = ({
     const newCeilingPlaced = ceilingItems.map((item) => {
       const id = item.id;
       const name = item.name;
-      const type = name.toLowerCase().replace(/-/g, "_");
-      const path = `items/${type}.glb`;
+      const type = name.toLowerCase().replace(/[-\s]/g, "_");
+      const path = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/${type}.glb`;
 
       const rotationInRadians = -(item.rotation * Math.PI) / 180;
       const adjustedX =
@@ -928,6 +930,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
         depth: item.depth,
         position,
         rotation,
+        category: item.category,
       };
     });
     setPlacedItems((prev) => [...prev, ...newCeilingPlaced]);

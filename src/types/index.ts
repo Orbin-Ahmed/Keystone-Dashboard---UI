@@ -294,6 +294,7 @@ export interface PlacingItemType {
   width: number;
   height: number;
   depth: number;
+  category?: string;
   position?: [number, number, number];
   rotation?: [number, number, number];
 }
@@ -326,6 +327,7 @@ export interface PDFItemData {
   area: number;
   count: number;
   image: string;
+  catrgory?: string;
 }
 
 export type FloorData = {

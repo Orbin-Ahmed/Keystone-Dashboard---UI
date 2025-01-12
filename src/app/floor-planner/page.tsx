@@ -618,7 +618,7 @@ const FloorPlanner = () => {
       processedFurnitureItems = floorData.furniture.map(
         (item: SerializedFurnitureItem) => ({
           ...item,
-          imageSrc: `/2DViewerAssets/${item.name.toLowerCase().replace(/-/g, "_")}.svg`,
+          imageSrc: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${item.name.toLowerCase().replace(/[-\s]/g, "_")}.png`,
         }),
       );
     }
@@ -629,7 +629,7 @@ const FloorPlanner = () => {
       processedCeilingItems = floorData.ceilingItems.map(
         (item: SerializedceilingItem) => ({
           ...item,
-          imageSrc: `/2DViewerAssets/${item.name.toLowerCase().replace(/-/g, "_")}.svg`,
+          imageSrc: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${item.name.toLowerCase().replace(/[-\s]/g, "_")}.png`,
         }),
       );
     }
