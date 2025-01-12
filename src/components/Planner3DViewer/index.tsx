@@ -291,6 +291,49 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         rotation: placingItem.rotation || [0, 0, 0],
       };
       setPlacedItems((prev) => [...prev, newItem]);
+
+      // add to 2D furniture list
+      const rotationInDegrees = (newItem.rotation[1] * 180) / Math.PI;
+
+      const adjustedX =
+        newItem.position[0] -
+        (Math.cos(newItem.rotation[1]) * newItem.width) / 2 -
+        (Math.sin(newItem.rotation[1]) * newItem.depth) / 2 +
+        centerX;
+
+      const adjustedY =
+        newItem.position[2] +
+        (Math.sin(newItem.rotation[1]) * newItem.width) / 2 -
+        (Math.cos(newItem.rotation[1]) * newItem.depth) / 2 +
+        centerY;
+
+      const newFurnitureItem = {
+        id: placingItem.id || uid(),
+        x: adjustedX,
+        y: adjustedY,
+        name: placingItem.name || "Unnamed Item",
+        width: placingItem.width,
+        height: placingItem.height,
+        depth: placingItem.depth,
+        rotation: rotationInDegrees,
+        category: placingItem.category || "Uncategorized",
+        imageSrc: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${placingItem.name
+          .toLowerCase()
+          .replace(/[-\s]/g, "_")}.png`,
+      };
+
+      setFurnitureItems((prev) => {
+        const existingIndex = prev.findIndex(
+          (item) => item.id === newFurnitureItem.id,
+        );
+        if (existingIndex !== -1) {
+          const updatedItems = [...prev];
+          updatedItems[existingIndex] = newFurnitureItem;
+          return updatedItems;
+        }
+        return [...prev, newFurnitureItem];
+      });
+
       setLastPlacedItemId((prev) => prev + 1);
       setPlacingItem(null);
     }

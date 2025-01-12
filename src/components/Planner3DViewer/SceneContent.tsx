@@ -891,7 +891,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
       ...prevPlacedItems,
       ...newPlacedItems,
     ]);
-  }, [furnitureItems, centerX, centerY, setPlacedItems, currentFloorIndex]);
+  }, []);
 
   useEffect(() => {
     const newCeilingPlaced = ceilingItems.map((item) => {
@@ -934,14 +934,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
       };
     });
     setPlacedItems((prev) => [...prev, ...newCeilingPlaced]);
-  }, [
-    ceilingItems,
-    wallHeight,
-    centerX,
-    centerY,
-    setPlacedItems,
-    currentFloorIndex,
-  ]);
+  }, [ceilingItems, currentFloorIndex]);
 
   useEffect(() => {
     if (envMap && showRoof) {
