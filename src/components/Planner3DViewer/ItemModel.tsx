@@ -154,12 +154,12 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
       };
     }, [clonedScene]);
 
-    useEffect(() => {
-      useGLTF.preload(`${path}`);
-      return () => {
-        useGLTF.clear(`${path}`);
-      };
-    }, [path]);
+    // useEffect(() => {
+    //   useGLTF.preload(`${path}`);
+    //   return () => {
+    //     useGLTF.clear(`${path}`);
+    //   };
+    // }, [path]);
 
     return (
       <primitive
