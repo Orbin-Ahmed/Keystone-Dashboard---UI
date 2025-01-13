@@ -84,6 +84,10 @@ const FloorPlanner = () => {
   const [windowImage] = useImage("/textures/window.svg");
   const [doorImage] = useImage("/textures/door.svg");
 
+  useEffect(() => {
+    console.log(wallItems);
+  }, [wallItems]);
+
   // Upload download function
   const handleDownload = () => {
     const floorsToSave = Object.entries(floors).reduce(
@@ -715,6 +719,7 @@ const FloorPlanner = () => {
       floorPlanPoints: processedFloorPlanPoints,
       furnitureItems: processedFurnitureItems,
       ceilingItems: processedCeilingItems,
+      wallItems: processedWallItems,
     };
   };
 
