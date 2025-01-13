@@ -15,7 +15,9 @@ import {
   SerializedFurnitureItem,
   SerializedRoomName,
   SerializedShape,
+  SerializedWallItem,
   ShapeType,
+  WallItems2D,
 } from "@/types";
 import { detectWallPosition } from "@/api";
 import { uid } from "uid";
@@ -59,6 +61,7 @@ const FloorPlanner = () => {
   const [floorPlanPoints, setFloorPlanPoints] = useState<FloorPlanPoint[]>([]);
   const [furnitureItems, setFurnitureItems] = useState<FurnitureItem[]>([]);
   const [ceilingItems, setCeilingItems] = useState<CeilingItem[]>([]);
+  const [wallItems, setWallItems] = useState<WallItems2D[]>([]);
 
   // Multi Floor Data
   const floorNames = Array.from({ length: 10 }, (_, i) => `Floor ${i}`);
@@ -72,6 +75,7 @@ const FloorPlanner = () => {
       floorPlanPoints: [],
       furnitureItems: [],
       ceilingItems: [],
+      wallItems: [],
     },
   });
 
@@ -138,6 +142,22 @@ const FloorPlanner = () => {
           }));
         }
 
+        let wallItemsToSave = [] as SerializedWallItem[];
+
+        if (floorData.wallItems && floorData.wallItems.length > 0) {
+          wallItemsToSave = floorData.wallItems.map((item) => ({
+            id: item.id,
+            x: item.x,
+            y: item.y,
+            name: item.name,
+            width: item.width,
+            height: item.height,
+            depth: item.depth,
+            rotation: item.rotation,
+            category: item.category,
+          }));
+        }
+
         acc[floorName] = {
           lines: floorData.lines,
           shapes: shapesToSave,
@@ -145,6 +165,7 @@ const FloorPlanner = () => {
           floorPlanPoints: floorPlanPointsToSave,
           furniture: furnitureItemsToSave,
           ceilingItems: ceilingItemsToSave,
+          wallItems: wallItemsToSave,
         };
 
         return acc;
@@ -213,6 +234,7 @@ const FloorPlanner = () => {
           setFloorPlanPoints(firstFloorData.floorPlanPoints);
           setFurnitureItems(firstFloorData.furnitureItems ?? []);
           setCeilingItems(firstFloorData.ceilingItems ?? []);
+          setWallItems(firstFloorData.wallItems ?? []);
         } catch (err) {
           console.error("Failed to load design:", err);
         }
@@ -614,7 +636,7 @@ const FloorPlanner = () => {
       );
     }
 
-    // Process furniture names
+    // Process furniture items
     let processedFurnitureItems: FurnitureItem[] = [];
     if (floorData.furniture && floorData.furniture.length > 0) {
       processedFurnitureItems = floorData.furniture.map(
@@ -625,11 +647,22 @@ const FloorPlanner = () => {
       );
     }
 
-    // Process furniture names
+    // Process celing items
     let processedCeilingItems: CeilingItem[] = [];
     if (floorData.ceilingItems && floorData.ceilingItems.length > 0) {
       processedCeilingItems = floorData.ceilingItems.map(
         (item: SerializedceilingItem) => ({
+          ...item,
+          imageSrc: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${item.name.toLowerCase().replace(/[-\s]/g, "_")}.png`,
+        }),
+      );
+    }
+
+    // Process wall items
+    let processedWallItems: WallItems2D[] = [];
+    if (floorData.wallItems && floorData.wallItems.length > 0) {
+      processedWallItems = floorData.wallItems.map(
+        (item: SerializedWallItem) => ({
           ...item,
           imageSrc: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${item.name.toLowerCase().replace(/[-\s]/g, "_")}.png`,
         }),
@@ -767,6 +800,8 @@ const FloorPlanner = () => {
           ceilingItems={ceilingItems}
           setCeilingItems={setCeilingItems}
           currentFloorIndex={currentFloorIndex}
+          wallItems={wallItems}
+          setWallItems={setWallItems}
         />
       ) : (
         <PlanEditor
@@ -797,6 +832,8 @@ const FloorPlanner = () => {
           selectedPlane={selectedPlane}
           ceilingItems={ceilingItems}
           setCeilingItems={setCeilingItems}
+          wallItems={wallItems}
+          setWallItems={setWallItems}
         />
       )}
       {viewMode === "2D" && (

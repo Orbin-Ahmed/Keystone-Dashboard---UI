@@ -65,8 +65,11 @@ const ItemSidebar: React.FC<ItemSidebarProps> = ({ selectedPlane }) => {
         {Object.entries(items).map(([category, itemsInCategory]) => {
           const filteredItems = itemsInCategory.filter(
             (item) =>
-              (selectedPlane === "floor" && item.type !== "Ceiling") ||
-              (selectedPlane === "roof" && item.type === "Ceiling"),
+              (selectedPlane === "floor" &&
+                item.type !== "Ceiling" &&
+                item.type !== "Wall") ||
+              (selectedPlane === "roof" && item.type === "Ceiling") ||
+              (selectedPlane === "wall" && item.type === "Wall"),
           );
 
           if (filteredItems.length === 0) return null;

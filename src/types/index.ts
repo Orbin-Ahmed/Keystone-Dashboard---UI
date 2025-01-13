@@ -208,6 +208,8 @@ export interface PlanEditorProps {
   ceilingItems: CeilingItem[];
   setCeilingItems: React.Dispatch<React.SetStateAction<CeilingItem[]>>;
   selectedPlane: string;
+  wallItems: WallItems2D[];
+  setWallItems: React.Dispatch<React.SetStateAction<WallItems2D[]>>;
 }
 
 export interface LineData {
@@ -337,6 +339,7 @@ export type FloorData = {
   floorPlanPoints: FloorPlanPoint[];
   furnitureItems?: FurnitureItem[];
   ceilingItems?: CeilingItem[];
+  wallItems?: WallItems2D[];
 };
 
 export interface SerializedShape {
@@ -364,6 +367,7 @@ export interface SerializedFloorData {
   floorPlanPoints: FloorPlanPoint[];
   furniture: SerializedFurnitureItem[];
   ceilingItems: SerializedceilingItem[];
+  wallItems: SerializedWallItem[]
 }
 export interface SerializedFurnitureItem {
   id: string;
@@ -389,6 +393,18 @@ export interface SerializedceilingItem {
   category: string;
 }
 
+export interface SerializedWallItem {
+  id: string;
+  x: number;
+  y: number;
+  name: string;
+  width: number;
+  height: number;
+  depth: number;
+  rotation: number;
+  category: string;
+}
+
 export interface FurnitureItem {
   id: string;
   x: number;
@@ -403,6 +419,19 @@ export interface FurnitureItem {
 }
 
 export interface CeilingItem {
+  id: string;
+  x: number;
+  y: number;
+  name: string;
+  width: number;
+  height: number;
+  depth: number;
+  rotation: number;
+  imageSrc: string;
+  category: string;
+}
+
+export interface WallItems2D {
   id: string;
   x: number;
   y: number;
@@ -441,6 +470,8 @@ export interface Plan3DViewerProps {
   ceilingItems: CeilingItem[];
   setCeilingItems: React.Dispatch<React.SetStateAction<CeilingItem[]>>;
   currentFloorIndex: number;
+  wallItems: WallItems2D[];
+  setWallItems: React.Dispatch<React.SetStateAction<WallItems2D[]>>;
 }
 
 export interface SceneContentProps {
