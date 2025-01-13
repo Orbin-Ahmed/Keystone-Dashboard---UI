@@ -80,10 +80,47 @@ const PlanEditor = ({
 
   const stageRef = useRef<Konva.Stage>(null);
 
-  const floorLayerOpacity = selectedPlane === "roof" ? 0.3 : 1;
-  const floorLayerListening = selectedPlane !== "roof";
-  const ceilingLayerOpacity = selectedPlane === "roof" ? 1 : 0;
+  const DIMMED_OPACITY = 0.3;
+  const FULL_OPACITY = 1;
+
+  const floorLayerOpacity =
+    selectedPlane === "roof"
+      ? DIMMED_OPACITY
+      : selectedPlane === "wall"
+        ? DIMMED_OPACITY
+        : FULL_OPACITY;
+  const ceilingLayerOpacity =
+    selectedPlane === "roof"
+      ? FULL_OPACITY
+      : selectedPlane === "wall"
+        ? DIMMED_OPACITY
+        : 0;
+  const wallLayerOpacity = selectedPlane === "wall" ? FULL_OPACITY : 0;
+
+  const floorLayerListening = selectedPlane === "floor";
   const ceilingLayerListening = selectedPlane === "roof";
+  const wallLayerListening = selectedPlane === "wall";
+
+  const findNearestWall = (pos: { x: number; y: number }) => {
+    const SNAP_DISTANCE = 30;
+    let nearestWall = null;
+    let minDistance = SNAP_DISTANCE;
+
+    for (const line of lines) {
+      const dist = distanceToLine(line, pos);
+      if (dist < minDistance) {
+        minDistance = dist;
+        nearestWall = line;
+      }
+    }
+
+    if (nearestWall) {
+      const { x, y } = findClosestPointOnLine(nearestWall, pos);
+      return { x, y, wallId: nearestWall.id };
+    }
+
+    return null;
+  };
 
   useEffect(() => {
     setIsMounted(true);
@@ -185,7 +222,7 @@ const PlanEditor = ({
   };
 
   const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
-    if (selectedPlane === "roof") return;
+    if (selectedPlane === "roof" || selectedPlane === "wall") return;
     const clickedOnEmpty = e.target === e.target.getStage();
     if (clickedOnEmpty) {
       setSelectedWall(null);
@@ -216,7 +253,7 @@ const PlanEditor = ({
   };
 
   const handleMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
-    if (selectedPlane === "roof") return;
+    if (selectedPlane === "roof" || selectedPlane === "wall") return;
     if (tool === "wall" && startPoint) {
       const pos = e.target.getStage()?.getPointerPosition();
       if (pos) {
@@ -251,7 +288,7 @@ const PlanEditor = ({
   };
 
   const handleMouseUp = (e: Konva.KonvaEventObject<MouseEvent>) => {
-    if (selectedPlane === "roof") return;
+    if (selectedPlane === "roof" || selectedPlane === "wall") return;
     const stage = e.target.getStage();
     if (!stage || !startPoint) return;
 
@@ -594,11 +631,6 @@ const PlanEditor = ({
     e: Konva.KonvaEventObject<DragEvent>,
     shapeId: string,
   ) => {
-    if (selectedPlane === "roof") {
-      e.target.stopDrag();
-      return;
-    }
-
     const pos = e.target.position();
     const closestLineId = findClosestLineById(pos);
     const shape = shapes.find((s) => s.id === shapeId);
@@ -651,7 +683,7 @@ const PlanEditor = ({
   };
 
   const handleDoubleClick = (e: Konva.KonvaEventObject<MouseEvent>) => {
-    if (selectedPlane === "roof") return;
+    if (selectedPlane === "roof" || selectedPlane === "wall") return;
 
     const stage = e.target.getStage();
     if (!stage) return;
@@ -690,11 +722,14 @@ const PlanEditor = ({
       return;
     }
 
+    const nearestWall = findNearestWall(pos);
+    const finalPosition = nearestWall || pos;
+
     if (selectedPlane === "roof") {
       const newCeilingItem: CeilingItem = {
         id: uid(),
-        x: pos.x,
-        y: pos.y,
+        x: finalPosition.x,
+        y: finalPosition.y,
         name: item.name,
         width: item.width,
         height: item.height,
@@ -707,8 +742,8 @@ const PlanEditor = ({
     } else {
       const newFurniture: FurnitureItem = {
         id: uid(),
-        x: pos.x,
-        y: pos.y,
+        x: finalPosition.x,
+        y: finalPosition.y,
         name: item.name,
         width: item.width,
         height: item.height,
@@ -724,6 +759,43 @@ const PlanEditor = ({
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "copy";
+  };
+
+  const handleItemDragEnd = (
+    id: string,
+    newPos: { x: number; y: number },
+    isFloorItem: boolean,
+  ) => {
+    const nearestWall = findNearestWall(newPos);
+    const finalPosition = nearestWall || newPos;
+
+    if (isFloorItem) {
+      setFurnitureItems((prev) =>
+        prev.map((item) =>
+          item.id === id
+            ? {
+                ...item,
+                x: finalPosition.x,
+                y: finalPosition.y,
+                wallId: nearestWall?.wallId,
+              }
+            : item,
+        ),
+      );
+    } else {
+      setCeilingItems((prev) =>
+        prev.map((item) =>
+          item.id === id
+            ? {
+                ...item,
+                x: finalPosition.x,
+                y: finalPosition.y,
+                wallId: nearestWall?.wallId,
+              }
+            : item,
+        ),
+      );
+    }
   };
 
   return (
@@ -989,11 +1061,11 @@ const PlanEditor = ({
                   setSelectedCeilingItemId(null);
                 }}
                 onChange={(id, newAttrs) => {
-                  setFurnitureItems((prevItems) =>
-                    prevItems.map((i) =>
-                      i.id === id ? { ...i, ...newAttrs } : i,
-                    ),
-                  );
+                  const newPos = {
+                    x: newAttrs.x || item.x,
+                    y: newAttrs.y || item.y,
+                  };
+                  handleItemDragEnd(id, newPos, true);
                 }}
               />
             ))}
@@ -1014,10 +1086,23 @@ const PlanEditor = ({
                   setSelectedWall(null);
                 }}
                 onChange={(id, newAttrs) => {
-                  setCeilingItems((prev) =>
-                    prev.map((c) => (c.id === id ? { ...c, ...newAttrs } : c)),
-                  );
+                  const newPos = {
+                    x: newAttrs.x || ci.x,
+                    y: newAttrs.y || ci.y,
+                  };
+                  handleItemDragEnd(id, newPos, false);
                 }}
+              />
+            ))}
+          </Layer>
+          <Layer opacity={wallLayerOpacity} listening={wallLayerListening}>
+            {lines.map((line) => (
+              <KonvaLine
+                key={`wall-${line.id}`}
+                points={line.points}
+                stroke="red"
+                strokeWidth={line.thickness || 8}
+                opacity={1}
               />
             ))}
           </Layer>
