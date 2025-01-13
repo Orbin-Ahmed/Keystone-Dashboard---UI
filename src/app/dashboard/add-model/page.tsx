@@ -17,6 +17,7 @@ import { Material, Mesh } from "three";
 import { Text } from "@react-three/drei";
 import { DimensionBoxProps } from "@/types";
 import * as THREE from "three";
+import { ModelViewer } from "@/components/ModelViewer";
 
 const DimensionLine = ({
   start,
@@ -116,38 +117,7 @@ const DimensionViewer: React.FC<DimensionBoxProps> = ({
   );
 };
 
-type GLTFResult = GLTF & {
-  nodes: {
-    [key: string]: Mesh;
-  };
-  materials: {
-    [key: string]: Material;
-  };
-};
-
-interface ModelViewerProps {
-  glbUrl: string;
-}
-
-const ModelViewer: React.FC<ModelViewerProps> = ({ glbUrl }) => {
-  const { scene } = useGLTF(glbUrl) as GLTFResult;
-
-  return (
-    <>
-      <ambientLight intensity={0.6} />
-      <directionalLight position={[5, 5, 5]} intensity={0.7} />
-      <spotLight
-        position={[10, 10, 10]}
-        angle={0.15}
-        penumbra={1}
-        intensity={1}
-      />
-      <primitive object={scene} />
-    </>
-  );
-};
-
-const EditImage = () => {
+const addModel = () => {
   const [formData, setFormData] = useState<{
     itemName: string;
     glbFile: File | null;
@@ -486,7 +456,7 @@ const EditImage = () => {
               <Canvas>
                 <PerspectiveCamera position={[2, 2, 2]} />
                 <OrbitControls autoRotate autoRotateSpeed={1} />
-                <Environment preset="city" background={false} />
+                <Environment preset="lobby" background={false} />
                 <ModelViewer glbUrl={glbUrl} />
                 <gridHelper args={[10, 10]} />
               </Canvas>
@@ -502,4 +472,4 @@ const EditImage = () => {
   );
 };
 
-export default EditImage;
+export default addModel;

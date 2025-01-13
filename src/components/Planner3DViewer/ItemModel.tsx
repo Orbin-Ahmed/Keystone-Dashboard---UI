@@ -162,26 +162,36 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
     // }, [path]);
 
     return (
-      <primitive
-        ref={(obj: Object3D | null) => {
-          modelRef.current = obj;
-          if (typeof ref === "function") {
-            ref(obj);
-          } else if (ref) {
-            (ref as React.MutableRefObject<Object3D | null>).current = obj;
-          }
-        }}
-        object={clonedScene}
-        position={adjustedPosition}
-        rotation={rotation}
-        scale={adjustedScale}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onPointerOver={onPointerOver}
-        onPointerOut={onPointerOut}
-        onClick={onClick}
-      />
+      <>
+        <directionalLight
+          position={[5, 10, 5]}
+          intensity={0.3}
+          color="#ffffff"
+          castShadow
+          shadow-mapSize-width={1024}
+          shadow-mapSize-height={1024}
+        />
+        <primitive
+          ref={(obj: Object3D | null) => {
+            modelRef.current = obj;
+            if (typeof ref === "function") {
+              ref(obj);
+            } else if (ref) {
+              (ref as React.MutableRefObject<Object3D | null>).current = obj;
+            }
+          }}
+          object={clonedScene}
+          position={adjustedPosition}
+          rotation={rotation}
+          scale={adjustedScale}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerOver={onPointerOver}
+          onPointerOut={onPointerOut}
+          onClick={onClick}
+        />
+      </>
     );
   },
 );

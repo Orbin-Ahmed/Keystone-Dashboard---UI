@@ -39,6 +39,7 @@ import SelectedWallItemControls from "./sidebar/SelectedWallItemControls";
 import { FaArrowLeft, FaDownload } from "react-icons/fa";
 import { Spinner } from "@radix-ui/themes";
 import { uid } from "uid";
+import { Environment } from "@react-three/drei";
 
 const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   lines,
