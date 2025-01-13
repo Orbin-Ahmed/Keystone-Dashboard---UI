@@ -4,7 +4,6 @@ import Image from "next/image";
 import { Canvas } from "@react-three/fiber";
 import {
   OrbitControls,
-  useGLTF,
   PerspectiveCamera,
   Environment,
 } from "@react-three/drei";
@@ -12,8 +11,6 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import InputField from "@/components/InputField";
 import CustomButton from "@/components/CustomButton";
-import { GLTF } from "three-stdlib";
-import { Material, Mesh } from "three";
 import { Text } from "@react-three/drei";
 import { DimensionBoxProps } from "@/types";
 import * as THREE from "three";
@@ -117,7 +114,7 @@ const DimensionViewer: React.FC<DimensionBoxProps> = ({
   );
 };
 
-const addModel = () => {
+const AddModel = () => {
   const [formData, setFormData] = useState<{
     itemName: string;
     glbFile: File | null;
@@ -472,4 +469,4 @@ const addModel = () => {
   );
 };
 
-export default addModel;
+export default AddModel;

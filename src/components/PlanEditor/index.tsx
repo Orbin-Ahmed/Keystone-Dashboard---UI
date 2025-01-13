@@ -19,6 +19,7 @@ import {
   PlanEditorProps,
   ShapeType,
   SidebarItem,
+  WallItems2D,
 } from "@/types";
 import { uid } from "uid";
 import FurnitureItemComponent from "./FurnitureItemComponent";
@@ -58,6 +59,8 @@ const PlanEditor = ({
   ceilingItems,
   setCeilingItems,
   selectedPlane,
+  wallItems,
+  setWallItems,
 }: PlanEditorProps) => {
   const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(
     null,
@@ -73,6 +76,9 @@ const PlanEditor = ({
   const [selectedCeilingItemId, setSelectedCeilingItemId] = useState<
     string | null
   >(null);
+  const [selectedWallItemId, setSelectedWallItemId] = useState<string | null>(
+    null,
+  );
 
   const [rotateIcon] = useImage("/icons/rotate.svg");
   const [deleteIcon] = useImage("/icons/delete.svg");
@@ -101,27 +107,6 @@ const PlanEditor = ({
   const ceilingLayerListening = selectedPlane === "roof";
   const wallLayerListening = selectedPlane === "wall";
 
-  const findNearestWall = (pos: { x: number; y: number }) => {
-    const SNAP_DISTANCE = 30;
-    let nearestWall = null;
-    let minDistance = SNAP_DISTANCE;
-
-    for (const line of lines) {
-      const dist = distanceToLine(line, pos);
-      if (dist < minDistance) {
-        minDistance = dist;
-        nearestWall = line;
-      }
-    }
-
-    if (nearestWall) {
-      const { x, y } = findClosestPointOnLine(nearestWall, pos);
-      return { x, y, wallId: nearestWall.id };
-    }
-
-    return null;
-  };
-
   useEffect(() => {
     setIsMounted(true);
 
@@ -133,6 +118,7 @@ const PlanEditor = ({
         setGuideLine(null);
         setSelectedItemId(null);
         setSelectedCeilingItemId(null);
+        setSelectedWallItemId(null);
       }
 
       if (event.key === "Delete" || event.key === "Backspace") {
@@ -146,6 +132,11 @@ const PlanEditor = ({
             prev.filter((c) => c.id !== selectedCeilingItemId),
           );
           setSelectedCeilingItemId(null);
+        } else if (selectedWallItemId) {
+          setWallItems((prev) =>
+            prev.filter((i) => i.id !== selectedWallItemId),
+          );
+          setSelectedWallItemId(null);
         }
       }
     };
@@ -722,14 +713,25 @@ const PlanEditor = ({
       return;
     }
 
-    const nearestWall = findNearestWall(pos);
-    const finalPosition = nearestWall || pos;
-
-    if (selectedPlane === "roof") {
+    if (selectedPlane === "wall") {
+      const newWallItem: WallItems2D = {
+        id: uid(),
+        x: pos.x,
+        y: pos.y,
+        name: item.name,
+        width: item.width,
+        height: item.height,
+        depth: item.depth,
+        rotation: 0,
+        imageSrc: item.imageSrc,
+        category: item.category,
+      };
+      setWallItems((prev) => [...prev, newWallItem]);
+    } else if (selectedPlane === "roof") {
       const newCeilingItem: CeilingItem = {
         id: uid(),
-        x: finalPosition.x,
-        y: finalPosition.y,
+        x: pos.x,
+        y: pos.y,
         name: item.name,
         width: item.width,
         height: item.height,
@@ -742,8 +744,8 @@ const PlanEditor = ({
     } else {
       const newFurniture: FurnitureItem = {
         id: uid(),
-        x: finalPosition.x,
-        y: finalPosition.y,
+        x: pos.x,
+        y: pos.y,
         name: item.name,
         width: item.width,
         height: item.height,
@@ -765,9 +767,9 @@ const PlanEditor = ({
     id: string,
     newPos: { x: number; y: number },
     isFloorItem: boolean,
+    isWallItem: boolean,
   ) => {
-    const nearestWall = findNearestWall(newPos);
-    const finalPosition = nearestWall || newPos;
+    const finalPosition = newPos;
 
     if (isFloorItem) {
       setFurnitureItems((prev) =>
@@ -777,12 +779,11 @@ const PlanEditor = ({
                 ...item,
                 x: finalPosition.x,
                 y: finalPosition.y,
-                wallId: nearestWall?.wallId,
               }
             : item,
         ),
       );
-    } else {
+    } else if (!isWallItem && !isFloorItem) {
       setCeilingItems((prev) =>
         prev.map((item) =>
           item.id === id
@@ -790,7 +791,18 @@ const PlanEditor = ({
                 ...item,
                 x: finalPosition.x,
                 y: finalPosition.y,
-                wallId: nearestWall?.wallId,
+              }
+            : item,
+        ),
+      );
+    } else if (isWallItem) {
+      setWallItems((prev) =>
+        prev.map((item) =>
+          item.id === id
+            ? {
+                ...item,
+                x: finalPosition.x,
+                y: finalPosition.y,
               }
             : item,
         ),
@@ -1059,13 +1071,14 @@ const PlanEditor = ({
                   setSelectedShape(null);
                   setSelectedWall(null);
                   setSelectedCeilingItemId(null);
+                  setSelectedWallItemId(null);
                 }}
                 onChange={(id, newAttrs) => {
                   const newPos = {
                     x: newAttrs.x || item.x,
                     y: newAttrs.y || item.y,
                   };
-                  handleItemDragEnd(id, newPos, true);
+                  handleItemDragEnd(id, newPos, true, false);
                 }}
               />
             ))}
@@ -1084,13 +1097,14 @@ const PlanEditor = ({
                   setSelectedItemId(null);
                   setSelectedShape(null);
                   setSelectedWall(null);
+                  setSelectedWallItemId(null);
                 }}
                 onChange={(id, newAttrs) => {
                   const newPos = {
                     x: newAttrs.x || ci.x,
                     y: newAttrs.y || ci.y,
                   };
-                  handleItemDragEnd(id, newPos, false);
+                  handleItemDragEnd(id, newPos, false, false);
                 }}
               />
             ))}
@@ -1103,6 +1117,28 @@ const PlanEditor = ({
                 stroke="red"
                 strokeWidth={line.thickness || 8}
                 opacity={1}
+              />
+            ))}
+
+            {wallItems.map((wi) => (
+              <FurnitureItemComponent
+                key={wi.id}
+                item={wi}
+                isSelected={selectedWallItemId === wi.id}
+                onSelect={(id) => {
+                  setSelectedWallItemId(id);
+                  setSelectedItemId(null);
+                  setSelectedShape(null);
+                  setSelectedWall(null);
+                  setSelectedCeilingItemId(null);
+                }}
+                onChange={(id, newAttrs) => {
+                  const newPos = {
+                    x: newAttrs.x || wi.x,
+                    y: newAttrs.y || wi.y,
+                  };
+                  handleItemDragEnd(id, newPos, false, true);
+                }}
               />
             ))}
           </Layer>
