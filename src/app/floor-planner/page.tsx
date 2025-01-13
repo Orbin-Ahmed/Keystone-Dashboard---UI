@@ -468,6 +468,7 @@ const FloorPlanner = () => {
         floorPlanPoints,
         furnitureItems,
         ceilingItems,
+        wallItems,
       },
     }));
   }, [
@@ -478,6 +479,7 @@ const FloorPlanner = () => {
     currentFloor,
     furnitureItems,
     ceilingItems,
+    wallItems,
   ]);
 
   // Floor Data helper Function end
