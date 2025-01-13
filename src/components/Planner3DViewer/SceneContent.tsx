@@ -125,6 +125,8 @@ const SceneContent: React.FC<SceneContentProps> = ({
   ceilingItems,
   setCeilingItems,
   currentFloorIndex,
+  wallItems2D,
+  setWallItems2D,
 }) => {
   const { scene, camera, gl } = useThree();
   const raycaster = new Raycaster();

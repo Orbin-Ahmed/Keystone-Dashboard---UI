@@ -470,8 +470,8 @@ export interface Plan3DViewerProps {
   ceilingItems: CeilingItem[];
   setCeilingItems: React.Dispatch<React.SetStateAction<CeilingItem[]>>;
   currentFloorIndex: number;
-  wallItems: WallItems2D[];
-  setWallItems: React.Dispatch<React.SetStateAction<WallItems2D[]>>;
+  wallItems2D: WallItems2D[];
+  setWallItems2D: React.Dispatch<React.SetStateAction<WallItems2D[]>>;
 }
 
 export interface SceneContentProps {
@@ -514,6 +514,8 @@ export interface SceneContentProps {
   setFurnitureItems: React.Dispatch<React.SetStateAction<FurnitureItem[]>>;
   wallItems: any[];
   setWallItems: React.Dispatch<React.SetStateAction<any[]>>;
+  wallItems2D: WallItems2D[];
+  setWallItems2D: React.Dispatch<React.SetStateAction<WallItems2D[]>>;
   placingWallItem: any | null;
   setPlacingWallItem: React.Dispatch<React.SetStateAction<any | null>>;
   selectedWallItem: SelectedWallItem | null;

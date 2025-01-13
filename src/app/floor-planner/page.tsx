@@ -21,7 +21,6 @@ import {
 } from "@/types";
 import { detectWallPosition } from "@/api";
 import { uid } from "uid";
-import CreateBuildingShape from "@/components/PlanEditor/CreateBuildingShape";
 import { GrLinkNext, GrLinkPrevious } from "react-icons/gr";
 import ItemSidebar from "@/components/PlanEditor/Sidebar/ItemSidebar";
 import CustomButton from "@/components/CustomButton";
@@ -83,10 +82,6 @@ const FloorPlanner = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [windowImage] = useImage("/textures/window.svg");
   const [doorImage] = useImage("/textures/door.svg");
-
-  useEffect(() => {
-    console.log(wallItems);
-  }, [wallItems]);
 
   // Upload download function
   const handleDownload = () => {

@@ -1,19 +1,14 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import {
-  categories,
-  FurnitureItem,
-  LineData,
   PlacedItemType,
   PlacingItemType,
   Plan3DViewerProps,
-  RoomName,
   SelectedWallItem,
   ShapeData,
   TourPoint,
   WallClassification,
   WallItem,
-  wallItemsCatgories,
 } from "@/types";
 import {
   PerspectiveCamera,
@@ -39,7 +34,6 @@ import SelectedWallItemControls from "./sidebar/SelectedWallItemControls";
 import { FaArrowLeft, FaDownload } from "react-icons/fa";
 import { Spinner } from "@radix-ui/themes";
 import { uid } from "uid";
-import { Environment } from "@react-three/drei";
 
 const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   lines,
@@ -57,6 +51,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   ceilingItems,
   setCeilingItems,
   currentFloorIndex,
+  wallItems2D,
+  setWallItems2D,
 }) => {
   const [activeTourPoint, setActiveTourPoint] = useState<TourPoint | null>(
     null,
@@ -804,6 +800,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           ceilingItems={ceilingItems}
           setCeilingItems={setCeilingItems}
           currentFloorIndex={currentFloorIndex}
+          wallItems2D={wallItems2D}
+          setWallItems2D={setWallItems2D}
         />
       </Canvas>
 
