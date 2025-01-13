@@ -25,12 +25,12 @@ const SelectedItemControls: React.FC<SelectedItemControlsProps> = ({
         <CustomButton variant="secondary" onClick={onMove}>
           Move
         </CustomButton>
-        <CustomButton variant="secondary" onClick={onRotateLeft}>
+        {/* <CustomButton variant="secondary" onClick={onRotateLeft}>
           Rotate Left
         </CustomButton>
         <CustomButton variant="secondary" onClick={onRotateRight}>
           Rotate Right
-        </CustomButton>
+        </CustomButton> */}
         <CustomButton onClick={onDelete}>Delete</CustomButton>
       </div>
     </div>

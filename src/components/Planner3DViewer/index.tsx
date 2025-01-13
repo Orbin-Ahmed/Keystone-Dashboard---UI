@@ -294,7 +294,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       setPlacedItems((prev) => [...prev, newItem]);
 
       // add to 2D furniture list
-      const rotationInDegrees = (newItem.rotation[1] * 180) / Math.PI;
+      const rotationInDegrees = -(newItem.rotation[1] * 180) / Math.PI;
 
       const adjustedX =
         newItem.position[0] -
