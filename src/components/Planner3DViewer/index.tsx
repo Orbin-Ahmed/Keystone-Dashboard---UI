@@ -285,13 +285,19 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
   const confirmPlacement = () => {
     if (placingItem) {
+      const newId = placingItem.id || `item-${lastPlacedItemId + 1}`;
+
       const newItem: PlacedItemType = {
         ...placingItem,
-        id: `item-${lastPlacedItemId + 1}`,
+        id: newId,
         position: placingItem.position || [0, 0, 0],
         rotation: placingItem.rotation || [0, 0, 0],
       };
+
       setPlacedItems((prev) => [...prev, newItem]);
+      if (!placingItem.id) {
+        setLastPlacedItemId((prev) => prev + 1);
+      }
 
       // add to 2D furniture list
       const rotationInDegrees = -(newItem.rotation[1] * 180) / Math.PI;
@@ -309,7 +315,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         centerY;
 
       const newFurnitureItem = {
-        id: placingItem.id || uid(),
+        id: newId,
         x: adjustedX,
         y: adjustedY,
         name: placingItem.name || "Unnamed Item",
@@ -324,15 +330,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       };
 
       setFurnitureItems((prev) => {
-        const existingIndex = prev.findIndex(
-          (item) => item.id === newFurnitureItem.id,
-        );
-        if (existingIndex !== -1) {
-          const updatedItems = [...prev];
-          updatedItems[existingIndex] = newFurnitureItem;
-          return updatedItems;
-        }
-        return [...prev, newFurnitureItem];
+        const filtered = prev.filter((item) => item.id !== newId);
+        return [...filtered, newFurnitureItem];
       });
 
       setLastPlacedItemId((prev) => prev + 1);
