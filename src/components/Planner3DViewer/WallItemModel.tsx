@@ -1,88 +1,102 @@
 import React, { useEffect, useMemo, forwardRef, useRef } from "react";
 import { useGLTF } from "@react-three/drei";
-import { Object3D, Vector3, Plane, Box3 } from "three";
-import { ItemModelProps } from "./ItemModel";
+import { Box3, Mesh, Object3D, Vector3 } from "three";
 
-interface WallItemModelProps extends ItemModelProps {
-  wallNormal?: Vector3;
-  wallPlane?: Plane;
+export interface ItemModelProps {
+  path: string;
+  position: [number, number, number];
+  rotation: [number, number, number];
+  dimensions: {
+    width: number;
+    height: number;
+    depth: number;
+  };
 }
 
-const WallItemModel = forwardRef<Object3D, WallItemModelProps>(
-  (
-    {
-      path,
-      position,
-      rotation,
-      dimensions,
-      onPointerDown,
-      onPointerMove,
-      onPointerUp,
-      onPointerOver,
-      onPointerOut,
-      onClick,
-    },
-    ref,
-  ) => {
-    const { scene: modelScene } = useGLTF(`${path}`);
+const ItemModel = forwardRef<Object3D, ItemModelProps>(
+  ({ path, position, rotation, dimensions }, ref) => {
+    const { scene } = useGLTF(`${path}`);
     const modelRef = useRef<Object3D | null>(null);
+
+    // Calculate initial bounding box data from the original scene
     const initialBounds = useMemo(() => {
-      const bbox = new Box3().setFromObject(modelScene);
+      const bbox = new Box3().setFromObject(scene);
       const size = new Vector3();
       const center = new Vector3();
       bbox.getSize(size);
       bbox.getCenter(center);
       return { size, center };
-    }, [modelScene]);
+    }, [scene]);
 
-    const [adjustedScale] = useMemo(() => {
-      const { size } = initialBounds;
+    // Clone the scene to avoid mutating the original
+    const clonedScene = useMemo(() => {
+      return scene.clone(true);
+    }, [scene]);
+
+    const [adjustedScale, adjustedPosition] = useMemo(() => {
+      const { size, center } = initialBounds;
+
       const scaleX = dimensions.width / size.x;
       const scaleY = dimensions.height / size.y;
       const scaleZ = dimensions.depth / size.z;
 
       const adjustedScale: [number, number, number] = [scaleX, scaleY, scaleZ];
 
-      return [adjustedScale];
-    }, [initialBounds, dimensions]);
+      const adjustedPosition: [number, number, number] = [
+        position[0] - center.x * scaleX,
+        position[1] - center.y * scaleY + dimensions.height / 2,
+        position[2] - center.z * scaleZ,
+      ];
 
+      return [adjustedScale, adjustedPosition];
+    }, [initialBounds, dimensions, position]);
+
+    // Position and scale the model once it's mounted
     useEffect(() => {
       if (modelRef.current) {
+        modelRef.current.position.set(...adjustedPosition);
         modelRef.current.scale.set(...adjustedScale);
-        modelRef.current.position.set(
-          -initialBounds.center.x * adjustedScale[0],
-          -initialBounds.center.y * adjustedScale[1],
-          -initialBounds.center.z * adjustedScale[2],
-        );
-
-        modelRef.current.position.add(new Vector3(...position));
-        modelRef.current.rotation.y = rotation[1];
       }
-    }, [modelRef, adjustedScale, position, initialBounds, rotation]);
+    }, [adjustedPosition, adjustedScale]);
+
+    // Clean up cloned scene geometry/materials on unmount
+    useEffect(() => {
+      const currentScene = clonedScene;
+      return () => {
+        currentScene.traverse((object) => {
+          if (object instanceof Mesh) {
+            object.geometry.dispose();
+            if (Array.isArray(object.material)) {
+              object.material.forEach((material) => material.dispose());
+            } else if (object.material) {
+              object.material.dispose();
+            }
+          }
+        });
+      };
+    }, [clonedScene]);
 
     return (
-      <primitive
-        ref={(obj: Object3D | null) => {
-          modelRef.current = obj;
-          if (typeof ref === "function") {
-            ref(obj);
-          } else if (ref) {
-            (ref as React.MutableRefObject<Object3D | null>).current = obj;
-          }
-        }}
-        rotation={rotation}
-        object={modelScene.clone()}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onPointerOver={onPointerOver}
-        onPointerOut={onPointerOut}
-        onClick={onClick}
-      />
+      <>
+        <primitive
+          ref={(obj: Object3D | null) => {
+            modelRef.current = obj;
+            if (typeof ref === "function") {
+              ref(obj);
+            } else if (ref) {
+              (ref as React.MutableRefObject<Object3D | null>).current = obj;
+            }
+          }}
+          object={clonedScene}
+          position={adjustedPosition}
+          rotation={rotation}
+          scale={adjustedScale}
+        />
+      </>
     );
   },
 );
 
-WallItemModel.displayName = "WallItemModel";
+ItemModel.displayName = "ItemModel";
 
-export default WallItemModel;
+export default ItemModel;

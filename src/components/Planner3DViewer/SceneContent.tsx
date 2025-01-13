@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useRef, useState } from "react";
+import React, { useMemo, useEffect, useRef } from "react";
 import { useLoader, useThree, ThreeEvent } from "@react-three/fiber";
 import {
   categories,
@@ -9,7 +9,6 @@ import {
   ScheduleItem,
   ShapeData,
   WallClassification,
-  WallItem,
 } from "@/types";
 import {
   Vector3,
@@ -25,7 +24,6 @@ import {
   Raycaster,
   Plane,
   Object3D,
-  Box3,
   Material,
   EquirectangularReflectionMapping,
   FrontSide,
@@ -41,7 +39,6 @@ import JSZip from "jszip";
 import { GLTFExporter } from "three-stdlib";
 import throttle from "lodash.throttle";
 import { RGBELoader } from "three-stdlib";
-import { uid } from "uid";
 import WallItemModel from "./WallItemModel";
 
 export const ensureWallPoints = (
@@ -977,116 +974,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
     };
   }, [textures, envMap, envMap_floor]);
 
-  // Wall Items and Wall Textures Settings
-
-  const handleWallClick = (event: ThreeEvent<MouseEvent>) => {
-    if (!placingWallItem) return;
-
-    event.stopPropagation();
-
-    const intersectionPoint = event.point.clone();
-    const faceNormal = event.face?.normal.clone();
-    if (!faceNormal) {
-      console.error("Face normal not found for intersection.");
-      return;
-    }
-
-    const wallMesh = event.object as Mesh;
-    const lineId = wallMesh.userData.lineId;
-    const wallNormal = wallMesh.userData.wallNormal;
-
-    const line = lines.find((line) => line.id === lineId);
-    if (!line) {
-      console.error("Line not found for wall click event.");
-      return;
-    }
-
-    const isFrontSide = faceNormal.dot(wallNormal) > 0;
-
-    const angle = Math.atan2(
-      line.points[3] - line.points[1],
-      line.points[2] - line.points[0],
-    );
-    const rotationY = isFrontSide ? 0 : Math.PI;
-    const rotation: [number, number, number] = [0, angle + rotationY, 0];
-    const offsetDistance = wallThickness / 2 + 0.1;
-    const offset = wallNormal
-      .clone()
-      .multiplyScalar(isFrontSide ? offsetDistance : -offsetDistance);
-
-    const finalPosition: [number, number, number] = [
-      intersectionPoint.x + offset.x,
-      intersectionPoint.y + offset.y,
-      intersectionPoint.z + offset.z,
-    ];
-
-    const newWallItem: WallItem = {
-      ...placingWallItem,
-      id: uid(),
-      position: finalPosition,
-      rotation: rotation,
-      wallNormal: wallNormal.clone(),
-      wallPlane: new Plane().setFromNormalAndCoplanarPoint(
-        wallNormal,
-        intersectionPoint,
-      ),
-      lineId: lineId,
-    };
-
-    setWallItems((prev) => [...prev, newWallItem]);
-    setPlacingWallItem(null);
-  };
-
-  const handleWallItemClick = (item: WallItem) => {
-    if (selectedWallItem?.id === item.id) {
-      setSelectedWallItem(null);
-      return;
-    }
-
-    setSelectedWallItem({
-      ...item,
-    });
-  };
-
-  const handleWallItemDrag = (
-    item: WallItem,
-    event: ThreeEvent<PointerEvent>,
-  ) => {
-    event.stopPropagation();
-
-    if (!item.wallPlane || !item.wallNormal) return;
-
-    const raycaster = new Raycaster();
-    const mouse = new Vector2();
-    mouse.x = (event.clientX / gl.domElement.clientWidth) * 2 - 1;
-    mouse.y = -(event.clientY / gl.domElement.clientHeight) * 2 + 1;
-    raycaster.setFromCamera(mouse, camera);
-
-    const intersectionPoint = new Vector3();
-    raycaster.ray.intersectPlane(item.wallPlane, intersectionPoint);
-
-    if (!intersectionPoint) return;
-
-    const offsetDistance = wallThickness / 2 + 0.1;
-    const offset = item.wallNormal.clone().multiplyScalar(offsetDistance);
-    const newPosition: [number, number, number] = [
-      intersectionPoint.x + offset.x,
-      intersectionPoint.y + offset.y,
-      intersectionPoint.z + offset.z,
-    ];
-
-    const updatedItem = {
-      ...item,
-      position: newPosition,
-    };
-
-    setWallItems((prev) =>
-      prev.map((wallItem) =>
-        wallItem.id === item.id ? updatedItem : wallItem,
-      ),
-    );
-  };
-
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -1221,7 +1108,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
             key={line.id}
             position={wallPosition}
             rotation={[0, -angle, 0]}
-            onClick={handleWallClick}
           >
             <primitive object={wallMesh} />
             {shapesOnWall.map((shape) => {
@@ -1368,13 +1254,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
             height: item.height,
             depth: item.depth,
           }}
-          wallNormal={item.wallNormal}
-          wallPlane={item.wallPlane}
-          onClick={() => handleWallItemClick(item)}
-          onPointerDown={() => setSelectedWallItem(item)}
-          onPointerMove={(event) =>
-            selectedWallItem && handleWallItemDrag(selectedWallItem, event)
-          }
         />
       ))}
     </>

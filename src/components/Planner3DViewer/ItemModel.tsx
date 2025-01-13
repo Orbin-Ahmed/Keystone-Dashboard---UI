@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, forwardRef, useRef, useState } from "react";
+import React, { useEffect, useMemo, forwardRef, useRef } from "react";
 import { useGLTF } from "@react-three/drei";
 import { Box3, Mesh, Object3D, Vector3 } from "three";
-import { ThreeEvent, useFrame } from "@react-three/fiber";
+import { ThreeEvent } from "@react-three/fiber";
 
 export interface ItemModelProps {
   path: string;
