@@ -642,32 +642,33 @@ const FloorPlanner = () => {
         id: point.id || uid(),
       }));
     } else {
-      const allPoints = processedLines.flatMap((line) => [
-        { x: line.points[0], y: line.points[1] },
-        { x: line.points[2], y: line.points[3] },
-      ]);
+      // const allPoints = processedLines.flatMap((line) => [
+      //   { x: line.points[0], y: line.points[1] },
+      //   { x: line.points[2], y: line.points[3] },
+      // ]);
 
-      const calculatedCenterX =
-        allPoints.reduce((sum, point) => sum + point.x, 0) /
-        (allPoints.length || 1);
-      const calculatedCenterY =
-        allPoints.reduce((sum, point) => sum + point.y, 0) /
-        (allPoints.length || 1);
-      const result = CreateBuildingShape(
-        processedLines,
-        calculatedCenterX,
-        calculatedCenterY,
-      );
+      // const calculatedCenterX =
+      //   allPoints.reduce((sum, point) => sum + point.x, 0) /
+      //   (allPoints.length || 1);
+      // const calculatedCenterY =
+      //   allPoints.reduce((sum, point) => sum + point.y, 0) /
+      //   (allPoints.length || 1);
+      // const result = CreateBuildingShape(
+      //   processedLines,
+      //   calculatedCenterX,
+      //   calculatedCenterY,
+      // );
 
-      if (result.floorPlanPoints.length > 0) {
-        const newPoints = result.floorPlanPoints.map((point) => ({
-          x: point.x + calculatedCenterX,
-          y: point.y + calculatedCenterY,
-          id: uid(),
-        }));
+      // if (result.floorPlanPoints.length > 0) {
+      //   const newPoints = result.floorPlanPoints.map((point) => ({
+      //     x: point.x + calculatedCenterX,
+      //     y: point.y + calculatedCenterY,
+      //     id: uid(),
+      //   }));
 
-        processedFloorPlanPoints = newPoints;
-      }
+      //   processedFloorPlanPoints = newPoints;
+      // }
+      processedFloorPlanPoints = [];
     }
 
     return {
