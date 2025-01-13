@@ -44,7 +44,9 @@ const FloorPlanner = () => {
   >(null);
   const [showDimensions, setShowDimensions] = useState(false);
   const [viewMode, setViewMode] = useState<"2D" | "3D">("2D");
-  const [selectedPlane, setSelectedPlane] = useState<"floor" | "roof">("floor");
+  const [selectedPlane, setSelectedPlane] = useState<"floor" | "roof" | "wall">(
+    "floor",
+  );
 
   const [selectedWall, setSelectedWall] = useState<string | null>(null);
   const [selectedShape, setSelectedShape] = useState<string | null>(null);
@@ -167,7 +169,7 @@ const FloorPlanner = () => {
     setIsSidebarVisible((prev) => !prev);
   };
 
-  const handlePlaneChange = (plane: "floor" | "roof") => {
+  const handlePlaneChange = (plane: "floor" | "roof" | "wall") => {
     setSelectedPlane(plane);
   };
 
@@ -868,6 +870,16 @@ const FloorPlanner = () => {
             }}
           >
             Roof
+          </button>
+          <button
+            className="rounded-full px-4 py-2 shadow-xl"
+            onClick={() => handlePlaneChange("wall")}
+            style={{
+              backgroundColor: selectedPlane === "wall" ? "#C2D605" : "#FFF",
+              color: selectedPlane === "wall" ? "#FFF" : "#000",
+            }}
+          >
+            Wall
           </button>
         </div>
       )}
