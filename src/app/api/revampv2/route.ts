@@ -20,11 +20,11 @@ export async function POST(req: Request) {
     const imageBuffer = Buffer.from(await imageFile.arrayBuffer());
     const prompt = formData.get("prompt") as string;
     const guidance_scale = parseFloat(
-      (formData.get("guidance_scale") ?? "6").toString(),
+      (formData.get("guidance_scale") ?? "5").toString(),
     );
     const negative_prompt = formData.get("negative_prompt") as string;
     const prompt_strength = parseFloat(
-      (formData.get("prompt_strength") ?? "0.8").toString(),
+      (formData.get("prompt_strength") ?? "0.9").toString(),
     );
     const num_inference_steps = parseInt(
       (formData.get("num_inference_steps") ?? "60").toString(),
@@ -33,12 +33,13 @@ export async function POST(req: Request) {
     const imageID = formData.get("imageID");
 
     const input: any = {
-      input: imageBuffer,
-      prompt: prompt,
+      image: imageBuffer,
+      prompt: prompt + ", interior design, 4K, high resolution, photorealistic",
       guidance_scale: guidance_scale,
       negative_prompt: negative_prompt,
       prompt_strength: prompt_strength,
       num_inference_steps: num_inference_steps,
+      enhance: false,
     };
 
     if (seed && parseInt(seed.toString()) !== 0) {

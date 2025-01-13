@@ -498,9 +498,9 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
               (blob) => new File([blob], "scene.jpg", { type: "image/jpeg" }),
             ),
           prompt: `A ${activeTourPoint.title.toLowerCase()}`,
-          guidance_scale: 15,
-          prompt_strength: 0.8,
-          num_inference_steps: 50,
+          guidance_scale: 5,
+          prompt_strength: 0.9,
+          num_inference_steps: 60,
           negative_prompt:
             "lowres, watermark, banner, logo, watermark, contactinfo, text, deformed, blurry, blur, out of focus, out of frame, surreal, extra, ugly, upholstered walls, fabric walls, plush walls, mirror, mirrored, functional, realistic",
         };
