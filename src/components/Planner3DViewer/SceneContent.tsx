@@ -875,6 +875,46 @@ const SceneContent: React.FC<SceneContentProps> = ({
   }, []);
 
   useEffect(() => {
+    const newWallItems = wallItems2D.map((item) => {
+      const id = item.id;
+      const name = item.name;
+      const type = name.toLowerCase().replace(/[-\s]/g, "_");
+      const path = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/${type}.glb`;
+      const rotationInRadians = -(item.rotation * Math.PI) / 180;
+
+      const adjustedX =
+        item.x -
+        centerX +
+        (Math.cos(rotationInRadians) * item.width) / 2 +
+        (Math.sin(rotationInRadians) * item.depth) / 2;
+
+      const adjustedZ =
+        item.y -
+        centerY -
+        (Math.sin(rotationInRadians) * item.width) / 2 +
+        (Math.cos(rotationInRadians) * item.depth) / 2;
+
+      const position: [number, number, number] = [adjustedX, 0, adjustedZ];
+      const rotation: [number, number, number] = [0, rotationInRadians, 0];
+
+      return {
+        id,
+        name,
+        type,
+        path,
+        width: item.width,
+        height: item.height,
+        depth: item.depth,
+        position,
+        rotation,
+        category: item.category,
+      };
+    });
+
+    setWallItems((prevPlacedItems) => [...prevPlacedItems, ...newWallItems]);
+  }, [wallItems2D]);
+
+  useEffect(() => {
     const newCeilingPlaced = ceilingItems.map((item) => {
       const id = item.id;
       const name = item.name;
@@ -915,7 +955,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
       };
     });
     setPlacedItems((prev) => [...prev, ...newCeilingPlaced]);
-  }, [ceilingItems, currentFloorIndex]);
+  }, [ceilingItems]);
 
   useEffect(() => {
     if (envMap && showRoof) {

@@ -802,8 +802,8 @@ const FloorPlanner = () => {
           ceilingItems={ceilingItems}
           setCeilingItems={setCeilingItems}
           currentFloorIndex={currentFloorIndex}
-          wallItems={wallItems}
-          setWallItems={setWallItems}
+          wallItems2D={wallItems}
+          setWallItems2D={setWallItems}
         />
       ) : (
         <PlanEditor

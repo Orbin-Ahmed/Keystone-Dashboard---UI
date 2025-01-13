@@ -24,7 +24,7 @@ const WallItemModel = forwardRef<Object3D, WallItemModelProps>(
     },
     ref,
   ) => {
-    const { scene: modelScene } = useGLTF(`/models/${path}`);
+    const { scene: modelScene } = useGLTF(`${path}`);
     const modelRef = useRef<Object3D | null>(null);
     const initialBounds = useMemo(() => {
       const bbox = new Box3().setFromObject(modelScene);
