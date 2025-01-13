@@ -765,7 +765,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
   };
 
   const handlePointerMove = (e: ThreeEvent<PointerEvent>) => {
-    if (!isDragging.current || !placingItemRef.current) return;
+    if (!isDragging.current || !placingItemRef.current || !placingItem) return;
     e.stopPropagation();
 
     const mouse = new Vector2();
@@ -786,7 +786,11 @@ const SceneContent: React.FC<SceneContentProps> = ({
     }
 
     if (modelRef.current) {
-      modelRef.current.position.set(newPosition.x, 0, newPosition.z);
+      modelRef.current.position.set(
+        newPosition.x,
+        placingItem?.height / 2 || 0,
+        newPosition.z,
+      );
     }
   };
 
