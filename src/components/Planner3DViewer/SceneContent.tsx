@@ -811,31 +811,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
     setSelectedItem(item);
   };
 
-  const wallBoundingBoxes = useMemo(() => {
-    return lines.map((line) => {
-      const points = ensureWallPoints(line.points);
-      const [x1, y1, x2, y2] = points;
-      const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
-      const wallPosition = new Vector3(
-        (x1 + x2) / 2 - centerX,
-        wallHeight / 2,
-        (y1 + y2) / 2 - centerY,
-      );
-      const angle = Math.atan2(y2 - y1, x2 - x1);
-
-      const wallGeometry = new BoxGeometry(length, wallHeight, wallThickness);
-      const wallMesh = new Mesh(wallGeometry);
-      wallMesh.position.copy(wallPosition);
-      wallMesh.rotation.y = -angle;
-      wallMesh.updateMatrixWorld(true);
-
-      const wallBox = new Box3().setFromObject(wallMesh);
-      wallGeometry.dispose();
-
-      return wallBox;
-    });
-  }, [lines, wallThickness]);
-
   useEffect(() => {
     placingItemRef.current = placingItem;
     if (!placingItem) {
@@ -1210,7 +1185,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
                   ? "window/window.glb"
                   : isOuter
                     ? "door/door.glb"
-                    : "door/door_wooden_2.glb";
+                    : "door/door_wooden.glb";
 
               const modelPath = modelPathsByShapeId[id] || defaultModelPath;
               const flipStatus = shapeFlipStatusById[id] || false;
@@ -1274,7 +1249,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
             height: placingItem.height,
             depth: placingItem.depth,
           }}
-          wallBoundingBoxes={wallBoundingBoxes}
           onPointerDown={handlePointerDown}
           onPointerMove={throttledHandlePointerMove}
           onPointerUp={handlePointerUp}
@@ -1301,7 +1275,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
                 height: item.height,
                 depth: item.depth,
               }}
-              wallBoundingBoxes={wallBoundingBoxes}
               onClick={() => handlePlacedItemClick(item)}
             />
           ))}
@@ -1318,7 +1291,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
               height: item.height,
               depth: item.depth,
             }}
-            wallBoundingBoxes={wallBoundingBoxes}
             onClick={() => handlePlacedItemClick(item)}
           />
         ))}
@@ -1335,7 +1307,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
             height: placingWallItem.height,
             depth: placingWallItem.depth,
           }}
-          wallBoundingBoxes={wallBoundingBoxes}
         />
       )}
 
@@ -1353,7 +1324,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
           }}
           wallNormal={item.wallNormal}
           wallPlane={item.wallPlane}
-          wallBoundingBoxes={wallBoundingBoxes}
           onClick={() => handleWallItemClick(item)}
           onPointerDown={() => setSelectedWallItem(item)}
           onPointerMove={(event) =>

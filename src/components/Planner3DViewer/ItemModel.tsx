@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, forwardRef, useRef, useState } from "react";
 import { useGLTF } from "@react-three/drei";
-import { Box3, Mesh, MeshStandardMaterial, Object3D, Vector3 } from "three";
+import { Box3, Mesh, Object3D, Vector3 } from "three";
 import { ThreeEvent, useFrame } from "@react-three/fiber";
 
 export interface ItemModelProps {
@@ -12,7 +12,6 @@ export interface ItemModelProps {
     height: number;
     depth: number;
   };
-  wallBoundingBoxes: Box3[];
   onPointerDown?: (e: ThreeEvent<PointerEvent>) => void;
   onPointerMove?: (e: ThreeEvent<PointerEvent>) => void;
   onPointerUp?: (e: ThreeEvent<PointerEvent>) => void;
@@ -28,7 +27,6 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
       position,
       rotation,
       dimensions,
-      wallBoundingBoxes,
       onPointerDown,
       onPointerMove,
       onPointerUp,
@@ -40,9 +38,8 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
   ) => {
     const { scene } = useGLTF(`${path}`);
     const modelRef = useRef<Object3D | null>(null);
-    const [isColliding, setIsColliding] = useState(false);
-    const COLLISION_THRESHOLD = 3;
 
+    // Calculate initial bounding box data from the original scene
     const initialBounds = useMemo(() => {
       const bbox = new Box3().setFromObject(scene);
       const size = new Vector3();
@@ -52,16 +49,7 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
       return { size, center };
     }, [scene]);
 
-    const collisionMaterial = useMemo(() => {
-      return new MeshStandardMaterial({ color: "red" });
-    }, []);
-
-    useEffect(() => {
-      return () => {
-        collisionMaterial.dispose();
-      };
-    }, [collisionMaterial]);
-
+    // Clone the scene to avoid mutating the original
     const clonedScene = useMemo(() => {
       return scene.clone(true);
     }, [scene]);
@@ -84,6 +72,7 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
       return [adjustedScale, adjustedPosition];
     }, [initialBounds, dimensions, position]);
 
+    // Position and scale the model once it's mounted
     useEffect(() => {
       if (modelRef.current) {
         modelRef.current.position.set(...adjustedPosition);
@@ -91,55 +80,9 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
       }
     }, [adjustedPosition, adjustedScale]);
 
-    useEffect(() => {
-      if (modelRef.current) {
-        modelRef.current.traverse((child) => {
-          if (child instanceof Mesh) {
-            (child as any).originalMaterial = child.material;
-          }
-        });
-      }
-    }, []);
-
-    useEffect(() => {
-      if (!modelRef.current) return;
-
-      modelRef.current.traverse((child) => {
-        if (child instanceof Mesh) {
-          if (isColliding) {
-            child.material = collisionMaterial;
-          } else {
-            child.material = (child as any).originalMaterial;
-          }
-        }
-      });
-    }, [isColliding, collisionMaterial]);
-
-    useFrame(() => {
-      if (modelRef.current) {
-        modelRef.current.updateMatrixWorld(true);
-
-        const itemBox = new Box3().setFromObject(modelRef.current);
-
-        let collisionDetected = false;
-        for (const wallBox of wallBoundingBoxes) {
-          const expandedWallBox = wallBox
-            .clone()
-            .expandByScalar(-COLLISION_THRESHOLD);
-          if (itemBox.intersectsBox(expandedWallBox)) {
-            collisionDetected = true;
-            break;
-          }
-        }
-        if (collisionDetected !== isColliding) {
-          setIsColliding(collisionDetected);
-        }
-      }
-    });
-
+    // Clean up cloned scene geometry/materials on unmount
     useEffect(() => {
       const currentScene = clonedScene;
-
       return () => {
         currentScene.traverse((object) => {
           if (object instanceof Mesh) {
@@ -154,16 +97,8 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
       };
     }, [clonedScene]);
 
-    // useEffect(() => {
-    //   useGLTF.preload(`${path}`);
-    //   return () => {
-    //     useGLTF.clear(`${path}`);
-    //   };
-    // }, [path]);
-
     return (
       <>
-        <directionalLight position={[5, 10, 5]} intensity={0.1} />
         <primitive
           ref={(obj: Object3D | null) => {
             modelRef.current = obj;
