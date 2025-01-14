@@ -138,6 +138,16 @@ const PlanEditor = ({
           );
           setSelectedWallItemId(null);
         }
+      } else if (event.key === "i") {
+        setTool("wall");
+      } else if (event.key === "d") {
+        setTool("door");
+      } else if (event.key === "w") {
+        setTool("window");
+      } else if (event.key === "p") {
+        setTool("floorPoint");
+      } else if (event.key === "m") {
+        setTool("moveWall");
       }
     };
 
