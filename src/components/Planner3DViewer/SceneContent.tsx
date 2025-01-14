@@ -140,6 +140,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
   const modelRef = useRef<Object3D | null>(null);
   const isDraggingWallItem = useRef(false);
   const dragStartY = useRef<number | null>(null);
+  const dragStartX = useRef<number | null>(null);
   const initialItemPosition = useRef<[number, number, number] | null>(null);
 
   const envMap = useLoader(RGBELoader, "beach_2k_env.hdr");
@@ -914,7 +915,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
     });
 
     setWallItems((prevPlacedItems) => [...prevPlacedItems, ...newWallItems]);
-  }, [wallItems2D]);
+  }, []);
 
   useEffect(() => {
     const newCeilingPlaced = ceilingItems.map((item) => {
@@ -1009,6 +1010,31 @@ const SceneContent: React.FC<SceneContentProps> = ({
     setSelectedWallItem(item);
   };
 
+  const updateWallItemPosition = useMemo(
+    () =>
+      throttle(
+        (
+          item: WallItem,
+          newX: number,
+          newY: number,
+          minY: number,
+          maxY: number,
+        ) => {
+          const clampedY = Math.max(minY, Math.min(maxY, newY));
+          setWallItems((prev) =>
+            prev.map((wi) =>
+              wi.id === item.id
+                ? { ...wi, position: [newX, clampedY, wi.position[2]] }
+                : wi,
+            ),
+          );
+        },
+        42,
+        { leading: true, trailing: true },
+      ),
+    [],
+  );
+
   const handleWallItemPointerDown = (
     e: ThreeEvent<PointerEvent>,
     item: WallItem,
@@ -1018,6 +1044,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
     if (selectedWallItem.id !== item.id) return;
 
     isDraggingWallItem.current = true;
+    dragStartX.current = e.clientX;
     dragStartY.current = e.clientY;
     initialItemPosition.current = [...item.position];
     gl.domElement.style.cursor = "grab";
@@ -1033,35 +1060,40 @@ const SceneContent: React.FC<SceneContentProps> = ({
       !selectedWallItem ||
       selectedWallItem.id !== item.id ||
       !dragStartY.current ||
-      !initialItemPosition.current
+      !initialItemPosition.current ||
+      !dragStartX.current
     )
       return;
 
     const mouseDeltaY = e.clientY - dragStartY.current;
-    const movementScale = 0.5;
+    const mouseDeltaX = e.clientX - dragStartX.current;
+    const movementScale = 0.3;
+    const newX = initialItemPosition.current[0] + mouseDeltaX * movementScale;
     const newY = initialItemPosition.current[1] - mouseDeltaY * movementScale;
 
     const minY = 2;
     const maxY = wallHeight;
-    const clampedY = Math.max(minY, Math.min(maxY, newY));
 
-    setWallItems((prev) =>
-      prev.map((wi) =>
-        wi.id === item.id
-          ? { ...wi, position: [wi.position[0], clampedY, wi.position[2]] }
-          : wi,
-      ),
-    );
+    updateWallItemPosition(item, newX, newY, minY, maxY);
   };
 
   const handleWallItemPointerUp = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation();
+    if (isDraggingWallItem.current && selectedWallItem) {
+      updateWallItemPosition.flush();
+    }
     isDraggingWallItem.current = false;
+    dragStartX.current = null;
     dragStartY.current = null;
     initialItemPosition.current = null;
     gl.domElement.style.cursor = "default";
   };
 
+  useEffect(() => {
+    return () => {
+      updateWallItemPosition.cancel();
+    };
+  }, [updateWallItemPosition]);
   return (
     <>
       <CameraController
@@ -1294,7 +1326,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
       {placingWallItem && (
         <WallItemModel
           ref={modelRef}
-          key="placing-wall-item"
+          key={`placing-item ${placingWallItem.id}`}
           path={placingWallItem.path}
           position={placingWallItem.position || [0, 0, 0]}
           rotation={placingWallItem.rotation || [0, 0, 0]}
@@ -1309,7 +1341,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
       {/* Placed wall items */}
       {wallItems.map((item) => (
         <WallItemModel
-          key={item.id}
+          key={`placed-item ${item.id}`}
           path={item.path}
           position={item.position}
           rotation={item.rotation}

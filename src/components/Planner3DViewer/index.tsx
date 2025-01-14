@@ -9,6 +9,7 @@ import {
   TourPoint,
   WallClassification,
   WallItem,
+  WallItems2D,
 } from "@/types";
 import { PerspectiveCamera, Scene, Vector2, WebGLRenderer } from "three";
 import CustomButton from "@/components/CustomButton";
@@ -642,6 +643,48 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     setIsWallItemMoving(false);
     setOriginalWallItemPos(null);
     setOriginalWallItemRot(null);
+    if (selectedWallItem) {
+      const updatedWallItem = wallItems.find(
+        (wi) => wi.id === selectedWallItem.id,
+      );
+      if (updatedWallItem) {
+        updateWallItems2D(updatedWallItem);
+      }
+    }
+  };
+
+  const updateWallItems2D = (updatedItem: WallItem) => {
+    const adjustedRotation = -(updatedItem.rotation[1] * 180) / Math.PI;
+
+    const adjustedX =
+      updatedItem.position[0] -
+      (Math.cos(updatedItem.rotation[1]) * updatedItem.width) / 2 -
+      (Math.sin(updatedItem.rotation[1]) * updatedItem.depth) / 2 +
+      centerX;
+
+    const adjustedY =
+      updatedItem.position[2] +
+      (Math.sin(updatedItem.rotation[1]) * updatedItem.width) / 2 -
+      (Math.cos(updatedItem.rotation[1]) * updatedItem.depth) / 2 +
+      centerY;
+
+    const adjustedZ = updatedItem.position[1];
+
+    setWallItems2D((prev) =>
+      prev.map((item) => {
+        if (item.id !== updatedItem.id) {
+          return item;
+        }
+
+        return {
+          ...item,
+          x: adjustedX,
+          y: adjustedY,
+          z: adjustedZ,
+          rotation: adjustedRotation,
+        };
+      }),
+    );
   };
 
   const handleDeselectWallItem = () => {
