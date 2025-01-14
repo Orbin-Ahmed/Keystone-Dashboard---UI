@@ -272,17 +272,9 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     setIsItemsOpen(false);
   };
 
-  const handleWallItemSelect = (item: any) => {
-    setPlacingWallItem({
-      ...item,
-      position: null,
-      rotation: null,
-    });
-  };
-
   const confirmPlacement = () => {
     if (placingItem) {
-      const newId = placingItem.id || `item-${lastPlacedItemId + 1}`;
+      const newId = placingItem.id || uid();
 
       const newItem: PlacedItemType = {
         ...placingItem,
@@ -617,12 +609,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   }, [localSceneImages]);
 
   // Wall Item Control
-
-  const handleWallItemMove = () => {
-    if (!selectedWallItem) return;
-    setIsWallItemMoving(true);
-    setOriginalWallItemPos([...selectedWallItem.position]);
-  };
 
   const handleIncrementWallItemZ = () => {
     if (!selectedWallItem) return;
