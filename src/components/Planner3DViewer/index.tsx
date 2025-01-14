@@ -98,6 +98,9 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [originalWallItemPos, setOriginalWallItemPos] = useState<
     [number, number, number] | null
   >(null);
+  const [originalWallItemRot, setOriginalWallItemRot] = useState<
+    [number, number, number] | null
+  >(null);
 
   // settings State
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -651,6 +654,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
   const handlePlaceWallItem = () => {
     setIsWallItemMoving(false);
+    setOriginalWallItemPos(null);
+    setOriginalWallItemRot(null);
   };
 
   const handleDeselectWallItem = () => {
@@ -674,6 +679,70 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     setSelectedWallItem(null);
     setIsWallItemMoving(false);
   };
+
+  const handleStartMoveWallItem = () => {
+    if (!selectedWallItem) return;
+    setIsWallItemMoving(true);
+    setOriginalWallItemPos([...selectedWallItem.position]);
+    setOriginalWallItemRot([...selectedWallItem.rotation]);
+  };
+
+  const handleCancelMoveWallItem = () => {
+    if (selectedWallItem && originalWallItemPos && originalWallItemRot) {
+      setWallItems((prev) =>
+        prev.map((wi) =>
+          wi.id === selectedWallItem.id
+            ? {
+                ...wi,
+                position: [...originalWallItemPos],
+                rotation: [...originalWallItemRot],
+              }
+            : wi,
+        ),
+      );
+    }
+    setIsWallItemMoving(false);
+    setOriginalWallItemPos(null);
+    setOriginalWallItemRot(null);
+  };
+
+  const handleRotateWallItemLeft = () => {
+    if (!selectedWallItem) return;
+    setWallItems((prev) =>
+      prev.map((wi) =>
+        wi.id === selectedWallItem.id
+          ? {
+              ...wi,
+              rotation: [
+                wi.rotation[0],
+                wi.rotation[1] - Math.PI / 8,
+                wi.rotation[2],
+              ],
+            }
+          : wi,
+      ),
+    );
+  };
+
+  const handleRotateWallItemRight = () => {
+    if (!selectedWallItem) return;
+    setWallItems((prev) =>
+      prev.map((wi) =>
+        wi.id === selectedWallItem.id
+          ? {
+              ...wi,
+              rotation: [
+                wi.rotation[0],
+                wi.rotation[1] + Math.PI / 8,
+                wi.rotation[2],
+              ],
+            }
+          : wi,
+      ),
+    );
+  };
+
+  // Wall Item Control end
 
   // useEffect(() => {
   //   const stats = new Stats();
@@ -905,8 +974,12 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       {selectedWallItem && (
         <SelectedWallItemControls
           selectedWallItem={selectedWallItem}
+          isMovingWallItem={isWallItemMoving}
           onDeselect={handleDeselectWallItem}
-          onMove={handleWallItemMove}
+          onStartMove={handleStartMoveWallItem}
+          onCancelMove={handleCancelMoveWallItem}
+          onRotateLeft={handleRotateWallItemLeft}
+          onRotateRight={handleRotateWallItemRight}
           onIncrementZ={handleIncrementWallItemZ}
           onDecrementZ={handleDecrementWallItemZ}
           onPlaceItem={handlePlaceWallItem}
