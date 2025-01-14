@@ -12,9 +12,9 @@ export default function Footer() {
               <Link className="py-1 hover:underline" href="/view/about">
                 About Us
               </Link>
-              {/* <Link className="py-1 hover:underline" href="/dashboard">
+              <Link className="py-1 hover:underline" href="/dashboard">
                 Dashboard
-              </Link> */}
+              </Link>
               {/* <Link className="py-1 hover:underline" href="/careers">
                 Careers
               </Link> */}
