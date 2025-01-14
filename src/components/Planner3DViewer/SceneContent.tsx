@@ -139,7 +139,8 @@ const SceneContent: React.FC<SceneContentProps> = ({
   const placingItemRef = useRef<PlacingItemType | null>(placingItem);
   const modelRef = useRef<Object3D | null>(null);
   const isDraggingWallItem = useRef(false);
-  const mouseDownScreenY = useRef<number | null>(null);
+  const dragStartY = useRef<number | null>(null);
+  const initialItemPosition = useRef<[number, number, number] | null>(null);
 
   const envMap = useLoader(RGBELoader, "beach_2k_env.hdr");
   envMap.mapping = EquirectangularReflectionMapping;
@@ -1017,8 +1018,9 @@ const SceneContent: React.FC<SceneContentProps> = ({
     if (selectedWallItem.id !== item.id) return;
 
     isDraggingWallItem.current = true;
-    mouseDownScreenY.current = e.clientY;
-    gl.domElement.style.cursor = "ns-resize";
+    dragStartY.current = e.clientY;
+    initialItemPosition.current = [...item.position];
+    gl.domElement.style.cursor = "grab";
   };
 
   const handleWallItemPointerMove = (
@@ -1027,32 +1029,37 @@ const SceneContent: React.FC<SceneContentProps> = ({
   ) => {
     if (!isDraggingWallItem.current || !isWallItemMoving) return;
     e.stopPropagation();
-    if (!selectedWallItem || selectedWallItem.id !== item.id) return;
+    if (
+      !selectedWallItem ||
+      selectedWallItem.id !== item.id ||
+      !dragStartY.current ||
+      !initialItemPosition.current
+    )
+      return;
 
-    if (mouseDownScreenY.current !== null) {
-      const delta = e.clientY - mouseDownScreenY.current;
-      const scaleFactor = 0.1;
-      const newY = item.position[1] - delta * scaleFactor;
+    const mouseDeltaY = e.clientY - dragStartY.current;
+    const movementScale = 0.5;
+    const newY = initialItemPosition.current[1] - mouseDeltaY * movementScale;
 
-      setWallItems((prev) =>
-        prev.map((wi) =>
-          wi.id === item.id
-            ? { ...wi, position: [wi.position[0], newY, wi.position[2]] }
-            : wi,
-        ),
-      );
+    const minY = 2;
+    const maxY = wallHeight;
+    const clampedY = Math.max(minY, Math.min(maxY, newY));
 
-      mouseDownScreenY.current = e.clientY;
-    }
+    setWallItems((prev) =>
+      prev.map((wi) =>
+        wi.id === item.id
+          ? { ...wi, position: [wi.position[0], clampedY, wi.position[2]] }
+          : wi,
+      ),
+    );
   };
 
   const handleWallItemPointerUp = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation();
-    if (isDraggingWallItem.current) {
-      isDraggingWallItem.current = false;
-      mouseDownScreenY.current = null;
-      gl.domElement.style.cursor = "default";
-    }
+    isDraggingWallItem.current = false;
+    dragStartY.current = null;
+    initialItemPosition.current = null;
+    gl.domElement.style.cursor = "default";
   };
 
   return (
