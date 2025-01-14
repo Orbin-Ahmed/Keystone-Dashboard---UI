@@ -148,6 +148,7 @@ const FloorPlanner = () => {
             id: item.id,
             x: item.x,
             y: item.y,
+            z: item.z || 0,
             name: item.name,
             width: item.width,
             height: item.height,

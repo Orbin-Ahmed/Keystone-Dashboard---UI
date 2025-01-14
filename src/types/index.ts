@@ -397,6 +397,7 @@ export interface SerializedWallItem {
   id: string;
   x: number;
   y: number;
+  z?:number;
   name: string;
   width: number;
   height: number;
@@ -435,6 +436,7 @@ export interface WallItems2D {
   id: string;
   x: number;
   y: number;
+  z?:number;
   name: string;
   width: number;
   height: number;
