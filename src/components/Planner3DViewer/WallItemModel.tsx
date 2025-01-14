@@ -11,10 +11,26 @@ export interface ItemModelProps {
     height: number;
     depth: number;
   };
+  onPointerDown?: (e: any) => void;
+  onPointerMove?: (e: any) => void;
+  onPointerUp?: (e: any) => void;
+  onClick?: (e: any) => void;
 }
 
 const ItemModel = forwardRef<Object3D, ItemModelProps>(
-  ({ path, position, rotation, dimensions }, ref) => {
+  (
+    {
+      path,
+      position,
+      rotation,
+      dimensions,
+      onPointerDown,
+      onPointerMove,
+      onPointerUp,
+      onClick,
+    },
+    ref,
+  ) => {
     const { scene } = useGLTF(`${path}`);
     const modelRef = useRef<Object3D | null>(null);
 
@@ -91,6 +107,10 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
           position={adjustedPosition}
           rotation={rotation}
           scale={adjustedScale}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onClick={onClick}
         />
       </>
     );

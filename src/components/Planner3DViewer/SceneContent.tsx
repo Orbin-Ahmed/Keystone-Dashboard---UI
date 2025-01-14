@@ -9,6 +9,7 @@ import {
   ScheduleItem,
   ShapeData,
   WallClassification,
+  WallItem,
 } from "@/types";
 import {
   Vector3,
@@ -124,6 +125,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
   currentFloorIndex,
   wallItems2D,
   setWallItems2D,
+  isWallItemMoving,
 }) => {
   const { scene, camera, gl } = useThree();
   const raycaster = new Raycaster();
@@ -136,6 +138,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
   const dragOffset = useRef<[number, number, number] | null>(null);
   const placingItemRef = useRef<PlacingItemType | null>(placingItem);
   const modelRef = useRef<Object3D | null>(null);
+  const isDraggingWallItem = useRef(false);
 
   const envMap = useLoader(RGBELoader, "beach_2k_env.hdr");
   envMap.mapping = EquirectangularReflectionMapping;
@@ -998,6 +1001,58 @@ const SceneContent: React.FC<SceneContentProps> = ({
     };
   }, [selectedWallItem, setSelectedWallItem, setWallItems]);
 
+  // Wall Item Controller Function
+
+  const handleWallItemClick = (item: WallItem) => {
+    setSelectedWallItem(item);
+  };
+
+  const handleWallItemPointerDown = (
+    e: ThreeEvent<PointerEvent>,
+    item: WallItem,
+  ) => {
+    e.stopPropagation();
+    if (!isWallItemMoving || !selectedWallItem) return;
+    if (selectedWallItem.id !== item.id) return;
+    isDraggingWallItem.current = true;
+  };
+
+  const handleWallItemPointerMove = (
+    e: ThreeEvent<PointerEvent>,
+    item: WallItem,
+  ) => {
+    if (!isDraggingWallItem.current || !isWallItemMoving) return;
+    e.stopPropagation();
+    if (selectedWallItem && selectedWallItem.id === item.id) {
+      const deltaY = someDeltaComputation(e);
+      setWallItems((prev) =>
+        prev.map((wi) =>
+          wi.id === selectedWallItem.id
+            ? {
+                ...wi,
+                position: [
+                  wi.position[0],
+                  wi.position[1] + deltaY,
+                  wi.position[2],
+                ],
+              }
+            : wi,
+        ),
+      );
+    }
+  };
+
+  const handleWallItemPointerUp = (e: ThreeEvent<PointerEvent>) => {
+    e.stopPropagation();
+    if (isDraggingWallItem.current) {
+      isDraggingWallItem.current = false;
+    }
+  };
+
+  const someDeltaComputation = (e: ThreeEvent<PointerEvent>): number => {
+    return 0.5;
+  };
+
   return (
     <>
       <CameraController
@@ -1254,6 +1309,10 @@ const SceneContent: React.FC<SceneContentProps> = ({
             height: item.height,
             depth: item.depth,
           }}
+          onPointerDown={(e) => handleWallItemPointerDown(e, item)}
+          onPointerMove={(e) => handleWallItemPointerMove(e, item)}
+          onPointerUp={handleWallItemPointerUp}
+          onClick={() => handleWallItemClick(item)}
         />
       ))}
     </>

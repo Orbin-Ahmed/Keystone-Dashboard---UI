@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, ThreeEvent } from "@react-three/fiber";
 import {
   PlacedItemType,
   PlacingItemType,
@@ -27,6 +27,7 @@ import AddItemSidebar from "./sidebar/AddItemSidebar";
 import { FaArrowLeft, FaDownload } from "react-icons/fa";
 import { Spinner } from "@radix-ui/themes";
 import { uid } from "uid";
+import SelectedWallItemControls from "./sidebar/SelectedWallItemControls";
 
 const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   lines,
@@ -93,6 +94,10 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [wallItems, setWallItems] = useState<WallItem[]>([]);
   const [selectedWallItem, setSelectedWallItem] =
     useState<SelectedWallItem | null>(null);
+  const [isWallItemMoving, setIsWallItemMoving] = useState(false);
+  const [originalWallItemPos, setOriginalWallItemPos] = useState<
+    [number, number, number] | null
+  >(null);
 
   // settings State
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -608,6 +613,68 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     return () => clearInterval(interval);
   }, [localSceneImages]);
 
+  // Wall Item Control
+
+  const handleWallItemMove = () => {
+    if (!selectedWallItem) return;
+    setIsWallItemMoving(true);
+    setOriginalWallItemPos([...selectedWallItem.position]);
+  };
+
+  const handleIncrementWallItemZ = () => {
+    if (!selectedWallItem) return;
+    setWallItems((prev) =>
+      prev.map((wi) =>
+        wi.id === selectedWallItem.id
+          ? {
+              ...wi,
+              position: [wi.position[0], wi.position[1], wi.position[2] + 1],
+            }
+          : wi,
+      ),
+    );
+  };
+
+  const handleDecrementWallItemZ = () => {
+    if (!selectedWallItem) return;
+    setWallItems((prev) =>
+      prev.map((wi) =>
+        wi.id === selectedWallItem.id
+          ? {
+              ...wi,
+              position: [wi.position[0], wi.position[1], wi.position[2] - 1],
+            }
+          : wi,
+      ),
+    );
+  };
+
+  const handlePlaceWallItem = () => {
+    setIsWallItemMoving(false);
+  };
+
+  const handleDeselectWallItem = () => {
+    if (isWallItemMoving && selectedWallItem && originalWallItemPos) {
+      setWallItems((prev) =>
+        prev.map((wi) =>
+          wi.id === selectedWallItem.id
+            ? { ...wi, position: [...originalWallItemPos] }
+            : wi,
+        ),
+      );
+    }
+    setIsWallItemMoving(false);
+    setSelectedWallItem(null);
+    setOriginalWallItemPos(null);
+  };
+
+  const handleDeleteWallItem = () => {
+    if (!selectedWallItem) return;
+    setWallItems((prev) => prev.filter((wi) => wi.id !== selectedWallItem.id));
+    setSelectedWallItem(null);
+    setIsWallItemMoving(false);
+  };
+
   // useEffect(() => {
   //   const stats = new Stats();
   //   stats.showPanel(0);
@@ -685,6 +752,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           currentFloorIndex={currentFloorIndex}
           wallItems2D={wallItems2D}
           setWallItems2D={setWallItems2D}
+          isWallItemMoving={isWallItemMoving}
         />
       </Canvas>
 
@@ -831,6 +899,18 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           onRotateLeft={rotateSelectedItemLeft}
           onRotateRight={rotateSelectedItemRight}
           onDelete={deleteSelectedItem}
+        />
+      )}
+
+      {selectedWallItem && (
+        <SelectedWallItemControls
+          selectedWallItem={selectedWallItem}
+          onDeselect={handleDeselectWallItem}
+          onMove={handleWallItemMove}
+          onIncrementZ={handleIncrementWallItemZ}
+          onDecrementZ={handleDecrementWallItemZ}
+          onPlaceItem={handlePlaceWallItem}
+          onDelete={handleDeleteWallItem}
         />
       )}
 
