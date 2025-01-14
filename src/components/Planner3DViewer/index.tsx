@@ -705,6 +705,9 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const handleDeleteWallItem = () => {
     if (!selectedWallItem) return;
     setWallItems((prev) => prev.filter((wi) => wi.id !== selectedWallItem.id));
+    setWallItems2D((prev) =>
+      prev.filter((wi2d) => wi2d.id !== selectedWallItem.id),
+    );
     setSelectedWallItem(null);
     setIsWallItemMoving(false);
   };

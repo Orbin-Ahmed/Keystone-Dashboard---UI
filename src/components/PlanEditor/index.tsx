@@ -152,6 +152,7 @@ const PlanEditor = ({
     setSelectedWall,
     selectedItemId,
     selectedCeilingItemId,
+    selectedWallItemId,
   ]);
 
   const drawGrid = () => {

@@ -1311,8 +1311,9 @@ const SceneContent: React.FC<SceneContentProps> = ({
             />
           ))}
 
-      {activeTourPoint &&
+      {/* {activeTourPoint &&
         placedItems.map((item) => (
+          
           <ItemModel
             key={item.id}
             path={item.path}
@@ -1325,7 +1326,29 @@ const SceneContent: React.FC<SceneContentProps> = ({
             }}
             onClick={() => handlePlacedItemClick(item)}
           />
-        ))}
+        ))} */}
+      {activeTourPoint &&
+        placedItems.map((item) => {
+          const isCeilingItem = ceilingItems.some((ci) => ci.id === item.id);
+          const itemClick = isCeilingItem
+            ? undefined
+            : () => handlePlacedItemClick(item);
+
+          return (
+            <ItemModel
+              key={item.id}
+              path={item.path}
+              position={item.position || [0, 0, 0]}
+              rotation={item.rotation || [0, 0, 0]}
+              dimensions={{
+                width: item.width,
+                height: item.height,
+                depth: item.depth,
+              }}
+              onClick={itemClick}
+            />
+          );
+        })}
 
       {placingWallItem && (
         <WallItemModel
@@ -1345,7 +1368,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
       {/* Placed wall items */}
       {wallItems.map((item) => (
         <WallItemModel
-          key={`placed-item ${item.id}`}
+          key={item.id}
           path={item.path}
           position={item.position}
           rotation={item.rotation}
