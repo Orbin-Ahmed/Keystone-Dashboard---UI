@@ -388,7 +388,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
 
       const area = width * height;
       const image_name = name.toLowerCase().replace(/[-\s]/g, "_");
-      const imagePath = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer3D_images/${image_name}.png`;
+      const imagePath = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer3d_images/${image_name}.png`;
       const key = `${image_name}-${width}-${height}-${depth}`;
 
       if (itemMap.has(key)) {

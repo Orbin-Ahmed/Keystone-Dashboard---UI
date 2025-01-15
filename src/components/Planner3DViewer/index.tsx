@@ -386,6 +386,9 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       setPlacedItems((prevItems) =>
         prevItems.filter((item) => item.id !== selectedItem.id),
       );
+      setFurnitureItems((prev) =>
+        prev.filter((item) => item.id !== selectedItem.id),
+      );
       setSelectedItem(null);
     }
   };

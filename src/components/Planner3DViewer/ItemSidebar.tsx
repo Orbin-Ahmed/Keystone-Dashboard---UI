@@ -27,7 +27,7 @@ const ItemSidebar: React.FC<ItemSidebarProps> = ({ onItemClick }) => {
   const fetchItems = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/items/`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}api/items/`,
       );
       if (!response.ok) {
         throw new Error("Failed to fetch items.");
@@ -83,7 +83,6 @@ const ItemSidebar: React.FC<ItemSidebarProps> = ({ onItemClick }) => {
       <div className="flex flex-col gap-2">
         {categories
           .filter((category) =>
-            // Include the category only if it has items other than "Ceiling" or "Wall"
             category.items.some(
               (item) => item.type !== "Ceiling" && item.type !== "Wall",
             ),

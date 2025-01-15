@@ -13,7 +13,7 @@ export default function Header() {
             height={24}
             className="object-contain"
           />{" "}
-          <p className="font-bold italic">Ideal Home Interior</p>
+          <p className="text-xl font-bold italic">Ideal Home Interior</p>
         </div>
         <Navigation />
       </div>
