@@ -776,20 +776,19 @@ const PlanEditor = ({
 
   const handleItemDragEnd = (
     id: string,
-    newPos: { x: number; y: number },
+    updatedItem: { x: number; y: number; rotation?: number },
     isFloorItem: boolean,
     isWallItem: boolean,
   ) => {
-    const finalPosition = newPos;
-
     if (isFloorItem) {
       setFurnitureItems((prev) =>
         prev.map((item) =>
           item.id === id
             ? {
                 ...item,
-                x: finalPosition.x,
-                y: finalPosition.y,
+                x: updatedItem.x,
+                y: updatedItem.y,
+                rotation: updatedItem.rotation || item.rotation,
               }
             : item,
         ),
@@ -800,8 +799,9 @@ const PlanEditor = ({
           item.id === id
             ? {
                 ...item,
-                x: finalPosition.x,
-                y: finalPosition.y,
+                x: updatedItem.x,
+                y: updatedItem.y,
+                rotation: updatedItem.rotation || item.rotation,
               }
             : item,
         ),
@@ -812,8 +812,9 @@ const PlanEditor = ({
           item.id === id
             ? {
                 ...item,
-                x: finalPosition.x,
-                y: finalPosition.y,
+                x: updatedItem.x,
+                y: updatedItem.y,
+                rotation: updatedItem.rotation || item.rotation,
               }
             : item,
         ),
@@ -1088,6 +1089,7 @@ const PlanEditor = ({
                   const newPos = {
                     x: newAttrs.x || item.x,
                     y: newAttrs.y || item.y,
+                    rotation: newAttrs.rotation || item.rotation,
                   };
                   handleItemDragEnd(id, newPos, true, false);
                 }}
@@ -1114,6 +1116,7 @@ const PlanEditor = ({
                   const newPos = {
                     x: newAttrs.x || ci.x,
                     y: newAttrs.y || ci.y,
+                    rotation: newAttrs.rotation || ci.rotation,
                   };
                   handleItemDragEnd(id, newPos, false, false);
                 }}
@@ -1147,6 +1150,7 @@ const PlanEditor = ({
                   const newPos = {
                     x: newAttrs.x || wi.x,
                     y: newAttrs.y || wi.y,
+                    rotation: newAttrs.rotation || wi.rotation,
                   };
                   handleItemDragEnd(id, newPos, false, true);
                 }}
