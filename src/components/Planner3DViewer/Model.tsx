@@ -116,7 +116,7 @@ const Model = React.memo(
 
       useEffect(() => {
         return () => {
-          useGLTF.preload(`/models/${path}`);
+          useGLTF.preload(`${path}`);
         };
       }, [path]);
 
@@ -137,7 +137,7 @@ const Model = React.memo(
 Model.displayName = "Model";
 
 export const preloadModel = (path: string) => {
-  useGLTF.preload(`/models/${path}`);
+  useGLTF.preload(`${path}`);
 };
 
 export default Model;
