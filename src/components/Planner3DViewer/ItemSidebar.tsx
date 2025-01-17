@@ -84,7 +84,11 @@ const ItemSidebar: React.FC<ItemSidebarProps> = ({ onItemClick }) => {
         {categories
           .filter((category) =>
             category.items.some(
-              (item) => item.type !== "Ceiling" && item.type !== "Wall",
+              (item) =>
+                item.type !== "Ceiling" &&
+                item.type !== "Wall" &&
+                item.type !== "Door" &&
+                item.type !== "Window",
             ),
           )
           .map((category) => (
@@ -100,7 +104,11 @@ const ItemSidebar: React.FC<ItemSidebarProps> = ({ onItemClick }) => {
                 <div className="bg-gray-100 mt-2 grid grid-cols-2 gap-4 rounded-lg p-3">
                   {category.items
                     .filter(
-                      (item) => item.type !== "Ceiling" && item.type !== "Wall",
+                      (item) =>
+                        item.type !== "Ceiling" &&
+                        item.type !== "Wall" &&
+                        item.type !== "Door" &&
+                        item.type !== "Window",
                     )
                     .map((item) => (
                       <div

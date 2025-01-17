@@ -21,6 +21,10 @@ const ItemSidebar: React.FC<ItemSidebarProps> = ({ selectedPlane }) => {
 
       const categorizedItems: { [category: string]: SidebarItem[] } = {};
       data.forEach((item: any) => {
+        if (item.type === "Door" || item.type === "Window") {
+          return;
+        }
+
         const category = item.category;
         if (!categorizedItems[category]) {
           categorizedItems[category] = [];
@@ -36,7 +40,15 @@ const ItemSidebar: React.FC<ItemSidebarProps> = ({ selectedPlane }) => {
         });
       });
 
-      setItems(categorizedItems);
+      const filteredCategorizedItems: { [category: string]: SidebarItem[] } =
+        {};
+      Object.entries(categorizedItems).forEach(([category, categoryItems]) => {
+        if (categoryItems.length > 0) {
+          filteredCategorizedItems[category] = categoryItems;
+        }
+      });
+
+      setItems(filteredCategorizedItems);
     } catch (error) {
       console.error("Error fetching items:", error);
     }
