@@ -116,21 +116,54 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [ceilingTextureSetting, setCeilingTextureSetting] =
     useState<string>("wallmap_yellow.png");
 
-  // Door & Window Model Options
-  const doorOptions = [
-    { label: "Glass Door", value: "door/door.glb" },
-    { label: "Wooden Door 1", value: "door/door_wooden.glb" },
-    { label: "Blast Door", value: "door/blastDoor.glb" },
-    { label: "Open Doorway", value: "door/doorFrame.glb" },
-    { label: "Wooden Door 2", value: "door/door_wooden_1.glb" },
-    { label: "Wooden Door 3", value: "door/door_wooden_2.glb" },
-  ];
+  const [doorOptions, setDoorOptions] = useState([]);
+  const [windowOptions, setWindowOptions] = useState([]);
 
-  const windowOptions = [
-    { label: "Standard Window", value: "window/window.glb" },
-    { label: "Slide Window", value: "window/window_slide.glb" },
-    { label: "Window", value: "window/window_curtain.glb" },
-  ];
+  const fetchDoorAndWindowOptions = async () => {
+    try {
+      const doorResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/filtered-items/?type=Door`,
+      );
+      if (!doorResponse.ok) {
+        throw new Error(
+          `Error fetching door items: ${doorResponse.statusText}`,
+        );
+      }
+      const doorData = await doorResponse.json();
+
+      const doorOptions = doorData.map((item: any) => ({
+        label: item.item_name,
+        value: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/${item.glb_file}`,
+      }));
+      setDoorOptions(doorOptions);
+
+      const windowResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/filtered-items/?type=Window`,
+      );
+
+      if (!windowResponse.ok) {
+        throw new Error(
+          `Error fetching window items: ${windowResponse.statusText}`,
+        );
+      }
+      const windowData = await windowResponse.json();
+
+      const windowOptions = windowData.map((item: any) => ({
+        label: item.item_name,
+        value: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/${item.glb_file}`,
+      }));
+
+      setWindowOptions(windowOptions);
+
+      return { doorOptions, windowOptions };
+    } catch (error) {
+      console.error("Error fetching items:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchDoorAndWindowOptions();
+  }, []);
 
   const defaultDimensions = {
     door: { width: 50, height: 100 },

@@ -246,39 +246,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
     };
   }, [textures.floor, textures.wall, textures.roof]);
 
-  const modelTypeNames: { [key: string]: string } = {
-    "door/door.glb": "Glass Door",
-    "door/door_wooden.glb": "Wooden Door 1",
-    "door/door_wooden_1.glb": "Wooden Door 2",
-    "door/door_wooden_2.glb": "Wooden Door 3",
-    "door/door_wooden_3.glb": "Wooden Door 4",
-    "door/door_wooden_4.glb": "Wooden Door 5",
-    "door/door_wooden_5.glb": "Wooden Door 6",
-    "door/blastDoor.glb": "Blast Door",
-    "door/doorFrame.glb": "Door Frame",
-    "window/window.glb": "Casement Window",
-    "window/window_arch.glb": "Arch Window",
-    "window/window_slide.glb": "Slide Window",
-    "window/window_curtain.glb": "Window with Curtain",
-  };
-
-  const modelImagePaths: { [key: string]: string } = {
-    "door/door.glb": "/models/door/door.png",
-    "door/door_wooden.glb": "/models/door/door_wooden.png",
-    "door/door_wooden_1.glb": "/models/door/door_wooden_1.png",
-    "door/door_wooden_2.glb": "/models/door/door_wooden_2.png",
-    "door/door_wooden_3.glb": "/models/door/door_wooden_3.png",
-    "door/door_wooden_4.glb": "/models/door/door_wooden_4.png",
-    "door/door_wooden_5.glb": "/models/door/door_wooden_5.png",
-    "door/blastDoor.glb": "/models/door/blastDoor.png",
-    "door/doorFrame.glb": "/models/door/doorFrame.png",
-    "window/window.glb": "/models/window/window.png",
-    "window/window_arch.glb": "/models/window/window_arch.png",
-    "window/window_slide.glb": "/models/window/window_slide.png",
-    "window/window_curtain.glb": "/models/window/window_curtain.png",
-  };
   // Export Functionality
-
   const itemToRoomName: Record<string, string> = categories.reduce(
     (acc, room) => {
       room.items.forEach((item) => {
@@ -327,11 +295,9 @@ const SceneContent: React.FC<SceneContentProps> = ({
     shapes.forEach((shape) => {
       const { id: shapeId, type, wallId } = shape;
 
-      // Get wall classification
       const wallClassification = wallClassifications[wallId];
       const isOuter = wallClassification ? wallClassification.isOuter : false;
 
-      // Get dimensions
       const dimensions =
         shapeDimensionsById[shapeId] ||
         (type === "door" ? doorDimensions : windowDimensions);
@@ -340,15 +306,16 @@ const SceneContent: React.FC<SceneContentProps> = ({
 
       const defaultModelPath =
         type === "window"
-          ? "window/window.glb"
+          ? `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/window_1.glb`
           : isOuter
-            ? "door/door.glb"
-            : "door/door_wooden.glb";
+            ? `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/glass_door.glb`
+            : `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/wooden_door.glb`;
       const modelPath = modelPathsByShapeId[shapeId] || defaultModelPath;
       const modelName = modelPath.split("/").pop()?.split(".").shift() || "";
-      const typeName = modelTypeNames[modelPath] || type;
+      const name = modelName.replace("_", " ").toUpperCase();
+      const typeName = name || type;
       const area = width * height;
-      const imagePath = modelImagePaths[modelPath];
+      const imagePath = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer3d_images/${modelName}.png`;
       const key = `${type}-${modelName}-${width}-${height}`;
 
       if (scheduleMap.has(key)) {
@@ -1181,9 +1148,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
           const shapeWorldZ = y - centerY;
           const dx = shapeWorldX - wallPosition.x;
           const dz = shapeWorldZ - wallPosition.z;
-          // const alignmentFactor = 1;
-          // const localX = dx + (width / 2) * alignmentFactor;
-          // const localX = dx * Math.cos(angle) + dz * Math.sin(angle);
           const localX =
             type === "window"
               ? dx * Math.cos(angle) + dz * Math.sin(angle) - 30
@@ -1214,15 +1178,14 @@ const SceneContent: React.FC<SceneContentProps> = ({
               const { type, x, y, id, variant } = shape;
               const defaultModelPath =
                 type === "window"
-                  ? "window/window.glb"
+                  ? `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/window_1.glb`
                   : isOuter
-                    ? "door/door.glb"
-                    : "door/door_wooden.glb";
+                    ? `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/glass_door.glb`
+                    : `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/wooden_door.glb`;
               const modelPath =
                 variant === "default"
                   ? defaultModelPath
                   : variant || defaultModelPath;
-              // const modelPath = modelPathsByShapeId[id] || defaultModelPath;
               const flipStatus = shapeFlipStatusById[id] || false;
               const defaultDims =
                 type === "door" ? doorDimensions : windowDimensions;
@@ -1232,13 +1195,10 @@ const SceneContent: React.FC<SceneContentProps> = ({
               const shapeWorldZ = y - centerY;
               const dx = shapeWorldX - wallPosition.x;
               const dz = shapeWorldZ - wallPosition.z;
-              // const localX = dx * Math.cos(angle) + dz * Math.sin(angle);
               const localX =
                 type === "window"
                   ? dx * Math.cos(angle) + dz * Math.sin(angle) - 30
                   : dx * Math.cos(angle) + dz * Math.sin(angle) + 20;
-              // const alignmentFactor = 1;
-              // const localX = dx + (width / 2) * alignmentFactor;
               const localY =
                 type === "window" ? 0 : -wallHeight / 2 + height / 2;
               const rotationY =
@@ -1313,23 +1273,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
               onClick={() => handlePlacedItemClick(item)}
             />
           ))}
-
-      {/* {activeTourPoint &&
-        placedItems.map((item) => (
-          
-          <ItemModel
-            key={item.id}
-            path={item.path}
-            position={item.position || [0, 0, 0]}
-            rotation={item.rotation || [0, 0, 0]}
-            dimensions={{
-              width: item.width,
-              height: item.height,
-              depth: item.depth,
-            }}
-            onClick={() => handlePlacedItemClick(item)}
-          />
-        ))} */}
       {activeTourPoint &&
         placedItems.map((item) => {
           const isCeilingItem = ceilingItems.some((ci) => ci.id === item.id);
