@@ -133,7 +133,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
       const doorOptions = doorData.map((item: any) => ({
         label: item.item_name,
-        value: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/${item.glb_file}`,
+        value: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}${item.glb_file}`,
       }));
       setDoorOptions(doorOptions);
 
@@ -150,7 +150,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
       const windowOptions = windowData.map((item: any) => ({
         label: item.item_name,
-        value: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/${item.glb_file}`,
+        value: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}${item.glb_file}`,
       }));
 
       setWindowOptions(windowOptions);
