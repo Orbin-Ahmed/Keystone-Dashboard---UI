@@ -34,7 +34,7 @@ const Model = React.memo(
       { path, position, rotation, wallThickness, width, height, onClick },
       ref,
     ) => {
-      const { scene, materials } = useGLTF(`/models/${path}`);
+      const { scene, materials } = useGLTF(`${path}`);
 
       const dimensions = useMemo<Dimensions>(
         () => ({
