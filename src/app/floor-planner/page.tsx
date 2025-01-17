@@ -790,6 +790,7 @@ const FloorPlanner = () => {
         <Planner3DViewer
           lines={lines}
           shapes={shapes}
+          setShapes={setShapes}
           roomNames={roomNames}
           floorPlanPoints={floorPlanPoints}
           centerX={centerX}

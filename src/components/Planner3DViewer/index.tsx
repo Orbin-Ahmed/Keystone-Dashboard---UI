@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Canvas, ThreeEvent } from "@react-three/fiber";
+import { Canvas } from "@react-three/fiber";
 import {
   PlacedItemType,
   PlacingItemType,
@@ -33,6 +33,7 @@ import SelectedWallItemControls from "./sidebar/SelectedWallItemControls";
 const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   lines,
   shapes,
+  setShapes,
   roomNames,
   floorPlanPoints,
   centerX,

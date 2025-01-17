@@ -227,6 +227,7 @@ export interface ShapeType {
   rotation?: number;
   image: HTMLImageElement;
   wallId: string;
+  variant?: string;
 }
 
 export interface ShapeData {
@@ -352,6 +353,7 @@ export interface SerializedShape {
   rotation?: number;
   image: "window" | "door";
   wallId: string;
+  variant?: string;
 }
 
 export interface SerializedRoomName {
@@ -459,6 +461,7 @@ export interface SidebarItem {
 export interface Plan3DViewerProps {
   lines: LineData[];
   shapes: ShapeData[];
+  setShapes: React.Dispatch<React.SetStateAction<ShapeType[]>>;
   roomNames: RoomName[];
   floorPlanPoints: { id: string; x: number; y: number }[];
   centerX: number;
