@@ -1211,15 +1211,18 @@ const SceneContent: React.FC<SceneContentProps> = ({
           >
             <primitive object={wallMesh} />
             {shapesOnWall.map((shape) => {
-              const { type, x, y, id } = shape;
+              const { type, x, y, id, variant } = shape;
               const defaultModelPath =
                 type === "window"
                   ? "window/window.glb"
                   : isOuter
                     ? "door/door.glb"
                     : "door/door_wooden.glb";
-
-              const modelPath = modelPathsByShapeId[id] || defaultModelPath;
+              const modelPath =
+                variant === "default"
+                  ? defaultModelPath
+                  : variant || defaultModelPath;
+              // const modelPath = modelPathsByShapeId[id] || defaultModelPath;
               const flipStatus = shapeFlipStatusById[id] || false;
               const defaultDims =
                 type === "door" ? doorDimensions : windowDimensions;
