@@ -122,7 +122,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const fetchDoorAndWindowOptions = async () => {
     try {
       const doorResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/api/filtered-items/?type=Door`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}api/filtered-items/?type=Door`,
       );
       if (!doorResponse.ok) {
         throw new Error(
@@ -138,7 +138,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       setDoorOptions(doorOptions);
 
       const windowResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/api/filtered-items/?type=Window`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}api/filtered-items/?type=Window`,
       );
 
       if (!windowResponse.ok) {
