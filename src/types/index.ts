@@ -240,6 +240,7 @@ export interface ShapeData {
   rotation?: number;
   image: HTMLImageElement;
   wallId: string;
+  variant?: string;
 }
 
 export interface Point {
@@ -461,7 +462,7 @@ export interface SidebarItem {
 export interface Plan3DViewerProps {
   lines: LineData[];
   shapes: ShapeData[];
-  setShapes: React.Dispatch<React.SetStateAction<ShapeType[]>>;
+  setShapes: React.Dispatch<React.SetStateAction<ShapeData[]>>;
   roomNames: RoomName[];
   floorPlanPoints: { id: string; x: number; y: number }[];
   centerX: number;

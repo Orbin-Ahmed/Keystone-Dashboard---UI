@@ -91,6 +91,7 @@ const FloorPlanner = () => {
           (shape) => ({
             ...shape,
             image: shape.type,
+            variant: shape.variant || "default",
           }),
         );
 

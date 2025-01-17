@@ -452,10 +452,22 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           return updated;
         });
       }
+
       setShapeFlipStatusById((prev) => ({
         ...prev,
         [selectedShape.id]: flipShape,
       }));
+
+      setShapes((prevShapes) =>
+        prevShapes.map((shape) =>
+          shape.id === selectedShape.id
+            ? {
+                ...shape,
+                variant: selectedModelPath || "default",
+              }
+            : shape,
+        ),
+      );
 
       setSelectedShape(null);
       setNewWidth("");
