@@ -456,15 +456,46 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     setIsTourOpen(false);
     setIsSettingsOpen(false);
 
-    const dimensions = shapeDimensionsById[shape.id];
+    const currentDimensions = shapeDimensionsById[shape.id];
     const defaultDims = defaultDimensions[shape.type];
 
-    setNewWidth(dimensions?.width || defaultDims.width);
-    setNewHeight(dimensions?.height || defaultDims.height);
+    const currentModelPath = modelPathsByShapeId[shape.id];
+
+    let modelDimensions;
+    if (currentModelPath) {
+      const options = shape.type === "door" ? doorOptions : windowOptions;
+      modelDimensions = options.find(
+        (option) => option.value === currentModelPath,
+      );
+    }
+
+    setNewWidth(
+      modelDimensions?.width || currentDimensions?.width || defaultDims.width,
+    );
+    setNewHeight(
+      modelDimensions?.height ||
+        currentDimensions?.height ||
+        defaultDims.height,
+    );
 
     const flipStatus = shapeFlipStatusById[shape.id] || false;
     setFlipShape(flipStatus);
-    setSelectedModelPath(modelPathsByShapeId[shape.id] || "");
+    setSelectedModelPath(currentModelPath || "");
+  };
+
+  const handleModelPathChange = (path: string | null) => {
+    setSelectedModelPath(path);
+
+    if (selectedShape && path) {
+      const options =
+        selectedShape.type === "door" ? doorOptions : windowOptions;
+      const selectedOption = options.find((option) => option.value === path);
+
+      if (selectedOption) {
+        setNewWidth(selectedOption.width);
+        setNewHeight(selectedOption.height);
+      }
+    }
   };
 
   const handleSaveChanges = () => {
@@ -474,6 +505,19 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           ...prev,
           [selectedShape.id]: { width: newWidth, height: newHeight },
         }));
+
+        setShapes((prevShapes) =>
+          prevShapes.map((shape) =>
+            shape.id === selectedShape.id
+              ? {
+                  ...shape,
+                  width: newWidth,
+                  height: newHeight,
+                  variant: selectedModelPath || "default",
+                }
+              : shape,
+          ),
+        );
       }
       if (selectedModelPath) {
         setModelPathsByShapeId((prev) => ({
@@ -492,17 +536,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         ...prev,
         [selectedShape.id]: flipShape,
       }));
-
-      setShapes((prevShapes) =>
-        prevShapes.map((shape) =>
-          shape.id === selectedShape.id
-            ? {
-                ...shape,
-                variant: selectedModelPath || "default",
-              }
-            : shape,
-        ),
-      );
 
       setSelectedShape(null);
       setNewWidth("");
@@ -1026,7 +1059,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           newHeight={newHeight}
           setNewHeight={setNewHeight}
           selectedModelPath={selectedModelPath}
-          setSelectedModelPath={setSelectedModelPath}
+          setSelectedModelPath={handleModelPathChange}
           doorOptions={doorOptions}
           windowOptions={windowOptions}
           onSaveChanges={handleSaveChanges}
