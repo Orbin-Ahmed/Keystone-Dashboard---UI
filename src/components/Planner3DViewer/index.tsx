@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import {
+  ItemOption,
   PlacedItemType,
   PlacingItemType,
   Plan3DViewerProps,
@@ -9,7 +10,6 @@ import {
   TourPoint,
   WallClassification,
   WallItem,
-  WallItems2D,
 } from "@/types";
 import { PerspectiveCamera, Scene, Vector2, WebGLRenderer } from "three";
 import CustomButton from "@/components/CustomButton";
@@ -116,8 +116,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [ceilingTextureSetting, setCeilingTextureSetting] =
     useState<string>("wallmap_yellow.png");
 
-  const [doorOptions, setDoorOptions] = useState([]);
-  const [windowOptions, setWindowOptions] = useState([]);
+  const [doorOptions, setDoorOptions] = useState<ItemOption[]>([]);
+  const [windowOptions, setWindowOptions] = useState<ItemOption[]>([]);
 
   const fetchDoorAndWindowOptions = async () => {
     try {
@@ -134,6 +134,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       const doorOptions = doorData.map((item: any) => ({
         label: item.item_name,
         value: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}${item.glb_file}`,
+        height: item.height,
+        width: item.width,
       }));
       setDoorOptions(doorOptions);
 
@@ -151,6 +153,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       const windowOptions = windowData.map((item: any) => ({
         label: item.item_name,
         value: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}${item.glb_file}`,
+        height: item.height,
+        width: item.width,
       }));
 
       setWindowOptions(windowOptions);
@@ -211,56 +215,56 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     setShowRoof(true);
   };
 
-  const wallClassifications = useMemo(() => {
-    const classifications: Record<string, WallClassification> = {};
-    const tolerance = 5;
+  // const wallClassifications = useMemo(() => {
+  //   const classifications: Record<string, WallClassification> = {};
+  //   const tolerance = 5;
 
-    const wallEndpoints: Array<[number, number, number, number]> = [];
-    const wallIds: string[] = [];
+  //   const wallEndpoints: Array<[number, number, number, number]> = [];
+  //   const wallIds: string[] = [];
 
-    lines.forEach((line) => {
-      wallEndpoints.push(ensureWallPoints(line.points));
-      wallIds.push(line.id);
-    });
+  //   lines.forEach((line) => {
+  //     wallEndpoints.push(ensureWallPoints(line.points));
+  //     wallIds.push(line.id);
+  //   });
 
-    wallEndpoints.forEach((wall, wallIndex) => {
-      const [x1, y1, x2, y2] = wall;
-      const wallId = wallIds[wallIndex];
-      const wallCenter = new Vector2((x1 + x2) / 2, (y1 + y2) / 2);
-      const wallNormal = new Vector2(-(y2 - y1), x2 - x1).normalize();
-      const toCenterVector = new Vector2(
-        centerX - wallCenter.x,
-        centerY - wallCenter.y,
-      ).normalize();
+  //   wallEndpoints.forEach((wall, wallIndex) => {
+  //     const [x1, y1, x2, y2] = wall;
+  //     const wallId = wallIds[wallIndex];
+  //     const wallCenter = new Vector2((x1 + x2) / 2, (y1 + y2) / 2);
+  //     const wallNormal = new Vector2(-(y2 - y1), x2 - x1).normalize();
+  //     const toCenterVector = new Vector2(
+  //       centerX - wallCenter.x,
+  //       centerY - wallCenter.y,
+  //     ).normalize();
 
-      const isFacingInward = wallNormal.dot(toCenterVector) > 0;
-      const isHorizontal = Math.abs(y1 - y2) < tolerance;
-      const isVertical = Math.abs(x1 - x2) < tolerance;
+  //     const isFacingInward = wallNormal.dot(toCenterVector) > 0;
+  //     const isHorizontal = Math.abs(y1 - y2) < tolerance;
+  //     const isVertical = Math.abs(x1 - x2) < tolerance;
 
-      const isAtHorizontalBoundary =
-        Math.abs(y1 - minY) < tolerance ||
-        Math.abs(y1 - maxY) < tolerance ||
-        Math.abs(y2 - minY) < tolerance ||
-        Math.abs(y2 - maxY) < tolerance;
+  //     const isAtHorizontalBoundary =
+  //       Math.abs(y1 - minY) < tolerance ||
+  //       Math.abs(y1 - maxY) < tolerance ||
+  //       Math.abs(y2 - minY) < tolerance ||
+  //       Math.abs(y2 - maxY) < tolerance;
 
-      const isAtVerticalBoundary =
-        Math.abs(x1 - minX) < tolerance ||
-        Math.abs(x1 - maxX) < tolerance ||
-        Math.abs(x2 - minX) < tolerance ||
-        Math.abs(x2 - maxX) < tolerance;
+  //     const isAtVerticalBoundary =
+  //       Math.abs(x1 - minX) < tolerance ||
+  //       Math.abs(x1 - maxX) < tolerance ||
+  //       Math.abs(x2 - minX) < tolerance ||
+  //       Math.abs(x2 - maxX) < tolerance;
 
-      const isOuter =
-        (isHorizontal && isAtHorizontalBoundary) ||
-        (isVertical && isAtVerticalBoundary);
+  //     const isOuter =
+  //       (isHorizontal && isAtHorizontalBoundary) ||
+  //       (isVertical && isAtVerticalBoundary);
 
-      classifications[wallId] = {
-        isOuter,
-        isFacingInward,
-      };
-    });
+  //     classifications[wallId] = {
+  //       isOuter,
+  //       isFacingInward,
+  //     };
+  //   });
 
-    return classifications;
-  }, [lines]);
+  //   return classifications;
+  // }, [lines]);
 
   const handleExitTour = () => {
     setActiveTourPoint(null);
@@ -460,8 +464,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
     const flipStatus = shapeFlipStatusById[shape.id] || false;
     setFlipShape(flipStatus);
-    const wallClassification = wallClassifications[shape.wallId];
-    const isOuter = wallClassification ? wallClassification.isOuter : false;
     setSelectedModelPath(modelPathsByShapeId[shape.id] || "");
   };
 

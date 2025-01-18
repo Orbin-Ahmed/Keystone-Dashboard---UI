@@ -11,6 +11,13 @@ export type RegisterLoginFormData = {
   password: string;
 };
 
+export type ItemOption = {
+  label: string;
+  value: string;
+  height: number;
+  width: number;
+};
+
 export type SocialLinkBody = {
   platform: string;
   link: string;
