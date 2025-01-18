@@ -650,7 +650,7 @@ const PlanEditor = ({
         let shapeRotation = angle;
 
         if (isWindow) {
-          const windowHeight = shape.height;
+          const windowHeight = 8;
           const angleRadians = (angle * Math.PI) / 180;
           adjustedX = x - (windowHeight / 2) * Math.sin(angleRadians);
           adjustedY = y + (windowHeight / 2) * Math.cos(angleRadians);
@@ -923,6 +923,7 @@ const PlanEditor = ({
                   x={shape.x}
                   y={shape.y}
                   width={shape.type === "door" ? 40 : 70}
+                  // width={shape.width}
                   height={shape.type === "door" ? 40 : 8}
                   rotation={shape.rotation}
                   onClick={() => {

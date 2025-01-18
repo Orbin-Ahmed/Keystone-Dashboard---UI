@@ -171,12 +171,12 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
   const defaultDimensions = {
     door: { width: 50, height: 100 },
-    window: { width: 60, height: 50 },
+    window: { width: 70, height: 50 },
   };
 
   const DIMENSIONS_2D = {
-    window: { width: 70, height: 8 },
     door: { width: 40, height: 40 },
+    window: { width: 70, height: 8 },
   };
 
   const EYE_LEVEL = 70;
