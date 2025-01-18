@@ -415,7 +415,7 @@ const PlanEditor = ({
 
     const [x1, y1, x2, y2] = wall.points;
 
-    const windowWidth = 60;
+    const windowWidth = 70;
     const windowHeight = 8;
     const doorWidth = 40;
     const doorHeight = 40;
@@ -922,8 +922,8 @@ const PlanEditor = ({
                   image={shape.image}
                   x={shape.x}
                   y={shape.y}
-                  width={shape.width}
-                  height={shape.height}
+                  width={shape.type === "door" ? 40 : 70}
+                  height={shape.type === "door" ? 40 : 8}
                   rotation={shape.rotation}
                   onClick={() => {
                     setSelectedShape(shape.id);
