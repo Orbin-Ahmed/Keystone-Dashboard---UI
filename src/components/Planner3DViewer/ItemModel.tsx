@@ -99,6 +99,14 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
 
     return (
       <>
+        <directionalLight
+          position={[5, 10, 5]}
+          intensity={0.4}
+          color="#ffffff"
+          castShadow
+          shadow-mapSize-width={1024}
+          shadow-mapSize-height={1024}
+        />
         <primitive
           ref={(obj: Object3D | null) => {
             modelRef.current = obj;
