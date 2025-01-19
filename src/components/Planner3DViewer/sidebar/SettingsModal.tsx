@@ -1,6 +1,12 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import CustomButton from "@/components/CustomButton";
 import InputField from "@/components/InputField";
+
+interface TextureData {
+  texture_name: string;
+  texture_file: string;
+  texture_type: string;
+}
 
 interface SettingsModalProps {
   wallHeight: number;
@@ -29,6 +35,62 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   onCeilingTextureChange,
   onClose,
 }) => {
+  const [textures, setTextures] = useState<TextureData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchTextures = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}api/upload-texture/`,
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch textures");
+        }
+        const data = await response.json();
+        setTextures(data);
+        setIsLoading(false);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred");
+        setIsLoading(false);
+      }
+    };
+
+    fetchTextures();
+  }, []);
+
+  const filterTexturesByType = (type: string) => {
+    return textures.filter((texture) => texture.texture_type === type);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+        <div className="border-gray-200 w-72 rounded-lg border bg-white p-6 shadow-lg">
+          <p className="text-center">Loading textures...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+        <div className="border-gray-200 w-72 rounded-lg border bg-white p-6 shadow-lg">
+          <p className="text-red-500 text-center">Error: {error}</p>
+          <CustomButton
+            onClick={onClose}
+            variant="secondary"
+            className="bg-gray-200 text-gray-800 hover:bg-gray-300 mt-4 w-full rounded px-4 py-2 text-sm font-medium"
+          >
+            Close
+          </CustomButton>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
       <div className="border-gray-200 w-72 rounded-lg border bg-white p-6 shadow-lg">
@@ -86,9 +148,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             onChange={(e) => onWallTextureChange(e.target.value)}
             className="border-gray-300 mt-2 w-full rounded border bg-white px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
           >
-            <option value="wallmap_yellow.png">Yellow Wall</option>
-            <option value="walllightmap.png">White Wall</option>
-            <option value="marbletiles.jpg">Brick Wall</option>
+            {filterTexturesByType("Wall").map((texture) => (
+              <option key={texture.texture_name} value={texture.texture_file}>
+                {texture.texture_name}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -106,23 +170,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             onChange={(e) => onFloorTextureChange(e.target.value)}
             className="border-gray-300 mt-2 w-full rounded border bg-white px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
           >
-            {/* Add floor texture options here */}
-            <option value="crema_marfi_marble_tile_1.jpg">
-              Crema Marfil Marble
-            </option>
-            <option value="white_marble_tiles_1.jpg">White Marble Tiles</option>
-            <option value="golden.jpeg">Golden Marble</option>
-            <option value="white_marble.jpg">White Marble</option>
-            <option value="blue.jpg">Blue Marble</option>
-            <option value="white_tiles.jpg">White Tiles</option>
-            <option value="hardwood.png">Wooden Floor</option>
-            <option value="light_fine_wood.jpg">Light Wooden Floor</option>
-            <option value="golden_marble_tiles.jpg">Golden Marble Tiles</option>
-            <option value="dark_brown_marble_tiles.jpg">
-              Dark Brown Marble Tiles
-            </option>
-            <option value="brown_marble_tiles.jpg">Brown Marble Tiles</option>
-            <option value="gray_marble_tiles.jpg">Gray Marble Tiles</option>
+            {filterTexturesByType("Floor").map((texture) => (
+              <option key={texture.texture_name} value={texture.texture_file}>
+                {texture.texture_name}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -140,8 +192,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             onChange={(e) => onCeilingTextureChange(e.target.value)}
             className="border-gray-300 mt-2 w-full rounded border bg-white px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
           >
-            <option value="wallmap_yellow.png">Yellow Ceiling</option>
-            <option value="walllightmap.png">White Ceiling</option>
+            {filterTexturesByType("Ceiling").map((texture) => (
+              <option key={texture.texture_name} value={texture.texture_file}>
+                {texture.texture_name}
+              </option>
+            ))}
           </select>
         </div>
 
