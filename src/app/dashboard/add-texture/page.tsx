@@ -10,6 +10,7 @@ const AddTexture = () => {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [textureName, setTextureName] = useState<string>("");
+  const [textureType, setTextureType] = useState<string>("");
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -27,9 +28,9 @@ const AddTexture = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!selectedImage || !textureName.trim()) {
+    if (!selectedImage || !textureName.trim() || !textureType) {
       alert(
-        "Please provide a texture name and select an image before submitting.",
+        "Please provide a texture name, select an image, and choose a texture type before submitting.",
       );
       return;
     }
@@ -37,6 +38,7 @@ const AddTexture = () => {
     const formData = new FormData();
     formData.append("texture", selectedImage);
     formData.append("texture_name", textureName);
+    formData.append("texture_type", textureType);
 
     try {
       const response = await fetch(
@@ -85,6 +87,8 @@ const AddTexture = () => {
             id="type"
             name="type"
             className="w-full rounded border border-stroke px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            value={textureType}
+            onChange={(e) => setTextureType(e.target.value)}
             required
           >
             <option value="" disabled>
