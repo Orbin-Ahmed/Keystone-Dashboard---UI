@@ -35,8 +35,15 @@ const AddTexture = () => {
       return;
     }
 
+    const fileExtension = selectedImage.name.split(".").pop();
+    const renamedFile = new File(
+      [selectedImage],
+      `${textureName}.${fileExtension}`,
+      { type: selectedImage.type },
+    );
+
     const formData = new FormData();
-    formData.append("texture", selectedImage);
+    formData.append("texture", renamedFile);
     formData.append("texture_name", textureName);
     formData.append("texture_type", textureType);
 
