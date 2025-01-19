@@ -43,7 +43,7 @@ const AddTexture = () => {
     );
 
     const formData = new FormData();
-    formData.append("texture", renamedFile);
+    formData.append("texture_file", renamedFile);
     formData.append("texture_name", textureName);
     formData.append("texture_type", textureType);
 
