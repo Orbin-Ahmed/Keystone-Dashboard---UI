@@ -103,7 +103,7 @@ const AddTexture = () => {
             </option>
             <option value="Wall">Wall</option>
             <option value="Floor">Floor</option>
-            <option value="Floor">Ceiling</option>
+            <option value="Ceiling">Ceiling</option>
           </select>
 
           <CustomButton type="submit" variant="primary">
