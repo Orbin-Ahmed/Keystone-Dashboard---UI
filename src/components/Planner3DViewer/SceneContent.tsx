@@ -224,15 +224,9 @@ const SceneContent: React.FC<SceneContentProps> = ({
   }, [floorPlanPoints]);
 
   // Texure Data
-  const floorTextureData = useLoader(
-    TextureLoader,
-    `/textures/${floorTexture}`,
-  );
-  const wallTextureData = useLoader(TextureLoader, `/textures/${wallTexture}`);
-  const ceilingTextureData = useLoader(
-    TextureLoader,
-    `/textures/${ceilingTexture}`,
-  );
+  const floorTextureData = useLoader(TextureLoader, `${floorTexture}`);
+  const wallTextureData = useLoader(TextureLoader, `${wallTexture}`);
+  const ceilingTextureData = useLoader(TextureLoader, `${ceilingTexture}`);
 
   const textures = {
     floor: floorTextureData,

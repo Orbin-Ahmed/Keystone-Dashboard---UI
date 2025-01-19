@@ -149,7 +149,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             className="border-gray-300 mt-2 w-full rounded border bg-white px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
           >
             {filterTexturesByType("Wall").map((texture) => (
-              <option key={texture.texture_name} value={texture.texture_file}>
+              <option
+                key={texture.texture_name}
+                value={`${process.env.NEXT_PUBLIC_API_MEDIA_URL}${texture.texture_file}`}
+              >
                 {texture.texture_name}
               </option>
             ))}
@@ -171,7 +174,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             className="border-gray-300 mt-2 w-full rounded border bg-white px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
           >
             {filterTexturesByType("Floor").map((texture) => (
-              <option key={texture.texture_name} value={texture.texture_file}>
+              <option
+                key={texture.texture_name}
+                value={`${process.env.NEXT_PUBLIC_API_MEDIA_URL}${texture.texture_file}`}
+              >
                 {texture.texture_name}
               </option>
             ))}
@@ -193,7 +199,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             className="border-gray-300 mt-2 w-full rounded border bg-white px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
           >
             {filterTexturesByType("Ceiling").map((texture) => (
-              <option key={texture.texture_name} value={texture.texture_file}>
+              <option
+                key={texture.texture_name}
+                value={`${process.env.NEXT_PUBLIC_API_MEDIA_URL}${texture.texture_file}`}
+              >
                 {texture.texture_name}
               </option>
             ))}
