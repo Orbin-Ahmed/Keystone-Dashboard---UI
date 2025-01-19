@@ -29,6 +29,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const items_1 = [
     { route: "/dashboard/add-model", label: "3D Furnish Hub" },
     { route: "/dashboard/generate-model", label: "Virtual Showcase" },
+    { route: "/dashboard/add-texture", label: "Interior Textures" },
   ];
   let storedSidebarExpanded = "true";
 
