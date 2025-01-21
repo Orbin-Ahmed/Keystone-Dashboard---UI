@@ -88,16 +88,14 @@ const FurnitureItemComponent: FC<FurnitureItemComponentProps> = ({
           rotateEnabled
           enabledAnchors={[
             "top-left",
+            "top-center",
             "top-right",
+            "middle-left",
+            "middle-right",
             "bottom-left",
+            "bottom-center",
             "bottom-right",
           ]}
-          boundBoxFunc={(oldBox, newBox) => {
-            if (newBox.width < 10 || newBox.height < 10) {
-              return oldBox;
-            }
-            return newBox;
-          }}
         />
       )}
     </>
