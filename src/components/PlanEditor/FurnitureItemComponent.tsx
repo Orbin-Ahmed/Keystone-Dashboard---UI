@@ -1,33 +1,75 @@
-import { FurnitureItem } from "@/types";
-import Konva from "konva";
-import { useEffect, useRef } from "react";
-import useImage from "use-image";
+"use client";
+import React, { FC, useRef, useEffect } from "react";
 import { Image as KonvaImage, Transformer } from "react-konva";
+import useImage from "use-image";
+import Konva from "konva";
+import { KonvaEventObject } from "konva/lib/Node";
+import { FurnitureItem } from "@/types";
 
-const FurnitureItemComponent: React.FC<{
+interface FurnitureItemComponentProps {
   item: FurnitureItem;
   isSelected: boolean;
   onSelect: (id: string) => void;
   onChange: (id: string, newAttrs: Partial<FurnitureItem>) => void;
-}> = ({ item, isSelected, onSelect, onChange }) => {
+}
+
+const FurnitureItemComponent: FC<FurnitureItemComponentProps> = ({
+  item,
+  isSelected,
+  onSelect,
+  onChange,
+}) => {
   const [image] = useImage(item.imageSrc);
   const shapeRef = useRef<Konva.Image>(null);
   const transformerRef = useRef<Konva.Transformer>(null);
 
   useEffect(() => {
-    if (isSelected && shapeRef.current && transformerRef.current) {
-      transformerRef.current.nodes([shapeRef.current]);
-      transformerRef.current.getLayer()?.batchDraw();
+    if (transformerRef.current && shapeRef.current) {
+      if (isSelected) {
+        transformerRef.current.nodes([shapeRef.current]);
+        transformerRef.current.getLayer()?.batchDraw();
+      } else {
+        transformerRef.current.nodes([]);
+      }
     }
   }, [isSelected]);
 
-  if (!image) {
-    return null;
-  }
+  const handleDragEnd = (e: KonvaEventObject<DragEvent>) => {
+    if (!shapeRef.current) return;
+
+    const node = shapeRef.current;
+    onChange(item.id, {
+      x: node.x(),
+      y: node.y(),
+    });
+  };
+
+  const handleTransformEnd = (e: KonvaEventObject<Event>) => {
+    const node = shapeRef.current;
+    if (!node) return;
+
+    const scaleX = node.scaleX();
+    const scaleY = node.scaleY();
+    node.scaleX(1);
+    node.scaleY(1);
+    const newWidth = Math.max(5, node.width() * scaleX);
+    const newDepth = Math.max(5, node.height() * scaleY);
+
+    onChange(item.id, {
+      x: node.x(),
+      y: node.y(),
+      width: newWidth,
+      depth: newDepth,
+      rotation: node.rotation(),
+    });
+  };
+
+  if (!image) return null;
 
   return (
     <>
       <KonvaImage
+        ref={shapeRef}
         image={image}
         x={item.x}
         y={item.y}
@@ -36,33 +78,28 @@ const FurnitureItemComponent: React.FC<{
         rotation={item.rotation}
         draggable
         onClick={() => onSelect(item.id)}
-        ref={shapeRef}
-        onDragEnd={(e) => {
-          onChange(item.id, {
-            x: e.target.x(),
-            y: e.target.y(),
-          });
-        }}
-        onTransformEnd={(e) => {
-          const node = shapeRef.current;
-          if (node) {
-            const scaleX = node.scaleX();
-            const scaleY = node.scaleY();
-
-            node.scaleX(1);
-            node.scaleY(1);
-
-            onChange(item.id, {
-              x: node.x(),
-              y: node.y(),
-              width: Math.max(5, node.width() * scaleX),
-              depth: Math.max(5, node.height() * scaleY),
-              rotation: node.rotation(),
-            });
-          }
-        }}
+        onDragEnd={handleDragEnd}
+        onTransformEnd={handleTransformEnd}
       />
-      {isSelected && <Transformer ref={transformerRef} />}
+
+      {isSelected && (
+        <Transformer
+          ref={transformerRef}
+          rotateEnabled
+          enabledAnchors={[
+            "top-left",
+            "top-right",
+            "bottom-left",
+            "bottom-right",
+          ]}
+          boundBoxFunc={(oldBox, newBox) => {
+            if (newBox.width < 10 || newBox.height < 10) {
+              return oldBox;
+            }
+            return newBox;
+          }}
+        />
+      )}
     </>
   );
 };

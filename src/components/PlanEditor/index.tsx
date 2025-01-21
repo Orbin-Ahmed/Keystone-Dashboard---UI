@@ -1086,13 +1086,18 @@ const PlanEditor = ({
                   setSelectedCeilingItemId(null);
                   setSelectedWallItemId(null);
                 }}
+                // onChange={(id, newAttrs) => {
+                //   const newPos = {
+                //     x: newAttrs.x || item.x,
+                //     y: newAttrs.y || item.y,
+                //     rotation: newAttrs.rotation || item.rotation,
+                //   };
+                //   handleItemDragEnd(id, newPos, true, false);
+                // }}
                 onChange={(id, newAttrs) => {
-                  const newPos = {
-                    x: newAttrs.x || item.x,
-                    y: newAttrs.y || item.y,
-                    rotation: newAttrs.rotation || item.rotation,
-                  };
-                  handleItemDragEnd(id, newPos, true, false);
+                  setFurnitureItems((prev) =>
+                    prev.map((f) => (f.id === id ? { ...f, ...newAttrs } : f)),
+                  );
                 }}
               />
             ))}
@@ -1113,13 +1118,18 @@ const PlanEditor = ({
                   setSelectedWall(null);
                   setSelectedWallItemId(null);
                 }}
+                // onChange={(id, newAttrs) => {
+                //   const newPos = {
+                //     x: newAttrs.x || ci.x,
+                //     y: newAttrs.y || ci.y,
+                //     rotation: newAttrs.rotation || ci.rotation,
+                //   };
+                //   handleItemDragEnd(id, newPos, false, false);
+                // }}
                 onChange={(id, newAttrs) => {
-                  const newPos = {
-                    x: newAttrs.x || ci.x,
-                    y: newAttrs.y || ci.y,
-                    rotation: newAttrs.rotation || ci.rotation,
-                  };
-                  handleItemDragEnd(id, newPos, false, false);
+                  setCeilingItems((prev) =>
+                    prev.map((f) => (f.id === id ? { ...f, ...newAttrs } : f)),
+                  );
                 }}
               />
             ))}
@@ -1147,13 +1157,18 @@ const PlanEditor = ({
                   setSelectedWall(null);
                   setSelectedCeilingItemId(null);
                 }}
+                // onChange={(id, newAttrs) => {
+                //   const newPos = {
+                //     x: newAttrs.x || wi.x,
+                //     y: newAttrs.y || wi.y,
+                //     rotation: newAttrs.rotation || wi.rotation,
+                //   };
+                //   handleItemDragEnd(id, newPos, false, true);
+                // }}
                 onChange={(id, newAttrs) => {
-                  const newPos = {
-                    x: newAttrs.x || wi.x,
-                    y: newAttrs.y || wi.y,
-                    rotation: newAttrs.rotation || wi.rotation,
-                  };
-                  handleItemDragEnd(id, newPos, false, true);
+                  setWallItems((prev) =>
+                    prev.map((f) => (f.id === id ? { ...f, ...newAttrs } : f)),
+                  );
                 }}
               />
             ))}
