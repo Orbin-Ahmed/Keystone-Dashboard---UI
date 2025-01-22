@@ -860,7 +860,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
 
       const position: [number, number, number] = [
         adjustedX,
-        item.z || 0,
+        item.z || wallHeight / 2,
         adjustedZ,
       ];
       const rotation: [number, number, number] = [0, rotationInRadians, 0];
@@ -904,7 +904,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
 
       const position: [number, number, number] = [
         adjustedX,
-        wallHeight - 32,
+        wallHeight - item.height,
         adjustedZ,
       ];
       const rotation: [number, number, number] = [0, rotationInRadians, 0];
