@@ -99,7 +99,7 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
 
     return (
       <>
-        <directionalLight position={[5, 10, 5]} intensity={0.5} />
+        <directionalLight position={[5, 10, 5]} intensity={0.2} />
         <primitive
           ref={(obj: Object3D | null) => {
             modelRef.current = obj;
