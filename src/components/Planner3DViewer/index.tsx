@@ -8,10 +8,9 @@ import {
   SelectedWallItem,
   ShapeData,
   TourPoint,
-  WallClassification,
   WallItem,
 } from "@/types";
-import { PerspectiveCamera, Scene, Vector2, WebGLRenderer } from "three";
+import { PerspectiveCamera, Scene, WebGLRenderer } from "three";
 import CustomButton from "@/components/CustomButton";
 import SceneContent, {
   ensureWallPoints,
@@ -912,8 +911,10 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           if (camera instanceof PerspectiveCamera) {
             cameraRef.current = camera;
           }
+          gl.setPixelRatio(Math.min(window.devicePixelRatio, 2));
           glRef.current = gl;
           sceneRef.current = scene;
+          gl.autoClear = false;
           // gl.setAnimationLoop(() => {
           //   if (statsRef.current) statsRef.current.begin();
           //   gl.render(scene, camera);
