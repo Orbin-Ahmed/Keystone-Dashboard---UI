@@ -258,7 +258,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
       const exportScene = async () => {
         try {
           const gltfBlob = await exportGLTF();
-          setShowRoof(false);
           const scheduleItems = collectScheduleData();
           const pdfBlob = await generateSchedulePDF(scheduleItems);
 
@@ -271,7 +270,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
           link.download = "scene_and_schedule.zip";
           link.click();
           URL.revokeObjectURL(link.href);
-
+          setShowRoof(false);
           setShouldExport(false);
         } catch (error) {
           console.error("An error occurred during export", error);
