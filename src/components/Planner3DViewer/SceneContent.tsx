@@ -257,13 +257,13 @@ const SceneContent: React.FC<SceneContentProps> = ({
       setShowRoof(true);
       const exportScene = async () => {
         try {
+          const gltfBlob = await exportGLTF();
+          setShowRoof(false);
           const scheduleItems = collectScheduleData();
           const pdfBlob = await generateSchedulePDF(scheduleItems);
 
           const itemData = collectItemData();
           const itemPdfBlob = await generateItemPDF(itemData);
-
-          const gltfBlob = await exportGLTF();
 
           const zipBlob = await createZipFile(gltfBlob, pdfBlob, itemPdfBlob);
           const link = document.createElement("a");
@@ -273,7 +273,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
           URL.revokeObjectURL(link.href);
 
           setShouldExport(false);
-          setShowRoof(false);
         } catch (error) {
           console.error("An error occurred during export", error);
           setShouldExport(false);
@@ -929,13 +928,13 @@ const SceneContent: React.FC<SceneContentProps> = ({
   }, [ceilingItems]);
 
   useEffect(() => {
-    if (envMap && showRoof) {
+    if (envMap && showRoof && !shouldExport) {
       scene.background = envMap;
     }
     return () => {
       scene.background = null;
     };
-  }, [envMap, showRoof]);
+  }, [envMap, showRoof, shouldExport]);
 
   useEffect(() => {
     return () => {
@@ -1270,28 +1269,29 @@ const SceneContent: React.FC<SceneContentProps> = ({
               onClick={() => handlePlacedItemClick(item)}
             />
           ))}
-      {activeTourPoint &&
-        placedItems.map((item) => {
-          const isCeilingItem = ceilingItems.some((ci) => ci.id === item.id);
-          const itemClick = isCeilingItem
-            ? undefined
-            : () => handlePlacedItemClick(item);
+      {activeTourPoint ||
+        (shouldExport &&
+          placedItems.map((item) => {
+            const isCeilingItem = ceilingItems.some((ci) => ci.id === item.id);
+            const itemClick = isCeilingItem
+              ? undefined
+              : () => handlePlacedItemClick(item);
 
-          return (
-            <ItemModel
-              key={item.id}
-              path={item.path}
-              position={item.position || [0, 0, 0]}
-              rotation={item.rotation || [0, 0, 0]}
-              dimensions={{
-                width: item.width,
-                height: item.height,
-                depth: item.depth,
-              }}
-              onClick={itemClick}
-            />
-          );
-        })}
+            return (
+              <ItemModel
+                key={item.id}
+                path={item.path}
+                position={item.position || [0, 0, 0]}
+                rotation={item.rotation || [0, 0, 0]}
+                dimensions={{
+                  width: item.width,
+                  height: item.height,
+                  depth: item.depth,
+                }}
+                onClick={itemClick}
+              />
+            );
+          }))}
 
       {placingWallItem && (
         <WallItemModel
