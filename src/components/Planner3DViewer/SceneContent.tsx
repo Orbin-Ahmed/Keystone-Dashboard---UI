@@ -86,6 +86,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
   isAutoRotating,
   setIsAutoRotating,
   showRoof,
+  setShowRoof,
   tourPoints,
   onTourPointClick,
   floorPlanPoints,
@@ -253,6 +254,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
 
   useEffect(() => {
     if (shouldExport) {
+      setShowRoof(true);
       const exportScene = async () => {
         try {
           const scheduleItems = collectScheduleData();
@@ -278,6 +280,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
       };
 
       exportScene();
+      setShowRoof(false);
     }
   }, [shouldExport]);
 

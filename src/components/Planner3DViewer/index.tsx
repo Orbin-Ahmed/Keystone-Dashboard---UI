@@ -932,6 +932,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           isAutoRotating={isAutoRotating}
           setIsAutoRotating={setIsAutoRotating}
           showRoof={showRoof}
+          setShowRoof={setShowRoof}
           tourPoints={tourPoints}
           onTourPointClick={handleTourPointClick}
           floorPlanPoints={floorPlanPoints}

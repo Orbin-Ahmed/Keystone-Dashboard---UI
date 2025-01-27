@@ -497,6 +497,7 @@ export interface SceneContentProps {
   isAutoRotating: boolean;
   setIsAutoRotating: React.Dispatch<React.SetStateAction<boolean>>;
   showRoof: boolean;
+  setShowRoof: React.Dispatch<React.SetStateAction<boolean>>;
   tourPoints: TourPoint[];
   onTourPointClick: (point: TourPoint) => void;
   floorPlanPoints: Point[];
