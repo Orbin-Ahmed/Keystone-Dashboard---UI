@@ -273,6 +273,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
           URL.revokeObjectURL(link.href);
 
           setShouldExport(false);
+          setShowRoof(false);
         } catch (error) {
           console.error("An error occurred during export", error);
           setShouldExport(false);
@@ -280,7 +281,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
       };
 
       exportScene();
-      setShowRoof(false);
     }
   }, [shouldExport]);
 
