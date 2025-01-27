@@ -911,7 +911,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           if (camera instanceof PerspectiveCamera) {
             cameraRef.current = camera;
           }
-          gl.setPixelRatio(Math.min(window.devicePixelRatio, 2));
           glRef.current = gl;
           sceneRef.current = scene;
           gl.autoClear = false;
