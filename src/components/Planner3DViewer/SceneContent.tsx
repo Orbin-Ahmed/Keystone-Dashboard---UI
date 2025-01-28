@@ -254,7 +254,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
 
   useEffect(() => {
     if (shouldExport) {
-      setShowRoof(true);
       const exportScene = async () => {
         try {
           const gltfBlob = await exportGLTF();
@@ -270,7 +269,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
           link.download = "scene_and_schedule.zip";
           link.click();
           URL.revokeObjectURL(link.href);
-          setShowRoof(false);
           setShouldExport(false);
         } catch (error) {
           console.error("An error occurred during export", error);
@@ -692,8 +690,26 @@ const SceneContent: React.FC<SceneContentProps> = ({
     );
   }, [floorShape, textures.floor]);
 
+  // const Roof = useMemo(() => {
+  //   if (!showRoof || !floorShape) return null;
+
+  //   const geometry = new ExtrudeGeometry(floorShape, {
+  //     depth: 1,
+  //     bevelEnabled: false,
+  //   });
+
+  //   geometry.rotateX(Math.PI / 2);
+  //   geometry.translate(0, wallHeight + 1, 0);
+
+  //   return (
+  //     <mesh geometry={geometry} position={[0, 0, 0]}>
+  //       <meshStandardMaterial map={textures.roof} side={DoubleSide} />
+  //     </mesh>
+  //   );
+  // }, [floorShape, showRoof, textures.roof]);
+
   const Roof = useMemo(() => {
-    if (!showRoof || !floorShape) return null;
+    if ((!showRoof && !shouldExport) || !floorShape) return null;
 
     const geometry = new ExtrudeGeometry(floorShape, {
       depth: 1,
@@ -708,7 +724,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
         <meshStandardMaterial map={textures.roof} side={DoubleSide} />
       </mesh>
     );
-  }, [floorShape, showRoof, textures.roof]);
+  }, [floorShape, showRoof, textures.roof, shouldExport]);
 
   const handlePointerDown = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation();
@@ -926,8 +942,17 @@ const SceneContent: React.FC<SceneContentProps> = ({
     setPlacedItems((prev) => [...prev, ...newCeilingPlaced]);
   }, [ceilingItems]);
 
+  // useEffect(() => {
+  //   if (envMap && showRoof && !shouldExport) {
+  //     scene.background = envMap;
+  //   }
+  //   return () => {
+  //     scene.background = null;
+  //   };
+  // }, [envMap, showRoof, shouldExport]);
+
   useEffect(() => {
-    if (envMap && showRoof && !shouldExport) {
+    if (envMap && (showRoof || shouldExport) && !shouldExport) {
       scene.background = envMap;
     }
     return () => {
@@ -1226,7 +1251,8 @@ const SceneContent: React.FC<SceneContentProps> = ({
           </group>
         );
       })}
-      {/* Currently placing item */}
+
+      {/* Currently placing Floor item */}
       {placingItem && (
         <ItemModel
           ref={modelRef}
@@ -1247,12 +1273,14 @@ const SceneContent: React.FC<SceneContentProps> = ({
         />
       )}
 
-      {/* Placed items */}
-      {!activeTourPoint &&
+      {/* Only Floor Placed items */}
+      {/* {!activeTourPoint && */}
+      {(!activeTourPoint || shouldExport) &&
         placedItems
           .filter(
             (item) =>
-              !ceilingItems.some((ceilingItem) => ceilingItem.id === item.id),
+              !ceilingItems.some((ceilingItem) => ceilingItem.id === item.id) ||
+              shouldExport,
           )
           .map((item) => (
             <ItemModel
@@ -1268,6 +1296,8 @@ const SceneContent: React.FC<SceneContentProps> = ({
               onClick={() => handlePlacedItemClick(item)}
             />
           ))}
+
+      {/* Roof Item and Floor Placed Item Together  */}
       {activeTourPoint &&
         placedItems.map((item) => {
           const isCeilingItem = ceilingItems.some((ci) => ci.id === item.id);
@@ -1291,6 +1321,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
           );
         })}
 
+      {/* Placing Wall Items  */}
       {placingWallItem && (
         <WallItemModel
           ref={modelRef}
