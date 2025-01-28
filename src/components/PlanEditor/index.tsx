@@ -25,12 +25,21 @@ import { uid } from "uid";
 import FurnitureItemComponent from "./FurnitureItemComponent";
 
 const GRID_SIZE = 50;
-const PIXELS_PER_METER = 100;
+const PIXELS_PER_METER = 39.8;
 const SNAP_THRESHOLD = 10;
 const MIN_WALL_LENGTH = 0.1 * PIXELS_PER_METER;
 const STRAIGHT_LINE_THRESHOLD = 10;
 const width = 5000;
 const height = 3000;
+
+interface TempLine extends Line {
+  length?: string;
+  textAngle?: number;
+  midPoint?: {
+    x: number;
+    y: number;
+  };
+}
 
 const PlanEditor = ({
   tool,
@@ -66,7 +75,8 @@ const PlanEditor = ({
     null,
   );
   const [isMounted, setIsMounted] = useState(false);
-  const [tempLine, setTempLine] = useState<Line | null>(null);
+  // const [tempLine, setTempLine] = useState<Line | null>(null);
+  const [tempLine, setTempLine] = useState<TempLine | null>(null);
   const [guideLine, setGuideLine] = useState<Line | null>(null);
   const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null);
   const [selectedFloorPoint, setSelectedFloorPoint] = useState<string | null>(
@@ -264,6 +274,18 @@ const PlanEditor = ({
           snappedPos,
           startPoint,
         );
+
+        const lengthPixels = Math.sqrt(
+          Math.pow(constrainedPos.x - startPoint.x, 2) +
+            Math.pow(constrainedPos.y - startPoint.y, 2),
+        );
+        const lengthMeters = (lengthPixels / PIXELS_PER_METER).toFixed(2);
+        const dx = constrainedPos.x - startPoint.x;
+        const dy = constrainedPos.y - startPoint.y;
+        let angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+        if (angle > 90) angle -= 180;
+        if (angle < -90) angle += 180;
+
         setTempLine({
           id: "temp",
           points: [
@@ -273,6 +295,12 @@ const PlanEditor = ({
             constrainedPos.y,
           ],
           thickness: 8,
+          length: lengthMeters,
+          textAngle: angle,
+          midPoint: {
+            x: (startPoint.x + constrainedPos.x) / 2,
+            y: (startPoint.y + constrainedPos.y) / 2,
+          },
         });
 
         const guide = getGuideLine(constrainedPos);
@@ -774,54 +802,6 @@ const PlanEditor = ({
     e.dataTransfer.dropEffect = "copy";
   };
 
-  const handleItemDragEnd = (
-    id: string,
-    updatedItem: { x: number; y: number; rotation?: number },
-    isFloorItem: boolean,
-    isWallItem: boolean,
-  ) => {
-    if (isFloorItem) {
-      setFurnitureItems((prev) =>
-        prev.map((item) =>
-          item.id === id
-            ? {
-                ...item,
-                x: updatedItem.x,
-                y: updatedItem.y,
-                rotation: updatedItem.rotation || item.rotation,
-              }
-            : item,
-        ),
-      );
-    } else if (!isWallItem && !isFloorItem) {
-      setCeilingItems((prev) =>
-        prev.map((item) =>
-          item.id === id
-            ? {
-                ...item,
-                x: updatedItem.x,
-                y: updatedItem.y,
-                rotation: updatedItem.rotation || item.rotation,
-              }
-            : item,
-        ),
-      );
-    } else if (isWallItem) {
-      setWallItems((prev) =>
-        prev.map((item) =>
-          item.id === id
-            ? {
-                ...item,
-                x: updatedItem.x,
-                y: updatedItem.y,
-                rotation: updatedItem.rotation || item.rotation,
-              }
-            : item,
-        ),
-      );
-    }
-  };
-
   return (
     <div
       className="canvas-container"
@@ -840,13 +820,25 @@ const PlanEditor = ({
         >
           <Layer opacity={floorLayerOpacity} listening={floorLayerListening}>
             {drawGrid()}
-            {tempLine && (
-              <KonvaLine
-                points={tempLine.points}
-                stroke="black"
-                strokeWidth={2}
-                dash={[10, 5]}
-              />
+            {tempLine && tempLine.midPoint && (
+              <>
+                <KonvaLine
+                  points={tempLine.points}
+                  stroke="black"
+                  strokeWidth={2}
+                  dash={[10, 5]}
+                />
+                <Text
+                  text={`${tempLine.length} m`}
+                  x={tempLine.midPoint.x}
+                  y={tempLine.midPoint.y}
+                  rotation={tempLine.textAngle}
+                  fontSize={16}
+                  fill="black"
+                  offsetX={20}
+                  offsetY={20}
+                />
+              </>
             )}
 
             {guideLine && (
