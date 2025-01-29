@@ -25,7 +25,7 @@ import { uid } from "uid";
 import FurnitureItemComponent from "./FurnitureItemComponent";
 
 const GRID_SIZE = 50;
-const PIXELS_PER_METER = 3.98;
+const PIXELS_PER_METER = 39.8;
 const SNAP_THRESHOLD = 10;
 const MIN_WALL_LENGTH = 0.1 * PIXELS_PER_METER;
 const STRAIGHT_LINE_THRESHOLD = 10;
@@ -602,7 +602,7 @@ const PlanEditor = ({
       <>
         <Text
           key={`text-${index}`}
-          text={`${lengthMeters} m`}
+          text={`${lengthMeters} cm`}
           x={midX + offsetX}
           y={midY + offsetY}
           rotation={angle}
