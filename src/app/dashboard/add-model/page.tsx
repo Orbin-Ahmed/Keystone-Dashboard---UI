@@ -71,21 +71,21 @@ const DimensionBox: React.FC<DimensionBoxProps> = ({
       <DimensionLine
         start={[boxSize / 2 + 0.5, -boxSize / 2 + 0.7, boxSize / 2 + 0.5]}
         end={[boxSize / 2 + 0.5, boxSize / 2 + 0.7, boxSize / 2 + 0.5]}
-        label={`Height: ${height}m`}
+        label={`Height: ${height}cm`}
         rotation={[0, 0, Math.PI / 2]}
       />
 
       <DimensionLine
         start={[-boxSize / 2 + 0.3, boxSize / 2 + 0.1, boxSize / 2]}
         end={[boxSize / 2 + 0.3, boxSize / 2 + 0.1, boxSize / 2]}
-        label={`Width: ${width}m`}
+        label={`Width: ${width}cm`}
         rotation={[0, 0, 0]}
       />
 
       <DimensionLine
         start={[boxSize / 2, boxSize / 2 + 0.1, boxSize / 2 + 0.3]}
         end={[boxSize / 2, boxSize / 2 + 0.1, -boxSize / 2 + 0.3]}
-        label={`Depth: ${depth}m`}
+        label={`Depth: ${depth}cm`}
         rotation={[0, Math.PI / 2, 0]}
       />
     </group>
@@ -146,9 +146,9 @@ const AddModel = () => {
   ) => {
     const { name, value } = e.target;
     if (["width", "height", "depth"].includes(name)) {
-      const numericValue = Number(value);
+      const numericValue = Number(value) * 0.393701;
       if (name === "height" && numericValue > 119) {
-        alert("Height cannot exceed 119 inches.");
+        alert("Height cannot exceed 2842 cm.");
         return;
       }
       setFormData((prev) => ({ ...prev, [name]: numericValue }));
@@ -403,7 +403,7 @@ const AddModel = () => {
             </div>
 
             <div className="space-y-4">
-              <p className="text-lg font-bold">Dimensions (inch)</p>
+              <p className="text-lg font-bold">Dimensions (cm)</p>
               <div className="grid grid-cols-2 gap-4">
                 <DimensionViewer
                   width={formData.width}
@@ -415,7 +415,7 @@ const AddModel = () => {
                     id="item_width"
                     type="number"
                     name="width"
-                    placeholder="Width (m)"
+                    placeholder="Width (cm)"
                     value={formData.width}
                     onChange={handleChange}
                     required
@@ -424,7 +424,7 @@ const AddModel = () => {
                     id="item_height"
                     type="number"
                     name="height"
-                    placeholder="Height (m)"
+                    placeholder="Height (cm)"
                     value={formData.height}
                     onChange={handleChange}
                     required
@@ -433,7 +433,7 @@ const AddModel = () => {
                     id="item_depth"
                     type="number"
                     name="depth"
-                    placeholder="Depth (m)"
+                    placeholder="Depth (cm)"
                     value={formData.depth}
                     onChange={handleChange}
                     required
