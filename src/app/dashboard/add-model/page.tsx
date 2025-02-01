@@ -233,7 +233,7 @@ const AddModel = () => {
     }
     const conversionFactor = 0.393701;
     formDataObj.append("item_name", formData.itemName);
-    formDataObj.append("category", formData.category);
+    formDataObj.append("category", formData.category.toLowerCase());
     formDataObj.append("type", formData.type);
     formDataObj.append("width", (formData.width * conversionFactor).toString());
     formDataObj.append(
