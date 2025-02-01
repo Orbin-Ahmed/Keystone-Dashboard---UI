@@ -146,8 +146,8 @@ const AddModel = () => {
   ) => {
     const { name, value } = e.target;
     if (["width", "height", "depth"].includes(name)) {
-      const numericValue = Number(value) * 0.393701;
-      if (name === "height" && numericValue > 119) {
+      const numericValue = Number(value);
+      if (name === "height" && numericValue > 2842) {
         alert("Height cannot exceed 2842 cm.");
         return;
       }
@@ -231,13 +231,16 @@ const AddModel = () => {
       });
       formDataObj.append("viewer2d", viewer2DFile);
     }
-
+    const conversionFactor = 0.393701;
     formDataObj.append("item_name", formData.itemName);
     formDataObj.append("category", formData.category);
     formDataObj.append("type", formData.type);
-    formDataObj.append("width", formData.width.toString());
-    formDataObj.append("height", formData.height.toString());
-    formDataObj.append("depth", formData.depth.toString());
+    formDataObj.append("width", (formData.width * conversionFactor).toString());
+    formDataObj.append(
+      "height",
+      (formData.height * conversionFactor).toString(),
+    );
+    formDataObj.append("depth", (formData.depth * conversionFactor).toString());
 
     try {
       const response = await fetch(
