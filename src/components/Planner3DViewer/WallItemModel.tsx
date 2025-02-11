@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, forwardRef, useRef } from "react";
-import { useGLTF } from "@react-three/drei";
-import { Box3, Mesh, Object3D, Vector3 } from "three";
+import { useGLTF, useHelper } from "@react-three/drei";
+import { Box3, BoxHelper, Mesh, Object3D, Vector3 } from "three";
 
 export interface ItemModelProps {
   path: string;
+  selected?: boolean;
   position: [number, number, number];
   rotation: [number, number, number];
   dimensions: {
@@ -21,6 +22,7 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
   (
     {
       path,
+      selected = false,
       position,
       rotation,
       dimensions,
@@ -66,6 +68,12 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
 
       return [adjustedScale, adjustedPosition];
     }, [initialBounds, dimensions, position]);
+
+    useHelper(
+      selected ? (modelRef as React.MutableRefObject<Object3D>) : null,
+      BoxHelper,
+      "red",
+    );
 
     // Position and scale the model once it's mounted
     useEffect(() => {

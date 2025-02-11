@@ -1294,6 +1294,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
                 depth: item.depth,
               }}
               onClick={() => handlePlacedItemClick(item)}
+              selected={selectedItem?.id === item.id}
             />
           ))}
 
@@ -1317,6 +1318,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
                 depth: item.depth,
               }}
               onClick={itemClick}
+              selected={selectedItem?.id === item.id}
             />
           );
         })}
@@ -1353,6 +1355,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
           onPointerMove={(e) => handleWallItemPointerMove(e, item)}
           onPointerUp={handleWallItemPointerUp}
           onClick={() => handleWallItemClick(item)}
+          selected={selectedWallItem?.id === item.id}
         />
       ))}
     </>
