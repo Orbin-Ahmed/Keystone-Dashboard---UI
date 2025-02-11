@@ -18,7 +18,7 @@ export interface ItemModelProps {
   onClick?: (e: any) => void;
 }
 
-const ItemModel = forwardRef<Object3D, ItemModelProps>(
+const WallItemModelComponent = forwardRef<Object3D, ItemModelProps>(
   (
     {
       path,
@@ -125,6 +125,6 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
   },
 );
 
-ItemModel.displayName = "ItemModel";
+WallItemModelComponent.displayName = "WallItemModel";
 
-export default ItemModel;
+export default React.memo(WallItemModelComponent);

@@ -21,7 +21,7 @@ export interface ItemModelProps {
   onClick?: (e: ThreeEvent<MouseEvent>) => void;
 }
 
-const ItemModel = forwardRef<Object3D, ItemModelProps>(
+const ItemModelComponent = forwardRef<Object3D, ItemModelProps>(
   (
     {
       path,
@@ -133,6 +133,6 @@ const ItemModel = forwardRef<Object3D, ItemModelProps>(
   },
 );
 
-ItemModel.displayName = "ItemModel";
+ItemModelComponent.displayName = "ItemModel";
 
-export default ItemModel;
+export default React.memo(ItemModelComponent);
