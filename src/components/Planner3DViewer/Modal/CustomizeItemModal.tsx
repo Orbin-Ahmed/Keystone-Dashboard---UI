@@ -4,6 +4,11 @@ import ItemCustomizationViewer, {
 } from "./ItemCustomizationViewer";
 import CustomButton from "@/components/CustomButton";
 
+type SelectionType = {
+  groupName: string;
+  meshes: string[];
+};
+
 interface CustomizeItemModalProps {
   modelPath: string;
   onClose: () => void;
@@ -18,7 +23,11 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
   const [customizations, setCustomizations] = useState<
     Record<string, Customization>
   >({});
-  const [selectedMesh, setSelectedMesh] = useState<string | null>(null);
+
+  const [selectedGroup, setSelectedGroup] = useState<SelectionType | null>(
+    null,
+  );
+
   const [localColor, setLocalColor] = useState<string>("#ffffff");
   const [localTextureFile, setLocalTextureFile] = useState<File | null>(null);
   const [texturePreview, setTexturePreview] = useState<string | null>(null);
@@ -28,58 +37,55 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
       const url = URL.createObjectURL(localTextureFile);
       setTexturePreview(url);
       return () => URL.revokeObjectURL(url);
-    } else {
-      setTexturePreview(null);
     }
+    setTexturePreview(null);
   }, [localTextureFile]);
 
   useEffect(() => {
     setLocalColor("#ffffff");
-    setLocalTextureFile(null);
-  }, [selectedMesh]);
+    // setLocalTextureFile(null);
+  }, [selectedGroup]);
 
-  const handleMeshSelected = (uuid: string) => {
-    setSelectedMesh(uuid);
-  };
-
-  const updateCustomizationForSelectedMesh = () => {
-    if (selectedMesh) {
-      setCustomizations((prev) => ({
-        ...prev,
-        [selectedMesh]: {
-          color: localColor !== "#ffffff" ? localColor : undefined,
-          textureFile: localTextureFile || undefined,
-        },
-      }));
-    }
+  const handleApplyToSelectedGroup = () => {
+    if (!selectedGroup) return;
+    setCustomizations((prev) => ({
+      ...prev,
+      [selectedGroup.groupName]: {
+        color: localColor !== "#ffffff" ? localColor : undefined,
+        textureFile: localTextureFile || undefined,
+      },
+    }));
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="w-full max-w-6xl rounded-lg bg-white p-4">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold">Customize Item</h2>
+          <h2 className="text-xl font-bold">Customize Item (Group-Based)</h2>
           <button onClick={onClose} className="text-red-500">
             Close
           </button>
         </div>
+
         <div className="flex flex-col md:flex-row">
-          {/* 3D Viewer Section */}
           <div className="h-96 w-full md:w-2/3">
             <ItemCustomizationViewer
               modelPath={modelPath}
               customizations={customizations}
-              selectedMesh={selectedMesh}
-              onMeshSelected={handleMeshSelected}
+              selectedGroup={selectedGroup}
+              setSelectedGroup={setSelectedGroup}
             />
           </div>
-          {/* Customization Controls */}
+
           <div className="mt-4 w-full md:mt-0 md:w-1/3 md:pl-4">
-            {selectedMesh ? (
+            {selectedGroup ? (
               <>
                 <div className="mb-4">
                   <p className="mb-1 font-semibold">
-                    Selected Mesh: {selectedMesh.slice(0, 8)}...
+                    Selected Group: {selectedGroup.groupName}
+                  </p>
+                  <p className="text-gray-500 text-sm">
+                    ({selectedGroup.meshes.length} mesh(es) in this group)
                   </p>
                 </div>
                 <div className="mb-4">
@@ -111,23 +117,24 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
                   )}
                 </div>
                 <CustomButton
-                  onClick={updateCustomizationForSelectedMesh}
+                  onClick={handleApplyToSelectedGroup}
                   variant="secondary"
                 >
-                  Apply to Selected Mesh
+                  Apply to Group
                 </CustomButton>
               </>
             ) : (
               <p className="mb-4">
-                Click a part in the 3D viewer to select it.
+                Click a part in the 3D viewer to select a group.
               </p>
             )}
+
             <div className="mt-4">
               <h3 className="mb-2 font-bold">Current Customizations:</h3>
               <ul>
-                {Object.entries(customizations).map(([uuid, cust]) => (
-                  <li key={uuid}>
-                    <strong>{uuid.slice(0, 8)}...:</strong>{" "}
+                {Object.entries(customizations).map(([groupName, cust]) => (
+                  <li key={groupName}>
+                    <strong>{groupName}:</strong>{" "}
                     {cust.textureFile
                       ? "Custom Texture"
                       : cust.color
@@ -137,6 +144,7 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
                 ))}
               </ul>
             </div>
+
             <div className="mt-4">
               <CustomButton
                 onClick={() => {
@@ -145,7 +153,7 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
                 }}
                 variant="primary"
               >
-                Apply All Customizations
+                Save & Close
               </CustomButton>
             </div>
           </div>

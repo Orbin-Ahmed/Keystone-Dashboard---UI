@@ -8,49 +8,72 @@ export interface Customization {
   textureFile?: File;
 }
 
-export interface ItemCustomizationViewerProps {
+interface SelectionType {
+  groupName: string;
+  meshes: string[];
+}
+
+interface ItemCustomizationViewerProps {
   modelPath: string;
   customizations?: Record<string, Customization>;
-  selectedMesh?: string | null;
-  onMeshSelected?: (uuid: string) => void;
+  selectedGroup?: SelectionType | null;
+  setSelectedGroup?: React.Dispatch<React.SetStateAction<SelectionType | null>>;
+  onApplyCustomizations?: (c: Record<string, Customization>) => void;
+}
+
+function findTopmostNamedNode(mesh: THREE.Object3D) {
+  let current: THREE.Object3D | null = mesh;
+  while (current && current.parent && current.parent.type !== "Scene") {
+    if (current.parent.name) {
+      current = current.parent;
+    } else {
+      break;
+    }
+  }
+  return current;
 }
 
 interface ModelViewerProps {
   modelPath: string;
-  customizations?: Record<string, Customization>;
-  selectedMesh?: string | null;
-  onMeshSelected?: (uuid: string) => void;
+  customizations: Record<string, Customization>;
+  selectedGroup: SelectionType | null;
+  setSelectedGroup: React.Dispatch<React.SetStateAction<SelectionType | null>>;
 }
 
 const ModelViewer: React.FC<ModelViewerProps> = ({
   modelPath,
   customizations,
-  selectedMesh,
-  onMeshSelected,
+  selectedGroup,
+  setSelectedGroup,
 }) => {
   const { scene } = useGLTF(modelPath);
-
   const originalMaterials = useMemo(() => {
-    const materials = new Map<string, THREE.Material>();
+    const matMap = new Map<string, THREE.Material>();
     scene.traverse((child) => {
       if (child instanceof THREE.Mesh && child.material) {
-        materials.set(child.uuid, child.material.clone());
+        matMap.set(child.uuid, child.material.clone());
       }
     });
-    return materials;
+    return matMap;
   }, [scene]);
 
-  const [modifiedScene, setModifiedScene] = useState<THREE.Group>();
+  const [modifiedScene, setModifiedScene] = useState<THREE.Group>(() =>
+    scene.clone(true),
+  );
+
   useEffect(() => {
     const clone = scene.clone(true);
-    clone.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-        const cust = customizations ? customizations[child.uuid] : undefined;
-        if (cust) {
+
+    Object.entries(customizations).forEach(([groupName, cust]) => {
+      const groupObj = clone.getObjectByName(groupName);
+      if (!groupObj) return;
+
+      groupObj.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
           if (cust.textureFile) {
-            const textureUrl = URL.createObjectURL(cust.textureFile);
+            const textureURL = URL.createObjectURL(cust.textureFile);
             const loader = new THREE.TextureLoader();
-            loader.load(textureUrl, (loadedTexture) => {
+            loader.load(textureURL, (loadedTexture) => {
               child.material = new THREE.MeshStandardMaterial({
                 map: loadedTexture,
               });
@@ -59,77 +82,106 @@ const ModelViewer: React.FC<ModelViewerProps> = ({
             child.material = new THREE.MeshStandardMaterial({
               color: cust.color,
             });
-          }
-        } else {
-          const orig = originalMaterials.get(child.uuid);
-          if (orig) {
-            child.material = orig.clone();
+          } else {
+            const origMat = originalMaterials.get(child.uuid);
+            if (origMat) {
+              child.material = origMat.clone();
+            }
           }
         }
-      }
+      });
     });
+
     setModifiedScene(clone);
   }, [scene, customizations, originalMaterials]);
 
-  const [boxHelper, setBoxHelper] = useState<THREE.BoxHelper | null>(null);
+  const [highlightBox, setHighlightBox] = useState<THREE.BoxHelper | null>(
+    null,
+  );
+
   useEffect(() => {
-    if (modifiedScene && selectedMesh) {
-      const found = modifiedScene.getObjectByProperty("uuid", selectedMesh);
-      if (found) {
-        const helper = new THREE.BoxHelper(found, "red");
-        setBoxHelper(helper);
-      } else {
-        setBoxHelper(null);
-      }
-    } else {
-      setBoxHelper(null);
+    if (!modifiedScene || !selectedGroup) {
+      setHighlightBox(null);
+      return;
     }
-  }, [modifiedScene, selectedMesh]);
+    const groupObj = modifiedScene.getObjectByName(selectedGroup.groupName);
+    if (!groupObj) {
+      setHighlightBox(null);
+      return;
+    }
+    const boxHelper = new THREE.BoxHelper(groupObj, 0xff0000);
+    setHighlightBox(boxHelper);
+  }, [modifiedScene, selectedGroup]);
 
   const handlePointerDown = (e: any) => {
     e.stopPropagation();
     if (e.intersections && e.intersections.length > 0) {
-      const clicked = e.intersections[0].object;
-      if (clicked && onMeshSelected) {
-        onMeshSelected(clicked.uuid);
-      }
+      const clickedMesh = e.intersections[0].object as THREE.Mesh;
+      if (!clickedMesh) return;
+
+      const groupRoot = findTopmostNamedNode(clickedMesh);
+      if (!groupRoot) return;
+
+      const meshes: string[] = [];
+      groupRoot.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          meshes.push(child.uuid);
+        }
+      });
+
+      setSelectedGroup({
+        groupName: groupRoot.name || groupRoot.uuid,
+        meshes,
+      });
     }
   };
 
   return (
     <group onPointerDown={handlePointerDown}>
-      <primitive object={modifiedScene || scene} />
-      {boxHelper && <primitive object={boxHelper} />}
+      <primitive object={modifiedScene} />
+      {highlightBox && <primitive object={highlightBox} />}
     </group>
   );
 };
 
 const ItemCustomizationViewer: React.FC<ItemCustomizationViewerProps> = ({
   modelPath,
-  customizations,
-  selectedMesh,
-  onMeshSelected,
+  customizations = {},
+  onApplyCustomizations,
+  selectedGroup,
+  setSelectedGroup,
 }) => {
+  const [localSelection, setLocalSelection] = useState<SelectionType | null>(
+    null,
+  );
+
+  const finalSelectedGroup = selectedGroup ?? localSelection;
+  const finalSetSelectedGroup = setSelectedGroup ?? setLocalSelection;
+
   return (
-    <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[10, 10, 10]} intensity={1} />
-      <spotLight position={[-10, -10, -10]} intensity={0.5} />
-      <OrbitControls
-        enableRotate={true}
-        enablePan={true}
-        enableZoom={true}
-        rotateSpeed={1}
-        zoomSpeed={1.2}
-        panSpeed={0.8}
-      />
-      <ModelViewer
-        modelPath={modelPath}
-        customizations={customizations}
-        selectedMesh={selectedMesh}
-        onMeshSelected={onMeshSelected}
-      />
-    </Canvas>
+    <div className="relative h-full w-full">
+      <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
+        <ambientLight intensity={1} />
+        <directionalLight position={[10, 10, 10]} intensity={1} />
+        <spotLight position={[-10, -10, -10]} intensity={1} />
+        <OrbitControls />
+
+        <ModelViewer
+          modelPath={modelPath}
+          customizations={customizations}
+          selectedGroup={finalSelectedGroup}
+          setSelectedGroup={finalSetSelectedGroup}
+        />
+      </Canvas>
+      {onApplyCustomizations && (
+        <button
+          className="absolute bottom-4 right-4 bg-white p-2 shadow-md"
+          onClick={() => onApplyCustomizations(customizations)}
+        >
+          Save
+        </button>
+      )}
+    </div>
   );
 };
 
