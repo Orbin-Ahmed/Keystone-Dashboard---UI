@@ -15,6 +15,8 @@ interface ModelViewerProps {
   textureFile?: File | null;
 }
 
+const DEFAULT_COLOR = "#ffffff";
+
 const ModelViewer: React.FC<ModelViewerProps> = ({
   modelPath,
   color,
@@ -22,9 +24,18 @@ const ModelViewer: React.FC<ModelViewerProps> = ({
 }) => {
   const { scene } = useGLTF(modelPath);
   const [modifiedScene, setModifiedScene] = useState<THREE.Group>();
+  const originalMaterials = useMemo(() => {
+    const materials = new Map<string, THREE.Material>();
+    scene.traverse((child) => {
+      if (child instanceof THREE.Mesh && child.material) {
+        materials.set(child.uuid, child.material.clone());
+      }
+    });
+    return materials;
+  }, [scene]);
 
   useEffect(() => {
-    if (color || textureFile) {
+    if (textureFile || (color && color !== DEFAULT_COLOR)) {
       const clone = scene.clone(true);
       clone.traverse((child) => {
         if (child instanceof THREE.Mesh) {
@@ -36,14 +47,25 @@ const ModelViewer: React.FC<ModelViewerProps> = ({
                 map: loadedTexture,
               });
             });
-          } else if (color) {
+          } else if (color && color !== DEFAULT_COLOR) {
             child.material = new THREE.MeshStandardMaterial({ color });
           }
         }
       });
       setModifiedScene(clone);
+    } else {
+      const clone = scene.clone(true);
+      clone.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          const originalMaterial = originalMaterials.get(child.uuid);
+          if (originalMaterial) {
+            child.material = originalMaterial.clone();
+          }
+        }
+      });
+      setModifiedScene(clone);
     }
-  }, [scene, color, textureFile]);
+  }, [scene, color, textureFile, originalMaterials]);
 
   return (
     <group>
@@ -61,6 +83,7 @@ const ItemCustomizationViewer: React.FC<ItemCustomizationViewerProps> = ({
     <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
       <ambientLight intensity={0.5} />
       <directionalLight position={[10, 10, 10]} intensity={1} />
+      <spotLight position={[-10, -10, -10]} intensity={0.5} />
       <OrbitControls
         enableRotate={true}
         enablePan={true}
