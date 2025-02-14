@@ -28,6 +28,7 @@ import { FaArrowLeft, FaDownload } from "react-icons/fa";
 import { Spinner } from "@radix-ui/themes";
 import { uid } from "uid";
 import SelectedWallItemControls from "./sidebar/SelectedWallItemControls";
+import CustomizeItemModal from "./Modal/CustomizeItemModal";
 
 const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   lines,
@@ -102,6 +103,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [originalWallItemRot, setOriginalWallItemRot] = useState<
     [number, number, number] | null
   >(null);
+  const [isCustomizeModalOpen, setIsCustomizeModalOpen] = useState(false);
 
   // settings State
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -397,6 +399,14 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
   const deselectItem = () => {
     setSelectedItem(null);
+  };
+
+  const handleCustomizeClick = () => {
+    setIsCustomizeModalOpen(true);
+  };
+
+  const handleApplyCustomization = (color: string, textureFile?: File) => {
+    console.log("Customization applied:", { color, textureFile });
   };
 
   const moveSelectedItem = () => {
@@ -1119,6 +1129,15 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           onRotateLeft={rotateSelectedItemLeft}
           onRotateRight={rotateSelectedItemRight}
           onDelete={deleteSelectedItem}
+          onCustomize={handleCustomizeClick}
+        />
+      )}
+
+      {isCustomizeModalOpen && selectedItem && (
+        <CustomizeItemModal
+          modelPath={selectedItem.path}
+          onClose={() => setIsCustomizeModalOpen(false)}
+          onApply={handleApplyCustomization}
         />
       )}
 
