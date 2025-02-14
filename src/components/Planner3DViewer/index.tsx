@@ -1137,7 +1137,9 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         <CustomizeItemModal
           modelPath={selectedItem.path}
           onClose={() => setIsCustomizeModalOpen(false)}
-          onApply={handleApplyCustomization}
+          onApply={(customizations) => {
+            console.log("Customizations applied:", customizations);
+          }}
         />
       )}
 

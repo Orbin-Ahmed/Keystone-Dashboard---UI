@@ -3,27 +3,32 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 
+export interface Customization {
+  color?: string;
+  textureFile?: File;
+}
+
 export interface ItemCustomizationViewerProps {
   modelPath: string;
-  color?: string;
-  textureFile?: File | null;
+  customizations?: Record<string, Customization>;
+  selectedMesh?: string | null;
+  onMeshSelected?: (uuid: string) => void;
 }
 
 interface ModelViewerProps {
   modelPath: string;
-  color?: string;
-  textureFile?: File | null;
+  customizations?: Record<string, Customization>;
+  selectedMesh?: string | null;
+  onMeshSelected?: (uuid: string) => void;
 }
-
-const DEFAULT_COLOR = "#ffffff";
 
 const ModelViewer: React.FC<ModelViewerProps> = ({
   modelPath,
-  color,
-  textureFile,
+  customizations,
+  selectedMesh,
+  onMeshSelected,
 }) => {
   const { scene } = useGLTF(modelPath);
-  const [modifiedScene, setModifiedScene] = useState<THREE.Group>();
 
   const originalMaterials = useMemo(() => {
     const materials = new Map<string, THREE.Material>();
@@ -35,50 +40,75 @@ const ModelViewer: React.FC<ModelViewerProps> = ({
     return materials;
   }, [scene]);
 
+  const [modifiedScene, setModifiedScene] = useState<THREE.Group>();
   useEffect(() => {
-    if (textureFile || (color && color !== DEFAULT_COLOR)) {
-      const clone = scene.clone(true);
-      clone.traverse((child) => {
-        if (child instanceof THREE.Mesh) {
-          if (textureFile) {
-            const textureUrl = URL.createObjectURL(textureFile);
+    const clone = scene.clone(true);
+    clone.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        const cust = customizations ? customizations[child.uuid] : undefined;
+        if (cust) {
+          if (cust.textureFile) {
+            const textureUrl = URL.createObjectURL(cust.textureFile);
             const loader = new THREE.TextureLoader();
             loader.load(textureUrl, (loadedTexture) => {
               child.material = new THREE.MeshStandardMaterial({
                 map: loadedTexture,
               });
             });
-          } else if (color && color !== DEFAULT_COLOR) {
-            child.material = new THREE.MeshStandardMaterial({ color });
+          } else if (cust.color) {
+            child.material = new THREE.MeshStandardMaterial({
+              color: cust.color,
+            });
+          }
+        } else {
+          const orig = originalMaterials.get(child.uuid);
+          if (orig) {
+            child.material = orig.clone();
           }
         }
-      });
-      setModifiedScene(clone);
+      }
+    });
+    setModifiedScene(clone);
+  }, [scene, customizations, originalMaterials]);
+
+  const [boxHelper, setBoxHelper] = useState<THREE.BoxHelper | null>(null);
+  useEffect(() => {
+    if (modifiedScene && selectedMesh) {
+      const found = modifiedScene.getObjectByProperty("uuid", selectedMesh);
+      if (found) {
+        const helper = new THREE.BoxHelper(found, "red");
+        setBoxHelper(helper);
+      } else {
+        setBoxHelper(null);
+      }
     } else {
-      const clone = scene.clone(true);
-      clone.traverse((child) => {
-        if (child instanceof THREE.Mesh) {
-          const originalMaterial = originalMaterials.get(child.uuid);
-          if (originalMaterial) {
-            child.material = originalMaterial.clone();
-          }
-        }
-      });
-      setModifiedScene(clone);
+      setBoxHelper(null);
     }
-  }, [scene, color, textureFile, originalMaterials]);
+  }, [modifiedScene, selectedMesh]);
+
+  const handlePointerDown = (e: any) => {
+    e.stopPropagation();
+    if (e.intersections && e.intersections.length > 0) {
+      const clicked = e.intersections[0].object;
+      if (clicked && onMeshSelected) {
+        onMeshSelected(clicked.uuid);
+      }
+    }
+  };
 
   return (
-    <group>
+    <group onPointerDown={handlePointerDown}>
       <primitive object={modifiedScene || scene} />
+      {boxHelper && <primitive object={boxHelper} />}
     </group>
   );
 };
 
 const ItemCustomizationViewer: React.FC<ItemCustomizationViewerProps> = ({
   modelPath,
-  color,
-  textureFile,
+  customizations,
+  selectedMesh,
+  onMeshSelected,
 }) => {
   return (
     <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
@@ -95,8 +125,9 @@ const ItemCustomizationViewer: React.FC<ItemCustomizationViewerProps> = ({
       />
       <ModelViewer
         modelPath={modelPath}
-        color={color}
-        textureFile={textureFile}
+        customizations={customizations}
+        selectedMesh={selectedMesh}
+        onMeshSelected={onMeshSelected}
       />
     </Canvas>
   );
