@@ -3,6 +3,8 @@ import ItemCustomizationViewer, {
   Customization,
 } from "./ItemCustomizationViewer";
 import CustomButton from "@/components/CustomButton";
+import { FaUndo } from "react-icons/fa";
+import { GrClose } from "react-icons/gr";
 
 type SelectionType = {
   groupName: string;
@@ -15,6 +17,11 @@ interface CustomizeItemModalProps {
   onApply: (customizations: Record<string, Customization>) => void;
 }
 
+type CustomizationHistory = {
+  customizations: Record<string, Customization>;
+  timestamp: number;
+};
+
 const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
   modelPath,
   onClose,
@@ -23,6 +30,9 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
   const [customizations, setCustomizations] = useState<
     Record<string, Customization>
   >({});
+
+  const [history, setHistory] = useState<CustomizationHistory[]>([]);
+  const [currentHistoryIndex, setCurrentHistoryIndex] = useState(-1);
 
   const [selectedGroup, setSelectedGroup] = useState<SelectionType | null>(
     null,
@@ -43,27 +53,54 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
 
   useEffect(() => {
     setLocalColor("#ffffff");
-    // setLocalTextureFile(null);
   }, [selectedGroup]);
 
   const handleApplyToSelectedGroup = () => {
     if (!selectedGroup) return;
-    setCustomizations((prev) => ({
-      ...prev,
+
+    const newCustomizations = {
+      ...customizations,
       [selectedGroup.groupName]: {
         color: localColor !== "#ffffff" ? localColor : undefined,
         textureFile: localTextureFile || undefined,
       },
-    }));
+    };
+
+    // Add to history
+    const newHistory = history.slice(0, currentHistoryIndex + 1);
+    newHistory.push({
+      customizations: newCustomizations,
+      timestamp: Date.now(),
+    });
+
+    setHistory(newHistory);
+    setCurrentHistoryIndex(newHistory.length - 1);
+    setCustomizations(newCustomizations);
   };
+
+  const handleRevert = () => {
+    if (currentHistoryIndex > 0) {
+      const previousState = history[currentHistoryIndex - 1];
+      setCustomizations(previousState.customizations);
+      setCurrentHistoryIndex(currentHistoryIndex - 1);
+    } else if (currentHistoryIndex === 0) {
+      // Revert to initial empty state
+      setCustomizations({});
+      setCurrentHistoryIndex(-1);
+    }
+  };
+
+  const canRevert = currentHistoryIndex >= 0;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="w-full max-w-6xl rounded-lg bg-white p-4">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold">Customize Item (Group-Based)</h2>
-          <button onClick={onClose} className="text-red-500">
-            Close
+          <div className="flex items-center gap-4">
+            <h2 className="text-xl font-bold">Customize Item (Group-Based)</h2>
+          </div>
+          <button onClick={onClose}>
+            <GrClose />
           </button>
         </div>
 
@@ -116,12 +153,22 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
                     />
                   )}
                 </div>
-                <CustomButton
-                  onClick={handleApplyToSelectedGroup}
-                  variant="secondary"
-                >
-                  Apply to Group
-                </CustomButton>
+                <div className="mb-4 flex items-center justify-between gap-4">
+                  <CustomButton
+                    onClick={handleApplyToSelectedGroup}
+                    variant="secondary"
+                  >
+                    Preview
+                  </CustomButton>
+                  <CustomButton
+                    onClick={handleRevert}
+                    variant="secondary"
+                    disabled={!canRevert}
+                    className="flex items-center gap-2"
+                  >
+                    <FaUndo className="h-4 w-4" />
+                  </CustomButton>
+                </div>
               </>
             ) : (
               <p className="mb-4">
@@ -152,8 +199,9 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
                   onClose();
                 }}
                 variant="primary"
+                className="float-end"
               >
-                Save & Close
+                Save
               </CustomButton>
             </div>
           </div>
