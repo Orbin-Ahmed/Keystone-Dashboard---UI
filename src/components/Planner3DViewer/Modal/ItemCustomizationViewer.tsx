@@ -24,6 +24,7 @@ const ModelViewer: React.FC<ModelViewerProps> = ({
 }) => {
   const { scene } = useGLTF(modelPath);
   const [modifiedScene, setModifiedScene] = useState<THREE.Group>();
+
   const originalMaterials = useMemo(() => {
     const materials = new Map<string, THREE.Material>();
     scene.traverse((child) => {
