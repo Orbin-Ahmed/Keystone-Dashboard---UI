@@ -853,7 +853,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
       ...prevPlacedItems,
       ...newPlacedItems,
     ]);
-  }, []);
+  }, [furnitureItems]);
 
   useEffect(() => {
     const newWallItems = wallItems2D.map((item) => {
