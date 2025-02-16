@@ -5,27 +5,30 @@ import ItemCustomizationViewer, {
 import CustomButton from "@/components/CustomButton";
 import { FaUndo } from "react-icons/fa";
 import { GrClose } from "react-icons/gr";
+import { PlacedItemType } from "@/types";
 
 type SelectionType = {
   groupName: string;
   meshes: string[];
 };
 
-interface CustomizeItemModalProps {
-  modelPath: string;
-  onClose: () => void;
-  onApply: (customizations: Record<string, Customization>) => void;
-}
-
 type CustomizationHistory = {
   customizations: Record<string, Customization>;
   timestamp: number;
 };
 
+interface CustomizeItemModalProps {
+  modelPath: string;
+  onClose: () => void;
+  onApply: (customizations: Record<string, Customization>) => void;
+  item?: PlacedItemType;
+}
+
 const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
   modelPath,
   onClose,
   onApply,
+  item,
 }) => {
   const [customizations, setCustomizations] = useState<
     Record<string, Customization>
@@ -94,6 +97,10 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
       fileInputRef.current.value = "";
     }
   };
+
+  useEffect(() => {
+    console.log(item);
+  }, [item]);
 
   const canRevert = currentHistoryIndex >= 0;
 

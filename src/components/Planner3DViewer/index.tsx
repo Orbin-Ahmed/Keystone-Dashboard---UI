@@ -1140,6 +1140,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           onApply={(customizations) => {
             console.log("Customizations applied:", customizations);
           }}
+          item={selectedItem}
         />
       )}
 
