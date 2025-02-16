@@ -909,10 +909,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   //   };
   // }, []);
 
-  useEffect(() => {
-    console.log(furnitureItems);
-  }, [furnitureItems]);
-
   return (
     <>
       <Canvas

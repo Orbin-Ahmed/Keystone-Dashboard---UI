@@ -76,7 +76,6 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
       },
     };
 
-    // Save to history (for revert)
     const newHistory = history.slice(0, currentHistoryIndex + 1);
     newHistory.push({
       customizations: newCustomizations,
@@ -108,10 +107,6 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
     }
   };
 
-  /**
-   * Exports the modified scene to a GLB and uploads it to the server.
-   * Returns the new item name returned by the server (if any).
-   */
   const handleSaveModifiedModel = async (
     sceneToExport: THREE.Object3D,
   ): Promise<string> => {
@@ -122,7 +117,6 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
 
     const exporter = new GLTFExporter();
 
-    // Wrap GLTFExporter.parse in a Promise so we can await it.
     return new Promise((resolve) => {
       exporter.parse(
         sceneToExport,
@@ -138,7 +132,6 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
           const formData = new FormData();
           formData.append("glb_file", blob, "modifiedModel.glb");
 
-          // Example viewer2d & viewer3d paths
           if (item?.name) {
             const baseName = item.name.toLowerCase().replaceAll(" ", "_");
             formData.append(
@@ -157,6 +150,9 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
               {
                 method: "POST",
                 body: formData,
+                headers: {
+                  Accept: "application/json",
+                },
               },
             );
 
@@ -165,7 +161,7 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
               const newItemName = data.item_name;
               console.log("Model uploaded successfully!", newItemName);
 
-              resolve(newItemName); // Return new item name
+              resolve(newItemName);
             } else {
               console.error("Upload failed:", response.statusText);
               resolve("");
@@ -199,7 +195,6 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
         </div>
 
         <div className="flex flex-col md:flex-row">
-          {/* 3D Viewer */}
           <div className="h-96 w-full md:w-2/3">
             <ItemCustomizationViewer
               modelPath={modelPath}
@@ -210,7 +205,6 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
             />
           </div>
 
-          {/* Sidebar Controls */}
           <div className="mt-4 w-full md:mt-0 md:w-1/3 md:pl-4">
             {selectedGroup ? (
               <>
@@ -294,7 +288,6 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
               </ul>
             </div>
 
-            {/* Save Button */}
             <div className="mt-4">
               <CustomButton
                 onClick={async () => {
