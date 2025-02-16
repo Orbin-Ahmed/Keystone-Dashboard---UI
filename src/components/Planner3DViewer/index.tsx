@@ -405,10 +405,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     setIsCustomizeModalOpen(true);
   };
 
-  const handleApplyCustomization = (color: string, textureFile?: File) => {
-    console.log("Customization applied:", { color, textureFile });
-  };
-
   const moveSelectedItem = () => {
     if (selectedItem) {
       setPlacingItem(selectedItem);

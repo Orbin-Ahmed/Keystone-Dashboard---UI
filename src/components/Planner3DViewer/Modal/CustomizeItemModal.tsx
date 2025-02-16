@@ -6,6 +6,8 @@ import CustomButton from "@/components/CustomButton";
 import { FaUndo } from "react-icons/fa";
 import { GrClose } from "react-icons/gr";
 import { PlacedItemType } from "@/types";
+import * as THREE from "three";
+import { GLTFExporter } from "three-stdlib";
 
 type SelectionType = {
   groupName: string;
@@ -46,6 +48,10 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
   const [texturePreview, setTexturePreview] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const [modifiedScene, setModifiedScene] = useState<THREE.Object3D | null>(
+    null,
+  );
 
   useEffect(() => {
     if (localTextureFile) {
@@ -98,6 +104,56 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
     }
   };
 
+  const handleSaveModifiedModel = async (sceneToExport: THREE.Object3D) => {
+    if (!sceneToExport) {
+      console.error("No modified scene available.");
+      return;
+    }
+    const exporter = new GLTFExporter();
+    exporter.parse(
+      sceneToExport,
+      async (result) => {
+        let blob: Blob;
+        if (result instanceof ArrayBuffer) {
+          blob = new Blob([result], { type: "model/gltf-binary" });
+        } else {
+          const output = JSON.stringify(result, null, 2);
+          blob = new Blob([output], { type: "application/json" });
+        }
+        const formData = new FormData();
+        formData.append("glb_file", blob, "modifiedModel.glb");
+        formData.append(
+          "viewer2d_url",
+          `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${item?.name.toLowerCase().replaceAll(" ", "_")}.png`,
+        );
+        formData.append(
+          "viewer3d_url",
+          `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer3d_images/${item?.name.toLowerCase().replaceAll(" ", "_")}.png`,
+        );
+        try {
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_BASE_URL}api/create-custom-item/`,
+            {
+              method: "POST",
+              body: formData,
+            },
+          );
+          if (response.ok) {
+            console.log("Model uploaded successfully!");
+          } else {
+            console.error("Upload failed:", response.statusText);
+          }
+        } catch (err) {
+          console.error("Error uploading model:", err);
+        }
+      },
+      (error) => {
+        console.error("Error exporting model:", error);
+      },
+      { binary: true },
+    );
+  };
+
   useEffect(() => {
     console.log(item);
   }, [item]);
@@ -123,6 +179,7 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
               customizations={customizations}
               selectedGroup={selectedGroup}
               setSelectedGroup={setSelectedGroup}
+              onSceneReady={(scene) => setModifiedScene(scene)}
             />
           </div>
 
@@ -208,7 +265,12 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
 
             <div className="mt-4">
               <CustomButton
-                onClick={() => {
+                onClick={async () => {
+                  if (modifiedScene) {
+                    await handleSaveModifiedModel(modifiedScene);
+                  } else {
+                    console.error("Modified scene not available");
+                  }
                   onApply(customizations);
                   onClose();
                 }}

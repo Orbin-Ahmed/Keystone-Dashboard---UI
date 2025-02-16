@@ -8,17 +8,18 @@ export interface Customization {
   textureFile?: File;
 }
 
-interface SelectionType {
+export interface SelectionType {
   groupName: string;
   meshes: string[];
 }
 
-interface ItemCustomizationViewerProps {
+export interface ItemCustomizationViewerProps {
   modelPath: string;
   customizations?: Record<string, Customization>;
   selectedGroup?: SelectionType | null;
   setSelectedGroup?: React.Dispatch<React.SetStateAction<SelectionType | null>>;
   onApplyCustomizations?: (c: Record<string, Customization>) => void;
+  onSceneReady?: (scene: THREE.Object3D) => void;
 }
 
 function findTopmostNamedNode(mesh: THREE.Object3D) {
@@ -38,6 +39,7 @@ interface ModelViewerProps {
   customizations: Record<string, Customization>;
   selectedGroup: SelectionType | null;
   setSelectedGroup: React.Dispatch<React.SetStateAction<SelectionType | null>>;
+  onSceneReady?: (scene: THREE.Object3D) => void;
 }
 
 const ModelViewer: React.FC<ModelViewerProps> = ({
@@ -45,6 +47,7 @@ const ModelViewer: React.FC<ModelViewerProps> = ({
   customizations,
   selectedGroup,
   setSelectedGroup,
+  onSceneReady,
 }) => {
   const { scene } = useGLTF(modelPath);
   const originalMaterials = useMemo(() => {
@@ -63,11 +66,9 @@ const ModelViewer: React.FC<ModelViewerProps> = ({
 
   useEffect(() => {
     const clone = scene.clone(true);
-
     Object.entries(customizations).forEach(([groupName, cust]) => {
       const groupObj = clone.getObjectByName(groupName);
       if (!groupObj) return;
-
       groupObj.traverse((child) => {
         if (child instanceof THREE.Mesh) {
           if (cust.textureFile) {
@@ -91,7 +92,6 @@ const ModelViewer: React.FC<ModelViewerProps> = ({
         }
       });
     });
-
     setModifiedScene(clone);
   }, [scene, customizations, originalMaterials]);
 
@@ -118,23 +118,26 @@ const ModelViewer: React.FC<ModelViewerProps> = ({
     if (e.intersections && e.intersections.length > 0) {
       const clickedMesh = e.intersections[0].object as THREE.Mesh;
       if (!clickedMesh) return;
-
       const groupRoot = findTopmostNamedNode(clickedMesh);
       if (!groupRoot) return;
-
       const meshes: string[] = [];
       groupRoot.traverse((child) => {
         if (child instanceof THREE.Mesh) {
           meshes.push(child.uuid);
         }
       });
-
       setSelectedGroup({
         groupName: groupRoot.name || groupRoot.uuid,
         meshes,
       });
     }
   };
+
+  useEffect(() => {
+    if (onSceneReady) {
+      onSceneReady(modifiedScene);
+    }
+  }, [modifiedScene, onSceneReady]);
 
   return (
     <group onPointerDown={handlePointerDown}>
@@ -150,11 +153,11 @@ const ItemCustomizationViewer: React.FC<ItemCustomizationViewerProps> = ({
   onApplyCustomizations,
   selectedGroup,
   setSelectedGroup,
+  onSceneReady,
 }) => {
   const [localSelection, setLocalSelection] = useState<SelectionType | null>(
     null,
   );
-
   const finalSelectedGroup = selectedGroup ?? localSelection;
   const finalSetSelectedGroup = setSelectedGroup ?? setLocalSelection;
 
@@ -165,12 +168,12 @@ const ItemCustomizationViewer: React.FC<ItemCustomizationViewerProps> = ({
         <directionalLight position={[10, 10, 10]} intensity={1} />
         <spotLight position={[-10, -10, -10]} intensity={1} />
         <OrbitControls />
-
         <ModelViewer
           modelPath={modelPath}
           customizations={customizations}
           selectedGroup={finalSelectedGroup}
           setSelectedGroup={finalSetSelectedGroup}
+          onSceneReady={onSceneReady}
         />
       </Canvas>
       {onApplyCustomizations && (
