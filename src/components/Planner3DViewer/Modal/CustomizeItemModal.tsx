@@ -19,10 +19,13 @@ type CustomizationHistory = {
   timestamp: number;
 };
 
-interface CustomizeItemModalProps {
+export interface CustomizeItemModalProps {
   modelPath: string;
   onClose: () => void;
-  onApply: (customizations: Record<string, Customization>) => void;
+  onApply: (
+    customizations: Record<string, Customization>,
+    newItemName: string,
+  ) => void;
   item?: PlacedItemType;
 }
 
@@ -73,6 +76,7 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
       },
     };
 
+    // Save to history (for revert)
     const newHistory = history.slice(0, currentHistoryIndex + 1);
     newHistory.push({
       customizations: newCustomizations,
@@ -104,59 +108,81 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
     }
   };
 
-  const handleSaveModifiedModel = async (sceneToExport: THREE.Object3D) => {
+  /**
+   * Exports the modified scene to a GLB and uploads it to the server.
+   * Returns the new item name returned by the server (if any).
+   */
+  const handleSaveModifiedModel = async (
+    sceneToExport: THREE.Object3D,
+  ): Promise<string> => {
     if (!sceneToExport) {
       console.error("No modified scene available.");
-      return;
+      return "";
     }
-    const exporter = new GLTFExporter();
-    exporter.parse(
-      sceneToExport,
-      async (result) => {
-        let blob: Blob;
-        if (result instanceof ArrayBuffer) {
-          blob = new Blob([result], { type: "model/gltf-binary" });
-        } else {
-          const output = JSON.stringify(result, null, 2);
-          blob = new Blob([output], { type: "application/json" });
-        }
-        const formData = new FormData();
-        formData.append("glb_file", blob, "modifiedModel.glb");
-        formData.append(
-          "viewer2d_url",
-          `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${item?.name.toLowerCase().replaceAll(" ", "_")}.png`,
-        );
-        formData.append(
-          "viewer3d_url",
-          `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer3d_images/${item?.name.toLowerCase().replaceAll(" ", "_")}.png`,
-        );
-        try {
-          const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}api/create-custom-item/`,
-            {
-              method: "POST",
-              body: formData,
-            },
-          );
-          if (response.ok) {
-            console.log("Model uploaded successfully!");
-          } else {
-            console.error("Upload failed:", response.statusText);
-          }
-        } catch (err) {
-          console.error("Error uploading model:", err);
-        }
-      },
-      (error) => {
-        console.error("Error exporting model:", error);
-      },
-      { binary: true },
-    );
-  };
 
-  useEffect(() => {
-    console.log(item);
-  }, [item]);
+    const exporter = new GLTFExporter();
+
+    // Wrap GLTFExporter.parse in a Promise so we can await it.
+    return new Promise((resolve) => {
+      exporter.parse(
+        sceneToExport,
+        async (result) => {
+          let blob: Blob;
+          if (result instanceof ArrayBuffer) {
+            blob = new Blob([result], { type: "model/gltf-binary" });
+          } else {
+            const output = JSON.stringify(result, null, 2);
+            blob = new Blob([output], { type: "application/json" });
+          }
+
+          const formData = new FormData();
+          formData.append("glb_file", blob, "modifiedModel.glb");
+
+          // Example viewer2d & viewer3d paths
+          if (item?.name) {
+            const baseName = item.name.toLowerCase().replaceAll(" ", "_");
+            formData.append(
+              "viewer2d_url",
+              `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${baseName}.png`,
+            );
+            formData.append(
+              "viewer3d_url",
+              `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer3d_images/${baseName}.png`,
+            );
+          }
+
+          try {
+            const response = await fetch(
+              `${process.env.NEXT_PUBLIC_API_BASE_URL}api/create-custom-item/`,
+              {
+                method: "POST",
+                body: formData,
+              },
+            );
+
+            if (response.ok) {
+              const data = await response.json();
+              const newItemName = data.item_name;
+              console.log("Model uploaded successfully!", newItemName);
+
+              resolve(newItemName); // Return new item name
+            } else {
+              console.error("Upload failed:", response.statusText);
+              resolve("");
+            }
+          } catch (err) {
+            console.error("Error uploading model:", err);
+            resolve("");
+          }
+        },
+        (error) => {
+          console.error("Error exporting model:", error);
+          resolve("");
+        },
+        { binary: true },
+      );
+    });
+  };
 
   const canRevert = currentHistoryIndex >= 0;
 
@@ -173,6 +199,7 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
         </div>
 
         <div className="flex flex-col md:flex-row">
+          {/* 3D Viewer */}
           <div className="h-96 w-full md:w-2/3">
             <ItemCustomizationViewer
               modelPath={modelPath}
@@ -183,6 +210,7 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
             />
           </div>
 
+          {/* Sidebar Controls */}
           <div className="mt-4 w-full md:mt-0 md:w-1/3 md:pl-4">
             {selectedGroup ? (
               <>
@@ -194,6 +222,7 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
                     ({selectedGroup.meshes.length} mesh(es) in this group)
                   </p>
                 </div>
+
                 <div className="mb-4">
                   <label className="mb-1 block">Color:</label>
                   <input
@@ -203,6 +232,7 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
                     className="h-10 w-full"
                   />
                 </div>
+
                 <div className="mb-4">
                   <label className="mb-1 block">Upload Texture:</label>
                   <input
@@ -224,6 +254,7 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
                     />
                   )}
                 </div>
+
                 <div className="mb-4 flex items-center justify-between gap-4">
                   <CustomButton
                     onClick={handleApplyToSelectedGroup}
@@ -263,15 +294,17 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
               </ul>
             </div>
 
+            {/* Save Button */}
             <div className="mt-4">
               <CustomButton
                 onClick={async () => {
+                  let newItemName = "";
                   if (modifiedScene) {
-                    await handleSaveModifiedModel(modifiedScene);
+                    newItemName = await handleSaveModifiedModel(modifiedScene);
                   } else {
                     console.error("Modified scene not available");
                   }
-                  onApply(customizations);
+                  onApply(customizations, newItemName);
                   onClose();
                 }}
                 variant="primary"

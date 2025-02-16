@@ -909,6 +909,10 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   //   };
   // }, []);
 
+  useEffect(() => {
+    console.log(furnitureItems);
+  }, [furnitureItems]);
+
   return (
     <>
       <Canvas
@@ -1133,7 +1137,19 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         <CustomizeItemModal
           modelPath={selectedItem.path}
           onClose={() => setIsCustomizeModalOpen(false)}
-          onApply={(customizations) => {
+          onApply={(customizations, newItemName) => {
+            if (newItemName && selectedItem.id) {
+              setPlacedItems((prev) =>
+                prev.map((p) =>
+                  p.id === selectedItem.id ? { ...p, name: newItemName } : p,
+                ),
+              );
+              setFurnitureItems((prev) =>
+                prev.map((f) =>
+                  f.id === selectedItem.id ? { ...f, name: newItemName } : f,
+                ),
+              );
+            }
             console.log("Customizations applied:", customizations);
           }}
           item={selectedItem}
