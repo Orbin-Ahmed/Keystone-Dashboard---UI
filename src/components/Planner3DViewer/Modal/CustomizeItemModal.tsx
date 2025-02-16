@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ItemCustomizationViewer, {
   Customization,
 } from "./ItemCustomizationViewer";
@@ -42,6 +42,8 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
   const [localTextureFile, setLocalTextureFile] = useState<File | null>(null);
   const [texturePreview, setTexturePreview] = useState<string | null>(null);
 
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   useEffect(() => {
     if (localTextureFile) {
       const url = URL.createObjectURL(localTextureFile);
@@ -50,10 +52,6 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
     }
     setTexturePreview(null);
   }, [localTextureFile]);
-
-  useEffect(() => {
-    setLocalColor("#ffffff");
-  }, [selectedGroup]);
 
   const handleApplyToSelectedGroup = () => {
     if (!selectedGroup) return;
@@ -66,7 +64,6 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
       },
     };
 
-    // Add to history
     const newHistory = history.slice(0, currentHistoryIndex + 1);
     newHistory.push({
       customizations: newCustomizations,
@@ -84,9 +81,17 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
       setCustomizations(previousState.customizations);
       setCurrentHistoryIndex(currentHistoryIndex - 1);
     } else if (currentHistoryIndex === 0) {
-      // Revert to initial empty state
       setCustomizations({});
       setCurrentHistoryIndex(-1);
+    }
+  };
+
+  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalColor(e.target.value);
+    setLocalTextureFile(null);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
@@ -130,18 +135,20 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
                   <input
                     type="color"
                     value={localColor}
-                    onChange={(e) => setLocalColor(e.target.value)}
+                    onChange={handleColorChange}
                     className="h-10 w-full"
                   />
                 </div>
                 <div className="mb-4">
                   <label className="mb-1 block">Upload Texture:</label>
                   <input
+                    ref={fileInputRef}
                     type="file"
                     accept="image/*"
                     onChange={(e) => {
                       if (e.target.files && e.target.files.length > 0) {
                         setLocalTextureFile(e.target.files[0]);
+                        setLocalColor("#ffffff");
                       }
                     }}
                   />
