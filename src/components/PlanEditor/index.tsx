@@ -41,6 +41,13 @@ interface TempLine extends Line {
   };
 }
 
+interface HelperLine {
+  start: { x: number; y: number };
+  end: { x: number; y: number };
+  distance: number;
+  type: "item" | "wall";
+}
+
 const PlanEditor = ({
   tool,
   setTool,
@@ -89,6 +96,8 @@ const PlanEditor = ({
   const [selectedWallItemId, setSelectedWallItemId] = useState<string | null>(
     null,
   );
+
+  const [helperLines, setHelperLines] = useState<HelperLine[]>([]);
 
   const [rotateIcon] = useImage("/icons/rotate.svg");
   const [deleteIcon] = useImage("/icons/delete.svg");
@@ -802,6 +811,207 @@ const PlanEditor = ({
     e.dataTransfer.dropEffect = "copy";
   };
 
+  // helper function from distance line
+
+  const computeHelperLines = (
+    draggedItem: FurnitureItem,
+    otherItems: FurnitureItem[],
+    wallLines: Line[],
+  ): HelperLine[] => {
+    const helperLines: HelperLine[] = [];
+
+    const left = draggedItem.x;
+    const right = draggedItem.x + draggedItem.width;
+    const top = draggedItem.y;
+    const bottom = draggedItem.y + draggedItem.height;
+    const centerX = (left + right) / 2;
+    const centerY = (top + bottom) / 2;
+
+    let minLeftGap = Infinity;
+    let leftTarget: { x: number; y: number } | null = null;
+    let minRightGap = Infinity;
+    let rightTarget: { x: number; y: number } | null = null;
+    let minTopGap = Infinity;
+    let topTarget: { x: number; y: number } | null = null;
+    let minBottomGap = Infinity;
+    let bottomTarget: { x: number; y: number } | null = null;
+
+    otherItems.forEach((item) => {
+      const itemRight = item.x + item.width;
+      if (
+        itemRight <= left &&
+        !(item.y + item.height < top || item.y > bottom)
+      ) {
+        const gap = left - itemRight;
+        if (gap < minLeftGap) {
+          minLeftGap = gap;
+          leftTarget = {
+            x: itemRight,
+            y:
+              (Math.max(top, item.y) + Math.min(bottom, item.y + item.height)) /
+              2,
+          };
+        }
+      }
+
+      const itemLeft = item.x;
+      if (
+        itemLeft >= right &&
+        !(item.y + item.height < top || item.y > bottom)
+      ) {
+        const gap = itemLeft - right;
+        if (gap < minRightGap) {
+          minRightGap = gap;
+          rightTarget = {
+            x: itemLeft,
+            y:
+              (Math.max(top, item.y) + Math.min(bottom, item.y + item.height)) /
+              2,
+          };
+        }
+      }
+
+      const itemBottom = item.y + item.height;
+      if (
+        itemBottom <= top &&
+        !(item.x + item.width < left || item.x > right)
+      ) {
+        const gap = top - itemBottom;
+        if (gap < minTopGap) {
+          minTopGap = gap;
+          topTarget = {
+            x:
+              (Math.max(left, item.x) + Math.min(right, item.x + item.width)) /
+              2,
+            y: itemBottom,
+          };
+        }
+      }
+
+      const itemTop = item.y;
+      if (
+        itemTop >= bottom &&
+        !(item.x + item.width < left || item.x > right)
+      ) {
+        const gap = itemTop - bottom;
+        if (gap < minBottomGap) {
+          minBottomGap = gap;
+          bottomTarget = {
+            x:
+              (Math.max(left, item.x) + Math.min(right, item.x + item.width)) /
+              2,
+            y: itemTop,
+          };
+        }
+      }
+    });
+
+    if (leftTarget && minLeftGap > 0) {
+      helperLines.push({
+        start: leftTarget,
+        end: { x: left, y: centerY },
+        distance: minLeftGap,
+        type: "item",
+      });
+    }
+    if (rightTarget && minRightGap > 0) {
+      helperLines.push({
+        start: { x: right, y: centerY },
+        end: rightTarget,
+        distance: minRightGap,
+        type: "item",
+      });
+    }
+    if (topTarget && minTopGap > 0) {
+      helperLines.push({
+        start: topTarget,
+        end: { x: centerX, y: top },
+        distance: minTopGap,
+        type: "item",
+      });
+    }
+    if (bottomTarget && minBottomGap > 0) {
+      helperLines.push({
+        start: { x: centerX, y: bottom },
+        end: bottomTarget,
+        distance: minBottomGap,
+        type: "item",
+      });
+    }
+
+    wallLines.forEach((wall) => {
+      const [x1, y1, x2, y2] = wall.points;
+
+      if (Math.abs(x1 - x2) < 5) {
+        const wallX = x1;
+        if (wallX < left) {
+          const gap = left - wallX;
+          helperLines.push({
+            start: { x: wallX, y: centerY },
+            end: { x: left, y: centerY },
+            distance: gap,
+            type: "wall",
+          });
+        }
+        if (wallX > right) {
+          const gap = wallX - right;
+          helperLines.push({
+            start: { x: right, y: centerY },
+            end: { x: wallX, y: centerY },
+            distance: gap,
+            type: "wall",
+          });
+        }
+      }
+
+      if (Math.abs(y1 - y2) < 5) {
+        const wallY = y1;
+        if (wallY < top) {
+          const gap = top - wallY;
+          helperLines.push({
+            start: { x: centerX, y: wallY },
+            end: { x: centerX, y: top },
+            distance: gap,
+            type: "wall",
+          });
+        }
+        if (wallY > bottom) {
+          const gap = wallY - bottom;
+          helperLines.push({
+            start: { x: centerX, y: bottom },
+            end: { x: centerX, y: wallY },
+            distance: gap,
+            type: "wall",
+          });
+        }
+      }
+    });
+
+    return helperLines;
+  };
+
+  const handleFurnitureDragMove = (
+    id: string,
+    newAttrs: { x: number; y: number },
+  ) => {
+    const draggedItem = furnitureItems.find((f) => f.id === id);
+    if (!draggedItem) return;
+
+    const updatedItem = { ...draggedItem, ...newAttrs };
+
+    const otherItems = furnitureItems.filter((f) => f.id !== id);
+    const newHelperLines = computeHelperLines(updatedItem, otherItems, lines);
+    setHelperLines(newHelperLines);
+
+    setFurnitureItems((prev) =>
+      prev.map((f) => (f.id === id ? updatedItem : f)),
+    );
+  };
+
+  const handleFurnitureDragEnd = (id: string) => {
+    setHelperLines([]);
+  };
+
   return (
     <div
       className="canvas-container"
@@ -1078,20 +1288,38 @@ const PlanEditor = ({
                   setSelectedCeilingItemId(null);
                   setSelectedWallItemId(null);
                 }}
-                // onChange={(id, newAttrs) => {
-                //   const newPos = {
-                //     x: newAttrs.x || item.x,
-                //     y: newAttrs.y || item.y,
-                //     rotation: newAttrs.rotation || item.rotation,
-                //   };
-                //   handleItemDragEnd(id, newPos, true, false);
-                // }}
+                onDragMove={(e) =>
+                  handleFurnitureDragMove(item.id, {
+                    x: e.target.x(),
+                    y: e.target.y(),
+                  })
+                }
+                onDragEnd={() => handleFurnitureDragEnd(item.id)}
                 onChange={(id, newAttrs) => {
                   setFurnitureItems((prev) =>
                     prev.map((f) => (f.id === id ? { ...f, ...newAttrs } : f)),
                   );
                 }}
               />
+            ))}
+
+            {/* Helper Distance Line  */}
+            {helperLines.map((hl, index) => (
+              <React.Fragment key={`helper-${index}`}>
+                <KonvaLine
+                  points={[hl.start.x, hl.start.y, hl.end.x, hl.end.y]}
+                  stroke={hl.type === "wall" ? "purple" : "green"}
+                  strokeWidth={2}
+                  dash={[5, 5]}
+                />
+                <Text
+                  text={`${(hl.distance / PIXELS_PER_METER).toFixed(2)} cm`}
+                  x={(hl.start.x + hl.end.x) / 2}
+                  y={(hl.start.y + hl.end.y) / 2}
+                  fontSize={14}
+                  fill={hl.type === "wall" ? "purple" : "green"}
+                />
+              </React.Fragment>
             ))}
           </Layer>
           <Layer

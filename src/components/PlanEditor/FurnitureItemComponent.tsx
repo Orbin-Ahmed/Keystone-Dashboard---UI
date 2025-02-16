@@ -11,6 +11,8 @@ interface FurnitureItemComponentProps {
   isSelected: boolean;
   onSelect: (id: string) => void;
   onChange: (id: string, newAttrs: Partial<FurnitureItem>) => void;
+  onDragMove?: (e: KonvaEventObject<DragEvent>) => void;
+  onDragEnd?: (e: KonvaEventObject<DragEvent>) => void;
 }
 
 const FurnitureItemComponent: FC<FurnitureItemComponentProps> = ({
@@ -18,6 +20,8 @@ const FurnitureItemComponent: FC<FurnitureItemComponentProps> = ({
   isSelected,
   onSelect,
   onChange,
+  onDragMove,
+  onDragEnd,
 }) => {
   const [image] = useImage(item.imageSrc);
   const shapeRef = useRef<Konva.Image>(null);
@@ -42,6 +46,16 @@ const FurnitureItemComponent: FC<FurnitureItemComponentProps> = ({
       x: node.x(),
       y: node.y(),
     });
+
+    if (onDragEnd) {
+      onDragEnd(e);
+    }
+  };
+
+  const handleDragMove = (e: KonvaEventObject<DragEvent>) => {
+    if (onDragMove) {
+      onDragMove(e);
+    }
   };
 
   const handleTransformEnd = (e: KonvaEventObject<Event>) => {
@@ -78,6 +92,7 @@ const FurnitureItemComponent: FC<FurnitureItemComponentProps> = ({
         rotation={item.rotation}
         draggable
         onClick={() => onSelect(item.id)}
+        onDragMove={handleDragMove}
         onDragEnd={handleDragEnd}
         onTransformEnd={handleTransformEnd}
       />
