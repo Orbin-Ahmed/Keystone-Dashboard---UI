@@ -149,9 +149,6 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
               `${process.env.NEXT_PUBLIC_API_BASE_URL}api/create-custom-item/`,
               {
                 method: "POST",
-                headers: {
-                  Accept: "*/*",
-                },
                 body: formData,
               },
             );
