@@ -127,6 +127,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
   wallItems2D,
   setWallItems2D,
   isWallItemMoving,
+  lightIntensity,
 }) => {
   const { scene, camera, gl } = useThree();
   const raycaster = new Raycaster();
@@ -1098,10 +1099,16 @@ const SceneContent: React.FC<SceneContentProps> = ({
         }
       />
       {/* Lights */}
-      <ambientLight intensity={0.9} />
-      <directionalLight position={[10, 50, 25]} intensity={0.7} />
-      <directionalLight position={[-10, 50, -25]} intensity={0.7} />
-      <hemisphereLight intensity={0.5} />
+      <ambientLight intensity={0.9 * lightIntensity} />
+      <directionalLight
+        position={[10, 50, 25]}
+        intensity={0.7 * lightIntensity}
+      />
+      <directionalLight
+        position={[-10, 50, -25]}
+        intensity={0.7 * lightIntensity}
+      />
+      <hemisphereLight intensity={0.5 * lightIntensity} />
       {/* Tour Points */}
       {tourPoints.map((point) => (
         <mesh

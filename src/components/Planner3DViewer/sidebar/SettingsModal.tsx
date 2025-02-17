@@ -14,11 +14,13 @@ interface SettingsModalProps {
   wallTexture: string;
   floorTexture: string;
   ceilingTexture: string;
+  lightIntensity: number;
   onWallHeightChange: (value: number) => void;
   onWallThicknessChange: (value: number) => void;
   onWallTextureChange: (value: string) => void;
   onFloorTextureChange: (value: string) => void;
   onCeilingTextureChange: (value: string) => void;
+  onLightIntensityChange: (value: number) => void;
   onClose: () => void;
 }
 
@@ -28,11 +30,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   wallTexture,
   floorTexture,
   ceilingTexture,
+  lightIntensity,
   onWallHeightChange,
   onWallThicknessChange,
   onWallTextureChange,
   onFloorTextureChange,
   onCeilingTextureChange,
+  onLightIntensityChange,
   onClose,
 }) => {
   const [textures, setTextures] = useState<TextureData[]>([]);
@@ -67,7 +71,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   if (isLoading) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-        <div className="border-gray-200 w-72 rounded-lg border bg-white p-6 shadow-lg">
+        <div className="w-72 rounded-lg border bg-white p-6 shadow-lg">
           <p className="text-center">Loading textures...</p>
         </div>
       </div>
@@ -77,12 +81,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   if (error) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-        <div className="border-gray-200 w-72 rounded-lg border bg-white p-6 shadow-lg">
+        <div className="w-72 rounded-lg border bg-white p-6 shadow-lg">
           <p className="text-red-500 text-center">Error: {error}</p>
           <CustomButton
             onClick={onClose}
             variant="secondary"
-            className="bg-gray-200 text-gray-800 hover:bg-gray-300 mt-4 w-full rounded px-4 py-2 text-sm font-medium"
+            className="mt-4 w-full rounded px-4 py-2 text-sm font-medium"
           >
             Close
           </CustomButton>
@@ -93,7 +97,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-      <div className="border-gray-200 w-72 rounded-lg border bg-white p-6 shadow-lg">
+      <div className="w-72 rounded-lg border bg-white p-6 shadow-lg">
         <h3 className="text-gray-800 mb-4 text-lg font-semibold">Settings</h3>
 
         {/* Wall Height Input */}
@@ -207,6 +211,29 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               </option>
             ))}
           </select>
+        </div>
+
+        {/* Light Intensity Slider */}
+        <div className="mb-4">
+          <label
+            htmlFor="light_intensity"
+            className="text-gray-700 block text-sm font-medium"
+          >
+            Light Intensity
+          </label>
+          <input
+            type="range"
+            id="light_intensity"
+            min="0"
+            max="2"
+            step="0.1"
+            value={lightIntensity}
+            onChange={(e) => onLightIntensityChange(Number(e.target.value))}
+            className="mt-2 w-full"
+          />
+          <div className="text-gray-600 mt-1 text-center text-sm">
+            {lightIntensity.toFixed(1)}
+          </div>
         </div>
 
         {/* Close Button */}

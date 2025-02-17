@@ -25,7 +25,7 @@ import SelectedItemControls from "./sidebar/SelectedItemControls";
 import SettingsModal from "./sidebar/SettingsModal";
 import AddItemSidebar from "./sidebar/AddItemSidebar";
 import { FaArrowLeft, FaDownload } from "react-icons/fa";
-import { Spinner } from "@radix-ui/themes";
+import { Slider, Spinner } from "@radix-ui/themes";
 import { uid } from "uid";
 import SelectedWallItemControls from "./sidebar/SelectedWallItemControls";
 import CustomizeItemModal from "./Modal/CustomizeItemModal";
@@ -121,6 +121,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
   const [doorOptions, setDoorOptions] = useState<ItemOption[]>([]);
   const [windowOptions, setWindowOptions] = useState<ItemOption[]>([]);
+
+  const [lightIntensity, setLightIntensity] = useState(1);
 
   const fetchDoorAndWindowOptions = async () => {
     try {
@@ -979,6 +981,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           wallItems2D={wallItems2D}
           setWallItems2D={setWallItems2D}
           isWallItemMoving={isWallItemMoving}
+          lightIntensity={lightIntensity}
         />
       </Canvas>
 
@@ -1181,6 +1184,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           onWallTextureChange={setWallTextureSetting}
           onFloorTextureChange={setFloorTextureSetting}
           onCeilingTextureChange={setCeilingTextureSetting}
+          lightIntensity={lightIntensity}
+          onLightIntensityChange={setLightIntensity}
           onClose={() => setIsSettingsOpen(false)}
         />
       )}

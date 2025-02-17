@@ -540,6 +540,7 @@ export interface SceneContentProps {
   setCeilingItems: React.Dispatch<React.SetStateAction<CeilingItem[]>>;
   currentFloorIndex: number;
   isWallItemMoving: boolean;
+  lightIntensity: number;
 }
 
 export interface WallItem {
