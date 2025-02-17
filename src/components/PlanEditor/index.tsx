@@ -184,6 +184,48 @@ const PlanEditor = ({
     selectedWallItemId,
   ]);
 
+  // Snap helper
+
+  const autoJoinLines = (lines: Line[]): Line[] => {
+    const JOIN_THRESHOLD = 20;
+    const updatedLines = lines.map((line) => ({
+      ...line,
+      points: [...line.points],
+    }));
+    for (let i = 0; i < updatedLines.length; i++) {
+      let [x1, y1, x2, y2] = updatedLines[i].points;
+      for (let j = 0; j < updatedLines.length; j++) {
+        if (i === j) continue;
+        const line2 = updatedLines[j];
+        let [ax1, ay1, ax2, ay2] = line2.points;
+        if (distance({ x: x1, y: y1 }, { x: ax1, y: ay1 }) < JOIN_THRESHOLD) {
+          x1 = ax1;
+          y1 = ay1;
+          line2.points = [ax1, ay1, ax2, ay2];
+        } else if (
+          distance({ x: x1, y: y1 }, { x: ax2, y: ay2 }) < JOIN_THRESHOLD
+        ) {
+          x1 = ax2;
+          y1 = ay2;
+          line2.points = [ax1, ay1, ax2, ay2];
+        }
+        if (distance({ x: x2, y: y2 }, { x: ax1, y: ay1 }) < JOIN_THRESHOLD) {
+          x2 = ax1;
+          y2 = ay1;
+          line2.points = [ax1, ay1, ax2, ay2];
+        } else if (
+          distance({ x: x2, y: y2 }, { x: ax2, y: ay2 }) < JOIN_THRESHOLD
+        ) {
+          x2 = ax2;
+          y2 = ay2;
+          line2.points = [ax1, ay1, ax2, ay2];
+        }
+      }
+      updatedLines[i].points = [x1, y1, x2, y2];
+    }
+    return updatedLines;
+  };
+
   const drawGrid = () => {
     const lines = [];
     const gridSize = GRID_SIZE;
@@ -368,6 +410,8 @@ const PlanEditor = ({
             points: newLinePoints,
             thickness: 8,
           };
+          const newLines = [...lines, newLine];
+          const joinedLines = autoJoinLines(newLines);
           setLines([...lines, newLine]);
         }
 
@@ -1105,14 +1149,64 @@ const PlanEditor = ({
                   />
                 </Group>
                 {selectedWall === line.id && (
-                  <KonvaImage
-                    image={deleteIcon}
-                    x={(line.points[0] + line.points[2]) / 2 - 10}
-                    y={(line.points[1] + line.points[3]) / 2 - 30}
-                    width={20}
-                    height={20}
-                    onClick={() => deleteWall(line.id)}
-                  />
+                  <>
+                    <KonvaImage
+                      image={deleteIcon}
+                      x={(line.points[0] + line.points[2]) / 2 - 10}
+                      y={(line.points[1] + line.points[3]) / 2 - 30}
+                      width={20}
+                      height={20}
+                      onClick={() => deleteWall(line.id)}
+                    />
+                    <Circle
+                      x={line.points[0]}
+                      y={line.points[1]}
+                      radius={8}
+                      fill="blue"
+                      draggable
+                      onDragEnd={(e) => {
+                        const newPos = { x: e.target.x(), y: e.target.y() };
+                        const snapped = getSnappedPosition(newPos);
+                        const updatedLine = {
+                          ...line,
+                          points: [
+                            snapped.x,
+                            snapped.y,
+                            line.points[2],
+                            line.points[3],
+                          ],
+                        };
+                        const updatedLines = lines.map((l) =>
+                          l.id === line.id ? updatedLine : l,
+                        );
+                        setLines(autoJoinLines(updatedLines));
+                      }}
+                    />
+                    <Circle
+                      x={line.points[2]}
+                      y={line.points[3]}
+                      radius={8}
+                      fill="blue"
+                      draggable
+                      onDragEnd={(e) => {
+                        const newPos = { x: e.target.x(), y: e.target.y() };
+                        const snapped = getSnappedPosition(newPos);
+                        const updatedLine = {
+                          ...line,
+                          points: [
+                            line.points[0],
+                            line.points[1],
+                            snapped.x,
+                            snapped.y,
+                          ],
+                        };
+                        const updatedLines = lines.map((l) =>
+                          l.id === line.id ? updatedLine : l,
+                        );
+                        setLines(autoJoinLines(updatedLines));
+                      }}
+                    />
+                  </>
                 )}
                 {drawWallLength(line, line.id)}
                 {/* <Text
