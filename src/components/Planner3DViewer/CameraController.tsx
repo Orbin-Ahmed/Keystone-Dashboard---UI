@@ -24,7 +24,6 @@ const CameraController: React.FC<CameraControllerProps> = ({
     if (isAutoRotating) {
       const targetX = activeTourPoint.position[0];
       const targetZ = activeTourPoint.position[2];
-
       const elapsedTime = state.clock.getElapsedTime();
       const angle = elapsedTime * ROTATION_SPEED;
       targetPosition.current.set(
@@ -35,8 +34,6 @@ const CameraController: React.FC<CameraControllerProps> = ({
 
       camera.position.lerp(targetPosition.current, 0.1);
       camera.lookAt(targetX, EYE_LEVEL, targetZ);
-    } else {
-      camera.position.y = EYE_LEVEL;
     }
   });
 
@@ -59,8 +56,8 @@ const CameraController: React.FC<CameraControllerProps> = ({
     <OrbitControls
       ref={controlsRef}
       enableZoom={true}
-      maxPolarAngle={Math.PI / 2}
-      minPolarAngle={0.1}
+      minPolarAngle={0}
+      maxPolarAngle={Math.PI}
       maxDistance={1000}
       enabled={!disableControls}
       enablePan={false}
