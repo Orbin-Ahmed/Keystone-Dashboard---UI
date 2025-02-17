@@ -819,93 +819,35 @@ const PlanEditor = ({
     wallLines: Line[],
   ): HelperLine[] => {
     const helperLines: HelperLine[] = [];
-
     const left = draggedItem.x;
     const right = draggedItem.x + draggedItem.width;
     const top = draggedItem.y;
     const bottom = draggedItem.y + draggedItem.height;
     const centerX = (left + right) / 2;
     const centerY = (top + bottom) / 2;
+    const overlapTolerance = 10;
 
     let minLeftGap = Infinity;
     let leftTarget: { x: number; y: number } | null = null;
-    let minRightGap = Infinity;
-    let rightTarget: { x: number; y: number } | null = null;
-    let minTopGap = Infinity;
-    let topTarget: { x: number; y: number } | null = null;
-    let minBottomGap = Infinity;
-    let bottomTarget: { x: number; y: number } | null = null;
-
     otherItems.forEach((item) => {
+      const candidateTop = item.y;
+      const candidateBottom = item.y + item.height;
+      const overlapHeight =
+        Math.min(bottom, candidateBottom) - Math.max(top, candidateTop);
+      if (overlapHeight < overlapTolerance) return;
+
       const itemRight = item.x + item.width;
-      if (
-        itemRight <= left &&
-        !(item.y + item.height < top || item.y > bottom)
-      ) {
+      if (itemRight <= left) {
         const gap = left - itemRight;
         if (gap < minLeftGap) {
           minLeftGap = gap;
           leftTarget = {
             x: itemRight,
-            y:
-              (Math.max(top, item.y) + Math.min(bottom, item.y + item.height)) /
-              2,
-          };
-        }
-      }
-
-      const itemLeft = item.x;
-      if (
-        itemLeft >= right &&
-        !(item.y + item.height < top || item.y > bottom)
-      ) {
-        const gap = itemLeft - right;
-        if (gap < minRightGap) {
-          minRightGap = gap;
-          rightTarget = {
-            x: itemLeft,
-            y:
-              (Math.max(top, item.y) + Math.min(bottom, item.y + item.height)) /
-              2,
-          };
-        }
-      }
-
-      const itemBottom = item.y + item.height;
-      if (
-        itemBottom <= top &&
-        !(item.x + item.width < left || item.x > right)
-      ) {
-        const gap = top - itemBottom;
-        if (gap < minTopGap) {
-          minTopGap = gap;
-          topTarget = {
-            x:
-              (Math.max(left, item.x) + Math.min(right, item.x + item.width)) /
-              2,
-            y: itemBottom,
-          };
-        }
-      }
-
-      const itemTop = item.y;
-      if (
-        itemTop >= bottom &&
-        !(item.x + item.width < left || item.x > right)
-      ) {
-        const gap = itemTop - bottom;
-        if (gap < minBottomGap) {
-          minBottomGap = gap;
-          bottomTarget = {
-            x:
-              (Math.max(left, item.x) + Math.min(right, item.x + item.width)) /
-              2,
-            y: itemTop,
+            y: Math.max(top, candidateTop) + overlapHeight / 2,
           };
         }
       }
     });
-
     if (leftTarget && minLeftGap > 0) {
       helperLines.push({
         start: leftTarget,
@@ -914,6 +856,28 @@ const PlanEditor = ({
         type: "item",
       });
     }
+
+    let minRightGap = Infinity;
+    let rightTarget: { x: number; y: number } | null = null;
+    otherItems.forEach((item) => {
+      const candidateTop = item.y;
+      const candidateBottom = item.y + item.height;
+      const overlapHeight =
+        Math.min(bottom, candidateBottom) - Math.max(top, candidateTop);
+      if (overlapHeight < overlapTolerance) return;
+
+      const itemLeft = item.x;
+      if (itemLeft >= right) {
+        const gap = itemLeft - right;
+        if (gap < minRightGap) {
+          minRightGap = gap;
+          rightTarget = {
+            x: itemLeft,
+            y: Math.max(top, candidateTop) + overlapHeight / 2,
+          };
+        }
+      }
+    });
     if (rightTarget && minRightGap > 0) {
       helperLines.push({
         start: { x: right, y: centerY },
@@ -922,6 +886,28 @@ const PlanEditor = ({
         type: "item",
       });
     }
+
+    let minTopGap = Infinity;
+    let topTarget: { x: number; y: number } | null = null;
+    otherItems.forEach((item) => {
+      const candidateLeft = item.x;
+      const candidateRight = item.x + item.width;
+      const overlapWidth =
+        Math.min(right, candidateRight) - Math.max(left, candidateLeft);
+      if (overlapWidth < overlapTolerance) return;
+
+      const itemBottom = item.y + item.height;
+      if (itemBottom <= top) {
+        const gap = top - itemBottom;
+        if (gap < minTopGap) {
+          minTopGap = gap;
+          topTarget = {
+            x: Math.max(left, candidateLeft) + overlapWidth / 2,
+            y: itemBottom,
+          };
+        }
+      }
+    });
     if (topTarget && minTopGap > 0) {
       helperLines.push({
         start: topTarget,
@@ -930,6 +916,28 @@ const PlanEditor = ({
         type: "item",
       });
     }
+
+    let minBottomGap = Infinity;
+    let bottomTarget: { x: number; y: number } | null = null;
+    otherItems.forEach((item) => {
+      const candidateLeft = item.x;
+      const candidateRight = item.x + item.width;
+      const overlapWidth =
+        Math.min(right, candidateRight) - Math.max(left, candidateLeft);
+      if (overlapWidth < overlapTolerance) return;
+
+      const itemTop = item.y;
+      if (itemTop >= bottom) {
+        const gap = itemTop - bottom;
+        if (gap < minBottomGap) {
+          minBottomGap = gap;
+          bottomTarget = {
+            x: Math.max(left, candidateLeft) + overlapWidth / 2,
+            y: itemTop,
+          };
+        }
+      }
+    });
     if (bottomTarget && minBottomGap > 0) {
       helperLines.push({
         start: { x: centerX, y: bottom },
@@ -944,7 +952,7 @@ const PlanEditor = ({
 
       if (Math.abs(x1 - x2) < 5) {
         const wallX = x1;
-        if (wallX < left) {
+        if (wallX < left && !(y1 > bottom || y2 < top)) {
           const gap = left - wallX;
           helperLines.push({
             start: { x: wallX, y: centerY },
@@ -953,7 +961,7 @@ const PlanEditor = ({
             type: "wall",
           });
         }
-        if (wallX > right) {
+        if (wallX > right && !(y1 > bottom || y2 < top)) {
           const gap = wallX - right;
           helperLines.push({
             start: { x: right, y: centerY },
@@ -966,7 +974,7 @@ const PlanEditor = ({
 
       if (Math.abs(y1 - y2) < 5) {
         const wallY = y1;
-        if (wallY < top) {
+        if (wallY < top && !(x1 > right || x2 < left)) {
           const gap = top - wallY;
           helperLines.push({
             start: { x: centerX, y: wallY },
@@ -975,7 +983,7 @@ const PlanEditor = ({
             type: "wall",
           });
         }
-        if (wallY > bottom) {
+        if (wallY > bottom && !(x1 > right || x2 < left)) {
           const gap = wallY - bottom;
           helperLines.push({
             start: { x: centerX, y: bottom },
