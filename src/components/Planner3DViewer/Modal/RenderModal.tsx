@@ -47,14 +47,10 @@ const RenderModal: React.FC<RenderModalProps> = ({ isOpen, onClose }) => {
         glb_file: glbBase64,
       };
 
-      const apiEndpoint = "https://api.runpod.ai/v2/hx49n6kpwjzb86/run";
-      const bearerToken = "rpa_ZPRXJCLK7JQ8ADPY7A2F943F63CMO1MLYA8QEM72wi9au7";
-
-      const response = await fetch(apiEndpoint, {
+      const response = await fetch("/api/render", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${bearerToken}`,
         },
         body: JSON.stringify(payload),
       });
@@ -64,8 +60,8 @@ const RenderModal: React.FC<RenderModalProps> = ({ isOpen, onClose }) => {
       }
 
       const data = await response.json();
-      if (data.error) {
-        setError(data.error);
+      if (data.error || data.detail) {
+        setError(data.error || data.detail);
       } else if (data.output) {
         setRenderedImage(data.output);
       }
