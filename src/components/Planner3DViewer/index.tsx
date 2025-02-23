@@ -29,6 +29,7 @@ import { Slider, Spinner } from "@radix-ui/themes";
 import { uid } from "uid";
 import SelectedWallItemControls from "./sidebar/SelectedWallItemControls";
 import CustomizeItemModal from "./Modal/CustomizeItemModal";
+import RenderModal from "./Modal/RenderModal";
 
 const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   lines,
@@ -123,6 +124,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [windowOptions, setWindowOptions] = useState<ItemOption[]>([]);
 
   const [lightIntensity, setLightIntensity] = useState(1);
+
+  const [isRenderModalOpen, setIsRenderModalOpen] = useState(false);
 
   const fetchDoorAndWindowOptions = async () => {
     try {
@@ -1046,6 +1049,20 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           ))}
         </div>
       )}
+
+      <div className="absolute left-35 top-4 z-50">
+        <CustomButton
+          variant="tertiary"
+          onClick={() => setIsRenderModalOpen(true)}
+        >
+          Render
+        </CustomButton>
+      </div>
+
+      <RenderModal
+        isOpen={isRenderModalOpen}
+        onClose={() => setIsRenderModalOpen(false)}
+      />
 
       {!selectedShape && (
         <div className="absolute right-4 top-4">
