@@ -12,18 +12,6 @@ const RenderModal: React.FC<RenderModalProps> = ({ isOpen, onClose }) => {
   const [renderedImage, setRenderedImage] = useState<string | null>(null);
   const [error, setError] = useState("");
 
-  const getBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        const base64String = (reader.result as string).split(",")[1];
-        resolve(base64String);
-      };
-      reader.onerror = (error) => reject(error);
-    });
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -40,11 +28,31 @@ const RenderModal: React.FC<RenderModalProps> = ({ isOpen, onClose }) => {
 
     setLoading(true);
     try {
-      const glbBase64 = await getBase64(glbFile);
+      const formData = new FormData();
+      formData.append("file", glbFile);
+      const uploadResponse = await fetch("https://tmpfiles.org/api/v1/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error(`File upload error: ${uploadResponse.statusText}`);
+      }
+
+      const uploadResult = await uploadResponse.json();
+      if (uploadResult.status !== "success") {
+        throw new Error("File upload failed");
+      }
+
+      const uploadedUrl: string = uploadResult.data.url;
+      const finalGlbUrl = uploadedUrl.replace(
+        "https://tmpfiles.org/",
+        "https://tmpfiles.org/dl/",
+      );
 
       const payload = {
         time_of_day: timeOfDay,
-        glb_file: glbBase64,
+        glb_url: finalGlbUrl,
       };
 
       const response = await fetch("/api/render", {
