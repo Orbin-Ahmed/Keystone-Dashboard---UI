@@ -19,6 +19,8 @@ export async function POST(req: Request) {
       glb_file,
     };
 
+    console.log(JSON.stringify(payload))
+
     const runpodResponse = await fetch("https://api.runpod.ai/v2/hx49n6kpwjzb86/run", {
       method: "POST",
       headers: {
@@ -29,8 +31,6 @@ export async function POST(req: Request) {
     });
 
     const runpodResponseText = await runpodResponse.text();
-    console.log("Runpod response status:", runpodResponse.status);
-    console.log("Runpod response body:", runpodResponseText);
 
     if (!runpodResponse.ok) {
       return NextResponse.json(
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
         { status: runpodResponse.status }
       );
     }
-    
+
     let output;
     try {
       output = JSON.parse(runpodResponseText);
