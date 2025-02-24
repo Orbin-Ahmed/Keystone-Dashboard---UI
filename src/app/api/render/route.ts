@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 
-const RUNPOD_API_ENDPOINT =
-  process.env.RUNPOD_API_ENDPOINT || "https://api.runpod.ai/v2/hx49n6kpwjzb86/run";
-const RUNPOD_BEARER_TOKEN = process.env.RUNPOD_BEARER_TOKEN || "rpa_ZPRXJCLK7JQ8ADPY7A2F943F63CMO1MLYA8QEM72wi9au7";
-const API_KEY = "rpa_ZPRXJCLK7JQ8ADPY7A2F943F63CMO1MLYA8QEM72wi9au7";
+const RUNPOD_BEARER_TOKEN =
+  process.env.RUNPOD_BEARER_TOKEN ||
+  "rpa_ZPRXJCLK7JQ8ADPY7A2F943F63CMO1MLYA8QEM72wi9au7";
 
 export async function POST(req: Request) {
   try {
@@ -20,7 +19,7 @@ export async function POST(req: Request) {
       glb_file,
     };
 
-    const runpodResponse = await fetch(RUNPOD_API_ENDPOINT, {
+    const runpodResponse = await fetch("https://api.runpod.ai/v2/hx49n6kpwjzb86/run", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -29,21 +28,30 @@ export async function POST(req: Request) {
       body: JSON.stringify(payload),
     });
 
+    const runpodResponseText = await runpodResponse.text();
+    console.log("Runpod response status:", runpodResponse.status);
+    console.log("Runpod response body:", runpodResponseText);
+
     if (!runpodResponse.ok) {
-      const errorBody = await runpodResponse.text();
       return NextResponse.json(
-        { detail: "Error from Runpod API", error: errorBody },
+        { detail: "Error from Runpod API", error: runpodResponseText },
         { status: runpodResponse.status }
       );
     }
-
-    const output = await runpodResponse.json();
+    
+    let output;
+    try {
+      output = JSON.parse(runpodResponseText);
+    } catch (jsonError) {
+      console.error("Failed to parse JSON:", jsonError);
+      output = { detail: runpodResponseText };
+    }
 
     return NextResponse.json(output, { status: 200 });
   } catch (error: any) {
     console.error("Error processing request:", error);
     return NextResponse.json(
-      { detail: "Internal Server Error" },
+      { detail: "Internal Server Error", error: error.message },
       { status: 500 }
     );
   }
