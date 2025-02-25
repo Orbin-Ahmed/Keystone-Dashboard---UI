@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import ItemCustomizationViewer, {
   Customization,
+  SelectionType,
 } from "./ItemCustomizationViewer";
 import CustomButton from "@/components/CustomButton";
 import { FaUndo } from "react-icons/fa";
@@ -8,11 +9,6 @@ import { GrClose } from "react-icons/gr";
 import { PlacedItemType } from "@/types";
 import * as THREE from "three";
 import { GLTFExporter } from "three-stdlib";
-
-type SelectionType = {
-  groupName: string;
-  meshes: string[];
-};
 
 type CustomizationHistory = {
   customizations: Record<string, Customization>;
@@ -38,15 +34,14 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
   const [customizations, setCustomizations] = useState<
     Record<string, Customization>
   >({});
-
   const [history, setHistory] = useState<CustomizationHistory[]>([]);
   const [currentHistoryIndex, setCurrentHistoryIndex] = useState(-1);
 
-  const [selectedGroup, setSelectedGroup] = useState<SelectionType | null>(
-    null,
-  );
+  // Now we hold an array of selections (for multi-select)
+  const [selectedGroups, setSelectedGroups] = useState<SelectionType[]>([]);
 
   const [localColor, setLocalColor] = useState<string>("#ffffff");
+  const [localBrightness, setLocalBrightness] = useState<number>(50); // 50 is neutral (0-100)
   const [localTextureFile, setLocalTextureFile] = useState<File | null>(null);
   const [texturePreview, setTexturePreview] = useState<string | null>(null);
 
@@ -56,6 +51,7 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
     null,
   );
 
+  // Show texture preview if a file is selected
   useEffect(() => {
     if (localTextureFile) {
       const url = URL.createObjectURL(localTextureFile);
@@ -65,16 +61,46 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
     setTexturePreview(null);
   }, [localTextureFile]);
 
-  const handleApplyToSelectedGroup = () => {
-    if (!selectedGroup) return;
+  // For animated customization display
+  const [displayedCustomizations, setDisplayedCustomizations] = useState<
+    Array<{ groupName: string; cust: Customization }>
+  >([]);
+  const [currentDisplayIndex, setCurrentDisplayIndex] = useState<number>(0);
 
-    const newCustomizations = {
-      ...customizations,
-      [selectedGroup.groupName]: {
+  // Update the displayed customizations when customizations change
+  useEffect(() => {
+    const customizationEntries = Object.entries(customizations).map(
+      ([groupName, cust]) => ({ groupName, cust }),
+    );
+    setDisplayedCustomizations(customizationEntries);
+    setCurrentDisplayIndex(0); // Reset to first item
+  }, [customizations]);
+
+  // Rotating display of customizations
+  useEffect(() => {
+    if (displayedCustomizations.length === 0) return;
+
+    const interval = setInterval(() => {
+      setCurrentDisplayIndex(
+        (prevIndex) => (prevIndex + 1) % displayedCustomizations.length,
+      );
+    }, 3000); // Show each customization for 3 seconds
+
+    return () => clearInterval(interval);
+  }, [displayedCustomizations]);
+
+  // Apply same customization (color, brightness, texture) to all selected groups
+  const handleApplyToSelectedGroup = () => {
+    if (selectedGroups.length === 0) return;
+
+    const newCustomizations = { ...customizations };
+    selectedGroups.forEach((group) => {
+      newCustomizations[group.groupName] = {
         color: localColor !== "#ffffff" ? localColor : undefined,
+        brightness: localBrightness, // Now using brightness instead of opacity
         textureFile: localTextureFile || undefined,
-      },
-    };
+      };
+    });
 
     const newHistory = history.slice(0, currentHistoryIndex + 1);
     newHistory.push({
@@ -101,10 +127,13 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
   const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLocalColor(e.target.value);
     setLocalTextureFile(null);
-
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+  };
+
+  const handleBrightnessChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalBrightness(Number(e.target.value));
   };
 
   const handleSaveModifiedModel = async (
@@ -196,93 +225,151 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
             <ItemCustomizationViewer
               modelPath={modelPath}
               customizations={customizations}
-              selectedGroup={selectedGroup}
-              setSelectedGroup={setSelectedGroup}
+              selectedGroups={selectedGroups}
+              setSelectedGroups={setSelectedGroups}
               onSceneReady={(scene) => setModifiedScene(scene)}
             />
           </div>
 
           <div className="mt-4 w-full md:mt-0 md:w-1/3 md:pl-4">
-            {selectedGroup ? (
-              <>
-                <div className="mb-4">
+            {selectedGroups.length > 0 ? (
+              <div className="mb-4">
+                {selectedGroups.length === 1 ? (
+                  <>
+                    <p className="mb-1 font-semibold">
+                      Selected Group: {selectedGroups[0].groupName}
+                    </p>
+                    <p className="text-gray-500 text-sm">
+                      ({selectedGroups[0].meshes.length} mesh(es) in this group)
+                    </p>
+                  </>
+                ) : (
                   <p className="mb-1 font-semibold">
-                    Selected Group: {selectedGroup.groupName}
+                    {selectedGroups.length} groups selected
                   </p>
-                  <p className="text-gray-500 text-sm">
-                    ({selectedGroup.meshes.length} mesh(es) in this group)
-                  </p>
-                </div>
-
-                <div className="mb-4">
-                  <label className="mb-1 block">Color:</label>
-                  <input
-                    type="color"
-                    value={localColor}
-                    onChange={handleColorChange}
-                    className="h-10 w-full"
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <label className="mb-1 block">Upload Texture:</label>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      if (e.target.files && e.target.files.length > 0) {
-                        setLocalTextureFile(e.target.files[0]);
-                        setLocalColor("#ffffff");
-                      }
-                    }}
-                  />
-                  {texturePreview && (
-                    <img
-                      src={texturePreview}
-                      alt="Texture Preview"
-                      className="mt-2 h-24 w-24 border object-cover"
-                    />
-                  )}
-                </div>
-
-                <div className="mb-4 flex items-center justify-between gap-4">
-                  <CustomButton
-                    onClick={handleApplyToSelectedGroup}
-                    variant="secondary"
-                  >
-                    Preview
-                  </CustomButton>
-                  <CustomButton
-                    onClick={handleRevert}
-                    variant="secondary"
-                    disabled={!canRevert}
-                    className="flex items-center gap-2"
-                  >
-                    <FaUndo className="h-4 w-4" />
-                  </CustomButton>
-                </div>
-              </>
+                )}
+              </div>
             ) : (
               <p className="mb-4">
-                Click a part in the 3D viewer to select a group.
+                Click a part in the 3D viewer to select a group (hold Ctrl for
+                multiple selection).
               </p>
             )}
 
-            <div className="mt-4">
+            <div className="mb-4">
+              <label className="mb-1 block">Color:</label>
+              <input
+                type="color"
+                value={localColor}
+                onChange={handleColorChange}
+                className="h-10 w-full"
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="mb-1 block">
+                Brightness:{" "}
+                {localBrightness < 50
+                  ? "Darker"
+                  : localBrightness > 50
+                    ? "Lighter"
+                    : "Normal"}
+                ({localBrightness}%)
+              </label>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                value={localBrightness}
+                onChange={handleBrightnessChange}
+                className="w-full"
+              />
+              <div className="text-gray-500 flex justify-between text-xs">
+                <span>Darker</span>
+                <span>Normal</span>
+                <span>Lighter</span>
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <label className="mb-1 block">Upload Texture:</label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files.length > 0) {
+                    setLocalTextureFile(e.target.files[0]);
+                    setLocalColor("#ffffff");
+                  }
+                }}
+              />
+              {texturePreview && (
+                <img
+                  src={texturePreview}
+                  alt="Texture Preview"
+                  className="mt-2 h-24 w-24 border object-cover"
+                />
+              )}
+            </div>
+
+            <div className="mb-4 flex items-center justify-between gap-4">
+              <CustomButton
+                onClick={handleApplyToSelectedGroup}
+                variant="secondary"
+                disabled={selectedGroups.length === 0}
+              >
+                Preview
+              </CustomButton>
+              <CustomButton
+                onClick={handleRevert}
+                variant="secondary"
+                disabled={!canRevert}
+                className="flex items-center gap-2"
+              >
+                <FaUndo className="h-4 w-4" />
+              </CustomButton>
+            </div>
+
+            {/* Fixed customization display area with animation */}
+            <div className="mt-4 h-24 overflow-hidden border p-2">
               <h3 className="mb-2 font-bold">Current Customizations:</h3>
-              <ul>
-                {Object.entries(customizations).map(([groupName, cust]) => (
-                  <li key={groupName}>
-                    <strong>{groupName}:</strong>{" "}
-                    {cust.textureFile
-                      ? "Custom Texture"
-                      : cust.color
-                        ? `Color: ${cust.color}`
-                        : "Default"}
-                  </li>
-                ))}
-              </ul>
+              {displayedCustomizations.length > 0 ? (
+                <div className="transition-opacity duration-500">
+                  {displayedCustomizations.length > 0 && (
+                    <div key={currentDisplayIndex} className="animate-fadeIn">
+                      <strong>
+                        {displayedCustomizations[currentDisplayIndex].groupName}
+                        :
+                      </strong>{" "}
+                      {displayedCustomizations[currentDisplayIndex].cust
+                        .textureFile
+                        ? "Custom Texture"
+                        : displayedCustomizations[currentDisplayIndex].cust
+                              .color
+                          ? `Color: ${displayedCustomizations[currentDisplayIndex].cust.color}, 
+                           Brightness: ${displayedCustomizations[currentDisplayIndex].cust.brightness ?? 50}%`
+                          : "Default"}
+                    </div>
+                  )}
+                  {displayedCustomizations.length > 1 && (
+                    <div className="mt-2 flex">
+                      {displayedCustomizations.map((_, index) => (
+                        <div
+                          key={index}
+                          className={`mx-1 h-2 w-2 rounded-full ${
+                            index === currentDisplayIndex
+                              ? "bg-blue-500"
+                              : "bg-gray-300"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <p className="text-gray-500">No customizations applied yet</p>
+              )}
             </div>
 
             <div className="mt-4">
