@@ -21,7 +21,7 @@ const RenderModal: React.FC<RenderModalProps> = ({ isOpen, onClose }) => {
 
   const downloadImage = (imageUrl: string) => {
     const link = document.createElement("a");
-    link.href = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}${imageUrl}`;
+    link.href = imageUrl;
     link.download = "rendered_scene.png";
     document.body.appendChild(link);
     link.click();
