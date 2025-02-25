@@ -36,12 +36,10 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
   >({});
   const [history, setHistory] = useState<CustomizationHistory[]>([]);
   const [currentHistoryIndex, setCurrentHistoryIndex] = useState(-1);
-
-  // Now we hold an array of selections (for multi-select)
   const [selectedGroups, setSelectedGroups] = useState<SelectionType[]>([]);
 
   const [localColor, setLocalColor] = useState<string>("#ffffff");
-  const [localBrightness, setLocalBrightness] = useState<number>(50); // 50 is neutral (0-100)
+  const [localBrightness, setLocalBrightness] = useState<number>(50);
   const [localTextureFile, setLocalTextureFile] = useState<File | null>(null);
   const [texturePreview, setTexturePreview] = useState<string | null>(null);
 
@@ -51,7 +49,6 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
     null,
   );
 
-  // Show texture preview if a file is selected
   useEffect(() => {
     if (localTextureFile) {
       const url = URL.createObjectURL(localTextureFile);
@@ -61,22 +58,19 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
     setTexturePreview(null);
   }, [localTextureFile]);
 
-  // For animated customization display
   const [displayedCustomizations, setDisplayedCustomizations] = useState<
     Array<{ groupName: string; cust: Customization }>
   >([]);
   const [currentDisplayIndex, setCurrentDisplayIndex] = useState<number>(0);
 
-  // Update the displayed customizations when customizations change
   useEffect(() => {
     const customizationEntries = Object.entries(customizations).map(
       ([groupName, cust]) => ({ groupName, cust }),
     );
     setDisplayedCustomizations(customizationEntries);
-    setCurrentDisplayIndex(0); // Reset to first item
+    setCurrentDisplayIndex(0);
   }, [customizations]);
 
-  // Rotating display of customizations
   useEffect(() => {
     if (displayedCustomizations.length === 0) return;
 
@@ -84,12 +78,11 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
       setCurrentDisplayIndex(
         (prevIndex) => (prevIndex + 1) % displayedCustomizations.length,
       );
-    }, 3000); // Show each customization for 3 seconds
+    }, 3000);
 
     return () => clearInterval(interval);
   }, [displayedCustomizations]);
 
-  // Apply same customization (color, brightness, texture) to all selected groups
   const handleApplyToSelectedGroup = () => {
     if (selectedGroups.length === 0) return;
 
@@ -97,7 +90,7 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
     selectedGroups.forEach((group) => {
       newCustomizations[group.groupName] = {
         color: localColor !== "#ffffff" ? localColor : undefined,
-        brightness: localBrightness, // Now using brightness instead of opacity
+        brightness: localBrightness,
         textureFile: localTextureFile || undefined,
       };
     });
