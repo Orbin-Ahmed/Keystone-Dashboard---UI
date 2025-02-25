@@ -1,21 +1,69 @@
 import React, { useState } from "react";
+import { uid } from "uid";
 
 interface RenderModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+interface RenderTask {
+  request_id: string;
+  status: "pending" | "completed";
+  image_url?: string;
+}
+
 const RenderModal: React.FC<RenderModalProps> = ({ isOpen, onClose }) => {
   const [timeOfDay, setTimeOfDay] = useState("");
   const [glbFile, setGlbFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
-  const [renderedImage, setRenderedImage] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [renderTasks, setRenderTasks] = useState<RenderTask[]>([]);
+
+  const downloadImage = (imageUrl: string) => {
+    const link = document.createElement("a");
+    link.href = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}${imageUrl}`;
+    link.download = "rendered_scene.png";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const checkRenderStatus = (requestId: string, delay: number) => {
+    setTimeout(async () => {
+      try {
+        const statusResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}api/render_request/get_image/?request_id=${requestId}`,
+        );
+        if (!statusResponse.ok) {
+          throw new Error(`Status check error: ${statusResponse.statusText}`);
+        }
+        const statusData = await statusResponse.json();
+        if (statusData.image_url) {
+          setRenderTasks((prev) =>
+            prev.map((task) =>
+              task.request_id === requestId
+                ? {
+                    ...task,
+                    status: "completed",
+                    image_url: statusData.image_url,
+                  }
+                : task,
+            ),
+          );
+          downloadImage(statusData.image_url);
+        } else if (statusData.status === "pending") {
+          checkRenderStatus(requestId, 20000);
+        }
+      } catch (err: any) {
+        console.error("Error checking render status:", err);
+        checkRenderStatus(requestId, 20000);
+      }
+    }, delay);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setRenderedImage(null);
 
     if (!timeOfDay) {
       setError("Please select a time of day.");
@@ -34,45 +82,64 @@ const RenderModal: React.FC<RenderModalProps> = ({ isOpen, onClose }) => {
         method: "POST",
         body: formData,
       });
-
       if (!uploadResponse.ok) {
         throw new Error(`File upload error: ${uploadResponse.statusText}`);
       }
-
       const uploadResult = await uploadResponse.json();
       if (uploadResult.status !== "success") {
         throw new Error("File upload failed");
       }
-
       const uploadedUrl: string = uploadResult.data.url;
       const finalGlbUrl = uploadedUrl.replace(
         "https://tmpfiles.org/",
         "https://tmpfiles.org/dl/",
       );
 
-      const payload = {
-        time_of_day: timeOfDay,
+      const request_id = uid(16);
+      const newPayload = {
+        request_id,
+        theme: timeOfDay,
+        params: { key: "value" },
         glb_url: finalGlbUrl,
       };
 
-      const response = await fetch("/api/render", {
+      const newResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}api/render_request/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newPayload),
+        },
+      );
+
+      if (!newResponse.ok) {
+        throw new Error(`Render request error: ${newResponse.statusText}`);
+      }
+
+      const runPodPayload = {
+        time_of_day: timeOfDay,
+        glb_url: finalGlbUrl,
+        r_id: request_id,
+      };
+
+      const runPodResponse = await fetch("/api/render", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(runPodPayload),
       });
 
-      if (!response.ok) {
-        throw new Error(`Server error: ${response.statusText}`);
+      if (!runPodResponse.ok) {
+        throw new Error(
+          `Render request error in Runpod: ${runPodResponse.statusText}`,
+        );
       }
 
-      const data = await response.json();
-      if (data.error || data.detail) {
-        setError(data.error || data.detail);
-      } else if (data.output) {
-        setRenderedImage(data.output);
-      }
+      setRenderTasks((prev) => [...prev, { request_id, status: "pending" }]);
+      checkRenderStatus(request_id, 60000);
     } catch (err: any) {
       console.error("Error:", err);
       setError(err.message || "An unexpected error occurred.");
@@ -148,16 +215,6 @@ const RenderModal: React.FC<RenderModalProps> = ({ isOpen, onClose }) => {
             {loading ? "Rendering..." : "Submit"}
           </button>
         </form>
-        {renderedImage && (
-          <div style={{ marginTop: "1rem" }}>
-            <h3>Rendered Image:</h3>
-            <img
-              src={`data:image/png;base64,${renderedImage}`}
-              alt="Rendered Scene"
-              style={{ width: "100%" }}
-            />
-          </div>
-        )}
         <button
           onClick={onClose}
           style={{

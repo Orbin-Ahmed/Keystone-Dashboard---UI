@@ -2,15 +2,15 @@ const RUNPOD_BEARER_TOKEN = process.env.RUNPOD_API_TOKEN;
 
 export async function POST(req: Request) {
   try {
-    const { glb_url, time_of_day } = await req.json();
+    const { glb_url, time_of_day, r_id } = await req.json();
 
-    if (!glb_url || !time_of_day) {
+    if (!glb_url || !time_of_day || !r_id) {
       return new Response(JSON.stringify({ detail: "Missing Data" }), {
         status: 400,
       });
     }
 
-    const payload = { time_of_day, glb_url };
+    const payload = {"input" : { time_of_day, glb_url, r_id }};
 
     const runpodResponse = await fetch(
       "https://api.runpod.ai/v2/hx49n6kpwjzb86/run",
