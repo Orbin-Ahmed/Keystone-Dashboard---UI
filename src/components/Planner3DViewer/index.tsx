@@ -1088,6 +1088,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         isOpen={isRenderModalOpen}
         onClose={() => setIsRenderModalOpen(false)}
         onRenderComplete={handleRenderComplete}
+        scene={sceneRef.current!}
+        camera={cameraRef.current!}
       />
 
       {!selectedShape && (

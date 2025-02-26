@@ -1,10 +1,15 @@
+import CustomButton from "@/components/CustomButton";
 import React, { useState } from "react";
 import { uid } from "uid";
+import { GLTFExporter } from "three-stdlib";
+import { Scene, Camera, Vector3 } from "three";
 
 interface RenderModalProps {
   isOpen: boolean;
   onClose: () => void;
   onRenderComplete: (imageUrl: string) => void;
+  scene: Scene;
+  camera: Camera;
 }
 
 interface RenderTask {
@@ -17,12 +22,41 @@ const RenderModal: React.FC<RenderModalProps> = ({
   isOpen,
   onClose,
   onRenderComplete,
+  scene,
+  camera,
 }) => {
   const [timeOfDay, setTimeOfDay] = useState("");
-  const [glbFile, setGlbFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [renderTasks, setRenderTasks] = useState<RenderTask[]>([]);
+
+  const exportGLTF = (): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const exporter = new GLTFExporter();
+      exporter.parse(
+        scene,
+        (result) => {
+          const output =
+            result instanceof ArrayBuffer ? result : JSON.stringify(result);
+          const gltfBlob = new Blob([output], { type: "model/gltf-binary" });
+          resolve(gltfBlob);
+        },
+        (error) => {
+          console.error("An error occurred during GLTF export", error);
+          reject(error);
+        },
+        { binary: true },
+      );
+    });
+  };
+
+  const logCameraInfo = () => {
+    console.log("Camera position:", camera.position);
+    const direction = new Vector3();
+    camera.getWorldDirection(direction);
+    const target = camera.position.clone().add(direction);
+    console.log("Camera target:", target);
+  };
 
   const checkRenderStatus = (requestId: string, delay: number) => {
     setTimeout(async () => {
@@ -65,19 +99,24 @@ const RenderModal: React.FC<RenderModalProps> = ({
       setError("Please select a time of day.");
       return;
     }
-    if (!glbFile) {
-      setError("Please select a GLB file.");
-      return;
-    }
+    // if (!glbFile) {
+    //   setError("Please select a GLB file.");
+    //   return;
+    // }
 
     setLoading(true);
     try {
       const formData = new FormData();
-      formData.append("file", glbFile);
+      const glbBlob = await exportGLTF();
+      formData.append("file", glbBlob);
+      // Glb File upload
       const uploadResponse = await fetch("https://tmpfiles.org/api/v1/upload", {
         method: "POST",
         body: formData,
       });
+
+      logCameraInfo();
+
       if (!uploadResponse.ok) {
         throw new Error(`File upload error: ${uploadResponse.statusText}`);
       }
@@ -90,52 +129,57 @@ const RenderModal: React.FC<RenderModalProps> = ({
         "https://tmpfiles.org/",
         "https://tmpfiles.org/dl/",
       );
+      // Glb File upload end
 
-      const request_id = uid(16);
-      const newPayload = {
-        request_id,
-        theme: timeOfDay,
-        params: { key: "value" },
-        glb_url: finalGlbUrl,
-      };
+      // Posting request to backend
+      // const request_id = uid(16);
+      // const newPayload = {
+      //   request_id,
+      //   theme: timeOfDay,
+      //   params: { key: "value" },
+      //   glb_url: finalGlbUrl,
+      // };
 
-      const newResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}api/render_request/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(newPayload),
-        },
-      );
+      // const newResponse = await fetch(
+      //   `${process.env.NEXT_PUBLIC_API_BASE_URL}api/render_request/`,
+      //   {
+      //     method: "POST",
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //     },
+      //     body: JSON.stringify(newPayload),
+      //   },
+      // );
 
-      if (!newResponse.ok) {
-        throw new Error(`Render request error: ${newResponse.statusText}`);
-      }
+      // if (!newResponse.ok) {
+      //   throw new Error(`Render request error: ${newResponse.statusText}`);
+      // }
+      // Posting request to backend end
 
-      const runPodPayload = {
-        time_of_day: timeOfDay,
-        glb_url: finalGlbUrl,
-        r_id: request_id,
-      };
+      // Posting request to runpod
+      // const runPodPayload = {
+      //   time_of_day: timeOfDay,
+      //   glb_url: finalGlbUrl,
+      //   r_id: request_id,
+      // };
 
-      const runPodResponse = await fetch("/api/render", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(runPodPayload),
-      });
+      // const runPodResponse = await fetch("/api/render", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify(runPodPayload),
+      // });
 
-      if (!runPodResponse.ok) {
-        throw new Error(
-          `Render request error in Runpod: ${runPodResponse.statusText}`,
-        );
-      }
+      // if (!runPodResponse.ok) {
+      //   throw new Error(
+      //     `Render request error in Runpod: ${runPodResponse.statusText}`,
+      //   );
+      // }
+      // Posting request to runpod end
 
-      setRenderTasks((prev) => [...prev, { request_id, status: "pending" }]);
-      checkRenderStatus(request_id, 60000);
+      // setRenderTasks((prev) => [...prev, { request_id, status: "pending" }]);
+      // checkRenderStatus(request_id, 60000);
     } catch (err: any) {
       console.error("Error:", err);
       setError(err.message || "An unexpected error occurred.");
@@ -173,6 +217,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
       >
         <h2>Render Scene</h2>
         <form onSubmit={handleSubmit}>
+          {/* <form> */}
           <div style={{ marginBottom: "1rem" }}>
             <label>
               Time of Day:
@@ -188,7 +233,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
               </select>
             </label>
           </div>
-          <div style={{ marginBottom: "1rem" }}>
+          {/* <div style={{ marginBottom: "1rem" }}>
             <label>
               GLB File:
               <input
@@ -203,13 +248,13 @@ const RenderModal: React.FC<RenderModalProps> = ({
                 style={{ marginLeft: "0.5rem" }}
               />
             </label>
-          </div>
+          </div> */}
           {error && (
             <p style={{ color: "red", marginBottom: "1rem" }}>{error}</p>
           )}
-          <button type="submit" disabled={loading}>
+          <CustomButton variant="secondary" type="submit" disabled={loading}>
             {loading ? "Rendering..." : "Submit"}
-          </button>
+          </CustomButton>
         </form>
         <button
           onClick={onClose}
