@@ -1494,6 +1494,19 @@ const PlanEditor = ({
                 }}
               />
             ))}
+
+            {shapes.map((shape) => (
+              <React.Fragment key={shape.id}>
+                <KonvaImage
+                  image={shape.image}
+                  x={shape.x}
+                  y={shape.y}
+                  width={shape.type === "door" ? 40 : 70}
+                  height={shape.type === "door" ? 40 : 8}
+                  rotation={shape.rotation}
+                />
+              </React.Fragment>
+            ))}
           </Layer>
         </Stage>
       )}

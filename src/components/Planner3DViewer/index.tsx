@@ -304,6 +304,24 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     }
   };
 
+  useEffect(() => {
+    const handleWheel = (event: WheelEvent) => {
+      if (activeTourPoint) {
+        if (event.deltaY < 0) {
+          handleZoomIn();
+        } else if (event.deltaY > 0) {
+          handleZoomOut();
+        }
+      }
+    };
+
+    window.addEventListener("wheel", handleWheel, { passive: true });
+
+    return () => {
+      window.removeEventListener("wheel", handleWheel);
+    };
+  }, [activeTourPoint]);
+
   const toggleTourList = () => {
     setIsSettingsOpen(false);
     setIsTourOpen((prev) => !prev);
