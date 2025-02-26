@@ -53,6 +53,12 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
   >([]);
   const [currentDisplayIndex, setCurrentDisplayIndex] = useState<number>(0);
 
+  const [localTextureScale, setLocalTextureScale] = useState<number>(1);
+  const [localTextureRepeatX, setLocalTextureRepeatX] = useState<number>(1);
+  const [localTextureRepeatY, setLocalTextureRepeatY] = useState<number>(1);
+  const [localTextureOffsetX, setLocalTextureOffsetX] = useState<number>(0);
+  const [localTextureOffsetY, setLocalTextureOffsetY] = useState<number>(0);
+
   useEffect(() => {
     if (localTextureFile) {
       const url = URL.createObjectURL(localTextureFile);
@@ -91,6 +97,14 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
         color: localColor !== "#ffffff" ? localColor : undefined,
         brightness: localBrightness,
         textureFile: localTextureFile || undefined,
+
+        textureScale: localTextureFile ? localTextureScale : undefined,
+        textureRepeat: localTextureFile
+          ? { x: localTextureRepeatX, y: localTextureRepeatY }
+          : undefined,
+        textureOffset: localTextureFile
+          ? { x: localTextureOffsetX, y: localTextureOffsetY }
+          : undefined,
       };
     });
 
@@ -304,6 +318,103 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
                 />
               )}
             </div>
+
+            {/* Add this after the texture upload section */}
+            {localTextureFile && (
+              <>
+                <div className="mb-2">
+                  <label className="mb-1 block">
+                    Texture Scale: {localTextureScale.toFixed(2)}
+                  </label>
+                  <input
+                    type="range"
+                    min={0.1}
+                    max={10}
+                    step={0.1}
+                    value={localTextureScale}
+                    onChange={(e) =>
+                      setLocalTextureScale(parseFloat(e.target.value))
+                    }
+                    className="w-full"
+                  />
+                </div>
+
+                <div className="mb-1">
+                  <label className="mb-1 block">Texture Settings</label>
+                  <div className="flex gap-2">
+                    <div className="w-1/2">
+                      <label className="text-sm">
+                        X-Repeat: {localTextureRepeatX.toFixed(1)}
+                      </label>
+                      <input
+                        type="range"
+                        min={0.1}
+                        max={10}
+                        step={0.1}
+                        value={localTextureRepeatX}
+                        onChange={(e) =>
+                          setLocalTextureRepeatX(parseFloat(e.target.value))
+                        }
+                        className="w-full"
+                      />
+                    </div>
+                    <div className="w-1/2">
+                      <label className="text-sm">
+                        Y-Repeat: {localTextureRepeatY.toFixed(1)}
+                      </label>
+                      <input
+                        type="range"
+                        min={0.1}
+                        max={10}
+                        step={0.1}
+                        value={localTextureRepeatY}
+                        onChange={(e) =>
+                          setLocalTextureRepeatY(parseFloat(e.target.value))
+                        }
+                        className="w-full"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mb-2">
+                  <div className="flex gap-2">
+                    <div className="w-1/2">
+                      <label className="text-sm">
+                        X-Offset: {localTextureOffsetX.toFixed(2)}
+                      </label>
+                      <input
+                        type="range"
+                        min={-1}
+                        max={1}
+                        step={0.01}
+                        value={localTextureOffsetX}
+                        onChange={(e) =>
+                          setLocalTextureOffsetX(parseFloat(e.target.value))
+                        }
+                        className="w-full"
+                      />
+                    </div>
+                    <div className="w-1/2">
+                      <label className="text-sm">
+                        Y-Offset: {localTextureOffsetY.toFixed(2)}
+                      </label>
+                      <input
+                        type="range"
+                        min={-1}
+                        max={1}
+                        step={0.01}
+                        value={localTextureOffsetY}
+                        onChange={(e) =>
+                          setLocalTextureOffsetY(parseFloat(e.target.value))
+                        }
+                        className="w-full"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
 
             <div className="mb-4 flex items-center justify-between gap-4">
               <CustomButton

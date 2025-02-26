@@ -102,6 +102,19 @@ const ModelViewer: React.FC<ModelViewerProps> = ({
             const textureURL = URL.createObjectURL(cust.textureFile);
             const loader = new THREE.TextureLoader();
             loader.load(textureURL, (loadedTexture) => {
+              loadedTexture.wrapS = THREE.RepeatWrapping;
+              loadedTexture.wrapT = THREE.RepeatWrapping;
+
+              const scale = cust.textureScale || 1;
+
+              const repeatX = cust.textureRepeat?.x || 1;
+              const repeatY = cust.textureRepeat?.y || 1;
+              loadedTexture.repeat.set(repeatX * scale, repeatY * scale);
+
+              const offsetX = cust.textureOffset?.x || 0;
+              const offsetY = cust.textureOffset?.y || 0;
+              loadedTexture.offset.set(offsetX, offsetY);
+
               child.material = new THREE.MeshStandardMaterial({
                 map: loadedTexture,
               });

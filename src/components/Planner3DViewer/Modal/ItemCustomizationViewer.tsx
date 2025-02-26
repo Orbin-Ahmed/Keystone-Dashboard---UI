@@ -16,6 +16,15 @@ export interface SelectionType {
   meshes: string[];
 }
 
+export interface Customization {
+  color?: string;
+  brightness?: number;
+  textureFile?: File;
+  textureScale?: number;
+  textureRepeat?: { x: number; y: number };
+  textureOffset?: { x: number; y: number };
+}
+
 export interface ItemCustomizationViewerProps {
   modelPath: string;
   customizations?: Record<string, Customization>;
