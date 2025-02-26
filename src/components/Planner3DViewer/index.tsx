@@ -1073,7 +1073,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         </div>
       )}
 
-      {!isDesignOpen && (
+      {!isDesignOpen && activeTourPoint && (
         <div className="absolute left-35 top-4 z-50">
           <CustomButton
             variant="tertiary"
