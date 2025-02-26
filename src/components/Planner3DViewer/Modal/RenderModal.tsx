@@ -4,6 +4,7 @@ import { uid } from "uid";
 interface RenderModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onRenderComplete: (imageUrl: string) => void;
 }
 
 interface RenderTask {
@@ -12,21 +13,16 @@ interface RenderTask {
   image_url?: string;
 }
 
-const RenderModal: React.FC<RenderModalProps> = ({ isOpen, onClose }) => {
+const RenderModal: React.FC<RenderModalProps> = ({
+  isOpen,
+  onClose,
+  onRenderComplete,
+}) => {
   const [timeOfDay, setTimeOfDay] = useState("");
   const [glbFile, setGlbFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [renderTasks, setRenderTasks] = useState<RenderTask[]>([]);
-
-  const downloadImage = (imageUrl: string) => {
-    const link = document.createElement("a");
-    link.href = imageUrl;
-    link.download = "rendered_scene.png";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
 
   const checkRenderStatus = (requestId: string, delay: number) => {
     setTimeout(async () => {
@@ -50,7 +46,7 @@ const RenderModal: React.FC<RenderModalProps> = ({ isOpen, onClose }) => {
                 : task,
             ),
           );
-          downloadImage(statusData.image_url);
+          onRenderComplete(statusData.image_url);
         } else if (statusData.status === "pending") {
           checkRenderStatus(requestId, 20000);
         }

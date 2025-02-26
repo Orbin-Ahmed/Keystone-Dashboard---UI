@@ -919,6 +919,13 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     );
   };
 
+  const handleRenderComplete = (imageUrl: string) => {
+    setLocalSceneImages((prev) => [
+      ...prev,
+      { id: uid(), url: imageUrl, finalUrl: imageUrl, loading: false },
+    ]);
+  };
+
   // Wall Item Control end
 
   // useEffect(() => {
@@ -1017,11 +1024,9 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
       {isDesignOpen && (
         <div className="absolute left-0 top-0 z-40 h-full w-80 overflow-auto bg-white p-4 shadow-md">
-          <h2 className="mb-4 mt-12 text-lg font-semibold">
-            AI Rendered Design
-          </h2>
+          <h2 className="mb-4 mt-12 text-lg font-semibold">Rendered Design</h2>
           {localSceneImages.length === 0 && (
-            <p className="text-gray-500">No scene snapshots yet.</p>
+            <p className="text-gray-500">No rendered yet.</p>
           )}
           {localSceneImages.map((image, index) => (
             <div key={image.id} className="relative mb-4">
@@ -1080,6 +1085,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       <RenderModal
         isOpen={isRenderModalOpen}
         onClose={() => setIsRenderModalOpen(false)}
+        onRenderComplete={handleRenderComplete}
       />
 
       {!selectedShape && (
