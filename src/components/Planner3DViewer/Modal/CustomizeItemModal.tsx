@@ -15,7 +15,7 @@ type CustomizationHistory = {
   timestamp: number;
 };
 
-export interface CustomizeItemModalProps {
+interface CustomizeItemModalProps {
   modelPath: string;
   onClose: () => void;
   onApply: (
@@ -48,6 +48,10 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
   const [modifiedScene, setModifiedScene] = useState<THREE.Object3D | null>(
     null,
   );
+  const [displayedCustomizations, setDisplayedCustomizations] = useState<
+    Array<{ groupName: string; cust: Customization }>
+  >([]);
+  const [currentDisplayIndex, setCurrentDisplayIndex] = useState<number>(0);
 
   useEffect(() => {
     if (localTextureFile) {
@@ -57,11 +61,6 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
     }
     setTexturePreview(null);
   }, [localTextureFile]);
-
-  const [displayedCustomizations, setDisplayedCustomizations] = useState<
-    Array<{ groupName: string; cust: Customization }>
-  >([]);
-  const [currentDisplayIndex, setCurrentDisplayIndex] = useState<number>(0);
 
   useEffect(() => {
     const customizationEntries = Object.entries(customizations).map(
