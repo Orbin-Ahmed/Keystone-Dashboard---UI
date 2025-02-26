@@ -1073,14 +1073,16 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         </div>
       )}
 
-      <div className="absolute left-35 top-4 z-50">
-        <CustomButton
-          variant="tertiary"
-          onClick={() => setIsRenderModalOpen(true)}
-        >
-          Render
-        </CustomButton>
-      </div>
+      {!isDesignOpen && (
+        <div className="absolute left-35 top-4 z-50">
+          <CustomButton
+            variant="tertiary"
+            onClick={() => setIsRenderModalOpen(true)}
+          >
+            Render
+          </CustomButton>
+        </div>
+      )}
 
       <RenderModal
         isOpen={isRenderModalOpen}
