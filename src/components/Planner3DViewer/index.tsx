@@ -1090,6 +1090,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         onRenderComplete={handleRenderComplete}
         scene={sceneRef.current!}
         camera={cameraRef.current!}
+        activeTourPoint={activeTourPoint}
       />
 
       {!selectedShape && (

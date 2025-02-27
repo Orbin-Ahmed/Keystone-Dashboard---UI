@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { uid } from "uid";
 import { GLTFExporter } from "three-stdlib";
 import { Scene, Camera, Vector3 } from "three";
+import { TourPoint } from "@/types";
 
 interface RenderModalProps {
   isOpen: boolean;
@@ -10,6 +11,7 @@ interface RenderModalProps {
   onRenderComplete: (imageUrl: string) => void;
   scene: Scene;
   camera: Camera;
+  activeTourPoint?: TourPoint | null;
 }
 
 interface RenderTask {
@@ -24,6 +26,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
   onRenderComplete,
   scene,
   camera,
+  activeTourPoint,
 }) => {
   const [timeOfDay, setTimeOfDay] = useState("");
   const [loading, setLoading] = useState(false);
@@ -51,11 +54,27 @@ const RenderModal: React.FC<RenderModalProps> = ({
   };
 
   const logCameraInfo = () => {
-    console.log("Camera position:", camera.position);
-    const direction = new Vector3();
-    camera.getWorldDirection(direction);
-    const target = camera.position.clone().add(direction);
-    console.log("Camera target:", target);
+    console.log("Three.js camera position:", camera.position);
+    const EYE_LEVEL = 60;
+
+    const target = activeTourPoint
+      ? new Vector3(
+          activeTourPoint.position[0],
+          EYE_LEVEL,
+          activeTourPoint.position[2],
+        )
+      : new Vector3(0, 0, 0);
+    console.log("Three.js camera target:", target);
+
+    const blenderCameraPosition = new Vector3(
+      camera.position.x,
+      camera.position.z,
+      camera.position.y,
+    );
+
+    const blenderTarget = new Vector3(target.x, target.z, target.y);
+    console.log("Blender camera position:", blenderCameraPosition);
+    console.log("Blender camera target:", blenderTarget);
   };
 
   const checkRenderStatus = (requestId: string, delay: number) => {
@@ -95,40 +114,45 @@ const RenderModal: React.FC<RenderModalProps> = ({
     e.preventDefault();
     setError("");
 
-    if (!timeOfDay) {
-      setError("Please select a time of day.");
-      return;
-    }
-    // if (!glbFile) {
-    //   setError("Please select a GLB file.");
+    // if (!timeOfDay) {
+    //   setError("Please select a time of day.");
     //   return;
     // }
 
     setLoading(true);
     try {
-      const formData = new FormData();
-      const glbBlob = await exportGLTF();
-      formData.append("file", glbBlob);
-      // Glb File upload
-      const uploadResponse = await fetch("https://tmpfiles.org/api/v1/upload", {
-        method: "POST",
-        body: formData,
-      });
-
+      // const glbBlob = await exportGLTF();
       logCameraInfo();
 
-      if (!uploadResponse.ok) {
-        throw new Error(`File upload error: ${uploadResponse.statusText}`);
-      }
-      const uploadResult = await uploadResponse.json();
-      if (uploadResult.status !== "success") {
-        throw new Error("File upload failed");
-      }
-      const uploadedUrl: string = uploadResult.data.url;
-      const finalGlbUrl = uploadedUrl.replace(
-        "https://tmpfiles.org/",
-        "https://tmpfiles.org/dl/",
-      );
+      // const url = URL.createObjectURL(glbBlob);
+      // const a = document.createElement("a");
+      // a.href = url;
+      // a.download = "exported_scene.glb";
+      // document.body.appendChild(a);
+      // a.click();
+      // document.body.removeChild(a);
+      // URL.revokeObjectURL(url);
+
+      // const formData = new FormData();
+      // formData.append("file", glbBlob);
+      // Glb File upload
+      // const uploadResponse = await fetch("https://tmpfiles.org/api/v1/upload", {
+      //   method: "POST",
+      //   body: formData,
+      // });
+
+      // if (!uploadResponse.ok) {
+      //   throw new Error(`File upload error: ${uploadResponse.statusText}`);
+      // }
+      // const uploadResult = await uploadResponse.json();
+      // if (uploadResult.status !== "success") {
+      //   throw new Error("File upload failed");
+      // }
+      // const uploadedUrl: string = uploadResult.data.url;
+      // const finalGlbUrl = uploadedUrl.replace(
+      //   "https://tmpfiles.org/",
+      //   "https://tmpfiles.org/dl/",
+      // );
       // Glb File upload end
 
       // Posting request to backend
@@ -224,7 +248,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
               <select
                 value={timeOfDay}
                 onChange={(e) => setTimeOfDay(e.target.value)}
-                required
+                // required
                 style={{ marginLeft: "0.5rem" }}
               >
                 <option value="">Select</option>
@@ -233,22 +257,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
               </select>
             </label>
           </div>
-          {/* <div style={{ marginBottom: "1rem" }}>
-            <label>
-              GLB File:
-              <input
-                type="file"
-                accept=".glb"
-                onChange={(e) => {
-                  if (e.target.files && e.target.files.length > 0) {
-                    setGlbFile(e.target.files[0]);
-                  }
-                }}
-                required
-                style={{ marginLeft: "0.5rem" }}
-              />
-            </label>
-          </div> */}
+
           {error && (
             <p style={{ color: "red", marginBottom: "1rem" }}>{error}</p>
           )}
