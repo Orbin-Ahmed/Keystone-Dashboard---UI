@@ -118,19 +118,19 @@ const RenderModal: React.FC<RenderModalProps> = ({
     setScenePreviewUpdated(true);
   };
 
-  useEffect(() => {
-    const handleResize = () => {
-      if (canvasRef.current && rendererRef.current) {
-        const width = canvasRef.current.clientWidth;
-        const height = canvasRef.current.clientHeight;
-        rendererRef.current.setSize(width, height);
-        renderScenePreview();
-      }
-    };
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     if (canvasRef.current && rendererRef.current) {
+  //       const width = canvasRef.current.clientWidth;
+  //       const height = canvasRef.current.clientHeight;
+  //       rendererRef.current.setSize(width, height);
+  //       renderScenePreview();
+  //     }
+  //   };
 
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  //   window.addEventListener("resize", handleResize);
+  //   return () => window.removeEventListener("resize", handleResize);
+  // }, []);
 
   const updateCameraFromBlenderInputs = () => {
     camera.position.set(blenderCamPos.x, blenderCamPos.z, -blenderCamPos.y);
