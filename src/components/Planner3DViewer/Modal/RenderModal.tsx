@@ -266,20 +266,20 @@ const RenderModal: React.FC<RenderModalProps> = ({
     (setter: (value: string) => void) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setter(e.target.value);
-      if (preset !== "Custom") setPreset("Custom");
+      setPreset("Custom");
     };
 
   const handleCheckboxChange =
     (setter: (value: boolean) => void) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setter(e.target.checked);
-      if (preset !== "Custom") setPreset("Custom");
+      setPreset("Custom");
     };
 
   const handleSegmentedChange =
     (setter: (value: string) => void) => (value: string) => {
       setter(value);
-      if (preset !== "Custom") setPreset("Custom");
+      setPreset("Custom");
     };
 
   const applyPreset = (presetValue: string) => {
@@ -349,6 +349,10 @@ const RenderModal: React.FC<RenderModalProps> = ({
     setTheme("day");
   };
 
+  useEffect(() => {
+    console.log("Preset changed to:", preset);
+  }, [preset]);
+
   if (!isOpen) return null;
 
   return (
@@ -389,7 +393,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                   Design Preset
                 </h3>
                 <SegmentedControl.Root
-                  defaultValue={preset}
+                  value={preset}
                   onValueChange={applyPreset}
                   className="w-full"
                 >
@@ -669,7 +673,6 @@ const RenderModal: React.FC<RenderModalProps> = ({
                   </div>
                 </h3>
                 <div className="grid grid-cols-1 gap-4">
-                  {/* Row with 4 input fields */}
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
                     <div className="flex-1">
                       <label className="text-gray-500 mb-1 block text-xs">
@@ -718,14 +721,13 @@ const RenderModal: React.FC<RenderModalProps> = ({
                       />
                     </div>
                   </div>
-                  {/* Row with 3 segmented controls */}
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
                     <div className="flex-1">
                       <h4 className="text-gray-600 mb-2 text-sm">
                         Sample Contrast
                       </h4>
                       <SegmentedControl.Root
-                        defaultValue={sampleContrast}
+                        value={sampleContrast}
                         onValueChange={(value) =>
                           handleSegmentedChange(setSampleContrast)(value)
                         }
@@ -745,7 +747,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                     <div className="flex-1">
                       <h4 className="text-gray-600 mb-2 text-sm">Light Path</h4>
                       <SegmentedControl.Root
-                        defaultValue={lightPath}
+                        value={lightPath}
                         onValueChange={(value) =>
                           handleSegmentedChange(setLightPath)(value)
                         }
@@ -765,8 +767,8 @@ const RenderModal: React.FC<RenderModalProps> = ({
                     <div className="flex-1">
                       <h4 className="text-gray-600 mb-2 text-sm">Theme</h4>
                       <SegmentedControl.Root
-                        defaultValue={theme}
-                        onValueChange={setTheme} // theme changes do NOT trigger custom preset
+                        value={theme}
+                        onValueChange={setTheme}
                         className="w-full"
                       >
                         <SegmentedControl.Item value="day">
