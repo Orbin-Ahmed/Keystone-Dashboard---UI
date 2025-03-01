@@ -6,6 +6,7 @@ import { GLTFExporter } from "three-stdlib";
 import { Scene, Camera, Vector3, WebGLRenderer } from "three";
 import { TourPoint } from "@/types";
 import { SegmentedControl } from "@radix-ui/themes";
+import { uid } from "uid";
 
 interface RenderModalProps {
   isOpen: boolean;
@@ -174,86 +175,74 @@ const RenderModal: React.FC<RenderModalProps> = ({
     e.preventDefault();
     setError("");
 
-    // if (!timeOfDay) {
-    //   setError("Please select a time of day.");
-    //   return;
-    // }
-
     setLoading(true);
     try {
-      // const glbBlob = await exportGLTF();
-      // Download model
-      // const url = URL.createObjectURL(glbBlob);
-      // const a = document.createElement("a");
-      // a.href = url;
-      // a.download = "exported_scene.glb";
-      // document.body.appendChild(a);
-      // a.click();
-      // document.body.removeChild(a);
-      // URL.revokeObjectURL(url);
-      // const formData = new FormData();
-      // formData.append("file", glbBlob);
+      const glbBlob = await exportGLTF();
+      const formData = new FormData();
+      formData.append("file", glbBlob);
+
       // Glb File upload
-      // const uploadResponse = await fetch("https://tmpfiles.org/api/v1/upload", {
-      //   method: "POST",
-      //   body: formData,
-      // });
-      // if (!uploadResponse.ok) {
-      //   throw new Error(`File upload error: ${uploadResponse.statusText}`);
-      // }
-      // const uploadResult = await uploadResponse.json();
-      // if (uploadResult.status !== "success") {
-      //   throw new Error("File upload failed");
-      // }
-      // const uploadedUrl: string = uploadResult.data.url;
-      // const finalGlbUrl = uploadedUrl.replace(
-      //   "https://tmpfiles.org/",
-      //   "https://tmpfiles.org/dl/",
-      // );
+      const uploadResponse = await fetch("https://tmpfiles.org/api/v1/upload", {
+        method: "POST",
+        body: formData,
+      });
+      if (!uploadResponse.ok) {
+        throw new Error(`File upload error: ${uploadResponse.statusText}`);
+      }
+      const uploadResult = await uploadResponse.json();
+      if (uploadResult.status !== "success") {
+        throw new Error("File upload failed");
+      }
+      const uploadedUrl: string = uploadResult.data.url;
+      const finalGlbUrl = uploadedUrl.replace(
+        "https://tmpfiles.org/",
+        "https://tmpfiles.org/dl/",
+      );
       // Glb File upload end
+
       // Posting request to backend
-      // const request_id = uid(16);
-      // const newPayload = {
-      //   request_id,
-      //   theme: timeOfDay,
-      //   params: { key: "value" },
-      //   glb_url: finalGlbUrl,
-      // };
-      // const newResponse = await fetch(
-      //   `${process.env.NEXT_PUBLIC_API_BASE_URL}api/render_request/`,
-      //   {
-      //     method: "POST",
-      //     headers: {
-      //       "Content-Type": "application/json",
-      //     },
-      //     body: JSON.stringify(newPayload),
-      //   },
-      // );
-      // if (!newResponse.ok) {
-      //   throw new Error(`Render request error: ${newResponse.statusText}`);
-      // }
+      const request_id = uid(16);
+      const newPayload = {
+        request_id,
+        theme: theme,
+        params: { key: "value" },
+        glb_url: finalGlbUrl,
+      };
+      const newResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}api/render_request/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newPayload),
+        },
+      );
+      if (!newResponse.ok) {
+        throw new Error(`Render request error: ${newResponse.statusText}`);
+      }
       // Posting request to backend end
       // Posting request to runpod
-      // const runPodPayload = {
-      //   time_of_day: timeOfDay,
-      //   glb_url: finalGlbUrl,
-      //   r_id: request_id,
-      // };
-      // const runPodResponse = await fetch("/api/render", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify(runPodPayload),
-      // });
-      // if (!runPodResponse.ok) {
-      //   throw new Error(
-      //     `Render request error in Runpod: ${runPodResponse.statusText}`,
-      //   );
-      // }
+      const runPodPayload = {
+        time_of_day: theme,
+        glb_url: finalGlbUrl,
+        r_id: request_id,
+      };
+      const runPodResponse = await fetch("/api/render", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(runPodPayload),
+      });
+      if (!runPodResponse.ok) {
+        throw new Error(
+          `Render request error in Runpod: ${runPodResponse.statusText}`,
+        );
+      }
       // Posting request to runpod end
-      // setRenderTasks((prev) => [...prev, { request_id, status: "pending" }]);
-      // checkRenderStatus(request_id, 60000);
+      setRenderTasks((prev) => [...prev, { request_id, status: "pending" }]);
+      checkRenderStatus(request_id, 60000);
     } catch (err: any) {
       console.error("Error:", err);
       setError(err.message || "An unexpected error occurred.");
