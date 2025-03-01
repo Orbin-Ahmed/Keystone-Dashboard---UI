@@ -38,7 +38,6 @@ const RenderModal: React.FC<RenderModalProps> = ({
   activeTourPoint,
   zoomLevel = 3,
 }) => {
-  const [timeOfDay, setTimeOfDay] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [renderTasks, setRenderTasks] = useState<RenderTask[]>([]);
@@ -72,6 +71,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
   const [sampling, setSampling] = useState("512");
   const [sampleContrast, setSampleContrast] = useState("Midium");
   const [lightPath, setLightPath] = useState("Default");
+  const [theme, setTheme] = useState("day");
 
   // camera settings
 
@@ -629,7 +629,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                       />
                     </div>
                   </div>
-                  <div className="flex space-x-3">
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
                     <div className="flex-1">
                       <h4 className="text-gray-600 mb-2 text-sm">
                         Sample Contrast
@@ -665,6 +665,21 @@ const RenderModal: React.FC<RenderModalProps> = ({
                         </SegmentedControl.Item>
                         <SegmentedControl.Item value="Full">
                           Full
+                        </SegmentedControl.Item>
+                      </SegmentedControl.Root>
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-gray-600 mb-2 text-sm">Theme</h4>
+                      <SegmentedControl.Root
+                        defaultValue="day"
+                        onValueChange={setTheme}
+                        className="w-full"
+                      >
+                        <SegmentedControl.Item value="day">
+                          Day
+                        </SegmentedControl.Item>
+                        <SegmentedControl.Item value="night">
+                          Night
                         </SegmentedControl.Item>
                       </SegmentedControl.Root>
                     </div>
