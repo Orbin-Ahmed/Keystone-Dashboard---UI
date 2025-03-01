@@ -1069,10 +1069,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
     };
   }, [updateWallItemPosition]);
 
-  useEffect(() => {
-    console.log("placedItems", placedItems);
-  }, [placedItems]);
-
   return (
     <>
       <CameraController
