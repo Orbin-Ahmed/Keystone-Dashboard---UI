@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useRef } from "react";
+import React, { useMemo, useEffect, useRef, use } from "react";
 import { useLoader, useThree, ThreeEvent } from "@react-three/fiber";
 import {
   categories,
@@ -836,7 +836,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
       ...prevPlacedItems,
       ...newPlacedItems,
     ]);
-  }, [furnitureItems]);
+  }, []);
 
   useEffect(() => {
     const newWallItems = wallItems2D.map((item) => {
@@ -923,7 +923,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
       };
     });
     setPlacedItems((prev) => [...prev, ...newCeilingPlaced]);
-  }, [ceilingItems]);
+  }, []);
 
   // useEffect(() => {
   //   if (envMap && showRoof && !shouldExport) {
@@ -1068,6 +1068,11 @@ const SceneContent: React.FC<SceneContentProps> = ({
       updateWallItemPosition.cancel();
     };
   }, [updateWallItemPosition]);
+
+  useEffect(() => {
+    console.log("placedItems", placedItems);
+  }, [placedItems]);
+
   return (
     <>
       <CameraController
