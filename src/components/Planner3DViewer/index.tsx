@@ -310,7 +310,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
   useEffect(() => {
     const handleWheel = (event: WheelEvent) => {
-      if (activeTourPoint) {
+      if (activeTourPoint && !isRenderModalOpen) {
         if (event.deltaY < 0) {
           handleZoomIn();
         } else if (event.deltaY > 0) {
@@ -324,7 +324,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     return () => {
       window.removeEventListener("wheel", handleWheel);
     };
-  }, [activeTourPoint]);
+  }, [activeTourPoint, isRenderModalOpen]);
 
   const toggleTourList = () => {
     setIsSettingsOpen(false);
