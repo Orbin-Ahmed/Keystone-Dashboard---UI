@@ -691,24 +691,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
     );
   }, [floorShape, textures.floor]);
 
-  // const Roof = useMemo(() => {
-  //   if (!showRoof || !floorShape) return null;
-
-  //   const geometry = new ExtrudeGeometry(floorShape, {
-  //     depth: 1,
-  //     bevelEnabled: false,
-  //   });
-
-  //   geometry.rotateX(Math.PI / 2);
-  //   geometry.translate(0, wallHeight + 1, 0);
-
-  //   return (
-  //     <mesh geometry={geometry} position={[0, 0, 0]}>
-  //       <meshStandardMaterial map={textures.roof} side={DoubleSide} />
-  //     </mesh>
-  //   );
-  // }, [floorShape, showRoof, textures.roof]);
-
   const Roof = useMemo(() => {
     if ((!showRoof && !shouldExport) || !floorShape) return null;
 
@@ -978,7 +960,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
         setSelectedWallItem(null);
       }
 
-      if (event.key === "Delete" || event.key === "Backspace") {
+      if (event.key === "Delete") {
         event.preventDefault();
         if (selectedWallItem) {
           setWallItems((prev) =>
