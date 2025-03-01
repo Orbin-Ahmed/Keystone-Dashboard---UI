@@ -1,13 +1,11 @@
 "use client";
 import CustomButton from "@/components/CustomButton";
-import React, { useEffect, useRef, useState } from "react";
-import * as THREE from "three";
+import React, { useEffect, useState } from "react";
 import { GLTFExporter } from "three-stdlib";
-import { Scene, Camera, Vector3, WebGLRenderer } from "three";
+import { Scene, Camera, Vector3 } from "three";
 import { TourPoint } from "@/types";
 import { SegmentedControl } from "@radix-ui/themes";
 import { uid } from "uid";
-import { render } from "react-dom";
 
 interface RenderModalProps {
   isOpen: boolean;
