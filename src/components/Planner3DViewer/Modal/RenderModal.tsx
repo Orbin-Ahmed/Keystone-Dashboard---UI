@@ -43,7 +43,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
   const [renderTasks, setRenderTasks] = useState<RenderTask[]>([]);
 
   // Present and Sun Settings
-  const [preset, setPreset] = useState("Test");
+  const [preset, setPreset] = useState("Mid");
   const [sunEnergy, setSunEnergy] = useState("100");
   const [sunAngle, setSunAngle] = useState("0.1");
 
@@ -262,6 +262,93 @@ const RenderModal: React.FC<RenderModalProps> = ({
     }
   };
 
+  const handleInputChange =
+    (setter: (value: string) => void) =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setter(e.target.value);
+      if (preset !== "Custom") setPreset("Custom");
+    };
+
+  const handleCheckboxChange =
+    (setter: (value: boolean) => void) =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setter(e.target.checked);
+      if (preset !== "Custom") setPreset("Custom");
+    };
+
+  const handleSegmentedChange =
+    (setter: (value: string) => void) => (value: string) => {
+      setter(value);
+      if (preset !== "Custom") setPreset("Custom");
+    };
+
+  const applyPreset = (presetValue: string) => {
+    resetDefaults();
+    setPreset(presetValue);
+    if (presetValue === "Test") {
+      setSpotShadow(false);
+      setRenderResolutionX("1280");
+      setRenderResolutionY("720");
+      setSampling("64");
+      setLightPath("Fast");
+    } else if (presetValue === "Low") {
+      setRenderResolutionX("1920");
+      setRenderResolutionY("1080");
+      setRenderResolutionPercentage("100");
+      setSampling("256");
+      setLightPath("Default");
+    } else if (presetValue === "Mid") {
+      setRenderResolutionX("2160");
+      setRenderResolutionY("1440");
+      setRenderResolutionPercentage("100");
+      setSampling("512");
+      setLightPath("Default");
+    } else if (presetValue === "High") {
+      setRenderResolutionX("3840");
+      setRenderResolutionY("2160");
+      setRenderResolutionPercentage("100");
+      setSampling("512");
+      setLightPath("Default");
+    } else if (presetValue === "Ultra") {
+      setRenderResolutionX("3840");
+      setRenderResolutionY("2160");
+      setRenderResolutionPercentage("200");
+      setSampling("512");
+      setLightPath("Full");
+    }
+  };
+
+  const resetDefaults = () => {
+    // Sun Settings
+    setSunEnergy("100");
+    setSunAngle("0.1");
+
+    // Area Light Settings
+    setAreaLightSizeX("50");
+    setAreaLightSizeY("50");
+    setAreaLightEnergy("50000");
+    setAreaLightOffset("3");
+
+    // Spot Light Settings
+    setSpotSpacing("60");
+    setSpotInwardOffset("25");
+    setSpotDownwardOffset("5");
+    setSpotLightEnergy("50000");
+    setSpotShadowSoftness("5");
+    setSpotSize("180");
+    setSpotColor("#fffab7");
+    setSpotShadow(true);
+
+    // Rendering Settings
+    setRenderResolutionX("1920");
+    setRenderResolutionY("1080");
+    setRenderResolutionPercentage("100");
+    setSampling("512");
+    setSampleContrast("Midium");
+    setLightPath("Default");
+    setTheme("day");
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -303,7 +390,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                 </h3>
                 <SegmentedControl.Root
                   defaultValue={preset}
-                  onValueChange={setPreset}
+                  onValueChange={applyPreset}
                   className="w-full"
                 >
                   <SegmentedControl.Item value="Test">
@@ -339,7 +426,6 @@ const RenderModal: React.FC<RenderModalProps> = ({
                   </div>
                 </h3>
                 <div className="flex w-full flex-col items-center justify-center space-y-3 md:flex-row md:space-x-4 md:space-y-0">
-                  {/* Sun Energy */}
                   <div className="flex w-full flex-col md:w-1/2">
                     <label className="text-gray-600 mb-1 text-sm">
                       Sun Energy
@@ -349,7 +435,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                       min="0"
                       max="500"
                       value={sunEnergy}
-                      onChange={(e) => setSunEnergy(e.target.value)}
+                      onChange={handleInputChange(setSunEnergy)}
                       className="w-full"
                     />
                     <div className="flex justify-between">
@@ -358,7 +444,6 @@ const RenderModal: React.FC<RenderModalProps> = ({
                       <span className="text-gray-500 text-xs">500</span>
                     </div>
                   </div>
-                  {/* Sun Angle */}
                   <div className="flex w-full flex-col md:w-1/2">
                     <label className="text-gray-600 mb-1 text-sm">
                       Sun Angle
@@ -369,7 +454,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                       max="1"
                       step="0.01"
                       value={sunAngle}
-                      onChange={(e) => setSunAngle(e.target.value)}
+                      onChange={handleInputChange(setSunAngle)}
                       className="w-full"
                     />
                     <div className="flex justify-between">
@@ -408,7 +493,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                     <input
                       type="text"
                       value={areaLightSizeX}
-                      onChange={(e) => setAreaLightSizeX(e.target.value)}
+                      onChange={handleInputChange(setAreaLightSizeX)}
                       className="border-gray-300 rounded-md border p-2"
                     />
                   </div>
@@ -417,7 +502,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                     <input
                       type="text"
                       value={areaLightSizeY}
-                      onChange={(e) => setAreaLightSizeY(e.target.value)}
+                      onChange={handleInputChange(setAreaLightSizeY)}
                       className="border-gray-300 rounded-md border p-2"
                     />
                   </div>
@@ -426,7 +511,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                     <input
                       type="text"
                       value={areaLightEnergy}
-                      onChange={(e) => setAreaLightEnergy(e.target.value)}
+                      onChange={handleInputChange(setAreaLightEnergy)}
                       className="border-gray-300 rounded-md border p-2"
                     />
                   </div>
@@ -435,14 +520,14 @@ const RenderModal: React.FC<RenderModalProps> = ({
                     <input
                       type="text"
                       value={areaLightOffset}
-                      onChange={(e) => setAreaLightOffset(e.target.value)}
+                      onChange={handleInputChange(setAreaLightOffset)}
                       className="border-gray-300 rounded-md border p-2"
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Spot Light Settings Panel */}
+              {/* Spot Light Settings */}
               <div className="bg-gray-50 col-span-2 rounded-lg p-4 shadow-sm">
                 <h3 className="text-gray-700 mb-3 font-medium">
                   <div className="flex items-center">
@@ -471,7 +556,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                     <input
                       type="text"
                       value={spotSpacing}
-                      onChange={(e) => setSpotSpacing(e.target.value)}
+                      onChange={handleInputChange(setSpotSpacing)}
                       className="border-gray-300 rounded-md border p-2"
                     />
                   </div>
@@ -482,7 +567,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                     <input
                       type="text"
                       value={spotInwardOffset}
-                      onChange={(e) => setSpotInwardOffset(e.target.value)}
+                      onChange={handleInputChange(setSpotInwardOffset)}
                       className="border-gray-300 rounded-md border p-2"
                     />
                   </div>
@@ -493,7 +578,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                     <input
                       type="text"
                       value={spotDownwardOffset}
-                      onChange={(e) => setSpotDownwardOffset(e.target.value)}
+                      onChange={handleInputChange(setSpotDownwardOffset)}
                       className="border-gray-300 rounded-md border p-2"
                     />
                   </div>
@@ -504,7 +589,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                     <input
                       type="text"
                       value={spotLightEnergy}
-                      onChange={(e) => setSpotLightEnergy(e.target.value)}
+                      onChange={handleInputChange(setSpotLightEnergy)}
                       className="border-gray-300 rounded-md border p-2"
                     />
                   </div>
@@ -515,7 +600,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                     <input
                       type="text"
                       value={spotSize}
-                      onChange={(e) => setSpotSize(e.target.value)}
+                      onChange={handleInputChange(setSpotSize)}
                       max="180"
                       className="border-gray-300 rounded-md border p-2"
                     />
@@ -526,7 +611,10 @@ const RenderModal: React.FC<RenderModalProps> = ({
                       <input
                         type="color"
                         value={spotColor}
-                        onChange={(e) => setSpotColor(e.target.value)}
+                        onChange={(e) => {
+                          setSpotColor(e.target.value);
+                          if (preset !== "Custom") setPreset("Custom");
+                        }}
                         className="h-6 w-full"
                       />
                     </div>
@@ -536,7 +624,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                       <input
                         type="checkbox"
                         checked={spotShadow}
-                        onChange={(e) => setSpotShadow(e.target.checked)}
+                        onChange={handleCheckboxChange(setSpotShadow)}
                         className="form-checkbox h-5 w-5 text-blue-600"
                       />
                       <span className="text-gray-600 ml-2 text-sm">Shadow</span>
@@ -549,7 +637,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                     <input
                       type="text"
                       value={spotShadowSoftness}
-                      onChange={(e) => setSpotShadowSoftness(e.target.value)}
+                      onChange={handleInputChange(setSpotShadowSoftness)}
                       disabled={!spotShadow}
                       className={`border-gray-300 rounded-md border p-2 ${
                         !spotShadow ? "cursor-not-allowed opacity-50" : ""
@@ -581,6 +669,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                   </div>
                 </h3>
                 <div className="grid grid-cols-1 gap-4">
+                  {/* Row with 4 input fields */}
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
                     <div className="flex-1">
                       <label className="text-gray-500 mb-1 block text-xs">
@@ -589,7 +678,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                       <input
                         type="text"
                         value={renderResolutionX}
-                        onChange={(e) => setRenderResolutionX(e.target.value)}
+                        onChange={handleInputChange(setRenderResolutionX)}
                         className="border-gray-300 w-full rounded-md border p-2"
                       />
                     </div>
@@ -600,7 +689,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                       <input
                         type="text"
                         value={renderResolutionY}
-                        onChange={(e) => setRenderResolutionY(e.target.value)}
+                        onChange={handleInputChange(setRenderResolutionY)}
                         className="border-gray-300 w-full rounded-md border p-2"
                       />
                     </div>
@@ -611,7 +700,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                       <input
                         type="text"
                         value={sampling}
-                        onChange={(e) => setSampling(e.target.value)}
+                        onChange={handleInputChange(setSampling)}
                         className="border-gray-300 w-full rounded-md border p-2"
                       />
                     </div>
@@ -622,13 +711,14 @@ const RenderModal: React.FC<RenderModalProps> = ({
                       <input
                         type="text"
                         value={renderResolutionPercentage}
-                        onChange={(e) =>
-                          setRenderResolutionPercentage(e.target.value)
-                        }
+                        onChange={handleInputChange(
+                          setRenderResolutionPercentage,
+                        )}
                         className="border-gray-300 w-full rounded-md border p-2"
                       />
                     </div>
                   </div>
+                  {/* Row with 3 segmented controls */}
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
                     <div className="flex-1">
                       <h4 className="text-gray-600 mb-2 text-sm">
@@ -636,7 +726,9 @@ const RenderModal: React.FC<RenderModalProps> = ({
                       </h4>
                       <SegmentedControl.Root
                         defaultValue={sampleContrast}
-                        onValueChange={setSampleContrast}
+                        onValueChange={(value) =>
+                          handleSegmentedChange(setSampleContrast)(value)
+                        }
                         className="w-full"
                       >
                         <SegmentedControl.Item value="Low">
@@ -654,7 +746,9 @@ const RenderModal: React.FC<RenderModalProps> = ({
                       <h4 className="text-gray-600 mb-2 text-sm">Light Path</h4>
                       <SegmentedControl.Root
                         defaultValue={lightPath}
-                        onValueChange={setLightPath}
+                        onValueChange={(value) =>
+                          handleSegmentedChange(setLightPath)(value)
+                        }
                         className="w-full"
                       >
                         <SegmentedControl.Item value="Default">
@@ -672,7 +766,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                       <h4 className="text-gray-600 mb-2 text-sm">Theme</h4>
                       <SegmentedControl.Root
                         defaultValue={theme}
-                        onValueChange={setTheme}
+                        onValueChange={setTheme} // theme changes do NOT trigger custom preset
                         className="w-full"
                       >
                         <SegmentedControl.Item value="day">
@@ -714,7 +808,6 @@ const RenderModal: React.FC<RenderModalProps> = ({
                     Camera Settings
                   </div>
                 </h3>
-
                 <div className="space-y-4">
                   {/* Blender Camera Position */}
                   <div>
