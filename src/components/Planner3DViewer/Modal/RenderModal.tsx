@@ -14,12 +14,19 @@ interface RenderModalProps {
   scene: Scene;
   camera: Camera;
   activeTourPoint?: TourPoint | null;
+  zoomLevel?: number;
 }
 
 interface RenderTask {
   request_id: string;
   status: "pending" | "completed";
   image_url?: string;
+}
+
+interface BlenderCamCoords {
+  x: number;
+  y: number;
+  z: number;
 }
 
 const RenderModal: React.FC<RenderModalProps> = ({
@@ -29,6 +36,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
   scene,
   camera,
   activeTourPoint,
+  zoomLevel = 3,
 }) => {
   const [timeOfDay, setTimeOfDay] = useState("");
   const [loading, setLoading] = useState(false);
@@ -75,85 +83,57 @@ const RenderModal: React.FC<RenderModalProps> = ({
       )
     : new Vector3(0, 0, 0);
 
-  const [blenderCamPos, setBlenderCamPos] = useState({
-    x: camera?.position.x || 0,
-    y: -camera?.position.z || 0,
-    z: camera?.position.y || 0,
+  const [blenderCamPos, setBlenderCamPos] = useState<BlenderCamCoords>({
+    x: 0,
+    y: 0,
+    z: 0,
   });
-  const [blenderCamTarget, setBlenderCamTarget] = useState({
-    x: target.x || 0,
-    y: -target.z || 0,
-    z: target.y || 0,
+  const [blenderCamTarget, setBlenderCamTarget] = useState<BlenderCamCoords>({
+    x: 0,
+    y: 0,
+    z: 0,
   });
 
-  const renderScenePreview = () => {
-    if (!canvasRef.current || !scene || !camera) return;
-
-    if (!rendererRef.current) {
-      rendererRef.current = new WebGLRenderer({
-        canvas: canvasRef.current,
-        antialias: true,
+  useEffect(() => {
+    if (isOpen && camera) {
+      const offset = camera.position.clone().sub(target);
+      const zoomOutPos = target.clone().add(offset.multiplyScalar(zoomLevel));
+      setBlenderCamPos({
+        x: zoomOutPos.x,
+        y: -zoomOutPos.z,
+        z: zoomOutPos.y,
       });
-      rendererRef.current.setSize(
-        canvasRef.current.clientWidth,
-        canvasRef.current.clientHeight,
-      );
+
+      setBlenderCamTarget({
+        x: target.x,
+        y: -target.z,
+        z: target.y,
+      });
     }
+  }, [isOpen, camera]);
 
-    const newPosition = new Vector3(
-      blenderCamPos.x,
-      blenderCamPos.z,
-      -blenderCamPos.y,
-    );
-    const newTarget = new Vector3(
-      blenderCamTarget.x,
-      blenderCamTarget.z,
-      -blenderCamTarget.y,
-    );
+  // const updateCameraFromBlenderInputs = () => {
+  //   camera.position.set(blenderCamPos.x, blenderCamPos.z, -blenderCamPos.y);
+  //   console.log(camera.position);
 
-    camera.position.copy(newPosition);
-    camera.lookAt(newTarget);
+  //   const newTarget = new Vector3(
+  //     blenderCamTarget.x,
+  //     blenderCamTarget.z,
+  //     -blenderCamTarget.y,
+  //   );
+  //   camera.lookAt(newTarget);
 
-    rendererRef.current.render(scene, camera);
-    setScenePreviewUpdated(true);
-  };
-
-  // useEffect(() => {
-  //   const handleResize = () => {
-  //     if (canvasRef.current && rendererRef.current) {
-  //       const width = canvasRef.current.clientWidth;
-  //       const height = canvasRef.current.clientHeight;
-  //       rendererRef.current.setSize(width, height);
-  //       renderScenePreview();
-  //     }
-  //   };
-
-  //   window.addEventListener("resize", handleResize);
-  //   return () => window.removeEventListener("resize", handleResize);
-  // }, []);
-
-  const updateCameraFromBlenderInputs = () => {
-    camera.position.set(blenderCamPos.x, blenderCamPos.z, -blenderCamPos.y);
-
-    const newTarget = new Vector3(
-      blenderCamTarget.x,
-      blenderCamTarget.z,
-      -blenderCamTarget.y,
-    );
-    camera.lookAt(newTarget);
-
-    console.log("Three.js camera position:", camera.position);
-    console.log("Three.js camera target:", newTarget);
-    console.log(
-      "Blender camera position:",
-      new Vector3(camera.position.x, -camera.position.z, camera.position.y),
-    );
-    console.log(
-      "Blender camera target:",
-      new Vector3(newTarget.x, -newTarget.z, newTarget.y),
-    );
-    renderScenePreview();
-  };
+  //   console.log("Three.js camera position:", camera.position);
+  //   console.log("Three.js camera target:", newTarget);
+  //   console.log(
+  //     "Blender camera position:",
+  //     new Vector3(camera.position.x, -camera.position.z, camera.position.y),
+  //   );
+  //   console.log(
+  //     "Blender camera target:",
+  //     new Vector3(newTarget.x, -newTarget.z, newTarget.y),
+  //   );
+  // };
 
   // camera settings end
 
@@ -304,14 +284,6 @@ const RenderModal: React.FC<RenderModalProps> = ({
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      renderScenePreview();
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, []);
 
   if (!isOpen) return null;
 
@@ -755,7 +727,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                           X Position
                         </span>
                         <input
-                          type="number"
+                          type="text"
                           value={blenderCamPos.x}
                           onChange={(e) =>
                             setBlenderCamPos({
@@ -771,7 +743,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                           Y Position
                         </span>
                         <input
-                          type="number"
+                          type="text"
                           value={blenderCamPos.y}
                           onChange={(e) =>
                             setBlenderCamPos({
@@ -787,7 +759,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                           Z Position
                         </span>
                         <input
-                          type="number"
+                          type="text"
                           value={blenderCamPos.z}
                           onChange={(e) =>
                             setBlenderCamPos({
@@ -812,7 +784,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                           X Target
                         </span>
                         <input
-                          type="number"
+                          type="text"
                           value={blenderCamTarget.x}
                           onChange={(e) =>
                             setBlenderCamTarget({
@@ -828,7 +800,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                           Y Target
                         </span>
                         <input
-                          type="number"
+                          type="text"
                           value={blenderCamTarget.y}
                           onChange={(e) =>
                             setBlenderCamTarget({
@@ -844,7 +816,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                           Z Target
                         </span>
                         <input
-                          type="number"
+                          type="text"
                           value={blenderCamTarget.z}
                           onChange={(e) =>
                             setBlenderCamTarget({
@@ -862,7 +834,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                     <CustomButton
                       variant="secondary"
                       type="button"
-                      onClick={updateCameraFromBlenderInputs}
+                      // onClick={updateCameraFromBlenderInputs}
                       className="w-full"
                     >
                       <svg
@@ -963,7 +935,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
           </div>
 
           {/* Preview Panel */}
-          <div className="bg-gray-100 flex h-2/3 w-2/5 flex-col p-4">
+          {/* <div className="bg-gray-100 flex h-2/3 w-2/5 flex-col p-4">
             <h3 className="text-gray-700 mb-3 font-medium">Scene Preview</h3>
             <div className="relative flex-1 overflow-hidden rounded-lg bg-black">
               <canvas ref={canvasRef} className="h-full w-full" />
@@ -1002,7 +974,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                 Adjust camera settings and click "Update Camera" to see changes.
               </p>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

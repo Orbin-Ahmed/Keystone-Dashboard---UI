@@ -127,6 +127,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
   const [isRenderModalOpen, setIsRenderModalOpen] = useState(false);
 
+  const [zoomLevel, setZoomLevel] = useState(3);
+
   const fetchDoorAndWindowOptions = async () => {
     try {
       const doorResponse = await fetch(
@@ -294,6 +296,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     if (cameraRef.current) {
       cameraRef.current.zoom = Math.min(cameraRef.current.zoom + 0.1, 5);
       cameraRef.current.updateProjectionMatrix();
+      setZoomLevel((prev) => prev + 1);
     }
   };
 
@@ -301,6 +304,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     if (cameraRef.current) {
       cameraRef.current.zoom = Math.max(cameraRef.current.zoom - 0.1, 0.5);
       cameraRef.current.updateProjectionMatrix();
+      setZoomLevel((prev) => prev - 1);
     }
   };
 
@@ -1091,6 +1095,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         scene={sceneRef.current!}
         camera={cameraRef.current!}
         activeTourPoint={activeTourPoint}
+        zoomLevel={zoomLevel}
       />
 
       {!selectedShape && (
