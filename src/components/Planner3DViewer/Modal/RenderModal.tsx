@@ -671,7 +671,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                     <div className="flex-1">
                       <h4 className="text-gray-600 mb-2 text-sm">Theme</h4>
                       <SegmentedControl.Root
-                        defaultValue="day"
+                        defaultValue={theme}
                         onValueChange={setTheme}
                         className="w-full"
                       >
