@@ -7,6 +7,7 @@ import { Scene, Camera, Vector3, WebGLRenderer } from "three";
 import { TourPoint } from "@/types";
 import { SegmentedControl } from "@radix-ui/themes";
 import { uid } from "uid";
+import { render } from "react-dom";
 
 interface RenderModalProps {
   isOpen: boolean;
@@ -186,69 +187,213 @@ const RenderModal: React.FC<RenderModalProps> = ({
         method: "POST",
         body: formData,
       });
+
       if (!uploadResponse.ok) {
         throw new Error(`File upload error: ${uploadResponse.statusText}`);
       }
+
       const uploadResult = await uploadResponse.json();
       if (uploadResult.status !== "success") {
         throw new Error("File upload failed");
       }
+
       const uploadedUrl: string = uploadResult.data.url;
       const finalGlbUrl = uploadedUrl.replace(
         "https://tmpfiles.org/",
         "https://tmpfiles.org/dl/",
       );
+
+      console.log("GLB uploaded successfully:", finalGlbUrl);
       // Glb File upload end
 
       // Posting request to backend
       const request_id = uid(16);
-      const newPayload = {
+      const renderParams = generateRenderPayload(
+        theme,
+        spotSpacing,
+        spotInwardOffset,
+        spotDownwardOffset,
+        spotLightEnergy,
+        spotShadowSoftness,
+        spotSize,
+        spotColor,
+        spotShadow,
+        sunEnergy,
+        sunAngle,
+        areaLightSizeX,
+        areaLightSizeY,
+        areaLightEnergy,
+        areaLightOffset,
+        renderResolutionX,
+        renderResolutionY,
+        renderResolutionPercentage,
+        sampling,
+        sampleContrast,
+        lightPath,
+        blenderCamPos,
+        blenderCamTarget,
+        finalGlbUrl,
+        request_id,
+      );
+
+      const backendPayload = {
         request_id,
         theme: theme,
-        params: { key: "value" },
+        params: renderParams,
         glb_url: finalGlbUrl,
       };
-      const newResponse = await fetch(
+      const backendResponse = await fetch(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}api/render_request/`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(newPayload),
+          body: JSON.stringify(backendPayload),
         },
       );
-      if (!newResponse.ok) {
-        throw new Error(`Render request error: ${newResponse.statusText}`);
+      if (!backendResponse.ok) {
+        throw new Error(`Backend request error: ${backendResponse.statusText}`);
       }
+
+      console.log("Backend request successful!");
       // Posting request to backend end
+
       // Posting request to runpod
-      const runPodPayload = {
-        time_of_day: theme,
-        glb_url: finalGlbUrl,
-        r_id: request_id,
-      };
-      const runPodResponse = await fetch("/api/render", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(runPodPayload),
-      });
-      if (!runPodResponse.ok) {
-        throw new Error(
-          `Render request error in Runpod: ${runPodResponse.statusText}`,
-        );
-      }
-      // Posting request to runpod end
-      setRenderTasks((prev) => [...prev, { request_id, status: "pending" }]);
-      checkRenderStatus(request_id, 60000);
+      const runPodPayload = renderParams;
+      console.log("Runpod payload:", runPodPayload);
+      // const runPodResponse = await fetch("/api/render", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify(runPodPayload),
+      // });
+      // if (!runPodResponse.ok) {
+      //   throw new Error(
+      //     `Render request error in Runpod: ${runPodResponse.statusText}`,
+      //   );
+      // }
+      // // Posting request to runpod end
+      // setRenderTasks((prev) => [...prev, { request_id, status: "pending" }]);
+      // checkRenderStatus(request_id, 60000);
     } catch (err: any) {
       console.error("Error:", err);
       setError(err.message || "An unexpected error occurred.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const generateRenderPayload = (
+    theme: string,
+    spotSpacing: string,
+    spotInwardOffset: string,
+    spotDownwardOffset: string,
+    spotLightEnergy: string,
+    spotShadowSoftness: string,
+    spotSize: string,
+    spotColor: string,
+    spotShadow: boolean,
+    sunEnergy: string,
+    sunAngle: string,
+    areaLightSizeX: string,
+    areaLightSizeY: string,
+    areaLightEnergy: string,
+    areaLightOffset: string,
+    renderResolutionX: string,
+    renderResolutionY: string,
+    renderResolutionPercentage: string,
+    sampling: string,
+    sampleContrast: string,
+    lightPath: string,
+    blenderCamPos: { x: number; y: number; z: number },
+    blenderCamTarget: { x: number; y: number; z: number },
+    glbUrl: string,
+    requestId: string,
+  ) => {
+    return {
+      // Spot settings
+      spot_spacing: parseFloat(spotSpacing),
+      spot_inward_offset: parseFloat(spotInwardOffset),
+      spot_downward_offset: parseFloat(spotDownwardOffset),
+      spot_light_energy: parseFloat(spotLightEnergy),
+      spot_shadow_softness: parseFloat(spotShadowSoftness),
+      spot_size: (parseFloat(spotSize) * Math.PI) / 180,
+      spot_color: {
+        r: parseInt(spotColor.slice(1, 3), 16) / 255,
+        g: parseInt(spotColor.slice(3, 5), 16) / 255,
+        b: parseInt(spotColor.slice(5, 7), 16) / 255,
+      },
+      spot_shadow: spotShadow,
+
+      // Sun Settings
+      sun_energy: parseFloat(sunEnergy),
+      sun_angle: parseFloat(sunAngle),
+
+      // Area Light Settings
+      areaLightSizeX: parseFloat(areaLightSizeX),
+      areaLightSizeY: parseFloat(areaLightSizeY),
+      areaLightEnergy: parseFloat(areaLightEnergy),
+      areaLightOffset: parseFloat(areaLightOffset),
+
+      // Render Settings
+      resolution_x: parseInt(renderResolutionX),
+      resolution_y: parseInt(renderResolutionY),
+      resolution_percentage: parseInt(renderResolutionPercentage),
+      sampling: parseInt(sampling),
+      sample_contrast: `${sampleContrast} Contrast`,
+      time_of_day: theme,
+
+      // Light path settings
+      light_path: (() => {
+        switch (lightPath) {
+          case "Fast":
+            return {
+              max_bounces: 8,
+              diffuse_bounces: 1,
+              glossy_bounces: 4,
+              transmission_bounces: 8,
+              volume_bounces: 2,
+              transparent_max_bounces: 8,
+            };
+          case "Full":
+            return {
+              max_bounces: 32,
+              diffuse_bounces: 32,
+              glossy_bounces: 32,
+              transmission_bounces: 32,
+              volume_bounces: 32,
+              transparent_max_bounces: 32,
+            };
+          default:
+            return {
+              max_bounces: 12,
+              diffuse_bounces: 4,
+              glossy_bounces: 4,
+              transmission_bounces: 8,
+              volume_bounces: 2,
+              transparent_max_bounces: 8,
+            };
+        }
+      })(),
+
+      // Camera Settings
+      camera_position: {
+        x: blenderCamPos.x,
+        y: blenderCamPos.y,
+        z: blenderCamPos.z,
+      },
+      camera_target: {
+        x: blenderCamTarget.x,
+        y: blenderCamTarget.y,
+        z: blenderCamTarget.z,
+      },
+
+      // GLB File & Request ID
+      glb_url: glbUrl,
+      r_id: requestId,
+    };
   };
 
   const handleInputChange =
