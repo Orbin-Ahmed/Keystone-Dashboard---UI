@@ -350,24 +350,6 @@ const RenderModal: React.FC<RenderModalProps> = ({
     setTheme("day");
   };
 
-  // useEffect(() => {
-  //   const handleKeyDown = (e: KeyboardEvent) => {
-  //     console.log("Key pressed:", e.key);
-  //     console.log("Default prevented:", e.defaultPrevented);
-  //     console.log("Event object:", e);
-
-  //     if (e.key === "Backspace") {
-  //       console.log("Backspace pressed");
-  //     }
-  //   };
-
-  //   window.addEventListener("keydown", handleKeyDown);
-
-  //   return () => {
-  //     window.removeEventListener("keydown", handleKeyDown);
-  //   };
-  // }, []);
-
   if (!isOpen) return null;
 
   return (
