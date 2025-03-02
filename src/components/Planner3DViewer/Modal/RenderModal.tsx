@@ -181,25 +181,25 @@ const RenderModal: React.FC<RenderModalProps> = ({
       formData.append("file", glbBlob);
 
       // Glb File upload
-      const uploadResponse = await fetch("https://tmpfiles.org/api/v1/upload", {
-        method: "POST",
-        body: formData,
-      });
+      const uploadResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/api/upload_glb/`,
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
 
       if (!uploadResponse.ok) {
         throw new Error(`File upload error: ${uploadResponse.statusText}`);
       }
 
       const uploadResult = await uploadResponse.json();
-      if (uploadResult.status !== "success") {
-        throw new Error("File upload failed");
+      if (!uploadResult.glb_url) {
+        throw new Error("File upload failed: Invalid response format");
       }
 
-      const uploadedUrl: string = uploadResult.data.url;
-      const finalGlbUrl = uploadedUrl.replace(
-        "https://tmpfiles.org/",
-        "https://tmpfiles.org/dl/",
-      );
+      // Format the GLB URL properly
+      const finalGlbUrl = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}${uploadResult.glb_url}`;
 
       console.log("GLB uploaded successfully:", finalGlbUrl);
       // Glb File upload end
