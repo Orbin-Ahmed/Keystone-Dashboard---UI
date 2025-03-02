@@ -178,11 +178,11 @@ const RenderModal: React.FC<RenderModalProps> = ({
     try {
       const glbBlob = await exportGLTF();
       const formData = new FormData();
-      formData.append("file", glbBlob);
+      formData.append("glb_file", glbBlob);
 
       // Glb File upload
       const uploadResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/api/upload_glb/`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}api/upload_glb/`,
         {
           method: "POST",
           body: formData,
@@ -334,7 +334,8 @@ const RenderModal: React.FC<RenderModalProps> = ({
       areaLightSizeY: parseFloat(areaLightSizeY),
       areaLightEnergy: parseFloat(areaLightEnergy),
       areaLightOffset: parseFloat(areaLightOffset),
-
+      // https://keystone-backend.up.railway.app/media/glb_files/2028e21a9a554a69a4e3ff0b7ac5ba93.glb
+      // /usr/local/bin/blender -b --python /src/code/day.py -- --glb /tmp/scene.glb --r_id 7ea6f246187b68f6 --camera_location 170.4129732897311, -50.691516276340984, 64.0512644933855 --camera_target 27, -7, 60 --spot_spacing 60 --spot_inward_offset 25 --spot_downward_offset 5 --spot_light_energy 50000 --spot_shadow_softness 5 --spot_size 3.141592653589793 --spot_shadow True --spot_color 1, 0.9803921568627451, 0.7176470588235294 --sun_energy 100 --sun_angle 0.1 --area_light_size_x 50 --area_light_size_y 50 --area_light_energy 50000 --area_light_offset 3 --resolution_x 1920 --resolution_y 1080 --resolution_percentage 100 --sampling 512 --sample_contrast Midium Contrast --max_bounces 12 --diffuse_bounces 4 --glossy_bounces 4 --transmission_bounces 8 --volume_bounces 2 --transparent_max_bounces 8 --output /tmp/rendered_image.png
       // Render Settings
       resolution_x: parseInt(renderResolutionX),
       resolution_y: parseInt(renderResolutionY),
@@ -477,7 +478,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
     setRenderResolutionY("1080");
     setRenderResolutionPercentage("100");
     setSampling("512");
-    setSampleContrast("Midium");
+    setSampleContrast("Medium");
     setLightPath("Default");
     setTheme("day");
   };
@@ -864,7 +865,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                         <SegmentedControl.Item value="Low">
                           Low
                         </SegmentedControl.Item>
-                        <SegmentedControl.Item value="Midium">
+                        <SegmentedControl.Item value="Medium">
                           Medium
                         </SegmentedControl.Item>
                         <SegmentedControl.Item value="High">
