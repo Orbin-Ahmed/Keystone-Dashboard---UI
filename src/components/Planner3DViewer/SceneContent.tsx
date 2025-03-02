@@ -28,6 +28,7 @@ import {
   Material,
   EquirectangularReflectionMapping,
   FrontSide,
+  ShapeGeometry,
 } from "three";
 import { CSG } from "three-csg-ts";
 import Model from "./Model";
@@ -691,12 +692,73 @@ const SceneContent: React.FC<SceneContentProps> = ({
     );
   }, [floorShape, textures.floor]);
 
+  const createCustomUVGenerator = () => {
+    return {
+      generateTopUV: function (
+        geometry: ExtrudeGeometry,
+        vertices: number[],
+        indexA: number,
+        indexB: number,
+        indexC: number,
+      ): Vector2[] {
+        const a = new Vector3().fromArray(vertices, indexA * 3);
+        const b = new Vector3().fromArray(vertices, indexB * 3);
+        const c = new Vector3().fromArray(vertices, indexC * 3);
+
+        const minX = Math.min(a.x, b.x, c.x);
+        const maxX = Math.max(a.x, b.x, c.x);
+        const minY = Math.min(a.z, b.z, c.z);
+        const maxY = Math.max(a.z, b.z, c.z);
+
+        const width = maxX - minX || 1;
+        const height = maxY - minY || 1;
+
+        return [
+          new Vector2((a.x - minX) / width, (a.z - minY) / height),
+          new Vector2((b.x - minX) / width, (b.z - minY) / height),
+          new Vector2((c.x - minX) / width, (c.z - minY) / height),
+        ];
+      },
+      generateSideWallUV: function (
+        geometry: ExtrudeGeometry,
+        vertices: number[],
+        indexA: number,
+        indexB: number,
+        indexC: number,
+        indexD: number,
+      ): Vector2[] {
+        const a = new Vector3().fromArray(vertices, indexA * 3);
+        const b = new Vector3().fromArray(vertices, indexB * 3);
+        const c = new Vector3().fromArray(vertices, indexC * 3);
+        const d = new Vector3().fromArray(vertices, indexD * 3);
+
+        const segmentLength = new Vector2(b.x - a.x, b.z - a.z).length();
+        const height = Math.max(d.y - a.y, c.y - b.y);
+        const referenceSize = 5;
+        const uScale = segmentLength / referenceSize;
+        const vScale = height / referenceSize;
+
+        return [
+          new Vector2(0, 0),
+          new Vector2(uScale, 0),
+          new Vector2(uScale, vScale),
+          new Vector2(0, vScale),
+        ];
+      },
+    };
+  };
+
   const Roof = useMemo(() => {
     if ((!showRoof && !shouldExport) || !floorShape) return null;
+
+    textures.roof.wrapS = textures.roof.wrapT = RepeatWrapping;
+
+    const customUVGenerator = createCustomUVGenerator();
 
     const geometry = new ExtrudeGeometry(floorShape, {
       depth: 1,
       bevelEnabled: false,
+      UVGenerator: customUVGenerator,
     });
 
     geometry.rotateX(Math.PI / 2);
@@ -707,7 +769,26 @@ const SceneContent: React.FC<SceneContentProps> = ({
         <meshStandardMaterial map={textures.roof} side={DoubleSide} />
       </mesh>
     );
-  }, [floorShape, showRoof, textures.roof, shouldExport]);
+  }, [floorShape, showRoof, textures.roof, shouldExport, wallHeight]);
+
+  // const Roof = useMemo(() => {
+  //   if ((!showRoof && !shouldExport) || !floorShape) return null;
+
+  //   const geometry = new ExtrudeGeometry(floorShape, {
+  //     depth: 1,
+  //     bevelEnabled: false,
+  //     UVGenerator: customUVGenerator,
+  //   });
+
+  //   geometry.rotateX(Math.PI / 2);
+  //   geometry.translate(0, wallHeight + 1, 0);
+
+  //   return (
+  //     <mesh geometry={geometry} position={[0, 0, 0]}>
+  //       <meshStandardMaterial map={textures.roof} side={DoubleSide} />
+  //     </mesh>
+  //   );
+  // }, [floorShape, showRoof, textures.roof, shouldExport]);
 
   const handlePointerDown = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation();
