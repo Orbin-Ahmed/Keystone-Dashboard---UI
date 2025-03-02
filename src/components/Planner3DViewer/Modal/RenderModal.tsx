@@ -260,21 +260,21 @@ const RenderModal: React.FC<RenderModalProps> = ({
       // Posting request to runpod
       const runPodPayload = renderParams;
       console.log("Runpod payload:", runPodPayload);
-      // const runPodResponse = await fetch("/api/render", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify(runPodPayload),
-      // });
-      // if (!runPodResponse.ok) {
-      //   throw new Error(
-      //     `Render request error in Runpod: ${runPodResponse.statusText}`,
-      //   );
-      // }
-      // // Posting request to runpod end
-      // setRenderTasks((prev) => [...prev, { request_id, status: "pending" }]);
-      // checkRenderStatus(request_id, 60000);
+      const runPodResponse = await fetch("/api/render", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(runPodPayload),
+      });
+      if (!runPodResponse.ok) {
+        throw new Error(
+          `Render request error in Runpod: ${runPodResponse.statusText}`,
+        );
+      }
+      // Posting request to runpod end
+      setRenderTasks((prev) => [...prev, { request_id, status: "pending" }]);
+      checkRenderStatus(request_id, 60000);
     } catch (err: any) {
       console.error("Error:", err);
       setError(err.message || "An unexpected error occurred.");
