@@ -98,20 +98,26 @@ const RenderModal: React.FC<RenderModalProps> = ({
 
   useEffect(() => {
     if (isOpen && camera) {
-      const offset = camera.position.clone().sub(target);
-      const zoomOutPos = target.clone().add(offset.multiplyScalar(zoomLevel));
-      setBlenderCamPos({
-        x: zoomOutPos.x,
-        y: -zoomOutPos.z,
-        z: zoomOutPos.y,
-      });
+      const threeCamPos = camera.position;
+      const threeTarget = target;
 
-      setBlenderCamTarget({
-        x: target.x,
-        y: -target.z,
-        z: target.y,
-      });
-      // renderScenePreview();
+      const convertedCamPos = {
+        x: threeCamPos.x,
+        y: -threeCamPos.z,
+        z: threeCamPos.y,
+      };
+
+      const convertedTarget = {
+        x: threeTarget.x,
+        y: -threeTarget.z,
+        z: threeTarget.y,
+      };
+
+      // console.log("Converted Blender Camera Position:", convertedCamPos);
+      // console.log("Converted Blender Target:", convertedTarget);
+
+      setBlenderCamPos(convertedCamPos);
+      setBlenderCamTarget(convertedTarget);
     }
   }, [isOpen, camera]);
 
