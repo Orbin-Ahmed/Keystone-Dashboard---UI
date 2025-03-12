@@ -30,6 +30,7 @@ import { uid } from "uid";
 import SelectedWallItemControls from "./sidebar/SelectedWallItemControls";
 import CustomizeItemModal from "./Modal/CustomizeItemModal";
 import RenderModal from "./Modal/RenderModal";
+import ItemSettingsSidebar from "./sidebar/ItemSettingsSidebar";
 
 const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   lines,
@@ -930,6 +931,15 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     ]);
   };
 
+  const handleUpdateItem = (updatedItem: PlacedItemType) => {
+    setSelectedItem(updatedItem);
+    setPlacedItems((prevItems) =>
+      prevItems.map((item) =>
+        item.id === updatedItem.id ? updatedItem : item,
+      ),
+    );
+  };
+
   // Wall Item Control end
 
   // useEffect(() => {
@@ -1159,6 +1169,14 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           onClose={handleCloseSidebar}
           setNewWidth={handleWidthChange}
           setNewHeight={handleHeightChange}
+        />
+      )}
+
+      {selectedItem && (
+        <ItemSettingsSidebar
+          selectedItem={selectedItem}
+          onUpdateItem={handleUpdateItem}
+          onClose={() => setSelectedItem(null)}
         />
       )}
 
