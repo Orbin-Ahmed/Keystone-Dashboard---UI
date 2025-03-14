@@ -137,7 +137,7 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
                 <label className="text-gray-600 font-medium">X</label>
                 <input
                   type="number"
-                  value={position.x.toFixed(2)}
+                  value={position.x}
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
                     updatePosition("x", parseFloat(e.target.value))
                   }
@@ -148,7 +148,7 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
                 <label className="text-gray-600 font-medium">Z</label>
                 <input
                   type="number"
-                  value={position.z.toFixed(2)}
+                  value={position.z}
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
                     updatePosition("z", parseFloat(e.target.value))
                   }
@@ -170,7 +170,7 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
               />
               <input
                 type="number"
-                value={position.y.toFixed(2)}
+                value={position.y}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   updatePosition("y", parseFloat(e.target.value))
                 }
@@ -279,7 +279,7 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
               type="number"
               min={0}
               max={360}
-              value={rotationDeg.x.toFixed(2)}
+              value={rotationDeg.x}
               onChange={(e: ChangeEvent<HTMLInputElement>) =>
                 updateRotationDeg("x", parseFloat(e.target.value))
               }
@@ -289,7 +289,7 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
               type="number"
               min={0}
               max={360}
-              value={rotationDeg.y.toFixed(2)}
+              value={rotationDeg.y}
               onChange={(e: ChangeEvent<HTMLInputElement>) =>
                 updateRotationDeg("y", parseFloat(e.target.value))
               }
@@ -299,7 +299,7 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
               type="number"
               min={0}
               max={360}
-              value={rotationDeg.z.toFixed(2)}
+              value={rotationDeg.z}
               onChange={(e: ChangeEvent<HTMLInputElement>) =>
                 updateRotationDeg("z", parseFloat(e.target.value))
               }
@@ -309,17 +309,18 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
           <div className="flex justify-around">
             <div className="w-16">
               <CircularSlider
-                width={70}
+                width={50}
                 min={0}
                 max={360}
                 trackSize={2}
                 knobSize={15}
                 appendToValue="°"
+                label=""
                 valueFontSize="1rem"
                 labelColor="#C2D605"
                 knobColor="#C2D605"
-                progressColorFrom="#eeeeee"
-                progressColorTo="#eeeeee"
+                progressColorFrom="#C2D605"
+                progressColorTo="#C2D605"
                 progressSize={2}
                 trackColor="#eeeeee"
                 data={rotationData}
@@ -329,17 +330,18 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
             </div>
             <div className="w-16">
               <CircularSlider
-                width={70}
+                width={50}
                 min={0}
                 max={360}
                 trackSize={2}
                 knobSize={15}
                 appendToValue="°"
+                label=""
                 valueFontSize="1rem"
                 labelColor="#C2D605"
                 knobColor="#C2D605"
-                progressColorFrom="#eeeeee"
-                progressColorTo="#eeeeee"
+                progressColorFrom="#C2D605"
+                progressColorTo="#C2D605"
                 progressSize={2}
                 trackColor="#eeeeee"
                 data={rotationData}
@@ -349,17 +351,18 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
             </div>
             <div className="w-16">
               <CircularSlider
-                width={70}
+                width={50}
                 min={0}
                 max={360}
                 trackSize={2}
                 knobSize={15}
                 appendToValue="°"
+                label=""
                 valueFontSize="1rem"
                 labelColor="#C2D605"
                 knobColor="#C2D605"
-                progressColorFrom="#eeeeee"
-                progressColorTo="#eeeeee"
+                progressColorFrom="#C2D605"
+                progressColorTo="#C2D605"
                 progressSize={2}
                 trackColor="#eeeeee"
                 data={rotationData}
