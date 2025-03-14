@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ChangeEvent } from "react";
+import React, { useState, useEffect, ChangeEvent, useRef } from "react";
 import { PlacedItemType } from "@/types";
 import { RiCloseLargeLine } from "react-icons/ri";
 import CircularSlider from "@fseehawer/react-circular-slider";
@@ -50,23 +50,38 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
   const [syncDimension, setSyncDimension] = useState<boolean>(false);
   const rotationData = Array.from({ length: 361 }, (_, i) => i.toString());
 
+  // Store the original values so the user can reset.
+  const originalPositionRef = useRef<Vector3>({ x: 0, y: 0, z: 0 });
+  const originalRotationRef = useRef<Vector3>({ x: 0, y: 0, z: 0 });
+  const originalDimensionRef = useRef<Dimensions>({
+    width: 0,
+    height: 0,
+    depth: 0,
+  });
+
   useEffect(() => {
     if (!selectedItem) return;
-    setPosition({
+    const pos = {
       x: selectedItem.position[0],
       y: selectedItem.position[1],
       z: selectedItem.position[2],
-    });
-    setRotationDeg({
+    };
+    const rot = {
       x: normalizeAngle(radToDeg(selectedItem.rotation[0])),
       y: normalizeAngle(radToDeg(selectedItem.rotation[1])),
       z: normalizeAngle(radToDeg(selectedItem.rotation[2])),
-    });
-    setDimension({
+    };
+    const dim = {
       width: selectedItem.width,
       height: selectedItem.height,
       depth: selectedItem.depth,
-    });
+    };
+    setPosition(pos);
+    setRotationDeg(rot);
+    setDimension(dim);
+    originalPositionRef.current = pos;
+    originalRotationRef.current = rot;
+    originalDimensionRef.current = dim;
   }, [selectedItem?.id]);
 
   const updatePosition = (axis: keyof Vector3, value: number) => {
@@ -114,6 +129,28 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
       width: updated.width,
       height: updated.height,
       depth: updated.depth,
+    });
+  };
+
+  const resetItem = () => {
+    setPosition(originalPositionRef.current);
+    setRotationDeg(originalRotationRef.current);
+    setDimension(originalDimensionRef.current);
+    onUpdateItem({
+      ...selectedItem,
+      position: [
+        originalPositionRef.current.x,
+        originalPositionRef.current.y,
+        originalPositionRef.current.z,
+      ],
+      rotation: [
+        degToRad(originalRotationRef.current.x),
+        degToRad(originalRotationRef.current.y),
+        degToRad(originalRotationRef.current.z),
+      ],
+      width: originalDimensionRef.current.width,
+      height: originalDimensionRef.current.height,
+      depth: originalDimensionRef.current.depth,
     });
   };
 
@@ -263,18 +300,8 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
         </div>
         <div className="control-section bg-gray-50 rounded-md p-2">
           <h4 className="text-gray-700 mb-2 font-medium">Rotation (degrees)</h4>
-          <div className="mb-2 flex justify-around">
-            <span className="text-gray-600 w-16 text-center font-medium">
-              X
-            </span>
-            <span className="text-gray-600 w-16 text-center font-medium">
-              Y
-            </span>
-            <span className="text-gray-600 w-16 text-center font-medium">
-              Z
-            </span>
-          </div>
-          <div className="mb-2 flex justify-around">
+          <div className="mb-4 flex justify-between">
+            <span className="text-gray-600 font-medium">X</span>
             <input
               type="number"
               min={0}
@@ -285,6 +312,7 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
               }
               className="border-gray-300 w-16 rounded-md border p-1 text-center"
             />
+            <span className="text-gray-600 font-medium">Y</span>
             <input
               type="number"
               min={0}
@@ -295,6 +323,7 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
               }
               className="border-gray-300 w-16 rounded-md border p-1 text-center"
             />
+            <span className="text-gray-600 font-medium">Z</span>
             <input
               type="number"
               min={0}
@@ -314,7 +343,6 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
                 max={360}
                 trackSize={2}
                 knobSize={15}
-                appendToValue="°"
                 label=""
                 valueFontSize="1rem"
                 labelColor="#C2D605"
@@ -335,7 +363,6 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
                 max={360}
                 trackSize={2}
                 knobSize={15}
-                appendToValue="°"
                 label=""
                 valueFontSize="1rem"
                 labelColor="#C2D605"
@@ -356,7 +383,6 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
                 max={360}
                 trackSize={2}
                 knobSize={15}
-                appendToValue="°"
                 label=""
                 valueFontSize="1rem"
                 labelColor="#C2D605"
@@ -372,6 +398,14 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
             </div>
           </div>
         </div>
+      </div>
+      <div className="mt-4 flex justify-center">
+        <button
+          onClick={resetItem}
+          className="bg-red-500 hover:bg-red-600 rounded px-4 py-1 text-white"
+        >
+          Reset
+        </button>
       </div>
     </div>
   );
