@@ -300,7 +300,7 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
         </div>
         <div className="control-section bg-gray-50 rounded-md p-2">
           <h4 className="text-gray-700 mb-2 font-medium">Rotation (degrees)</h4>
-          <div className="mb-4 flex justify-between">
+          <div className="mb-4 flex items-center justify-between">
             <span className="text-gray-600 font-medium">X</span>
             <input
               type="number"
@@ -343,9 +343,9 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
                 max={360}
                 trackSize={2}
                 knobSize={15}
-                label=""
                 valueFontSize="1rem"
                 labelColor="#C2D605"
+                label=""
                 knobColor="#C2D605"
                 progressColorFrom="#C2D605"
                 progressColorTo="#C2D605"
