@@ -179,7 +179,7 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
                     updatePosition("x", parseFloat(e.target.value))
                   }
-                  className="border-gray-300 w-20 rounded-md border p-1 text-center"
+                  className="border-gray-300 w-30 rounded-md border p-1 text-center"
                 />
               </div>
               <div className="flex flex-col">
@@ -190,7 +190,7 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
                     updatePosition("z", parseFloat(e.target.value))
                   }
-                  className="border-gray-300 w-20 rounded-md border p-1 text-center"
+                  className="border-gray-300 w-30 rounded-md border p-1 text-center"
                 />
               </div>
             </div>
@@ -348,6 +348,7 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
                 valueFontSize="1rem"
                 labelColor="#C2D605"
                 label=""
+                verticalOffset="0px"
                 knobColor="#C2D605"
                 progressColorFrom="#C2D605"
                 progressColorTo="#C2D605"
@@ -369,6 +370,7 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
                 valueFontSize="1rem"
                 labelColor="#C2D605"
                 knobColor="#C2D605"
+                verticalOffset="0px"
                 progressColorFrom="#C2D605"
                 progressColorTo="#C2D605"
                 progressSize={2}
@@ -389,6 +391,7 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
                 valueFontSize="1rem"
                 labelColor="#C2D605"
                 knobColor="#C2D605"
+                verticalOffset="0px"
                 progressColorFrom="#C2D605"
                 progressColorTo="#C2D605"
                 progressSize={2}
