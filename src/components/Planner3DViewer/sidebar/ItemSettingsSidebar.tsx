@@ -51,7 +51,6 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
   const [syncDimension, setSyncDimension] = useState<boolean>(false);
   const rotationData = Array.from({ length: 361 }, (_, i) => i.toString());
 
-  // Store the original values so the user can reset.
   const originalPositionRef = useRef<Vector3>({ x: 0, y: 0, z: 0 });
   const originalRotationRef = useRef<Vector3>({ x: 0, y: 0, z: 0 });
   const originalDimensionRef = useRef<Dimensions>({
@@ -63,9 +62,9 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
   useEffect(() => {
     if (!selectedItem) return;
     const pos = {
-      x: selectedItem.position[0],
-      y: selectedItem.position[1],
-      z: selectedItem.position[2],
+      x: Math.round(selectedItem.position[0] * 100) / 100,
+      y: Math.round(selectedItem.position[1] * 100) / 100,
+      z: Math.round(selectedItem.position[2] * 100) / 100,
     };
     const rot = {
       x: normalizeAngle(radToDeg(selectedItem.rotation[0])),
@@ -73,9 +72,9 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
       z: normalizeAngle(radToDeg(selectedItem.rotation[2])),
     };
     const dim = {
-      width: selectedItem.width,
-      height: selectedItem.height,
-      depth: selectedItem.depth,
+      width: Math.round(selectedItem.width * 100) / 100,
+      height: Math.round(selectedItem.height * 100) / 100,
+      depth: Math.round(selectedItem.depth * 100) / 100,
     };
     setPosition(pos);
     setRotationDeg(rot);
