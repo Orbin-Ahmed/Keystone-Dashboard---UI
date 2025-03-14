@@ -1,5 +1,7 @@
 import React, { useState, useEffect, ChangeEvent } from "react";
 import { PlacedItemType } from "@/types";
+import { RiCloseLargeLine } from "react-icons/ri";
+import CircularSlider from "@fseehawer/react-circular-slider";
 
 interface Vector3 {
   x: number;
@@ -27,52 +29,49 @@ function radToDeg(rad: number): number {
   return (rad * 180) / Math.PI;
 }
 
+function normalizeAngle(angle: number): number {
+  let result = angle % 360;
+  if (result < 0) result += 360;
+  return result;
+}
+
 const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
   selectedItem,
   onUpdateItem,
   onClose,
 }) => {
-  // ----- POSITION -----
   const [position, setPosition] = useState<Vector3>({ x: 0, y: 0, z: 0 });
-
-  // ----- ROTATION (store in degrees for user) -----
   const [rotationDeg, setRotationDeg] = useState<Vector3>({ x: 0, y: 0, z: 0 });
-
-  // ----- DIMENSIONS -----
   const [dimension, setDimension] = useState<Dimensions>({
     width: 0,
     height: 0,
     depth: 0,
   });
   const [syncDimension, setSyncDimension] = useState<boolean>(false);
+  const rotationData = Array.from({ length: 361 }, (_, i) => i.toString());
 
-  // Initialize all fields when a new item is selected.
   useEffect(() => {
-    if (selectedItem) {
-      // Position
-      setPosition({
-        x: selectedItem.position[0],
-        y: selectedItem.position[1],
-        z: selectedItem.position[2],
-      });
-      // Rotation: convert radians to degrees for UI
-      setRotationDeg({
-        x: radToDeg(selectedItem.rotation[0]),
-        y: radToDeg(selectedItem.rotation[1]),
-        z: radToDeg(selectedItem.rotation[2]),
-      });
-      // Dimensions
-      setDimension({
-        width: selectedItem.width,
-        height: selectedItem.height,
-        depth: selectedItem.depth,
-      });
-    }
-  }, [selectedItem]);
+    if (!selectedItem) return;
+    setPosition({
+      x: selectedItem.position[0],
+      y: selectedItem.position[1],
+      z: selectedItem.position[2],
+    });
+    setRotationDeg({
+      x: normalizeAngle(radToDeg(selectedItem.rotation[0])),
+      y: normalizeAngle(radToDeg(selectedItem.rotation[1])),
+      z: normalizeAngle(radToDeg(selectedItem.rotation[2])),
+    });
+    setDimension({
+      width: selectedItem.width,
+      height: selectedItem.height,
+      depth: selectedItem.depth,
+    });
+  }, [selectedItem?.id]);
 
-  // ----- POSITION -----
   const updatePosition = (axis: keyof Vector3, value: number) => {
-    const newPos = { ...position, [axis]: value };
+    const rounded = Math.round(value * 100) / 100;
+    const newPos = { ...position, [axis]: rounded };
     setPosition(newPos);
     onUpdateItem({
       ...selectedItem,
@@ -80,50 +79,35 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
     });
   };
 
-  // ----- ROTATION -----
-  // The user sees degrees (0–360). Convert to radians before updating the item.
   const updateRotationDeg = (axis: keyof Vector3, value: number) => {
-    // Clamp between 0 and 360
     const clampedValue = Math.max(0, Math.min(360, value));
-    const newRotDeg = { ...rotationDeg, [axis]: clampedValue };
-    setRotationDeg(newRotDeg);
-
-    // Convert degrees to radians for the actual item update
+    const rounded = Math.round(clampedValue * 100) / 100;
+    const newRot = { ...rotationDeg, [axis]: rounded };
+    setRotationDeg(newRot);
     onUpdateItem({
       ...selectedItem,
-      rotation: [
-        degToRad(newRotDeg.x),
-        degToRad(newRotDeg.y),
-        degToRad(newRotDeg.z),
-      ],
+      rotation: [degToRad(newRot.x), degToRad(newRot.y), degToRad(newRot.z)],
     });
   };
 
-  // ----- DIMENSIONS (SIZE) -----
-  const updateDimension = (
-    key: keyof Dimensions,
-    newValue: number,
-    step?: number,
-  ) => {
-    const finalValue = step ? Math.max(0.1, newValue + step) : newValue;
-    const updated = { ...dimension, [key]: finalValue };
-
+  const updateDimension = (key: keyof Dimensions, newValue: number) => {
+    const rounded = Math.round(newValue * 100) / 100;
+    const updated = { ...dimension, [key]: rounded };
     if (syncDimension) {
-      const ratio = finalValue / dimension[key];
+      const ratio = rounded / dimension[key];
       if (ratio && isFinite(ratio)) {
         if (key === "width") {
-          updated.height = dimension.height * ratio;
-          updated.depth = dimension.depth * ratio;
+          updated.height = Math.round(dimension.height * ratio * 100) / 100;
+          updated.depth = Math.round(dimension.depth * ratio * 100) / 100;
         } else if (key === "height") {
-          updated.width = dimension.width * ratio;
-          updated.depth = dimension.depth * ratio;
+          updated.width = Math.round(dimension.width * ratio * 100) / 100;
+          updated.depth = Math.round(dimension.depth * ratio * 100) / 100;
         } else if (key === "depth") {
-          updated.width = dimension.width * ratio;
-          updated.height = dimension.height * ratio;
+          updated.width = Math.round(dimension.width * ratio * 100) / 100;
+          updated.height = Math.round(dimension.height * ratio * 100) / 100;
         }
       }
     }
-
     setDimension(updated);
     onUpdateItem({
       ...selectedItem,
@@ -134,71 +118,71 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
   };
 
   return (
-    <div className="border-gray-200 fixed left-6 top-1/2 z-50 w-72 -translate-y-1/2 transform rounded-lg border bg-white p-5 shadow-xl">
-      {/* Header */}
+    <div className="fixed left-6 top-1/2 z-50 w-72 -translate-y-1/2 transform rounded-lg border bg-white p-2 text-[12px] shadow-xl">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-gray-800 text-lg font-semibold">Item Settings</h3>
         <button
           onClick={onClose}
           className="text-gray-500 hover:bg-gray-100 hover:text-gray-700 rounded-full p-1"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path
-              fillRule="evenodd"
-              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-              clipRule="evenodd"
-            />
-          </svg>
+          <RiCloseLargeLine />
         </button>
       </div>
-
       <div className="space-y-5">
-        {/* Position */}
-        <div className="control-section bg-gray-50 rounded-md p-3">
+        <div className="control-section bg-gray-50 rounded-md p-2">
           <h4 className="text-gray-700 mb-2 font-medium">Position</h4>
-          <div className="space-y-2">
-            {(["x", "y", "z"] as (keyof Vector3)[]).map((axis) => (
-              <div key={axis} className="control-group flex items-center">
-                <label className="text-gray-600 w-6 font-medium">
-                  {axis.toUpperCase()}:
-                </label>
-                <div className="border-gray-300 ml-2 flex flex-1 items-center rounded-md border bg-white">
-                  <button
-                    onClick={() => updatePosition(axis, position[axis] - 1)}
-                    className="border-gray-300 text-gray-500 hover:bg-gray-100 flex h-8 w-8 items-center justify-center rounded-l-md border-r"
-                  >
-                    -
-                  </button>
-                  <input
-                    type="number"
-                    value={position[axis]}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                      updatePosition(axis, parseFloat(e.target.value))
-                    }
-                    className="h-8 w-full border-0 bg-transparent px-2 text-center focus:outline-none"
-                  />
-                  <button
-                    onClick={() => updatePosition(axis, position[axis] + 1)}
-                    className="border-gray-300 text-gray-500 hover:bg-gray-100 flex h-8 w-8 items-center justify-center rounded-r-md border-l"
-                  >
-                    +
-                  </button>
-                </div>
+          <div className="space-y-4">
+            <div className="flex space-x-2">
+              <div className="flex flex-col">
+                <label className="text-gray-600 font-medium">X</label>
+                <input
+                  type="number"
+                  value={position.x.toFixed(2)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    updatePosition("x", parseFloat(e.target.value))
+                  }
+                  className="border-gray-300 w-16 rounded-md border p-1 text-center"
+                />
               </div>
-            ))}
+              <div className="flex flex-col">
+                <label className="text-gray-600 font-medium">Z</label>
+                <input
+                  type="number"
+                  value={position.z.toFixed(2)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    updatePosition("z", parseFloat(e.target.value))
+                  }
+                  className="border-gray-300 w-16 rounded-md border p-1 text-center"
+                />
+              </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <label className="text-gray-600 font-medium">Elevation</label>
+              <input
+                type="range"
+                min={0}
+                max={120}
+                value={position.y}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  updatePosition("y", parseFloat(e.target.value))
+                }
+                className="flex-1"
+              />
+              <input
+                type="number"
+                value={position.y.toFixed(2)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  updatePosition("y", parseFloat(e.target.value))
+                }
+                className="border-gray-300 w-16 rounded-md border p-1 text-center"
+              />
+            </div>
           </div>
         </div>
-
-        {/* Size (Dimension) */}
-        <div className="control-section bg-gray-50 rounded-md p-3">
+        <div className="control-section bg-gray-50 rounded-md p-2">
           <div className="mb-2 flex items-center justify-between">
             <h4 className="text-gray-700 font-medium">Size</h4>
-            <label className="text-gray-600 flex items-center text-sm">
+            <label className="text-gray-600 flex items-center">
               <input
                 type="checkbox"
                 checked={syncDimension}
@@ -208,133 +192,181 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
               Sync
             </label>
           </div>
-          <div className="space-y-2">
-            {/* Width */}
-            <div className="control-group flex items-center">
-              <label className="text-gray-600 w-12 font-medium">Width</label>
-              <div className="border-gray-300 ml-2 flex flex-1 items-center rounded-md border bg-white">
-                <button
-                  onClick={() => updateDimension("width", dimension.width, -1)}
-                  className="border-gray-300 text-gray-500 hover:bg-gray-100 flex h-8 w-8 items-center justify-center rounded-l-md border-r"
-                >
-                  -
-                </button>
-                <input
-                  type="number"
-                  value={dimension.width.toFixed(1)}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    updateDimension("width", parseFloat(e.target.value))
-                  }
-                  className="h-8 w-full border-0 bg-transparent px-2 text-center focus:outline-none"
-                />
-                <button
-                  onClick={() => updateDimension("width", dimension.width, +1)}
-                  className="border-gray-300 text-gray-500 hover:bg-gray-100 flex h-8 w-8 items-center justify-center rounded-r-md border-l"
-                >
-                  +
-                </button>
-              </div>
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <label className="text-gray-600 font-medium">Width</label>
+              <input
+                type="range"
+                min={0.1}
+                max={500}
+                step={0.01}
+                value={dimension.width}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  updateDimension("width", parseFloat(e.target.value))
+                }
+                className="flex-1"
+              />
+              <input
+                type="number"
+                value={dimension.width.toFixed(2)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  updateDimension("width", parseFloat(e.target.value))
+                }
+                className="border-gray-300 w-16 rounded-md border p-1 text-center"
+              />
             </div>
-
-            {/* Depth */}
-            <div className="control-group flex items-center">
-              <label className="text-gray-600 w-12 font-medium">Depth</label>
-              <div className="border-gray-300 ml-2 flex flex-1 items-center rounded-md border bg-white">
-                <button
-                  onClick={() => updateDimension("depth", dimension.depth, -1)}
-                  className="border-gray-300 text-gray-500 hover:bg-gray-100 flex h-8 w-8 items-center justify-center rounded-l-md border-r"
-                >
-                  -
-                </button>
-                <input
-                  type="number"
-                  value={dimension.depth.toFixed(1)}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    updateDimension("depth", parseFloat(e.target.value))
-                  }
-                  className="h-8 w-full border-0 bg-transparent px-2 text-center focus:outline-none"
-                />
-                <button
-                  onClick={() => updateDimension("depth", dimension.depth, +1)}
-                  className="border-gray-300 text-gray-500 hover:bg-gray-100 flex h-8 w-8 items-center justify-center rounded-r-md border-l"
-                >
-                  +
-                </button>
-              </div>
+            <div className="flex items-center space-x-2">
+              <label className="text-gray-600 font-medium">Depth</label>
+              <input
+                type="range"
+                min={0.1}
+                max={500}
+                step={0.01}
+                value={dimension.depth}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  updateDimension("depth", parseFloat(e.target.value))
+                }
+                className="flex-1"
+              />
+              <input
+                type="number"
+                value={dimension.depth.toFixed(2)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  updateDimension("depth", parseFloat(e.target.value))
+                }
+                className="border-gray-300 w-16 rounded-md border p-1 text-center"
+              />
             </div>
-
-            {/* Height */}
-            <div className="control-group flex items-center">
-              <label className="text-gray-600 w-12 font-medium">Height</label>
-              <div className="border-gray-300 ml-2 flex flex-1 items-center rounded-md border bg-white">
-                <button
-                  onClick={() =>
-                    updateDimension("height", dimension.height, -1)
-                  }
-                  className="border-gray-300 text-gray-500 hover:bg-gray-100 flex h-8 w-8 items-center justify-center rounded-l-md border-r"
-                >
-                  -
-                </button>
-                <input
-                  type="number"
-                  value={dimension.height.toFixed(1)}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    updateDimension("height", parseFloat(e.target.value))
-                  }
-                  className="h-8 w-full border-0 bg-transparent px-2 text-center focus:outline-none"
-                />
-                <button
-                  onClick={() =>
-                    updateDimension("height", dimension.height, +1)
-                  }
-                  className="border-gray-300 text-gray-500 hover:bg-gray-100 flex h-8 w-8 items-center justify-center rounded-r-md border-l"
-                >
-                  +
-                </button>
-              </div>
+            <div className="flex items-center space-x-2">
+              <label className="text-gray-600 font-medium">Height</label>
+              <input
+                type="range"
+                min={0.1}
+                max={500}
+                step={0.01}
+                value={dimension.height}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  updateDimension("height", parseFloat(e.target.value))
+                }
+                className="flex-1"
+              />
+              <input
+                type="number"
+                value={dimension.height.toFixed(2)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  updateDimension("height", parseFloat(e.target.value))
+                }
+                className="border-gray-300 w-16 rounded-md border p-1 text-center"
+              />
             </div>
           </div>
         </div>
-
-        {/* Rotation (in degrees) */}
-        <div className="control-section bg-gray-50 rounded-md p-3">
+        <div className="control-section bg-gray-50 rounded-md p-2">
           <h4 className="text-gray-700 mb-2 font-medium">Rotation (degrees)</h4>
-          <div className="space-y-2">
-            {(["x", "y", "z"] as (keyof Vector3)[]).map((axis) => (
-              <div key={axis} className="control-group flex items-center">
-                <label className="text-gray-600 w-6 font-medium">
-                  {axis.toUpperCase()}:
-                </label>
-                <div className="border-gray-300 ml-2 flex flex-1 items-center rounded-md border bg-white">
-                  <button
-                    onClick={() =>
-                      updateRotationDeg(axis, rotationDeg[axis] - 5)
-                    }
-                    className="border-gray-300 text-gray-500 hover:bg-gray-100 flex h-8 w-8 items-center justify-center rounded-l-md border-r"
-                  >
-                    -
-                  </button>
-                  <input
-                    type="number"
-                    min={0}
-                    max={360}
-                    value={rotationDeg[axis]}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                      updateRotationDeg(axis, parseFloat(e.target.value))
-                    }
-                    className="h-8 w-full border-0 bg-transparent px-2 text-center focus:outline-none"
-                  />
-                  <button
-                    onClick={() =>
-                      updateRotationDeg(axis, rotationDeg[axis] + 5)
-                    }
-                    className="border-gray-300 text-gray-500 hover:bg-gray-100 flex h-8 w-8 items-center justify-center rounded-r-md border-l"
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-            ))}
+          <div className="mb-2 flex justify-around">
+            <span className="text-gray-600 w-16 text-center font-medium">
+              X
+            </span>
+            <span className="text-gray-600 w-16 text-center font-medium">
+              Y
+            </span>
+            <span className="text-gray-600 w-16 text-center font-medium">
+              Z
+            </span>
+          </div>
+          <div className="mb-2 flex justify-around">
+            <input
+              type="number"
+              min={0}
+              max={360}
+              value={rotationDeg.x.toFixed(2)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                updateRotationDeg("x", parseFloat(e.target.value))
+              }
+              className="border-gray-300 w-16 rounded-md border p-1 text-center"
+            />
+            <input
+              type="number"
+              min={0}
+              max={360}
+              value={rotationDeg.y.toFixed(2)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                updateRotationDeg("y", parseFloat(e.target.value))
+              }
+              className="border-gray-300 w-16 rounded-md border p-1 text-center"
+            />
+            <input
+              type="number"
+              min={0}
+              max={360}
+              value={rotationDeg.z.toFixed(2)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                updateRotationDeg("z", parseFloat(e.target.value))
+              }
+              className="border-gray-300 w-16 rounded-md border p-1 text-center"
+            />
+          </div>
+          <div className="flex justify-around">
+            <div className="w-16">
+              <CircularSlider
+                width={70}
+                min={0}
+                max={360}
+                trackSize={2}
+                knobSize={15}
+                appendToValue="°"
+                valueFontSize="1rem"
+                labelColor="#C2D605"
+                knobColor="#C2D605"
+                progressColorFrom="#eeeeee"
+                progressColorTo="#eeeeee"
+                progressSize={2}
+                trackColor="#eeeeee"
+                data={rotationData}
+                dataIndex={Math.round(rotationDeg.x)}
+                onChange={(value: number) => updateRotationDeg("x", value)}
+              />
+            </div>
+            <div className="w-16">
+              <CircularSlider
+                width={70}
+                min={0}
+                max={360}
+                trackSize={2}
+                knobSize={15}
+                appendToValue="°"
+                valueFontSize="1rem"
+                labelColor="#C2D605"
+                knobColor="#C2D605"
+                progressColorFrom="#eeeeee"
+                progressColorTo="#eeeeee"
+                progressSize={2}
+                trackColor="#eeeeee"
+                data={rotationData}
+                dataIndex={Math.round(rotationDeg.y)}
+                onChange={(value: number) => updateRotationDeg("y", value)}
+              />
+            </div>
+            <div className="w-16">
+              <CircularSlider
+                width={70}
+                min={0}
+                max={360}
+                trackSize={2}
+                knobSize={15}
+                appendToValue="°"
+                valueFontSize="1rem"
+                labelColor="#C2D605"
+                knobColor="#C2D605"
+                progressColorFrom="#eeeeee"
+                progressColorTo="#eeeeee"
+                progressSize={2}
+                trackColor="#eeeeee"
+                data={rotationData}
+                dataIndex={Math.round(rotationDeg.z)}
+                onChange={(value: number) => updateRotationDeg("z", value)}
+              />
+            </div>
           </div>
         </div>
       </div>
