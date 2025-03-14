@@ -384,10 +384,13 @@ export interface SerializedFurnitureItem {
   name: string;
   x: number;
   y: number;
+  z: number;
   width: number;
   height: number;
   depth: number;
   rotation: number;
+  rotationX: number;
+  rotationZ: number;
   category: string;
 }
 
@@ -396,10 +399,13 @@ export interface SerializedceilingItem {
   name: string;
   x: number;
   y: number;
+  z: number;
   width: number;
   height: number;
   depth: number;
   rotation: number;
+  rotationX: number;
+  rotationZ: number;
   category: string;
 }
 
@@ -407,12 +413,14 @@ export interface SerializedWallItem {
   id: string;
   x: number;
   y: number;
-  z?:number;
+  z:number;
   name: string;
   width: number;
   height: number;
   depth: number;
   rotation: number;
+  rotationX: number;
+  rotationZ: number;
   category: string;
 }
 
@@ -420,11 +428,14 @@ export interface FurnitureItem {
   id: string;
   x: number;
   y: number;
+  z: number;
   name: string;
   width: number;
   height: number;
   depth: number;
   rotation: number;
+  rotationX: number;
+  rotationZ: number;
   imageSrc: string;
   category: string;
 }
@@ -433,11 +444,14 @@ export interface CeilingItem {
   id: string;
   x: number;
   y: number;
+  z: number;
   name: string;
   width: number;
   height: number;
   depth: number;
   rotation: number;
+  rotationX: number;
+  rotationZ: number;
   imageSrc: string;
   category: string;
 }
@@ -446,12 +460,14 @@ export interface WallItems2D {
   id: string;
   x: number;
   y: number;
-  z?:number;
+  z:number;
   name: string;
   width: number;
   height: number;
   depth: number;
   rotation: number;
+  rotationX: number;
+  rotationZ: number;
   imageSrc: string;
   category: string;
 }
