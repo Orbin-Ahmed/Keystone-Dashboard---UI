@@ -178,7 +178,7 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
                     updatePosition("x", parseFloat(e.target.value))
                   }
-                  className="border-gray-300 w-16 rounded-md border p-1 text-center"
+                  className="border-gray-300 w-20 rounded-md border p-1 text-center"
                 />
               </div>
               <div className="flex flex-col">
@@ -189,7 +189,7 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
                     updatePosition("z", parseFloat(e.target.value))
                   }
-                  className="border-gray-300 w-16 rounded-md border p-1 text-center"
+                  className="border-gray-300 w-20 rounded-md border p-1 text-center"
                 />
               </div>
             </div>
