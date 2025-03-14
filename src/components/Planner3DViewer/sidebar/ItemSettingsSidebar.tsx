@@ -2,6 +2,7 @@ import React, { useState, useEffect, ChangeEvent, useRef } from "react";
 import { PlacedItemType } from "@/types";
 import { RiCloseLargeLine } from "react-icons/ri";
 import CircularSlider from "@fseehawer/react-circular-slider";
+import CustomButton from "@/components/CustomButton";
 
 interface Vector3 {
   x: number;
@@ -245,7 +246,7 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
               />
               <input
                 type="number"
-                value={dimension.width.toFixed(2)}
+                value={dimension.width}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   updateDimension("width", parseFloat(e.target.value))
                 }
@@ -267,7 +268,7 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
               />
               <input
                 type="number"
-                value={dimension.depth.toFixed(2)}
+                value={dimension.depth}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   updateDimension("depth", parseFloat(e.target.value))
                 }
@@ -289,7 +290,7 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
               />
               <input
                 type="number"
-                value={dimension.height.toFixed(2)}
+                value={dimension.height}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   updateDimension("height", parseFloat(e.target.value))
                 }
@@ -335,6 +336,7 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
               className="border-gray-300 w-16 rounded-md border p-1 text-center"
             />
           </div>
+          {/* Circular Sliders for rotation  */}
           <div className="flex justify-around">
             <div className="w-16">
               <CircularSlider
@@ -397,15 +399,11 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
               />
             </div>
           </div>
+          {/* Circular Sliders for rotation end*/}
         </div>
       </div>
-      <div className="mt-4 flex justify-center">
-        <button
-          onClick={resetItem}
-          className="bg-red-500 hover:bg-red-600 rounded px-4 py-1 text-white"
-        >
-          Reset
-        </button>
+      <div className="mt-4 flex justify-end">
+        <CustomButton onClick={resetItem}>Reset</CustomButton>
       </div>
     </div>
   );

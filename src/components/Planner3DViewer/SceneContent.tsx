@@ -1374,7 +1374,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
         placedItems.map((item) => {
           const isCeilingItem = ceilingItems.some((ci) => ci.id === item.id);
           const itemClick = isCeilingItem
-            ? undefined
+            ? () => handlePlacedItemClick(item)
             : () => handlePlacedItemClick(item);
 
           return (
