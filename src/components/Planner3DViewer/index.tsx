@@ -382,11 +382,14 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         id: newId,
         x: adjustedX,
         y: adjustedY,
+        z: newItem.position[1],
         name: placingItem.name || "Unnamed Item",
         width: placingItem.width,
         height: placingItem.height,
         depth: placingItem.depth,
         rotation: rotationInDegrees,
+        rotationX: newItem.rotation[0],
+        rotationZ: newItem.rotation[2],
         category: placingItem.category || "Uncategorized",
         imageSrc: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${placingItem.name
           .toLowerCase()
