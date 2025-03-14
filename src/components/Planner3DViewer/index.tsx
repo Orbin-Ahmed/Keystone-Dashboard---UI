@@ -382,14 +382,14 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         id: newId,
         x: adjustedX,
         y: adjustedY,
-        z: newItem.position[1],
+        z: newItem.position[1] || 0,
         name: placingItem.name || "Unnamed Item",
         width: placingItem.width,
         height: placingItem.height,
         depth: placingItem.depth,
         rotation: rotationInDegrees,
-        rotationX: newItem.rotation[0],
-        rotationZ: newItem.rotation[2],
+        rotationX: newItem.rotation[0] || 0,
+        rotationZ: newItem.rotation[2] || 0,
         category: placingItem.category || "Uncategorized",
         imageSrc: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${placingItem.name
           .toLowerCase()
@@ -1117,13 +1117,15 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
             <CustomButton variant="tertiary" onClick={toggleTourList}>
               Tour Points
             </CustomButton>
-            <AddItemSidebar
-              onToggleItems={() => {
-                setIsItemsOpen((prev) => !prev);
-                setIsSettingsOpen(false);
-                setIsTourOpen(false);
-              }}
-            />
+            {!activeTourPoint && (
+              <AddItemSidebar
+                onToggleItems={() => {
+                  setIsItemsOpen((prev) => !prev);
+                  setIsSettingsOpen(false);
+                  setIsTourOpen(false);
+                }}
+              />
+            )}
           </div>
 
           {/* Tour Points List */}
