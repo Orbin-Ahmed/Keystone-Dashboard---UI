@@ -941,6 +941,67 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         item.id === updatedItem.id ? updatedItem : item,
       ),
     );
+    update2DItem(updatedItem);
+  };
+
+  const update2DItem = (updatedItem: PlacedItemType) => {
+    const rotationInDegrees = -(updatedItem.rotation[1] * 180) / Math.PI;
+
+    const adjustedX =
+      updatedItem.position[0] -
+      (Math.cos(updatedItem.rotation[1]) * updatedItem.width) / 2 -
+      (Math.sin(updatedItem.rotation[1]) * updatedItem.depth) / 2 +
+      centerX;
+
+    const adjustedY =
+      updatedItem.position[2] +
+      (Math.sin(updatedItem.rotation[1]) * updatedItem.width) / 2 -
+      (Math.cos(updatedItem.rotation[1]) * updatedItem.depth) / 2 +
+      centerY;
+
+    if (updatedItem.position[1] === 0) {
+      setFurnitureItems((prev) => {
+        const index = prev.findIndex((item) => item.id === updatedItem.id);
+        if (index !== -1) {
+          const updated2DItem = {
+            ...prev[index],
+            x: adjustedX,
+            y: adjustedY,
+            rotation: rotationInDegrees,
+            width: updatedItem.width,
+            height: updatedItem.height,
+            depth: updatedItem.depth,
+          };
+          return [
+            ...prev.slice(0, index),
+            updated2DItem,
+            ...prev.slice(index + 1),
+          ];
+        }
+        return prev;
+      });
+    } else {
+      setCeilingItems((prev) => {
+        const index = prev.findIndex((item) => item.id === updatedItem.id);
+        if (index !== -1) {
+          const updated2DItem = {
+            ...prev[index],
+            x: adjustedX,
+            y: adjustedY,
+            rotation: rotationInDegrees,
+            width: updatedItem.width,
+            height: updatedItem.height,
+            depth: updatedItem.depth,
+          };
+          return [
+            ...prev.slice(0, index),
+            updated2DItem,
+            ...prev.slice(index + 1),
+          ];
+        }
+        return prev;
+      });
+    }
   };
 
   // Wall Item Control end
