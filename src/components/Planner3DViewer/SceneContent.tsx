@@ -876,6 +876,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
     [handlePointerMove],
   );
 
+  // Floor Item Placement
   useEffect(() => {
     const newPlacedItems = furnitureItems.map((item) => {
       const id = item.id;
@@ -927,6 +928,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
     ]);
   }, []);
 
+  // Wall Items Placment
   useEffect(() => {
     const newWallItems = wallItems2D.map((item) => {
       const id = item.id;
@@ -971,6 +973,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
     setWallItems((prevPlacedItems) => [...prevPlacedItems, ...newWallItems]);
   }, []);
 
+  // Ceiling Item Placement
   useEffect(() => {
     const newCeilingPlaced = ceilingItems.map((item) => {
       const id = item.id;
