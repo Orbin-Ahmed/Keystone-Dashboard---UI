@@ -1015,31 +1015,31 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           return prev;
         });
         break;
-      // case "Wall":
-      //   setWallItems2D((prev) => {
-      //     const index = prev.findIndex((item) => item.id === updatedItem.id);
-      //     if (index !== -1) {
-      //       const updated2DItem = {
-      //         ...prev[index],
-      //         x: adjustedX,
-      //         y: adjustedY,
-      //         z: updatedItem.position[1],
-      //         rotation: rotationInDegreesY,
-      //         rotationX: rotationInDegreesX,
-      //         rotationZ: rotationInDegreesZ,
-      //         width: updatedItem.width,
-      //         height: updatedItem.height,
-      //         depth: updatedItem.depth,
-      //       };
-      //       return [
-      //         ...prev.slice(0, index),
-      //         updated2DItem,
-      //         ...prev.slice(index + 1),
-      //       ];
-      //     }
-      //     return prev;
-      //   });
-      //   break;
+      case "Wall":
+        setWallItems2D((prev) => {
+          const index = prev.findIndex((item) => item.id === updatedItem.id);
+          if (index !== -1) {
+            const updated2DItem = {
+              ...prev[index],
+              x: adjustedX,
+              y: adjustedY,
+              z: updatedItem.position[1],
+              rotation: rotationInDegreesY,
+              rotationX: rotationInDegreesX,
+              rotationZ: rotationInDegreesZ,
+              width: updatedItem.width,
+              height: updatedItem.height,
+              depth: updatedItem.depth,
+            };
+            return [
+              ...prev.slice(0, index),
+              updated2DItem,
+              ...prev.slice(index + 1),
+            ];
+          }
+          return prev;
+        });
+        break;
       default:
         break;
     }
@@ -1057,10 +1057,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   //     document.body.removeChild(stats.dom);
   //   };
   // }, []);
-
-  useEffect(() => {
-    console.log("Furniture Items Updated:", furnitureItems);
-  }, [furnitureItems]);
 
   return (
     <>
