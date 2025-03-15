@@ -17,8 +17,7 @@ interface Dimensions {
 }
 
 interface ItemSettingsSidebarProps {
-  selectedItem?: PlacedItemType;
-  selectedWallItem?: SelectedWallItem | null;
+  activeItem: PlacedItemType;
   onUpdateItem: (updatedItem: PlacedItemType) => void;
   onClose: () => void;
   placementType: "Wall" | "Ceiling" | "Floor";
@@ -42,15 +41,12 @@ function normalizeAngle(angle: number): number {
 }
 
 const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
-  selectedItem,
-  selectedWallItem,
+  activeItem,
   onUpdateItem,
   onClose,
   placementType,
   setPlacementType,
 }) => {
-  const activeItem = selectedItem || selectedWallItem;
-
   const [position, setPosition] = useState<Vector3>({ x: 0, y: 0, z: 0 });
   const [rotationDeg, setRotationDeg] = useState<Vector3>({ x: 0, y: 0, z: 0 });
   const [dimension, setDimension] = useState<Dimensions>({
