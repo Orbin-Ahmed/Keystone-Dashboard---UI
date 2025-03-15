@@ -860,6 +860,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
 
   const handlePlacedItemClick = (item: any) => {
     setSelectedItem(item);
+    setSelectedWallItem(null);
   };
 
   useEffect(() => {
@@ -1078,6 +1079,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
 
   const handleWallItemClick = (item: WallItem) => {
     setSelectedWallItem(item);
+    setSelectedItem(null);
   };
 
   const updateWallItemPosition = useMemo(
