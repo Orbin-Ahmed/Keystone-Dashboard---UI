@@ -1282,6 +1282,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       {selectedItem && (
         <ItemSettingsSidebar
           selectedItem={selectedItem}
+          selectedWallItem={selectedWallItem}
           onUpdateItem={handleUpdateItem}
           onClose={() => setSelectedItem(null)}
           placementType={placementType}

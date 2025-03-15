@@ -570,6 +570,7 @@ export interface WallItem {
   depth: number;
   wallNormal?: Vector3;
   wallPlane?: Plane;
+  name: string;
 }
 
 export interface SelectedWallItem extends WallItem {

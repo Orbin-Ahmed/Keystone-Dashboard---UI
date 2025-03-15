@@ -1,5 +1,5 @@
 import React, { useState, useEffect, ChangeEvent, useRef } from "react";
-import { PlacedItemType } from "@/types";
+import { PlacedItemType, SelectedWallItem } from "@/types";
 import { RiCloseLargeLine } from "react-icons/ri";
 import CircularSlider from "@fseehawer/react-circular-slider";
 import CustomButton from "@/components/CustomButton";
@@ -17,7 +17,8 @@ interface Dimensions {
 }
 
 interface ItemSettingsSidebarProps {
-  selectedItem: PlacedItemType;
+  selectedItem?: PlacedItemType;
+  selectedWallItem?: SelectedWallItem | null;
   onUpdateItem: (updatedItem: PlacedItemType) => void;
   onClose: () => void;
   placementType: "Wall" | "Ceiling" | "Floor";
@@ -42,11 +43,14 @@ function normalizeAngle(angle: number): number {
 
 const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
   selectedItem,
+  selectedWallItem,
   onUpdateItem,
   onClose,
   placementType,
   setPlacementType,
 }) => {
+  const activeItem = selectedItem || selectedWallItem;
+
   const [position, setPosition] = useState<Vector3>({ x: 0, y: 0, z: 0 });
   const [rotationDeg, setRotationDeg] = useState<Vector3>({ x: 0, y: 0, z: 0 });
   const [dimension, setDimension] = useState<Dimensions>({
@@ -66,21 +70,21 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
   });
 
   useEffect(() => {
-    if (!selectedItem) return;
+    if (!activeItem) return;
     const pos = {
-      x: Math.round(selectedItem.position[0] * 100) / 100,
-      y: Math.round(selectedItem.position[1] * 100) / 100,
-      z: Math.round(selectedItem.position[2] * 100) / 100,
+      x: Math.round(activeItem.position[0] * 100) / 100,
+      y: Math.round(activeItem.position[1] * 100) / 100,
+      z: Math.round(activeItem.position[2] * 100) / 100,
     };
     const rot = {
-      x: normalizeAngle(radToDeg(selectedItem.rotation[0])),
-      y: normalizeAngle(radToDeg(selectedItem.rotation[1])),
-      z: normalizeAngle(radToDeg(selectedItem.rotation[2])),
+      x: normalizeAngle(radToDeg(activeItem.rotation[0])),
+      y: normalizeAngle(radToDeg(activeItem.rotation[1])),
+      z: normalizeAngle(radToDeg(activeItem.rotation[2])),
     };
     const dim = {
-      width: Math.round(selectedItem.width * 100) / 100,
-      height: Math.round(selectedItem.height * 100) / 100,
-      depth: Math.round(selectedItem.depth * 100) / 100,
+      width: Math.round(activeItem.width * 100) / 100,
+      height: Math.round(activeItem.height * 100) / 100,
+      depth: Math.round(activeItem.depth * 100) / 100,
     };
     setPosition(pos);
     setRotationDeg(rot);
@@ -88,14 +92,14 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
     originalPositionRef.current = pos;
     originalRotationRef.current = rot;
     originalDimensionRef.current = dim;
-  }, [selectedItem?.id]);
+  }, [activeItem?.id]);
 
   const updatePosition = (axis: keyof Vector3, value: number) => {
     const rounded = Math.round(value * 100) / 100;
     const newPos = { ...position, [axis]: rounded };
     setPosition(newPos);
     onUpdateItem({
-      ...selectedItem,
+      ...activeItem!,
       position: [newPos.x, newPos.y, newPos.z],
     });
   };
@@ -106,7 +110,7 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
     const newRot = { ...rotationDeg, [axis]: rounded };
     setRotationDeg(newRot);
     onUpdateItem({
-      ...selectedItem,
+      ...activeItem!,
       rotation: [degToRad(newRot.x), degToRad(newRot.y), degToRad(newRot.z)],
     });
   };
@@ -131,7 +135,7 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
     }
     setDimension(updated);
     onUpdateItem({
-      ...selectedItem,
+      ...activeItem!,
       width: updated.width,
       height: updated.height,
       depth: updated.depth,
@@ -143,7 +147,7 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
     setRotationDeg(originalRotationRef.current);
     setDimension(originalDimensionRef.current);
     onUpdateItem({
-      ...selectedItem,
+      ...activeItem!,
       position: [
         originalPositionRef.current.x,
         originalPositionRef.current.y,
