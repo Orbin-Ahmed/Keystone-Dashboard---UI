@@ -89,15 +89,17 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
   // Item states
   const [isItemsOpen, setIsItemsOpen] = useState(false);
+  const [lastPlacedItemId, setLastPlacedItemId] = useState(0);
+
   const [placingItem, setPlacingItem] = useState<PlacingItemType | null>(null);
   const [placedItems, setPlacedItems] = useState<PlacedItemType[]>([]);
-  const [lastPlacedItemId, setLastPlacedItemId] = useState(0);
   const [selectedItem, setSelectedItem] = useState<PlacedItemType | null>(null);
 
   const [placingWallItem, setPlacingWallItem] = useState<WallItem | null>(null);
   const [wallItems, setWallItems] = useState<WallItem[]>([]);
   const [selectedWallItem, setSelectedWallItem] =
     useState<SelectedWallItem | null>(null);
+
   const [isWallItemMoving, setIsWallItemMoving] = useState(false);
   const [originalWallItemPos, setOriginalWallItemPos] = useState<
     [number, number, number] | null
@@ -947,6 +949,16 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     update2DItem(updatedItem);
   };
 
+  const handleUpdateWallItem = (updatedItem: SelectedWallItem) => {
+    setSelectedWallItem(updatedItem);
+    setWallItems((prevItems) =>
+      prevItems.map((item) =>
+        item.id === updatedItem.id ? updatedItem : item,
+      ),
+    );
+    update2DItem(updatedItem);
+  };
+
   const update2DItem = (updatedItem: PlacedItemType) => {
     const rotationInDegreesX = updatedItem.rotation[0];
     const rotationInDegreesY = -(updatedItem.rotation[1] * 180) / Math.PI;
@@ -1044,6 +1056,12 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         break;
     }
   };
+
+  useEffect(() => {
+    if (selectedWallItem) {
+      setPlacementType("Wall");
+    }
+  }, [selectedWallItem]);
 
   // Wall Item Control end
 
@@ -1284,6 +1302,18 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           activeItem={selectedItem}
           onUpdateItem={handleUpdateItem}
           onClose={() => setSelectedItem(null)}
+          placementType={placementType}
+          setPlacementType={setPlacementType}
+        />
+      )}
+
+      {selectedWallItem && (
+        <ItemSettingsSidebar
+          activeItem={selectedWallItem}
+          onUpdateItem={
+            handleUpdateWallItem as (updatedItem: PlacedItemType) => void
+          }
+          onClose={() => setSelectedWallItem(null)}
           placementType={placementType}
           setPlacementType={setPlacementType}
         />

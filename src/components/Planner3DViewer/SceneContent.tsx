@@ -950,12 +950,13 @@ const SceneContent: React.FC<SceneContentProps> = ({
         (Math.sin(rotationInRadians) * item.width) / 2 +
         (Math.cos(rotationInRadians) * item.depth) / 2;
 
-      const position: [number, number, number] = [
-        adjustedX,
-        item.z || wallHeight / 2,
-        adjustedZ,
+      const position: [number, number, number] = [adjustedX, item.z, adjustedZ];
+
+      const rotation: [number, number, number] = [
+        item.rotationX || 0,
+        rotationInRadians,
+        item.rotationZ || 0,
       ];
-      const rotation: [number, number, number] = [0, rotationInRadians, 0];
 
       return {
         id,
