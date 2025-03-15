@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { use, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import {
   ItemOption,
@@ -945,7 +945,9 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   };
 
   const update2DItem = (updatedItem: PlacedItemType) => {
-    const rotationInDegrees = -(updatedItem.rotation[1] * 180) / Math.PI;
+    const rotationInDegreesX = -(updatedItem.rotation[0] * 180) / Math.PI;
+    const rotationInDegreesY = -(updatedItem.rotation[1] * 180) / Math.PI;
+    const rotationInDegreesZ = -(updatedItem.rotation[2] * 180) / Math.PI;
 
     const adjustedX =
       updatedItem.position[0] -
@@ -967,7 +969,10 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
             ...prev[index],
             x: adjustedX,
             y: adjustedY,
-            rotation: rotationInDegrees,
+            z: updatedItem.position[1],
+            rotation: rotationInDegreesY,
+            rotationX: rotationInDegreesX,
+            rotationZ: rotationInDegreesZ,
             width: updatedItem.width,
             height: updatedItem.height,
             depth: updatedItem.depth,
@@ -988,7 +993,10 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
             ...prev[index],
             x: adjustedX,
             y: adjustedY,
-            rotation: rotationInDegrees,
+            z: updatedItem.position[1],
+            rotation: rotationInDegreesY,
+            rotationX: rotationInDegreesX,
+            rotationZ: rotationInDegreesZ,
             width: updatedItem.width,
             height: updatedItem.height,
             depth: updatedItem.depth,
@@ -1016,6 +1024,10 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   //     document.body.removeChild(stats.dom);
   //   };
   // }, []);
+
+  useEffect(() => {
+    console.log("Furniture Items Updated:", furnitureItems);
+  }, [furnitureItems]);
 
   return (
     <>

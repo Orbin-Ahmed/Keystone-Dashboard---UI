@@ -896,8 +896,16 @@ const SceneContent: React.FC<SceneContentProps> = ({
         (Math.sin(rotationInRadians) * item.width) / 2 +
         (Math.cos(rotationInRadians) * item.depth) / 2;
 
-      const position: [number, number, number] = [adjustedX, 0, adjustedZ];
-      const rotation: [number, number, number] = [0, rotationInRadians, 0];
+      const position: [number, number, number] = [
+        adjustedX,
+        item.z || 0,
+        adjustedZ,
+      ];
+      const rotation: [number, number, number] = [
+        item.rotationX || 0,
+        rotationInRadians,
+        item.rotationZ || 0,
+      ];
 
       return {
         id,
@@ -969,7 +977,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
       const name = item.name;
       const type = name.toLowerCase().replace(/[-\s]/g, "_");
       const path = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/${type}.glb`;
-
+      console.log("ceiling item", item);
       const rotationInRadians = -(item.rotation * Math.PI) / 180;
       const adjustedX =
         item.x -
@@ -985,10 +993,14 @@ const SceneContent: React.FC<SceneContentProps> = ({
 
       const position: [number, number, number] = [
         adjustedX,
-        wallHeight - item.height - 0.01,
+        item.z || wallHeight - item.height - 0.01,
         adjustedZ,
       ];
-      const rotation: [number, number, number] = [0, rotationInRadians, 0];
+      const rotation: [number, number, number] = [
+        item.rotationX || 0,
+        rotationInRadians,
+        item.rotationZ || 0,
+      ];
 
       return {
         id,
