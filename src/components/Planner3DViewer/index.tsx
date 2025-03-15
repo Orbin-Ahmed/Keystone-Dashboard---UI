@@ -129,6 +129,9 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [isRenderModalOpen, setIsRenderModalOpen] = useState(false);
 
   const [zoomLevel, setZoomLevel] = useState(3);
+  const [placementType, setPlacementType] = useState<
+    "Wall" | "Ceiling" | "Floor"
+  >("Floor");
 
   const fetchDoorAndWindowOptions = async () => {
     try {
@@ -945,9 +948,9 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   };
 
   const update2DItem = (updatedItem: PlacedItemType) => {
-    const rotationInDegreesX = -(updatedItem.rotation[0] * 180) / Math.PI;
+    const rotationInDegreesX = updatedItem.rotation[0];
     const rotationInDegreesY = -(updatedItem.rotation[1] * 180) / Math.PI;
-    const rotationInDegreesZ = -(updatedItem.rotation[2] * 180) / Math.PI;
+    const rotationInDegreesZ = updatedItem.rotation[2];
 
     const adjustedX =
       updatedItem.position[0] -
@@ -961,54 +964,84 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       (Math.cos(updatedItem.rotation[1]) * updatedItem.depth) / 2 +
       centerY;
 
-    if (updatedItem.position[1] === 0) {
-      setFurnitureItems((prev) => {
-        const index = prev.findIndex((item) => item.id === updatedItem.id);
-        if (index !== -1) {
-          const updated2DItem = {
-            ...prev[index],
-            x: adjustedX,
-            y: adjustedY,
-            z: updatedItem.position[1],
-            rotation: rotationInDegreesY,
-            rotationX: rotationInDegreesX,
-            rotationZ: rotationInDegreesZ,
-            width: updatedItem.width,
-            height: updatedItem.height,
-            depth: updatedItem.depth,
-          };
-          return [
-            ...prev.slice(0, index),
-            updated2DItem,
-            ...prev.slice(index + 1),
-          ];
-        }
-        return prev;
-      });
-    } else {
-      setCeilingItems((prev) => {
-        const index = prev.findIndex((item) => item.id === updatedItem.id);
-        if (index !== -1) {
-          const updated2DItem = {
-            ...prev[index],
-            x: adjustedX,
-            y: adjustedY,
-            z: updatedItem.position[1],
-            rotation: rotationInDegreesY,
-            rotationX: rotationInDegreesX,
-            rotationZ: rotationInDegreesZ,
-            width: updatedItem.width,
-            height: updatedItem.height,
-            depth: updatedItem.depth,
-          };
-          return [
-            ...prev.slice(0, index),
-            updated2DItem,
-            ...prev.slice(index + 1),
-          ];
-        }
-        return prev;
-      });
+    switch (placementType) {
+      case "Floor":
+        setFurnitureItems((prev) => {
+          const index = prev.findIndex((item) => item.id === updatedItem.id);
+          if (index !== -1) {
+            const updated2DItem = {
+              ...prev[index],
+              x: adjustedX,
+              y: adjustedY,
+              z: updatedItem.position[1],
+              rotation: rotationInDegreesY,
+              rotationX: rotationInDegreesX,
+              rotationZ: rotationInDegreesZ,
+              width: updatedItem.width,
+              height: updatedItem.height,
+              depth: updatedItem.depth,
+            };
+            return [
+              ...prev.slice(0, index),
+              updated2DItem,
+              ...prev.slice(index + 1),
+            ];
+          }
+          return prev;
+        });
+        break;
+      case "Ceiling":
+        setCeilingItems((prev) => {
+          const index = prev.findIndex((item) => item.id === updatedItem.id);
+          if (index !== -1) {
+            const updated2DItem = {
+              ...prev[index],
+              x: adjustedX,
+              y: adjustedY,
+              z: updatedItem.position[1],
+              rotation: rotationInDegreesY,
+              rotationX: rotationInDegreesX,
+              rotationZ: rotationInDegreesZ,
+              width: updatedItem.width,
+              height: updatedItem.height,
+              depth: updatedItem.depth,
+            };
+            return [
+              ...prev.slice(0, index),
+              updated2DItem,
+              ...prev.slice(index + 1),
+            ];
+          }
+          return prev;
+        });
+        break;
+      // case "Wall":
+      //   setWallItems2D((prev) => {
+      //     const index = prev.findIndex((item) => item.id === updatedItem.id);
+      //     if (index !== -1) {
+      //       const updated2DItem = {
+      //         ...prev[index],
+      //         x: adjustedX,
+      //         y: adjustedY,
+      //         z: updatedItem.position[1],
+      //         rotation: rotationInDegreesY,
+      //         rotationX: rotationInDegreesX,
+      //         rotationZ: rotationInDegreesZ,
+      //         width: updatedItem.width,
+      //         height: updatedItem.height,
+      //         depth: updatedItem.depth,
+      //       };
+      //       return [
+      //         ...prev.slice(0, index),
+      //         updated2DItem,
+      //         ...prev.slice(index + 1),
+      //       ];
+      //     }
+      //     return prev;
+      //   });
+      //   break;
+      default:
+        break;
     }
   };
 
@@ -1255,6 +1288,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           selectedItem={selectedItem}
           onUpdateItem={handleUpdateItem}
           onClose={() => setSelectedItem(null)}
+          placementType={placementType}
+          setPlacementType={setPlacementType}
         />
       )}
 

@@ -20,6 +20,10 @@ interface ItemSettingsSidebarProps {
   selectedItem: PlacedItemType;
   onUpdateItem: (updatedItem: PlacedItemType) => void;
   onClose: () => void;
+  placementType: "Wall" | "Ceiling" | "Floor";
+  setPlacementType: React.Dispatch<
+    React.SetStateAction<"Wall" | "Ceiling" | "Floor">
+  >;
 }
 
 function degToRad(deg: number): number {
@@ -40,6 +44,8 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
   selectedItem,
   onUpdateItem,
   onClose,
+  placementType,
+  setPlacementType,
 }) => {
   const [position, setPosition] = useState<Vector3>({ x: 0, y: 0, z: 0 });
   const [rotationDeg, setRotationDeg] = useState<Vector3>({ x: 0, y: 0, z: 0 });
@@ -165,6 +171,24 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
           <RiCloseLargeLine />
         </button>
       </div>
+
+      {/* Dropdown for Placement Type */}
+      <div className="control-section bg-gray-50 rounded-md p-2">
+        <h4 className="text-gray-700 mb-2 font-medium">Placement Type</h4>
+        <select
+          value={placementType}
+          onChange={(e) => {
+            const newType = e.target.value as "Wall" | "Ceiling" | "Floor";
+            setPlacementType(newType);
+          }}
+          className="border-gray-300 w-full rounded-md border p-1"
+        >
+          <option value="Wall">Wall</option>
+          <option value="Ceiling">Ceiling</option>
+          <option value="Floor">Floor</option>
+        </select>
+      </div>
+
       <div className="space-y-5">
         <div className="control-section bg-gray-50 rounded-md p-2">
           <h4 className="text-gray-700 mb-2 font-medium">Position</h4>

@@ -977,7 +977,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
       const name = item.name;
       const type = name.toLowerCase().replace(/[-\s]/g, "_");
       const path = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/${type}.glb`;
-      console.log("ceiling item", item);
+
       const rotationInRadians = -(item.rotation * Math.PI) / 180;
       const adjustedX =
         item.x -
