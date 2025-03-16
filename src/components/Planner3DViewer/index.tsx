@@ -1403,6 +1403,11 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
                   f.id === selectedItem.id ? { ...f, name: newItemName } : f,
                 ),
               );
+              setCeilingItems((prev) =>
+                prev.map((c) =>
+                  c.id === selectedItem.id ? { ...c, name: newItemName } : c,
+                ),
+              );
             }
             console.log("Customizations applied:", customizations);
           }}
