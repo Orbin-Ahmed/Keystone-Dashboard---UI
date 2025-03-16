@@ -77,6 +77,7 @@ const PlanEditor = ({
   selectedPlane,
   wallItems,
   setWallItems,
+  isSidebarOpen,
 }: PlanEditorProps) => {
   const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(
     null,
@@ -96,6 +97,8 @@ const PlanEditor = ({
   const [selectedWallItemId, setSelectedWallItemId] = useState<string | null>(
     null,
   );
+
+  const [scale, setScale] = useState(1);
 
   const [helperLines, setHelperLines] = useState<HelperLine[]>([]);
 
@@ -183,6 +186,39 @@ const PlanEditor = ({
     selectedCeilingItemId,
     selectedWallItemId,
   ]);
+
+  const handleWheel = (e: any) => {
+    e.evt.preventDefault();
+    const stage = stageRef.current;
+    if (!stage) return;
+
+    const oldScale = scale;
+    const pointer = stage.getPointerPosition();
+    if (!pointer) return;
+
+    const scaleBy = 1.05;
+    let newScale = oldScale;
+    if (e.evt.deltaY < 0) {
+      newScale = oldScale * scaleBy;
+    } else {
+      newScale = oldScale / scaleBy;
+    }
+    setScale(newScale);
+
+    const mousePointTo = {
+      x: (pointer.x - stage.x()) / oldScale,
+      y: (pointer.y - stage.y()) / oldScale,
+    };
+
+    stage.scale({ x: newScale, y: newScale });
+
+    const newPos = {
+      x: pointer.x - mousePointTo.x * newScale,
+      y: pointer.y - mousePointTo.y * newScale,
+    };
+    stage.position(newPos);
+    stage.batchDraw();
+  };
 
   // Snap helper
 
@@ -1088,6 +1124,20 @@ const PlanEditor = ({
           onMouseUp={handleMouseUp}
           onDblClick={handleDoubleClick}
           ref={stageRef}
+          onWheel={handleWheel}
+          draggable={tool === null}
+          onDragStart={(e) => {
+            const container = stageRef.current?.container();
+            if (container) {
+              container.style.cursor = "grabbing";
+            }
+          }}
+          onDragEnd={(e) => {
+            const container = stageRef.current?.container();
+            if (container) {
+              container.style.cursor = "grab";
+            }
+          }}
         >
           <Layer opacity={floorLayerOpacity} listening={floorLayerListening}>
             {drawGrid()}

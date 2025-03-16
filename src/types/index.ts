@@ -217,6 +217,7 @@ export interface PlanEditorProps {
   selectedPlane: string;
   wallItems: WallItems2D[];
   setWallItems: React.Dispatch<React.SetStateAction<WallItems2D[]>>;
+  isSidebarOpen: boolean;
 }
 
 export interface LineData {
