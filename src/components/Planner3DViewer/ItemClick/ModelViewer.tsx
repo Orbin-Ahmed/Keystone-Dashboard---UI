@@ -98,6 +98,9 @@ const ModelViewer: React.FC<ModelViewerProps> = ({
       if (!groupObj) return;
       groupObj.traverse((child) => {
         if (child instanceof THREE.Mesh) {
+          const hasCustomOpacity =
+            cust.opacity !== undefined && cust.opacity < 100;
+
           if (cust.textureFile) {
             const textureURL = URL.createObjectURL(cust.textureFile);
             const loader = new THREE.TextureLoader();
@@ -115,9 +118,16 @@ const ModelViewer: React.FC<ModelViewerProps> = ({
               const offsetY = cust.textureOffset?.y || 0;
               loadedTexture.offset.set(offsetX, offsetY);
 
-              child.material = new THREE.MeshStandardMaterial({
+              // child.material = new THREE.MeshStandardMaterial({
+              //   map: loadedTexture,
+              // });
+              const material = new THREE.MeshStandardMaterial({
                 map: loadedTexture,
+                transparent: hasCustomOpacity,
+                opacity: hasCustomOpacity ? cust.opacity! / 100 : 1.0,
               });
+
+              child.material = material;
             });
           } else if (cust.color) {
             const adjustedColor =
@@ -125,14 +135,28 @@ const ModelViewer: React.FC<ModelViewerProps> = ({
                 ? adjustBrightness(cust.color, cust.brightness)
                 : cust.color;
 
+            // child.material = new THREE.MeshStandardMaterial({
+            //   color: adjustedColor,
+            //   transparent: false,
+            // });
+
             child.material = new THREE.MeshStandardMaterial({
               color: adjustedColor,
-              transparent: false,
+              transparent: hasCustomOpacity,
+              opacity: hasCustomOpacity ? cust.opacity! / 100 : 1.0,
             });
           } else {
             const origMat = originalMaterials.get(child.uuid);
             if (origMat) {
-              child.material = origMat.clone();
+              // child.material = origMat.clone();
+              const clonedMat = origMat.clone();
+
+              if (hasCustomOpacity && clonedMat instanceof THREE.Material) {
+                clonedMat.transparent = true;
+                clonedMat.opacity = cust.opacity! / 100;
+              }
+
+              child.material = clonedMat;
             }
           }
         }

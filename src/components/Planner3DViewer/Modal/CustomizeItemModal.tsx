@@ -40,6 +40,7 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
 
   const [localColor, setLocalColor] = useState<string>("#ffffff");
   const [localBrightness, setLocalBrightness] = useState<number>(50);
+  const [localOpacity, setLocalOpacity] = useState<number>(100);
   const [localTextureFile, setLocalTextureFile] = useState<File | null>(null);
   const [texturePreview, setTexturePreview] = useState<string | null>(null);
 
@@ -96,6 +97,7 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
       newCustomizations[group.groupName] = {
         color: localColor !== "#ffffff" ? localColor : undefined,
         brightness: localBrightness,
+        opacity: localOpacity !== 100 ? localOpacity : undefined,
         textureFile: localTextureFile || undefined,
 
         textureScale: localTextureFile ? localTextureScale : undefined,
@@ -212,6 +214,10 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
     });
   };
 
+  const handleOpacityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalOpacity(Number(e.target.value));
+  };
+
   const canRevert = currentHistoryIndex >= 0;
 
   return (
@@ -295,6 +301,20 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
                 <span>Normal</span>
                 <span>Lighter</span>
               </div>
+            </div>
+
+            {/* Opacity slider */}
+            <div className="mb-4">
+              <label className="mb-1 block">Opacity: {localOpacity}%</label>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                step={1}
+                value={localOpacity}
+                onChange={handleOpacityChange}
+                className="w-full"
+              />
             </div>
 
             <div className="mb-4">
