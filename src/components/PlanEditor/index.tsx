@@ -101,6 +101,9 @@ const PlanEditor = ({
   const [scale, setScale] = useState(1);
 
   const [helperLines, setHelperLines] = useState<HelperLine[]>([]);
+  const [isShiftPressed, setIsShiftPressed] = useState(false);
+  const [isDuplicating, setIsDuplicating] = useState(false);
+  const [duplicateItemId, setDuplicateItemId] = useState<string | null>(null);
 
   const [rotateIcon] = useImage("/icons/rotate.svg");
   const [deleteIcon] = useImage("/icons/delete.svg");
@@ -133,6 +136,10 @@ const PlanEditor = ({
     setIsMounted(true);
 
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Shift") {
+        setIsShiftPressed(true);
+      }
+
       if (event.key === "Escape") {
         setTool(null);
         setSelectedShape(null);
@@ -173,10 +180,23 @@ const PlanEditor = ({
       }
     };
 
+    const handleKeyUp = (event: KeyboardEvent) => {
+      if (event.key === "Shift") {
+        setIsShiftPressed(false);
+
+        if (isDuplicating) {
+          setIsDuplicating(false);
+          setDuplicateItemId(null);
+        }
+      }
+    };
+
     window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
     };
   }, [
     setTool,
@@ -900,6 +920,52 @@ const PlanEditor = ({
     e.dataTransfer.dropEffect = "copy";
   };
 
+  // Create a handler for when dragging starts on a furniture item
+  const handleDragStart = (id: string, isShiftKeyPressed: boolean) => {
+    if (isShiftKeyPressed && !isDuplicating) {
+      setIsDuplicating(true);
+
+      const itemToDuplicate =
+        furnitureItems.find((item) => item.id === id) ||
+        ceilingItems.find((item) => item.id === id) ||
+        wallItems.find((item) => item.id === id);
+
+      if (itemToDuplicate) {
+        const newId = uid();
+        setDuplicateItemId(newId);
+
+        if (
+          selectedPlane === "roof" &&
+          ceilingItems.some((item) => item.id === id)
+        ) {
+          const newItem: CeilingItem = {
+            ...(itemToDuplicate as CeilingItem),
+            id: newId,
+          };
+          setCeilingItems((prev) => [...prev, newItem]);
+          setSelectedCeilingItemId(newId);
+        } else if (
+          selectedPlane === "wall" &&
+          wallItems.some((item) => item.id === id)
+        ) {
+          const newItem: WallItems2D = {
+            ...(itemToDuplicate as WallItems2D),
+            id: newId,
+          };
+          setWallItems((prev) => [...prev, newItem]);
+          setSelectedWallItemId(newId);
+        } else {
+          const newItem: FurnitureItem = {
+            ...(itemToDuplicate as FurnitureItem),
+            id: newId,
+          };
+          setFurnitureItems((prev) => [...prev, newItem]);
+          setSelectedItemId(newId);
+        }
+      }
+    }
+  };
+
   // helper function from distance line
 
   const computeHelperLines = (
@@ -1449,6 +1515,7 @@ const PlanEditor = ({
                   setSelectedCeilingItemId(null);
                   setSelectedWallItemId(null);
                 }}
+                onDragStart={(id) => handleDragStart(id, isShiftPressed)}
                 onDragMove={(e) =>
                   handleFurnitureDragMove(item.id, {
                     x: e.target.x(),
@@ -1461,6 +1528,7 @@ const PlanEditor = ({
                     prev.map((f) => (f.id === id ? { ...f, ...newAttrs } : f)),
                   );
                 }}
+                isShiftPressed={isShiftPressed}
               />
             ))}
 

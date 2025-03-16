@@ -1,5 +1,5 @@
 "use client";
-import React, { FC, useRef, useEffect } from "react";
+import React, { FC, useRef, useEffect, useState } from "react";
 import { Image as KonvaImage, Transformer } from "react-konva";
 import useImage from "use-image";
 import Konva from "konva";
@@ -13,6 +13,8 @@ interface FurnitureItemComponentProps {
   onChange: (id: string, newAttrs: Partial<FurnitureItem>) => void;
   onDragMove?: (e: KonvaEventObject<DragEvent>) => void;
   onDragEnd?: (e: KonvaEventObject<DragEvent>) => void;
+  onDragStart?: (id: string) => void;
+  isShiftPressed?: boolean;
 }
 
 const FurnitureItemComponent: FC<FurnitureItemComponentProps> = ({
@@ -22,10 +24,13 @@ const FurnitureItemComponent: FC<FurnitureItemComponentProps> = ({
   onChange,
   onDragMove,
   onDragEnd,
+  onDragStart,
+  isShiftPressed = false,
 }) => {
   const [image] = useImage(item.imageSrc);
   const shapeRef = useRef<Konva.Image>(null);
   const transformerRef = useRef<Konva.Transformer>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     if (transformerRef.current && shapeRef.current) {
@@ -38,8 +43,16 @@ const FurnitureItemComponent: FC<FurnitureItemComponentProps> = ({
     }
   }, [isSelected]);
 
+  const handleDragStart = (e: any) => {
+    setIsDragging(true);
+    if (onDragStart && isShiftPressed) {
+      onDragStart(item.id);
+    }
+  };
+
   const handleDragEnd = (e: KonvaEventObject<DragEvent>) => {
     if (!shapeRef.current) return;
+    setIsDragging(false);
 
     const node = shapeRef.current;
     onChange(item.id, {
@@ -92,9 +105,23 @@ const FurnitureItemComponent: FC<FurnitureItemComponentProps> = ({
         rotation={item.rotation}
         draggable
         onClick={() => onSelect(item.id)}
+        onTap={() => onSelect(item.id)}
+        onDragStart={handleDragStart}
         onDragMove={handleDragMove}
         onDragEnd={handleDragEnd}
         onTransformEnd={handleTransformEnd}
+        onMouseEnter={(e) => {
+          const stage = e.target.getStage();
+          if (stage) {
+            stage.container().style.cursor = "pointer";
+          }
+        }}
+        onMouseLeave={(e) => {
+          const stage = e.target.getStage();
+          if (stage) {
+            stage.container().style.cursor = "default";
+          }
+        }}
       />
 
       {isSelected && (
