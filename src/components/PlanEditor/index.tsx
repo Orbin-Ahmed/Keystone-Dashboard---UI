@@ -1567,6 +1567,7 @@ const PlanEditor = ({
                   setSelectedWall(null);
                   setSelectedWallItemId(null);
                 }}
+                onDragStart={(id) => handleDragStart(id, isShiftPressed)}
                 // onChange={(id, newAttrs) => {
                 //   const newPos = {
                 //     x: newAttrs.x || ci.x,
@@ -1580,6 +1581,7 @@ const PlanEditor = ({
                     prev.map((f) => (f.id === id ? { ...f, ...newAttrs } : f)),
                   );
                 }}
+                isShiftPressed={isShiftPressed}
               />
             ))}
           </Layer>
@@ -1606,6 +1608,7 @@ const PlanEditor = ({
                   setSelectedWall(null);
                   setSelectedCeilingItemId(null);
                 }}
+                onDragStart={(id) => handleDragStart(id, isShiftPressed)}
                 // onChange={(id, newAttrs) => {
                 //   const newPos = {
                 //     x: newAttrs.x || wi.x,
@@ -1619,6 +1622,7 @@ const PlanEditor = ({
                     prev.map((f) => (f.id === id ? { ...f, ...newAttrs } : f)),
                   );
                 }}
+                isShiftPressed={isShiftPressed}
               />
             ))}
 
