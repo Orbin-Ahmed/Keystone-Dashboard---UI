@@ -5,12 +5,6 @@ import * as THREE from "three";
 import SceneClickHandler from "../ItemClick/SceneClickHandler";
 import ModelViewer from "../ItemClick/ModelViewer";
 
-export interface Customization {
-  color?: string;
-  brightness?: number;
-  textureFile?: File;
-}
-
 export interface SelectionType {
   groupName: string;
   meshes: string[];
@@ -23,6 +17,7 @@ export interface Customization {
   textureScale?: number;
   textureRepeat?: { x: number; y: number };
   textureOffset?: { x: number; y: number };
+  opacity?: number;
 }
 
 export interface ItemCustomizationViewerProps {
