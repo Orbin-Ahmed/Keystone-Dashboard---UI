@@ -8,6 +8,7 @@ import {
   SelectedWallItem,
   ShapeData,
   TourPoint,
+  ViewType,
   WallItem,
 } from "@/types";
 import { PerspectiveCamera, Scene, WebGLRenderer } from "three";
@@ -31,6 +32,7 @@ import SelectedWallItemControls from "./sidebar/SelectedWallItemControls";
 import CustomizeItemModal from "./Modal/CustomizeItemModal";
 import RenderModal from "./Modal/RenderModal";
 import ItemSettingsSidebar from "./sidebar/ItemSettingsSidebar";
+import ViewControls from "./sidebar/ViewControls";
 
 const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   lines,
@@ -129,6 +131,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [lightIntensity, setLightIntensity] = useState(1);
 
   const [isRenderModalOpen, setIsRenderModalOpen] = useState(false);
+
+  const [currentView, setCurrentView] = useState<ViewType>("Default");
 
   const [zoomLevel, setZoomLevel] = useState(3);
   const [placementType, setPlacementType] = useState<
@@ -1063,6 +1067,49 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     }
   }, [selectedWallItem]);
 
+  // camera Control Start
+  const handleTopView = () => {
+    if (cameraRef.current) {
+      cameraRef.current.position.set(0, 1000, 0);
+      cameraRef.current.lookAt(0, 0, 0);
+      cameraRef.current.updateProjectionMatrix();
+    }
+  };
+
+  const handleSideView = () => {
+    if (cameraRef.current) {
+      cameraRef.current.position.set(1000, 300, 0);
+      cameraRef.current.lookAt(0, 0, 0);
+      cameraRef.current.updateProjectionMatrix();
+    }
+  };
+
+  const handleDefaultView = () => {
+    if (cameraRef.current) {
+      cameraRef.current.position.set(0, 300, 500);
+      cameraRef.current.lookAt(0, 0, 0);
+      cameraRef.current.updateProjectionMatrix();
+    }
+  };
+
+  const handleViewSelect = (view: ViewType) => {
+    setCurrentView(view);
+    switch (view) {
+      case "Top":
+        handleTopView();
+        break;
+      case "Side":
+        handleSideView();
+        break;
+      case "Default":
+      default:
+        handleDefaultView();
+        break;
+    }
+  };
+
+  // camera Control Start end
+
   // Wall Item Control end
 
   // useEffect(() => {
@@ -1362,6 +1409,9 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           item={selectedItem}
         />
       )}
+
+      {/* Render the ViewControls component */}
+      <ViewControls currentView={currentView} onSelect={handleViewSelect} />
 
       {selectedWallItem && (
         <SelectedWallItemControls

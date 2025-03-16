@@ -19,7 +19,7 @@ const ZoomControls: React.FC<ZoomControlsProps> = ({
   onToggleSettings,
 }) => {
   return (
-    <div className="absolute bottom-4 right-4 flex gap-2">
+    <div className="absolute bottom-8 right-4 flex gap-2">
       <CustomButton variant="tertiary" onClick={onSnap}>
         <FaCamera />
       </CustomButton>

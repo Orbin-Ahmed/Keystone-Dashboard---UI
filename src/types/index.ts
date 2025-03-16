@@ -220,6 +220,8 @@ export interface PlanEditorProps {
   isSidebarOpen: boolean;
 }
 
+export type ViewType = "Top" | "Side" | "Default";
+
 export interface LineData {
   id: string;
   points: number[];
