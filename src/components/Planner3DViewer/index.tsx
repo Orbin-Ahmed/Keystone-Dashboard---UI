@@ -1433,6 +1433,34 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           onDecrementZ={handleDecrementWallItemZ}
           onPlaceItem={handlePlaceWallItem}
           onDelete={handleDeleteWallItem}
+          onCustomize={handleCustomizeClick}
+        />
+      )}
+
+      {isCustomizeModalOpen && selectedWallItem && (
+        <CustomizeItemModal
+          modelPath={selectedWallItem.path}
+          onClose={() => setIsCustomizeModalOpen(false)}
+          onApply={(customizations, newItemName) => {
+            if (newItemName && selectedWallItem.id) {
+              setWallItems((prev) =>
+                prev.map((p) =>
+                  p.id === selectedWallItem.id
+                    ? { ...p, name: newItemName }
+                    : p,
+                ),
+              );
+              setWallItems2D((prev) =>
+                prev.map((w) =>
+                  w.id === selectedWallItem.id
+                    ? { ...w, name: newItemName }
+                    : w,
+                ),
+              );
+            }
+            console.log("Customizations applied:", customizations);
+          }}
+          item={selectedWallItem}
         />
       )}
 
