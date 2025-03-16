@@ -1282,7 +1282,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         <div className="absolute right-4 top-4">
           <div className="flex gap-4">
             <CustomButton variant="tertiary" onClick={toggleTourList}>
-              Tour Points
+              View Points
             </CustomButton>
             {!activeTourPoint && (
               <AddItemSidebar
@@ -1411,7 +1411,9 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       )}
 
       {/* Render the ViewControls component */}
-      <ViewControls currentView={currentView} onSelect={handleViewSelect} />
+      {!selectedWallItem && !selectedItem && !activeTourPoint && (
+        <ViewControls currentView={currentView} onSelect={handleViewSelect} />
+      )}
 
       {selectedWallItem && (
         <SelectedWallItemControls

@@ -8,7 +8,7 @@ interface AddItemSidebarProps {
 const AddItemSidebar: React.FC<AddItemSidebarProps> = ({ onToggleItems }) => {
   return (
     <CustomButton variant="tertiary" onClick={onToggleItems}>
-      Add Items
+      Items
     </CustomButton>
   );
 };
