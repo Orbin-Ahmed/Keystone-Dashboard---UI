@@ -457,7 +457,15 @@ const AddModel = () => {
                 <PerspectiveCamera position={[2, 2, 2]} />
                 <OrbitControls autoRotate autoRotateSpeed={1} />
                 <Environment preset="lobby" background={false} />
-                <ModelViewer glbUrl={glbUrl} />
+                {/* <ModelViewer glbUrl={glbUrl} /> */}
+                <ModelViewer
+                  glbUrl={glbUrl}
+                  dimensions={{
+                    width: formData.width,
+                    height: formData.height,
+                    depth: formData.depth,
+                  }}
+                />
                 <gridHelper args={[10, 10]} />
               </Canvas>
             ) : (
