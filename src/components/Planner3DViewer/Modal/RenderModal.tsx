@@ -44,7 +44,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
 
   // Present and Sun Settings
   const [preset, setPreset] = useState("Mid");
-  const [sunEnergy, setSunEnergy] = useState("100");
+  const [sunEnergy, setSunEnergy] = useState("15");
   const [sunAngle, setSunAngle] = useState("0.1");
 
   // area light settings
