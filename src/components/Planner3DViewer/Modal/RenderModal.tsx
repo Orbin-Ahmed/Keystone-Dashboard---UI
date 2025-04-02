@@ -460,7 +460,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
 
   const resetDefaults = () => {
     // Sun Settings
-    setSunEnergy("100");
+    setSunEnergy("15");
     setSunAngle("0.1");
 
     // Area Light Settings
