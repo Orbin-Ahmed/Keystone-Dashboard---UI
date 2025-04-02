@@ -906,6 +906,9 @@ const RenderModal: React.FC<RenderModalProps> = ({
                         onValueChange={setTheme}
                         className="w-full"
                       >
+                        <SegmentedControl.Item value="morning">
+                          Morning
+                        </SegmentedControl.Item>
                         <SegmentedControl.Item value="day">
                           Day
                         </SegmentedControl.Item>
