@@ -232,8 +232,8 @@ const AddModel = () => {
       formDataObj.append("viewer2d", viewer2DFile);
     }
     const conversionFactor = 0.393701;
-    formDataObj.append("item_name", formData.itemName.toLowerCase());
-    formDataObj.append("category", formData.category.toLowerCase());
+    formDataObj.append("item_name", formData.itemName.toLowerCase().trim());
+    formDataObj.append("category", formData.category.toLowerCase().trim());
     formDataObj.append("type", formData.type);
     formDataObj.append("width", (formData.width * conversionFactor).toString());
     formDataObj.append(
