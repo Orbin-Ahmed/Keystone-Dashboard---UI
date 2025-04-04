@@ -838,6 +838,17 @@ const PlanEditor = ({
     }
   };
 
+  const getRelativePointerPositionFromEvent = (
+    stage: Konva.Stage,
+    e: React.DragEvent<HTMLDivElement>,
+  ): { x: number; y: number } => {
+    const container = stage.container();
+    const rect = container.getBoundingClientRect();
+    const pointerPos = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    const transform = stage.getAbsoluteTransform().copy().invert();
+    return transform.point(pointerPos);
+  };
+
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const stage = stageRef.current;
@@ -849,7 +860,7 @@ const PlanEditor = ({
     //   y: e.clientY - rect.top,
     // };
 
-    const pos = getRelativePointerPosition(stage);
+    const pos = getRelativePointerPositionFromEvent(stage, e);
 
     const dataTransfer = e.dataTransfer;
     if (!dataTransfer) return;
