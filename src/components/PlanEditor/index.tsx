@@ -351,8 +351,10 @@ const PlanEditor = ({
     const stage = e.target.getStage();
     if (!stage) return;
 
-    const pos = stage.getPointerPosition();
-    if (!pos) return;
+    // const pos = stage.getPointerPosition();
+    // if (!pos) return;
+
+    const pos = getRelativePointerPosition(stage);
 
     if (tool === "wall") {
       const snappedPos = getSnappedPosition(pos);
@@ -841,11 +843,13 @@ const PlanEditor = ({
     const stage = stageRef.current;
     if (!stage) return;
 
-    const rect = stage.container().getBoundingClientRect();
-    const pos = {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    };
+    // const rect = stage.container().getBoundingClientRect();
+    // const pos = {
+    //   x: e.clientX - rect.left,
+    //   y: e.clientY - rect.top,
+    // };
+
+    const pos = getRelativePointerPosition(stage);
 
     const dataTransfer = e.dataTransfer;
     if (!dataTransfer) return;
@@ -967,6 +971,17 @@ const PlanEditor = ({
   };
 
   // helper function from distance line
+
+  const getRelativePointerPosition = (
+    stage: Konva.Stage,
+  ): { x: number; y: number } => {
+    const pointerPos = stage.getPointerPosition();
+    if (!pointerPos) {
+      return { x: 0, y: 0 };
+    }
+    const transform = stage.getAbsoluteTransform().copy().invert();
+    return transform.point(pointerPos);
+  };
 
   const computeHelperLines = (
     draggedItem: FurnitureItem,
