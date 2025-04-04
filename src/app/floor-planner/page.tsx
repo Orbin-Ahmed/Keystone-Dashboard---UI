@@ -776,10 +776,6 @@ const FloorPlanner = () => {
   //   }
   // }, [lines, centerX, centerY]);
 
-  // useEffect(() => {
-  //   console.log(floorPlanPoints);
-  // }, [floorPlanPoints]);
-
   return (
     <div className="editor-container">
       {viewMode === "2D" && (
