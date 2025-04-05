@@ -1063,8 +1063,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     }
   };
 
-  // camera Control Start end
-
   // Wall Item Control end
 
   // Hidden Item Function
