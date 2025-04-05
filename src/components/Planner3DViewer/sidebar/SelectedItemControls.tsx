@@ -8,15 +8,15 @@ interface SelectedItemControlsProps {
   onRotateRight: () => void;
   onDelete: () => void;
   onCustomize: () => void;
+  onHide: () => void;
 }
 
 const SelectedItemControls: React.FC<SelectedItemControlsProps> = ({
   onDeselect,
   onMove,
-  onRotateLeft,
-  onRotateRight,
   onDelete,
   onCustomize,
+  onHide,
 }) => {
   return (
     <div className="absolute bottom-20 right-4 flex flex-col gap-2">
@@ -29,6 +29,9 @@ const SelectedItemControls: React.FC<SelectedItemControlsProps> = ({
         </CustomButton>
         <CustomButton variant="secondary" onClick={onCustomize}>
           Customize
+        </CustomButton>
+        <CustomButton variant="secondary" onClick={onHide}>
+          Hide
         </CustomButton>
         <CustomButton onClick={onDelete}>Delete</CustomButton>
       </div>

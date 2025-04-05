@@ -1364,7 +1364,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
 
       {/* Only Floor Placed items */}
       {/* {!activeTourPoint && */}
-      {(!activeTourPoint || shouldExport) &&
+      {/* {(!activeTourPoint || shouldExport) &&
         placedItems
           .filter(
             (item) =>
@@ -1385,10 +1385,10 @@ const SceneContent: React.FC<SceneContentProps> = ({
               onClick={() => handlePlacedItemClick(item)}
               selected={selectedItem?.id === item.id}
             />
-          ))}
+          ))} */}
 
       {/* Roof Item and Floor Placed Item Together  */}
-      {activeTourPoint &&
+      {/* {activeTourPoint &&
         placedItems.map((item) => {
           const isCeilingItem = ceilingItems.some((ci) => ci.id === item.id);
           const itemClick = isCeilingItem
@@ -1410,8 +1410,34 @@ const SceneContent: React.FC<SceneContentProps> = ({
               selected={selectedItem?.id === item.id}
             />
           );
-        })}
+        })} */}
 
+      {placedItems
+        .filter((item) => {
+          if (!activeTourPoint && !shouldExport) {
+            return !ceilingItems.some(
+              (ceilingItem) => ceilingItem.id === item.id,
+            );
+          }
+          return true;
+        })
+        .map((item) => (
+          <ItemModel
+            key={item.id}
+            path={item.path}
+            position={item.position || [0, 0, 0]}
+            rotation={item.rotation || [0, 0, 0]}
+            dimensions={{
+              width: item.width,
+              height: item.height,
+              depth: item.depth,
+            }}
+            onClick={() => handlePlacedItemClick(item)}
+            selected={selectedItem?.id === item.id}
+          />
+        ))}
+
+      {/* Wall Item Section  */}
       {/* Placing Wall Items  */}
       {placingWallItem && (
         <WallItemModel
@@ -1447,6 +1473,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
           selected={selectedWallItem?.id === item.id}
         />
       ))}
+      {/* Wall Item Section end */}
     </>
   );
 };

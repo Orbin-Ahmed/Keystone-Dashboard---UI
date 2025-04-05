@@ -102,6 +102,14 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [selectedWallItem, setSelectedWallItem] =
     useState<SelectedWallItem | null>(null);
 
+  const [hiddenFloorItems, setHiddenFloorItems] = useState<PlacedItemType[]>(
+    [],
+  );
+  const [hiddenWallItems, setHiddenWallItems] = useState<WallItem[]>([]);
+  const [hiddenCeilingItems, setHiddenCeilingItems] = useState<
+    PlacedItemType[]
+  >([]);
+
   const [isWallItemMoving, setIsWallItemMoving] = useState(false);
   const [originalWallItemPos, setOriginalWallItemPos] = useState<
     [number, number, number] | null
@@ -239,57 +247,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     setIsAutoRotating(true);
     setShowRoof(true);
   };
-
-  // const wallClassifications = useMemo(() => {
-  //   const classifications: Record<string, WallClassification> = {};
-  //   const tolerance = 5;
-
-  //   const wallEndpoints: Array<[number, number, number, number]> = [];
-  //   const wallIds: string[] = [];
-
-  //   lines.forEach((line) => {
-  //     wallEndpoints.push(ensureWallPoints(line.points));
-  //     wallIds.push(line.id);
-  //   });
-
-  //   wallEndpoints.forEach((wall, wallIndex) => {
-  //     const [x1, y1, x2, y2] = wall;
-  //     const wallId = wallIds[wallIndex];
-  //     const wallCenter = new Vector2((x1 + x2) / 2, (y1 + y2) / 2);
-  //     const wallNormal = new Vector2(-(y2 - y1), x2 - x1).normalize();
-  //     const toCenterVector = new Vector2(
-  //       centerX - wallCenter.x,
-  //       centerY - wallCenter.y,
-  //     ).normalize();
-
-  //     const isFacingInward = wallNormal.dot(toCenterVector) > 0;
-  //     const isHorizontal = Math.abs(y1 - y2) < tolerance;
-  //     const isVertical = Math.abs(x1 - x2) < tolerance;
-
-  //     const isAtHorizontalBoundary =
-  //       Math.abs(y1 - minY) < tolerance ||
-  //       Math.abs(y1 - maxY) < tolerance ||
-  //       Math.abs(y2 - minY) < tolerance ||
-  //       Math.abs(y2 - maxY) < tolerance;
-
-  //     const isAtVerticalBoundary =
-  //       Math.abs(x1 - minX) < tolerance ||
-  //       Math.abs(x1 - maxX) < tolerance ||
-  //       Math.abs(x2 - minX) < tolerance ||
-  //       Math.abs(x2 - maxX) < tolerance;
-
-  //     const isOuter =
-  //       (isHorizontal && isAtHorizontalBoundary) ||
-  //       (isVertical && isAtVerticalBoundary);
-
-  //     classifications[wallId] = {
-  //       isOuter,
-  //       isFacingInward,
-  //     };
-  //   });
-
-  //   return classifications;
-  // }, [lines]);
 
   const handleExitTour = () => {
     setActiveTourPoint(null);
@@ -1112,6 +1069,49 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
   // Wall Item Control end
 
+  // Hidden Item Function
+
+  const hideSelectedItem = () => {
+    if (selectedItem) {
+      if (ceilingItems.some((ci) => ci.id === selectedItem.id)) {
+        setHiddenCeilingItems((prev) => [...prev, selectedItem]);
+        setCeilingItems((prev) =>
+          prev.filter((item) => item.id !== selectedItem.id),
+        );
+        setPlacedItems((prev) =>
+          prev.filter((item) => item.id !== selectedItem.id),
+        );
+      } else {
+        setHiddenFloorItems((prev) => [...prev, selectedItem]);
+        setPlacedItems((prev) =>
+          prev.filter((item) => item.id !== selectedItem.id),
+        );
+        setFurnitureItems((prev) =>
+          prev.filter((item) => item.id !== selectedItem.id),
+        );
+      }
+      setSelectedItem(null);
+    }
+  };
+
+  const hideSelectedWallItem = () => {
+    if (selectedWallItem) {
+      setHiddenWallItems((prev) => [...prev, selectedWallItem]);
+      setWallItems((prev) =>
+        prev.filter((item) => item.id !== selectedWallItem.id),
+      );
+      setWallItems2D((prev) =>
+        prev.filter((item) => item.id !== selectedWallItem.id),
+      );
+      setSelectedWallItem(null);
+    }
+  };
+
+  useEffect(() => {
+    console.log("Hidden Floor Items:", hiddenFloorItems);
+    console.log("Hidden Ceiling Items:", hiddenCeilingItems);
+  }, [hiddenCeilingItems, hiddenFloorItems]);
+
   // useEffect(() => {
   //   const stats = new Stats();
   //   stats.showPanel(0);
@@ -1384,6 +1384,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           onRotateRight={rotateSelectedItemRight}
           onDelete={deleteSelectedItem}
           onCustomize={handleCustomizeClick}
+          onHide={hideSelectedItem}
         />
       )}
 
