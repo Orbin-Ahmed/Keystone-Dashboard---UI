@@ -1143,6 +1143,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
     setHiddenFloorItems([]);
 
+    setPlacedItems((prev) => [...prev, ...hiddenCeilingItems]);
     setCeilingItems((prev) => [
       ...prev,
       ...hiddenCeilingItems.map((item) => {
@@ -1179,7 +1180,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     setHiddenCeilingItems([]);
 
     setWallItems((prev) => [...prev, ...hiddenWallItems]);
-
     setWallItems2D((prev) => [
       ...prev,
       ...hiddenWallItems.map((item) => {
@@ -1226,11 +1226,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   //     document.body.removeChild(stats.dom);
   //   };
   // }, []);
-
-  useEffect(() => {
-    console.log("Hidden Floor Items:", hiddenFloorItems);
-    console.log("Hidden Ceiling Items:", hiddenCeilingItems);
-  }, [hiddenCeilingItems, hiddenFloorItems]);
 
   return (
     <>
