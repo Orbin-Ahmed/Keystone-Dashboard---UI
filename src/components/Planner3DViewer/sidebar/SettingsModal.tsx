@@ -22,6 +22,7 @@ interface SettingsModalProps {
   onCeilingTextureChange: (value: string) => void;
   onLightIntensityChange: (value: number) => void;
   onClose: () => void;
+  onShowHiddenItems: () => void;
 }
 
 const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -38,6 +39,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   onCeilingTextureChange,
   onLightIntensityChange,
   onClose,
+  onShowHiddenItems,
 }) => {
   const [textures, setTextures] = useState<TextureData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -235,6 +237,15 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             {lightIntensity.toFixed(1)}
           </div>
         </div>
+
+        {/* Show Hidden Items Button */}
+        <CustomButton
+          onClick={onShowHiddenItems}
+          variant="primary"
+          className="mb-4 w-full rounded px-4 py-2 text-sm font-medium text-white"
+        >
+          Show Hidden Items
+        </CustomButton>
 
         {/* Close Button */}
         <CustomButton

@@ -17,6 +17,7 @@ interface SelectedWallItemControlsProps {
   onPlaceItem: () => void;
   onDelete: () => void;
   onCustomize: () => void;
+  onHide: () => void;
 }
 
 const SelectedWallItemControls: React.FC<SelectedWallItemControlsProps> = ({
@@ -32,6 +33,7 @@ const SelectedWallItemControls: React.FC<SelectedWallItemControlsProps> = ({
   onPlaceItem,
   onDelete,
   onCustomize,
+  onHide,
 }) => {
   if (!selectedWallItem) return null;
 
@@ -49,6 +51,9 @@ const SelectedWallItemControls: React.FC<SelectedWallItemControlsProps> = ({
               </CustomButton>
               <CustomButton variant="secondary" onClick={onCustomize}>
                 Customize
+              </CustomButton>
+              <CustomButton variant="secondary" onClick={onHide}>
+                Hide
               </CustomButton>
               <CustomButton variant="secondary" onClick={onDelete}>
                 Delete

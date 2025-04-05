@@ -1105,10 +1105,116 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     }
   };
 
-  useEffect(() => {
-    console.log("Hidden Floor Items:", hiddenFloorItems);
-    console.log("Hidden Ceiling Items:", hiddenCeilingItems);
-  }, [hiddenCeilingItems, hiddenFloorItems]);
+  const handleShowHiddenItems = () => {
+    setPlacedItems((prev) => [...prev, ...hiddenFloorItems]);
+    setFurnitureItems((prev) => [
+      ...prev,
+      ...hiddenFloorItems.map((item) => {
+        const adjustedX =
+          item.position[0] -
+          (Math.cos(item.rotation[1]) * item.width) / 2 -
+          (Math.sin(item.rotation[1]) * item.depth) / 2 +
+          centerX;
+        const adjustedY =
+          item.position[2] +
+          (Math.sin(item.rotation[1]) * item.width) / 2 -
+          (Math.cos(item.rotation[1]) * item.depth) / 2 +
+          centerY;
+        const rotationInDegreesX = item.rotation[0];
+        const rotationInDegreesY = -(item.rotation[1] * 180) / Math.PI;
+        const rotationInDegreesZ = item.rotation[2];
+        const imageSrc = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${item.name
+          .toLowerCase()
+          .replace(/[-\s]/g, "_")}.png`;
+
+        return {
+          ...item,
+          x: adjustedX,
+          y: adjustedY,
+          z: item.position[1],
+          rotation: rotationInDegreesY,
+          rotationX: rotationInDegreesX,
+          rotationZ: rotationInDegreesZ,
+          imageSrc,
+          category: item.category || "Uncategorized",
+        };
+      }),
+    ]);
+
+    setHiddenFloorItems([]);
+
+    setCeilingItems((prev) => [
+      ...prev,
+      ...hiddenCeilingItems.map((item) => {
+        const adjustedX =
+          item.position[0] -
+          (Math.cos(item.rotation[1]) * item.width) / 2 -
+          (Math.sin(item.rotation[1]) * item.depth) / 2 +
+          centerX;
+        const adjustedY =
+          item.position[2] +
+          (Math.sin(item.rotation[1]) * item.width) / 2 -
+          (Math.cos(item.rotation[1]) * item.depth) / 2 +
+          centerY;
+        const rotationInDegreesX = item.rotation[0];
+        const rotationInDegreesY = -(item.rotation[1] * 180) / Math.PI;
+        const rotationInDegreesZ = item.rotation[2];
+        const imageSrc = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${item.name
+          .toLowerCase()
+          .replace(/[-\s]/g, "_")}.png`;
+
+        return {
+          ...item,
+          x: adjustedX,
+          y: adjustedY,
+          z: item.position[1],
+          rotation: rotationInDegreesY,
+          rotationX: rotationInDegreesX,
+          rotationZ: rotationInDegreesZ,
+          imageSrc,
+          category: item.category || "Uncategorized",
+        };
+      }),
+    ]);
+    setHiddenCeilingItems([]);
+
+    setWallItems((prev) => [...prev, ...hiddenWallItems]);
+
+    setWallItems2D((prev) => [
+      ...prev,
+      ...hiddenWallItems.map((item) => {
+        const adjustedX =
+          item.position[0] -
+          (Math.cos(item.rotation[1]) * item.width) / 2 -
+          (Math.sin(item.rotation[1]) * item.depth) / 2 +
+          centerX;
+        const adjustedY =
+          item.position[2] +
+          (Math.sin(item.rotation[1]) * item.width) / 2 -
+          (Math.cos(item.rotation[1]) * item.depth) / 2 +
+          centerY;
+        const rotationInDegreesX = item.rotation[0];
+        const rotationInDegreesY = -(item.rotation[1] * 180) / Math.PI;
+        const rotationInDegreesZ = item.rotation[2];
+        const imageSrc = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${item.name
+          .toLowerCase()
+          .replace(/[-\s]/g, "_")}.png`;
+
+        return {
+          ...item,
+          x: adjustedX,
+          y: adjustedY,
+          z: item.position[1],
+          rotation: rotationInDegreesY,
+          rotationX: rotationInDegreesX,
+          rotationZ: rotationInDegreesZ,
+          imageSrc,
+          category: "Uncategorized",
+        };
+      }),
+    ]);
+    setHiddenWallItems([]);
+  };
 
   // useEffect(() => {
   //   const stats = new Stats();
@@ -1120,6 +1226,11 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   //     document.body.removeChild(stats.dom);
   //   };
   // }, []);
+
+  useEffect(() => {
+    console.log("Hidden Floor Items:", hiddenFloorItems);
+    console.log("Hidden Ceiling Items:", hiddenCeilingItems);
+  }, [hiddenCeilingItems, hiddenFloorItems]);
 
   return (
     <>
@@ -1433,6 +1544,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           onPlaceItem={handlePlaceWallItem}
           onDelete={handleDeleteWallItem}
           onCustomize={handleCustomizeClick}
+          onHide={hideSelectedWallItem}
         />
       )}
 
@@ -1479,6 +1591,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           lightIntensity={lightIntensity}
           onLightIntensityChange={setLightIntensity}
           onClose={() => setIsSettingsOpen(false)}
+          onShowHiddenItems={handleShowHiddenItems}
         />
       )}
     </>
