@@ -380,7 +380,7 @@ export interface SerializedFloorData {
   floorPlanPoints: FloorPlanPoint[];
   furniture: SerializedFurnitureItem[];
   ceilingItems: SerializedceilingItem[];
-  wallItems: SerializedWallItem[]
+  wallItems: SerializedWallItem[];
 }
 export interface SerializedFurnitureItem {
   id: string;
@@ -416,7 +416,7 @@ export interface SerializedWallItem {
   id: string;
   x: number;
   y: number;
-  z:number;
+  z: number;
   name: string;
   width: number;
   height: number;
@@ -463,7 +463,7 @@ export interface WallItems2D {
   id: string;
   x: number;
   y: number;
-  z:number;
+  z: number;
   name: string;
   width: number;
   height: number;
@@ -504,6 +504,12 @@ export interface Plan3DViewerProps {
   currentFloorIndex: number;
   wallItems2D: WallItems2D[];
   setWallItems2D: React.Dispatch<React.SetStateAction<WallItems2D[]>>;
+  hiddenFloorItems: PlacedItemType[];
+  setHiddenFloorItems: React.Dispatch<React.SetStateAction<PlacedItemType[]>>;
+  hiddenWallItems: WallItem[];
+  setHiddenWallItems: React.Dispatch<React.SetStateAction<WallItem[]>>;
+  hiddenCeilingItems: PlacedItemType[];
+  setHiddenCeilingItems: React.Dispatch<React.SetStateAction<PlacedItemType[]>>;
 }
 
 export interface SceneContentProps {
@@ -1014,7 +1020,6 @@ export const wallItemsCatgories = [
     ],
   },
 ];
-
 
 export interface DimensionBoxProps {
   width: number;

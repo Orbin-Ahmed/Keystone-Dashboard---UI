@@ -9,6 +9,7 @@ import {
   FloorPlanPoint,
   FurnitureItem,
   Line,
+  PlacedItemType,
   RoomName,
   SerializedceilingItem,
   SerializedFloorData,
@@ -17,6 +18,7 @@ import {
   SerializedShape,
   SerializedWallItem,
   ShapeType,
+  WallItem,
   WallItems2D,
 } from "@/types";
 import { detectWallPosition } from "@/api";
@@ -61,6 +63,15 @@ const FloorPlanner = () => {
   const [furnitureItems, setFurnitureItems] = useState<FurnitureItem[]>([]);
   const [ceilingItems, setCeilingItems] = useState<CeilingItem[]>([]);
   const [wallItems, setWallItems] = useState<WallItems2D[]>([]);
+
+  // Hidden Item State
+  const [hiddenFloorItems, setHiddenFloorItems] = useState<PlacedItemType[]>(
+    [],
+  );
+  const [hiddenWallItems, setHiddenWallItems] = useState<WallItem[]>([]);
+  const [hiddenCeilingItems, setHiddenCeilingItems] = useState<
+    PlacedItemType[]
+  >([]);
 
   // Multi Floor Data
   const floorNames = Array.from({ length: 10 }, (_, i) => `Floor ${i}`);
@@ -811,6 +822,12 @@ const FloorPlanner = () => {
           currentFloorIndex={currentFloorIndex}
           wallItems2D={wallItems}
           setWallItems2D={setWallItems}
+          hiddenFloorItems={hiddenFloorItems}
+          setHiddenFloorItems={setHiddenFloorItems}
+          hiddenWallItems={hiddenWallItems}
+          setHiddenWallItems={setHiddenWallItems}
+          hiddenCeilingItems={hiddenCeilingItems}
+          setHiddenCeilingItems={setHiddenCeilingItems}
         />
       ) : (
         <PlanEditor

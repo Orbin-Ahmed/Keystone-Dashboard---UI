@@ -53,6 +53,12 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   currentFloorIndex,
   wallItems2D,
   setWallItems2D,
+  hiddenCeilingItems,
+  hiddenFloorItems,
+  hiddenWallItems,
+  setHiddenCeilingItems,
+  setHiddenFloorItems,
+  setHiddenWallItems,
 }) => {
   const [activeTourPoint, setActiveTourPoint] = useState<TourPoint | null>(
     null,
@@ -101,14 +107,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [wallItems, setWallItems] = useState<WallItem[]>([]);
   const [selectedWallItem, setSelectedWallItem] =
     useState<SelectedWallItem | null>(null);
-
-  const [hiddenFloorItems, setHiddenFloorItems] = useState<PlacedItemType[]>(
-    [],
-  );
-  const [hiddenWallItems, setHiddenWallItems] = useState<WallItem[]>([]);
-  const [hiddenCeilingItems, setHiddenCeilingItems] = useState<
-    PlacedItemType[]
-  >([]);
 
   const [isWallItemMoving, setIsWallItemMoving] = useState(false);
   const [originalWallItemPos, setOriginalWallItemPos] = useState<
