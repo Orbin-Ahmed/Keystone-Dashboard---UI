@@ -610,7 +610,9 @@ const PlanEditor = ({
   };
 
   const isClickOnWall = (line: Line, point: { x: number; y: number }) => {
-    const threshold = 10;
+    const [x1, y1, x2, y2] = line.points;
+    const wallLength = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+    const threshold = Math.max(10, 0.05 * wallLength);
     return distanceToLine(line, point) < threshold;
   };
 
@@ -830,6 +832,26 @@ const PlanEditor = ({
     if (!stage) return;
 
     const pos = stage.getPointerPosition();
+    if (!pos) return;
+
+    const closestLineId = findClosestLineById(pos);
+
+    if (closestLineId) {
+      const wall = lines.find((line) => line.id === closestLineId);
+      if (wall && isClickOnWall(wall, pos)) {
+        const newLengthStr = prompt("Enter wall length in cm:");
+        if (newLengthStr) {
+          const newLengthCm = parseFloat(newLengthStr);
+          if (!isNaN(newLengthCm)) {
+            handleRescaleStructure(newLengthCm, closestLineId);
+          } else {
+            alert("Please enter a valid number.");
+          }
+        }
+        return;
+      }
+    }
+
     if (pos) {
       const name = prompt("Enter room name:");
       if (name) {
@@ -1174,6 +1196,64 @@ const PlanEditor = ({
 
   const handleFurnitureDragEnd = (id: string) => {
     setHelperLines([]);
+  };
+
+  // Rescale Function
+
+  const scalePoint = (old: number, pivot: number, scaleFactor: number) =>
+    pivot + (old - pivot) * scaleFactor;
+
+  const handleRescaleStructure = (
+    desiredWallLengthCm: number,
+    referenceWallId: string,
+  ) => {
+    const referenceWall = lines.find((line) => line.id === referenceWallId);
+    if (!referenceWall) return;
+
+    const [x1, y1, x2, y2] = referenceWall.points;
+    const currentLengthPixels = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+
+    const currentLengthCm = currentLengthPixels / PIXELS_PER_METER;
+
+    const scaleFactor = desiredWallLengthCm / currentLengthCm;
+
+    const allX = lines.flatMap((line) => [line.points[0], line.points[2]]);
+    const allY = lines.flatMap((line) => [line.points[1], line.points[3]]);
+    const pivot = {
+      x: (Math.min(...allX) + Math.max(...allX)) / 2,
+      y: (Math.min(...allY) + Math.max(...allY)) / 2,
+    };
+
+    setLines((prevLines) =>
+      prevLines.map((line) => ({
+        ...line,
+        points: line.points.map((p, i) =>
+          i % 2 === 0
+            ? scalePoint(p, pivot.x, scaleFactor)
+            : scalePoint(p, pivot.y, scaleFactor),
+        ) as [number, number, number, number],
+      })),
+    );
+
+    setShapes((prevShapes) =>
+      prevShapes.map((shape) => ({
+        ...shape,
+        x: scalePoint(shape.x, pivot.x, scaleFactor),
+        y: scalePoint(shape.y, pivot.y, scaleFactor),
+      })),
+    );
+
+    setFloorPlanPoints((prevPoints) =>
+      prevPoints.map((pt) => ({
+        ...pt,
+        x: scalePoint(pt.x, pivot.x, scaleFactor),
+        y: scalePoint(pt.y, pivot.y, scaleFactor),
+      })),
+    );
+
+    setFurnitureItems([]);
+    setCeilingItems([]);
+    setWallItems([]);
   };
 
   return (
