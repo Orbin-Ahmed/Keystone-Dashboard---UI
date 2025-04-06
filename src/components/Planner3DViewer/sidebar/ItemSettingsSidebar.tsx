@@ -24,6 +24,7 @@ interface ItemSettingsSidebarProps {
   setPlacementType: React.Dispatch<
     React.SetStateAction<"Wall" | "Ceiling" | "Floor">
   >;
+  wallHeightSetting: number;
 }
 
 function degToRad(deg: number): number {
@@ -46,6 +47,7 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
   onClose,
   placementType,
   setPlacementType,
+  wallHeightSetting,
 }) => {
   const [position, setPosition] = useState<Vector3>({ x: 0, y: 0, z: 0 });
   const [rotationDeg, setRotationDeg] = useState<Vector3>({ x: 0, y: 0, z: 0 });
@@ -222,7 +224,7 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
               <input
                 type="range"
                 min={0}
-                max={120}
+                max={wallHeightSetting}
                 value={position.y}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   updatePosition("y", parseFloat(e.target.value))

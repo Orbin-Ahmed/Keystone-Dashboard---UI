@@ -129,6 +129,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
   setWallItems2D,
   isWallItemMoving,
   lightIntensity,
+  cameraHeight,
 }) => {
   const { scene, camera, gl } = useThree();
   const raycaster = new Raycaster();
@@ -1179,6 +1180,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
         disableControls={
           !!placingItem || !!placingWallItem || !!selectedWallItem
         }
+        cameraHeight={cameraHeight}
       />
       {/* Lights */}
       <ambientLight intensity={0.9 * lightIntensity} />

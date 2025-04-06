@@ -116,6 +116,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     [number, number, number] | null
   >(null);
   const [isCustomizeModalOpen, setIsCustomizeModalOpen] = useState(false);
+  const [cameraHeight, setCameraHeight] = useState(60);
 
   // settings State
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -1296,6 +1297,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           setWallItems2D={setWallItems2D}
           isWallItemMoving={isWallItemMoving}
           lightIntensity={lightIntensity}
+          cameraHeight={cameraHeight}
         />
       </Canvas>
 
@@ -1367,6 +1369,18 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           >
             Render
           </CustomButton>
+        </div>
+      )}
+      {/* Camera Height Slider  */}
+      {activeTourPoint && (
+        <div className="absolute right-4 top-1/2 z-50 h-40 -translate-y-1/2 transform">
+          <Slider
+            orientation="vertical"
+            min={0}
+            max={wallHeightSetting}
+            value={[cameraHeight]}
+            onValueChange={(val) => setCameraHeight(val[0])}
+          />
         </div>
       )}
 
@@ -1453,6 +1467,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           onClose={() => setSelectedItem(null)}
           placementType={placementType}
           setPlacementType={setPlacementType}
+          wallHeightSetting={wallHeightSetting}
         />
       )}
 
@@ -1465,6 +1480,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           onClose={() => setSelectedWallItem(null)}
           placementType={placementType}
           setPlacementType={setPlacementType}
+          wallHeightSetting={wallHeightSetting}
         />
       )}
 

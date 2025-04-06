@@ -9,6 +9,7 @@ const CameraController: React.FC<CameraControllerProps> = ({
   isAutoRotating,
   disableControls = false,
   setIsAutoRotating,
+  cameraHeight,
 }) => {
   const { camera } = useThree();
   const targetPosition = useRef(new Vector3());
@@ -16,7 +17,6 @@ const CameraController: React.FC<CameraControllerProps> = ({
 
   const ROTATION_RADIUS = 50;
   const ROTATION_SPEED = 0.2;
-  const EYE_LEVEL = 60;
 
   useFrame((state) => {
     if (!activeTourPoint) return;
@@ -28,12 +28,12 @@ const CameraController: React.FC<CameraControllerProps> = ({
       const angle = elapsedTime * ROTATION_SPEED;
       targetPosition.current.set(
         targetX + Math.sin(angle) * ROTATION_RADIUS,
-        EYE_LEVEL,
+        cameraHeight,
         targetZ + Math.cos(angle) * ROTATION_RADIUS,
       );
 
       camera.position.lerp(targetPosition.current, 0.1);
-      camera.lookAt(targetX, EYE_LEVEL, targetZ);
+      camera.lookAt(targetX, cameraHeight, targetZ);
     }
   });
 
@@ -43,7 +43,7 @@ const CameraController: React.FC<CameraControllerProps> = ({
       if (activeTourPoint) {
         controlsRef.current.target.set(
           activeTourPoint.position[0],
-          EYE_LEVEL,
+          cameraHeight,
           activeTourPoint.position[2],
         );
       } else {

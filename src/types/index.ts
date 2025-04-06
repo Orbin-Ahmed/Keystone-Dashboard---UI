@@ -287,6 +287,7 @@ export interface CameraControllerProps {
   isAutoRotating: boolean;
   setIsAutoRotating: (value: boolean) => void;
   disableControls?: boolean;
+  cameraHeight: number;
 }
 
 export interface WallClassification {
@@ -566,6 +567,7 @@ export interface SceneContentProps {
   currentFloorIndex: number;
   isWallItemMoving: boolean;
   lightIntensity: number;
+  cameraHeight: number;
 }
 
 export interface WallItem {
