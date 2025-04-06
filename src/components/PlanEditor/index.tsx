@@ -831,7 +831,7 @@ const PlanEditor = ({
     const stage = e.target.getStage();
     if (!stage) return;
 
-    const pos = stage.getPointerPosition();
+    const pos = getRelativePointerPosition(stage);
     if (!pos) return;
 
     const closestLineId = findClosestLineById(pos);
