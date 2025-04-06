@@ -50,7 +50,7 @@ const CameraController: React.FC<CameraControllerProps> = ({
         controlsRef.current.target.set(0, 0, 0);
       }
     }
-  }, [disableControls, activeTourPoint]);
+  }, [disableControls, activeTourPoint, cameraHeight]);
 
   return (
     <OrbitControls

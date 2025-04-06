@@ -1380,6 +1380,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
             max={wallHeightSetting}
             value={[cameraHeight]}
             onValueChange={(val) => setCameraHeight(val[0])}
+            radius="none"
+            color="lime"
           />
         </div>
       )}
