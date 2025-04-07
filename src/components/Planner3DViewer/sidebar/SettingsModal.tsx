@@ -15,6 +15,8 @@ interface SettingsModalProps {
   floorTexture: string;
   ceilingTexture: string;
   lightIntensity: number;
+  windowHeight: number;
+  onWindowHeightChange: (value: number) => void;
   onWallHeightChange: (value: number) => void;
   onWallThicknessChange: (value: number) => void;
   onWallTextureChange: (value: string) => void;
@@ -40,6 +42,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   onLightIntensityChange,
   onClose,
   onShowHiddenItems,
+  onWindowHeightChange,
 }) => {
   const [textures, setTextures] = useState<TextureData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -118,6 +121,25 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             placeholder="Wall Height"
             value={wallHeight}
             onChange={(e) => onWallHeightChange(Number(e.target.value))}
+          />
+        </div>
+
+        {/* Window Height Input */}
+        <div className="mb-4">
+          <label
+            htmlFor="window_height"
+            className="text-gray-700 block text-sm font-medium"
+          >
+            Window Height (Inch)
+          </label>
+          <InputField
+            className="border-gray-300 mt-2 w-full rounded border px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+            name="window_height"
+            id="window_height"
+            type="number"
+            placeholder="Window Height"
+            value={wallHeight}
+            onChange={(e) => onWindowHeightChange(Number(e.target.value))}
           />
         </div>
 

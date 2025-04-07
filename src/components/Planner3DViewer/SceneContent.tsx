@@ -130,6 +130,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
   isWallItemMoving,
   lightIntensity,
   cameraHeight,
+  windowHeight,
 }) => {
   const { scene, camera, gl } = useThree();
   const raycaster = new Raycaster();
@@ -1263,7 +1264,8 @@ const SceneContent: React.FC<SceneContentProps> = ({
             type === "window"
               ? dx * Math.cos(angle) + dz * Math.sin(angle) - 30
               : dx * Math.cos(angle) + dz * Math.sin(angle) + 20;
-          const localY = type === "window" ? 0 : -wallHeight / 2 + height / 2;
+          const localY =
+            type === "window" ? windowHeight : -wallHeight / 2 + height / 2;
           const cutoutGeometry = new BoxGeometry(
             cutoutWidth,
             cutoutHeight,
@@ -1311,7 +1313,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
                   ? dx * Math.cos(angle) + dz * Math.sin(angle) - 30
                   : dx * Math.cos(angle) + dz * Math.sin(angle) + 20;
               const localY =
-                type === "window" ? 0 : -wallHeight / 2 + height / 2;
+                type === "window" ? windowHeight : -wallHeight / 2 + height / 2;
               const rotationY =
                 type === "door"
                   ? isFacingInward

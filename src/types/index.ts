@@ -568,6 +568,7 @@ export interface SceneContentProps {
   isWallItemMoving: boolean;
   lightIntensity: number;
   cameraHeight: number;
+  windowHeight: number;
 }
 
 export interface WallItem {

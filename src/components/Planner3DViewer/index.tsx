@@ -136,6 +136,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [windowOptions, setWindowOptions] = useState<ItemOption[]>([]);
 
   const [lightIntensity, setLightIntensity] = useState(1);
+  const [windowHeight, setWindowHeight] = useState(0);
 
   const [isRenderModalOpen, setIsRenderModalOpen] = useState(false);
 
@@ -1298,6 +1299,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           isWallItemMoving={isWallItemMoving}
           lightIntensity={lightIntensity}
           cameraHeight={cameraHeight}
+          windowHeight={windowHeight}
         />
       </Canvas>
 
@@ -1603,6 +1605,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           onLightIntensityChange={setLightIntensity}
           onClose={() => setIsSettingsOpen(false)}
           onShowHiddenItems={handleShowHiddenItems}
+          windowHeight={windowHeight}
+          onWindowHeightChange={setWindowHeight}
         />
       )}
     </>
