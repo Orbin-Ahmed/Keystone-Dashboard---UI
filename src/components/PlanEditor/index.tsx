@@ -90,13 +90,20 @@ const PlanEditor = ({
   const [selectedFloorPoint, setSelectedFloorPoint] = useState<string | null>(
     null,
   );
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-  const [selectedCeilingItemId, setSelectedCeilingItemId] = useState<
-    string | null
-  >(null);
-  const [selectedWallItemId, setSelectedWallItemId] = useState<string | null>(
-    null,
-  );
+
+  // const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  // const [selectedCeilingItemId, setSelectedCeilingItemId] = useState<
+  //   string | null
+  // >(null);
+  // const [selectedWallItemId, setSelectedWallItemId] = useState<string | null>(
+  //   null,
+  // );
+
+  const [selectedItemIds, setSelectedItemIds] = useState<string[]>([]);
+  const [selectedCeilingItemIds, setSelectedCeilingItemIds] = useState<
+    string[]
+  >([]);
+  const [selectedWallItemIds, setSelectedWallItemIds] = useState<string[]>([]);
 
   const [scale, setScale] = useState(1);
 
@@ -145,27 +152,27 @@ const PlanEditor = ({
         setSelectedShape(null);
         setSelectedWall(null);
         setGuideLine(null);
-        setSelectedItemId(null);
-        setSelectedCeilingItemId(null);
-        setSelectedWallItemId(null);
+        setSelectedItemIds([]);
+        setSelectedCeilingItemIds([]);
+        setSelectedWallItemIds([]);
       }
 
       if (event.key === "Delete" || event.key === "Backspace") {
-        if (selectedItemId) {
+        if (selectedItemIds.length > 0) {
           setFurnitureItems((prev) =>
-            prev.filter((f) => f.id !== selectedItemId),
+            prev.filter((f) => !selectedItemIds.includes(f.id)),
           );
-          setSelectedItemId(null);
-        } else if (selectedCeilingItemId) {
+          setSelectedItemIds([]);
+        } else if (selectedCeilingItemIds.length > 0) {
           setCeilingItems((prev) =>
-            prev.filter((c) => c.id !== selectedCeilingItemId),
+            prev.filter((c) => !selectedCeilingItemIds.includes(c.id)),
           );
-          setSelectedCeilingItemId(null);
-        } else if (selectedWallItemId) {
+          setSelectedCeilingItemIds([]);
+        } else if (selectedWallItemIds.length > 0) {
           setWallItems((prev) =>
-            prev.filter((i) => i.id !== selectedWallItemId),
+            prev.filter((i) => !selectedWallItemIds.includes(i.id)),
           );
-          setSelectedWallItemId(null);
+          setSelectedWallItemIds([]);
         }
       } else if (event.key === "i") {
         setTool("wall");
@@ -202,9 +209,9 @@ const PlanEditor = ({
     setTool,
     setSelectedShape,
     setSelectedWall,
-    selectedItemId,
-    selectedCeilingItemId,
-    selectedWallItemId,
+    selectedItemIds,
+    selectedCeilingItemIds,
+    selectedWallItemIds,
   ]);
 
   const handleWheel = (e: any) => {
@@ -980,7 +987,7 @@ const PlanEditor = ({
             id: newId,
           };
           setCeilingItems((prev) => [...prev, newItem]);
-          setSelectedCeilingItemId(newId);
+          setSelectedCeilingItemIds((prev) => [...prev, newId]);
         } else if (
           selectedPlane === "wall" &&
           wallItems.some((item) => item.id === id)
@@ -990,14 +997,14 @@ const PlanEditor = ({
             id: newId,
           };
           setWallItems((prev) => [...prev, newItem]);
-          setSelectedWallItemId(newId);
+          setSelectedWallItemIds((prev) => [...prev, newId]);
         } else {
           const newItem: FurnitureItem = {
             ...(itemToDuplicate as FurnitureItem),
             id: newId,
           };
           setFurnitureItems((prev) => [...prev, newItem]);
-          setSelectedItemId(newId);
+          setSelectedItemIds((prev) => [...prev, newId]);
         }
       }
     }
@@ -1588,13 +1595,21 @@ const PlanEditor = ({
               <FurnitureItemComponent
                 key={item.id}
                 item={item}
-                isSelected={selectedItemId === item.id}
-                onSelect={(id) => {
-                  setSelectedItemId(id);
-                  setSelectedShape(null);
-                  setSelectedWall(null);
-                  setSelectedCeilingItemId(null);
-                  setSelectedWallItemId(null);
+                isSelected={selectedItemIds.includes(item.id)}
+                onSelect={(id, e) => {
+                  if (e.evt.ctrlKey || e.evt.metaKey) {
+                    setSelectedItemIds((prev) =>
+                      prev.includes(item.id)
+                        ? prev.filter((id) => id !== item.id)
+                        : [...prev, item.id],
+                    );
+                  } else {
+                    setSelectedItemIds([item.id]);
+                    setSelectedShape(null);
+                    setSelectedWall(null);
+                    setSelectedCeilingItemIds([]);
+                    setSelectedWallItemIds([]);
+                  }
                 }}
                 onDragStart={(id) => handleDragStart(id, isShiftPressed)}
                 onDragMove={(e) =>
@@ -1640,13 +1655,20 @@ const PlanEditor = ({
               <FurnitureItemComponent
                 key={ci.id}
                 item={ci}
-                isSelected={selectedCeilingItemId === ci.id}
-                onSelect={(id) => {
-                  setSelectedCeilingItemId(id);
-                  setSelectedItemId(null);
-                  setSelectedShape(null);
-                  setSelectedWall(null);
-                  setSelectedWallItemId(null);
+                isSelected={selectedCeilingItemIds.includes(ci.id)}
+                onSelect={(id, e) => {
+                  if (e.evt.ctrlKey || e.evt.metaKey) {
+                    setSelectedCeilingItemIds((prev) =>
+                      prev.includes(ci.id)
+                        ? prev.filter((id) => id !== ci.id)
+                        : [...prev, ci.id],
+                    );
+                  } else {
+                    setSelectedCeilingItemIds([ci.id]);
+                    setSelectedItemIds([]);
+                    setSelectedShape(null);
+                    setSelectedWallItemIds([]);
+                  }
                 }}
                 onDragStart={(id) => handleDragStart(id, isShiftPressed)}
                 // onChange={(id, newAttrs) => {
@@ -1681,13 +1703,20 @@ const PlanEditor = ({
               <FurnitureItemComponent
                 key={wi.id}
                 item={wi}
-                isSelected={selectedWallItemId === wi.id}
-                onSelect={(id) => {
-                  setSelectedWallItemId(id);
-                  setSelectedItemId(null);
-                  setSelectedShape(null);
-                  setSelectedWall(null);
-                  setSelectedCeilingItemId(null);
+                isSelected={selectedWallItemIds.includes(wi.id)}
+                onSelect={(id, e) => {
+                  if (e.evt.ctrlKey || e.evt.metaKey) {
+                    setSelectedWallItemIds((prev) =>
+                      prev.includes(wi.id)
+                        ? prev.filter((id) => id !== wi.id)
+                        : [...prev, wi.id],
+                    );
+                  } else {
+                    setSelectedWallItemIds([wi.id]);
+                    setSelectedItemIds([]);
+                    setSelectedShape(null);
+                    setSelectedCeilingItemIds([]);
+                  }
                 }}
                 onDragStart={(id) => handleDragStart(id, isShiftPressed)}
                 // onChange={(id, newAttrs) => {

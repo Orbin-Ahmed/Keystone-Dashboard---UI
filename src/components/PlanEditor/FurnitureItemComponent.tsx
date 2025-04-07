@@ -9,7 +9,8 @@ import { FurnitureItem } from "@/types";
 interface FurnitureItemComponentProps {
   item: FurnitureItem;
   isSelected: boolean;
-  onSelect: (id: string) => void;
+  // onSelect: (id: string) => void;
+  onSelect: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => void;
   onChange: (id: string, newAttrs: Partial<FurnitureItem>) => void;
   onDragMove?: (e: KonvaEventObject<DragEvent>) => void;
   onDragEnd?: (e: KonvaEventObject<DragEvent>) => void;
@@ -104,8 +105,10 @@ const FurnitureItemComponent: FC<FurnitureItemComponentProps> = ({
         height={item.depth}
         rotation={item.rotation}
         draggable
-        onClick={() => onSelect(item.id)}
-        onTap={() => onSelect(item.id)}
+        onClick={(e) => onSelect(item.id, e)}
+        onTap={(e) =>
+          onSelect(item.id, e as Konva.KonvaEventObject<MouseEvent>)
+        }
         onDragStart={handleDragStart}
         onDragMove={handleDragMove}
         onDragEnd={handleDragEnd}
