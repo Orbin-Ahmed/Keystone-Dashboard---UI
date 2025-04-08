@@ -42,7 +42,7 @@ const PlanEditorSideBar: React.FC<SidebarProps> = ({
     <div className="z-50 flex h-screen flex-col bg-[#f5f5f5] px-2 py-4 shadow-lg">
       {/* Top Group: Wall, Window, Door, Point */}
       <div className="mt-4 flex flex-col gap-2">
-        <Tooltip content="Walls">
+        <Tooltip content="Walls ( I )">
           <span>
             <CustomButton
               className="w-full"
@@ -59,7 +59,7 @@ const PlanEditorSideBar: React.FC<SidebarProps> = ({
             </CustomButton>
           </span>
         </Tooltip>
-        <Tooltip content="Window">
+        <Tooltip content="Window ( W )">
           <span>
             <CustomButton
               className="w-full"
@@ -76,7 +76,7 @@ const PlanEditorSideBar: React.FC<SidebarProps> = ({
             </CustomButton>
           </span>
         </Tooltip>
-        <Tooltip content="Door">
+        <Tooltip content="Door ( D )">
           <span>
             <CustomButton
               className="w-full"
@@ -93,7 +93,7 @@ const PlanEditorSideBar: React.FC<SidebarProps> = ({
             </CustomButton>
           </span>
         </Tooltip>
-        <Tooltip content="Floor Point">
+        <Tooltip content="Floor Point ( P )">
           <span>
             <CustomButton
               className="w-full"
@@ -114,7 +114,7 @@ const PlanEditorSideBar: React.FC<SidebarProps> = ({
 
       {/* Middle Group: Show/Hide Dimensions and 3D View Mode */}
       <div className="mb-auto mt-auto flex flex-col items-center gap-2">
-        <Tooltip content="Move Wall">
+        <Tooltip content="Move Wall ( M )">
           <span>
             <CustomButton
               className="w-full"
