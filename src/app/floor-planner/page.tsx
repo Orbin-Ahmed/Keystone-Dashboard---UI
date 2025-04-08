@@ -5,6 +5,7 @@ import PlanEditorSideBar from "@/components/PlanEditor/PlanEditorSideBar";
 import useImage from "use-image";
 import {
   CeilingItem,
+  DrawingState,
   FloorData,
   FloorPlanPoint,
   FurnitureItem,
@@ -27,7 +28,7 @@ import { GrLinkNext, GrLinkPrevious } from "react-icons/gr";
 import ItemSidebar from "@/components/PlanEditor/Sidebar/ItemSidebar";
 import CustomButton from "@/components/CustomButton";
 import { GrClose } from "react-icons/gr";
-import { useHistoryManager } from "./useHistoryManager";
+import { useHistoryManager } from "@/components/PlanEditor/useHistoryManager";
 
 const PlanEditor = dynamic(() => import("@/components/PlanEditor"), {
   ssr: false,
@@ -58,13 +59,13 @@ const FloorPlanner = () => {
   const [windowHeight, setWindowHeight] = useState(0);
 
   // Single Floor Data
-  const [lines, setLines] = useState<Line[]>([]);
-  const [shapes, setShapes] = useState<ShapeType[]>([]);
-  const [roomNames, setRoomNames] = useState<RoomName[]>([]);
-  const [floorPlanPoints, setFloorPlanPoints] = useState<FloorPlanPoint[]>([]);
-  const [furnitureItems, setFurnitureItems] = useState<FurnitureItem[]>([]);
-  const [ceilingItems, setCeilingItems] = useState<CeilingItem[]>([]);
-  const [wallItems, setWallItems] = useState<WallItems2D[]>([]);
+  // const [lines, setLines] = useState<Line[]>([]);
+  // const [shapes, setShapes] = useState<ShapeType[]>([]);
+  // const [roomNames, setRoomNames] = useState<RoomName[]>([]);
+  // const [floorPlanPoints, setFloorPlanPoints] = useState<FloorPlanPoint[]>([]);
+  // const [furnitureItems, setFurnitureItems] = useState<FurnitureItem[]>([]);
+  // const [ceilingItems, setCeilingItems] = useState<CeilingItem[]>([]);
+  // const [wallItems, setWallItems] = useState<WallItems2D[]>([]);
 
   // Hidden Item State
   const [hiddenFloorItems, setHiddenFloorItems] = useState<PlacedItemType[]>(
@@ -95,6 +96,90 @@ const FloorPlanner = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [windowImage] = useImage("/textures/window.svg");
   const [doorImage] = useImage("/textures/door.svg");
+
+  // history manager for the current floor's drawing state
+  const initialState: DrawingState = {
+    lines: [],
+    shapes: [],
+    floorPlanPoints: [],
+    furnitureItems: [],
+    ceilingItems: [],
+    wallItems: [],
+    roomNames: [],
+  };
+
+  const { state, updateState, undo, redo, canUndo, canRedo } =
+    useHistoryManager<DrawingState>(initialState);
+
+  const {
+    shapes,
+    lines,
+    floorPlanPoints,
+    furnitureItems,
+    ceilingItems,
+    wallItems,
+    roomNames,
+  } = state;
+
+  const setShapes = (newShapes: React.SetStateAction<ShapeType[]>) => {
+    updateState({
+      ...state,
+      shapes: typeof newShapes === "function" ? newShapes(shapes) : newShapes,
+    });
+  };
+
+  const setLines = (newLines: React.SetStateAction<Line[]>) => {
+    updateState({
+      ...state,
+      lines: typeof newLines === "function" ? newLines(lines) : newLines,
+    });
+  };
+
+  const setFloorPlanPoints = (
+    newPoints: React.SetStateAction<FloorPlanPoint[]>,
+  ) => {
+    updateState({
+      ...state,
+      floorPlanPoints:
+        typeof newPoints === "function"
+          ? newPoints(floorPlanPoints)
+          : newPoints,
+    });
+  };
+
+  const setFurnitureItems = (
+    newItems: React.SetStateAction<FurnitureItem[]>,
+  ) => {
+    updateState({
+      ...state,
+      furnitureItems:
+        typeof newItems === "function" ? newItems(furnitureItems) : newItems,
+    });
+  };
+
+  const setCeilingItems = (newItems: React.SetStateAction<CeilingItem[]>) => {
+    updateState({
+      ...state,
+      ceilingItems:
+        typeof newItems === "function" ? newItems(ceilingItems) : newItems,
+    });
+  };
+
+  const setWallItems = (newItems: React.SetStateAction<WallItems2D[]>) => {
+    updateState({
+      ...state,
+      wallItems:
+        typeof newItems === "function" ? newItems(wallItems) : newItems,
+    });
+  };
+
+  const setRoomNames = (newNames: React.SetStateAction<RoomName[]>) => {
+    updateState({
+      ...state,
+      roomNames:
+        typeof newNames === "function" ? newNames(roomNames) : newNames,
+    });
+  };
 
   // Upload download function
   const handleDownload = () => {
@@ -418,6 +503,25 @@ const FloorPlanner = () => {
       prevRoomNames.filter((room) => room.id !== id),
     );
   };
+
+  useEffect(() => {
+    const handleUndo = () => {
+      if (canUndo) undo();
+    };
+
+    const handleRedo = () => {
+      if (canRedo) redo();
+    };
+
+    document.addEventListener("editor-undo", handleUndo);
+    document.addEventListener("editor-redo", handleRedo);
+
+    return () => {
+      document.removeEventListener("editor-undo", handleUndo);
+      document.removeEventListener("editor-redo", handleRedo);
+    };
+  }, [undo, redo, canUndo, canRedo]);
+
   // Room helper Function end
 
   const { centerX, centerY, minX, maxX, minY, maxY } = useMemo(() => {
@@ -503,6 +607,21 @@ const FloorPlanner = () => {
     ceilingItems,
     wallItems,
   ]);
+
+  useEffect(() => {
+    const floorData = floors[currentFloor];
+    if (floorData) {
+      updateState({
+        lines: floorData.lines,
+        shapes: floorData.shapes,
+        roomNames: floorData.roomNames,
+        floorPlanPoints: floorData.floorPlanPoints,
+        furnitureItems: floorData.furnitureItems || [],
+        ceilingItems: floorData.ceilingItems || [],
+        wallItems: floorData.wallItems || [],
+      });
+    }
+  }, [currentFloor]);
 
   // Floor Data helper Function end
 

@@ -232,6 +232,16 @@ export interface PlanEditorProps {
 
 export type ViewType = "Top" | "Side" | "Default";
 
+export interface DrawingState {
+  shapes: ShapeType[];
+  lines: Line[];
+  floorPlanPoints: FloorPlanPoint[];
+  furnitureItems: FurnitureItem[];
+  ceilingItems: CeilingItem[];
+  wallItems: WallItems2D[];
+  roomNames: RoomName[];
+}
+
 export interface LineData {
   id: string;
   points: number[];
