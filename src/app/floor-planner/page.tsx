@@ -54,6 +54,7 @@ const FloorPlanner = () => {
   const [selectedWall, setSelectedWall] = useState<string | null>(null);
   const [selectedShape, setSelectedShape] = useState<string | null>(null);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
+  const [windowHeight, setWindowHeight] = useState(0);
 
   // Single Floor Data
   const [lines, setLines] = useState<Line[]>([]);
@@ -828,6 +829,8 @@ const FloorPlanner = () => {
           setHiddenWallItems={setHiddenWallItems}
           hiddenCeilingItems={hiddenCeilingItems}
           setHiddenCeilingItems={setHiddenCeilingItems}
+          windowHeight={windowHeight}
+          setWindowHeight={setWindowHeight}
         />
       ) : (
         <PlanEditor

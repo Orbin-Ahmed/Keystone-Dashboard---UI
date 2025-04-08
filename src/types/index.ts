@@ -511,6 +511,8 @@ export interface Plan3DViewerProps {
   setHiddenWallItems: React.Dispatch<React.SetStateAction<WallItem[]>>;
   hiddenCeilingItems: PlacedItemType[];
   setHiddenCeilingItems: React.Dispatch<React.SetStateAction<PlacedItemType[]>>;
+  windowHeight: number;
+  setWindowHeight: (value: number) => void;
 }
 
 export interface SceneContentProps {

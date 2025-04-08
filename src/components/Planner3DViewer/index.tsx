@@ -59,6 +59,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   setHiddenCeilingItems,
   setHiddenFloorItems,
   setHiddenWallItems,
+  windowHeight,
+  setWindowHeight,
 }) => {
   const [activeTourPoint, setActiveTourPoint] = useState<TourPoint | null>(
     null,
@@ -136,7 +138,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [windowOptions, setWindowOptions] = useState<ItemOption[]>([]);
 
   const [lightIntensity, setLightIntensity] = useState(1);
-  const [windowHeight, setWindowHeight] = useState(0);
 
   const [isRenderModalOpen, setIsRenderModalOpen] = useState(false);
 
