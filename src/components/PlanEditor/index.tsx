@@ -23,7 +23,6 @@ import {
 } from "@/types";
 import { uid } from "uid";
 import FurnitureItemComponent from "./FurnitureItemComponent";
-import { useHistoryManager } from "./useHistoryManager";
 
 const GRID_SIZE = 50;
 const PIXELS_PER_METER = 0.398;
