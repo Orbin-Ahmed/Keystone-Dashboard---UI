@@ -18,6 +18,16 @@ export type ItemOption = {
   width: number;
 };
 
+export type PlannerSnapshot = {
+  lines: Line[];
+  shapes: ShapeType[];
+  furnitureItems: FurnitureItem[];
+  ceilingItems: CeilingItem[];
+  wallItems: WallItems2D[];
+  floorPlanPoints: any[];
+  roomNames: any[];
+};
+
 export type SocialLinkBody = {
   platform: string;
   link: string;
