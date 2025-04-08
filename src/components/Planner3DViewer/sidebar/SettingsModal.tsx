@@ -131,7 +131,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             htmlFor="window_height"
             className="text-gray-700 block text-sm font-medium"
           >
-            Window Height (Inch) (Center - 0)
+            Window Height (Center - 0)
           </label>
           <InputField
             className="border-gray-300 mt-2 w-full rounded border px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
