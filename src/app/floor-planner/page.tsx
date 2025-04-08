@@ -27,6 +27,7 @@ import { GrLinkNext, GrLinkPrevious } from "react-icons/gr";
 import ItemSidebar from "@/components/PlanEditor/Sidebar/ItemSidebar";
 import CustomButton from "@/components/CustomButton";
 import { GrClose } from "react-icons/gr";
+import { useHistoryManager } from "./useHistoryManager";
 
 const PlanEditor = dynamic(() => import("@/components/PlanEditor"), {
   ssr: false,

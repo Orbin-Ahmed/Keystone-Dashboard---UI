@@ -23,7 +23,7 @@ interface DrawingState {
   }[];
 }
 
-function useHistoryManager<T>(initialState: T) {
+export function useHistoryManager<T>(initialState: T) {
   const [state, setState] = useState<T>(initialState);
   const [undoStack, setUndoStack] = useState<T[]>([]);
   const [redoStack, setRedoStack] = useState<T[]>([]);

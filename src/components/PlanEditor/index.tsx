@@ -23,6 +23,7 @@ import {
 } from "@/types";
 import { uid } from "uid";
 import FurnitureItemComponent from "./FurnitureItemComponent";
+import { useHistoryManager } from "./useHistoryManager";
 
 const GRID_SIZE = 50;
 const PIXELS_PER_METER = 0.398;
@@ -143,11 +144,13 @@ const PlanEditor = ({
     setIsMounted(true);
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Shift") {
+      if ((event.ctrlKey || event.metaKey) && event.key === "z") {
+        document.dispatchEvent(new CustomEvent("editor-undo"));
+      } else if ((event.ctrlKey || event.metaKey) && event.key === "y") {
+        document.dispatchEvent(new CustomEvent("editor-redo"));
+      } else if (event.key === "Shift") {
         setIsShiftPressed(true);
-      }
-
-      if (event.key === "Escape") {
+      } else if (event.key === "Escape") {
         setTool(null);
         setSelectedShape(null);
         setSelectedWall(null);
@@ -155,9 +158,7 @@ const PlanEditor = ({
         setSelectedItemIds([]);
         setSelectedCeilingItemIds([]);
         setSelectedWallItemIds([]);
-      }
-
-      if (event.key === "Delete" || event.key === "Backspace") {
+      } else if (event.key === "Delete" || event.key === "Backspace") {
         if (selectedItemIds.length > 0) {
           setFurnitureItems((prev) =>
             prev.filter((f) => !selectedItemIds.includes(f.id)),
@@ -477,7 +478,8 @@ const PlanEditor = ({
           };
           const newLines = [...lines, newLine];
           const joinedLines = autoJoinLines(newLines);
-          setLines([...lines, newLine]);
+          // setLines([...lines, newLine]);
+          setLines(joinedLines);
         }
 
         setStartPoint(null);
