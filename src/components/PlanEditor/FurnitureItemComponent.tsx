@@ -9,7 +9,6 @@ import { FurnitureItem } from "@/types";
 interface FurnitureItemComponentProps {
   item: FurnitureItem;
   isSelected: boolean;
-  // onSelect: (id: string) => void;
   onSelect: (id: string, e: Konva.KonvaEventObject<MouseEvent>) => void;
   onChange: (id: string, newAttrs: Partial<FurnitureItem>) => void;
   onDragMove?: (e: KonvaEventObject<DragEvent>) => void;

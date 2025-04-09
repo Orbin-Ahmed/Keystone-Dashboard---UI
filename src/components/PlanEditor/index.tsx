@@ -127,6 +127,10 @@ const PlanEditor = ({
         : 0;
   const wallLayerOpacity = selectedPlane === "wall" ? FULL_OPACITY : 0;
 
+  const groupDragStartRef = useRef<Record<string, { x: number; y: number }>>(
+    {},
+  );
+
   const floorLayerListening = selectedPlane === "floor";
   const ceilingLayerListening = selectedPlane === "roof";
   const wallLayerListening = selectedPlane === "wall";
@@ -970,6 +974,19 @@ const PlanEditor = ({
 
   // Create a handler for when dragging starts on a furniture item
   const handleDragStart = (id: string, isShiftKeyPressed: boolean) => {
+    if (selectedItemIds.length > 1) {
+      if (Object.keys(groupDragStartRef.current).length === 0) {
+        const positions: Record<string, { x: number; y: number }> = {};
+        furnitureItems.forEach((item) => {
+          if (selectedItemIds.includes(item.id)) {
+            positions[item.id] = { x: item.x, y: item.y };
+          }
+        });
+        groupDragStartRef.current = positions;
+      }
+      return;
+    }
+
     if (isShiftKeyPressed && !isDuplicating) {
       setIsDuplicating(true);
 
@@ -1187,26 +1204,73 @@ const PlanEditor = ({
     return helperLines;
   };
 
+  // const handleFurnitureDragMove = (
+  //   id: string,
+  //   newAttrs: { x: number; y: number },
+  // ) => {
+  //   const draggedItem = furnitureItems.find((f) => f.id === id);
+  //   if (!draggedItem) return;
+
+  //   const updatedItem = { ...draggedItem, ...newAttrs };
+
+  //   const otherItems = furnitureItems.filter((f) => f.id !== id);
+  //   const newHelperLines = computeHelperLines(updatedItem, otherItems, lines);
+  //   setHelperLines(newHelperLines);
+
+  //   setFurnitureItems((prev) =>
+  //     prev.map((f) => (f.id === id ? updatedItem : f)),
+  //   );
+  // };
+
   const handleFurnitureDragMove = (
     id: string,
     newAttrs: { x: number; y: number },
-  ) => {
-    const draggedItem = furnitureItems.find((f) => f.id === id);
-    if (!draggedItem) return;
+  ): void => {
+    if (
+      selectedItemIds.length > 1 &&
+      Object.keys(groupDragStartRef.current).length > 0
+    ) {
+      const startPos = groupDragStartRef.current[id];
+      if (!startPos) {
+        setFurnitureItems((prev) =>
+          prev.map((item) =>
+            item.id === id ? { ...item, ...newAttrs } : item,
+          ),
+        );
+        return;
+      }
 
-    const updatedItem = { ...draggedItem, ...newAttrs };
+      const dx = newAttrs.x - startPos.x;
+      const dy = newAttrs.y - startPos.y;
 
-    const otherItems = furnitureItems.filter((f) => f.id !== id);
-    const newHelperLines = computeHelperLines(updatedItem, otherItems, lines);
-    setHelperLines(newHelperLines);
-
-    setFurnitureItems((prev) =>
-      prev.map((f) => (f.id === id ? updatedItem : f)),
-    );
+      setFurnitureItems((prev) =>
+        prev.map((item) => {
+          if (selectedItemIds.includes(item.id)) {
+            const initial = groupDragStartRef.current[item.id] || {
+              x: item.x,
+              y: item.y,
+            };
+            return { ...item, x: initial.x + dx, y: initial.y + dy };
+          }
+          return item;
+        }),
+      );
+    } else {
+      setFurnitureItems((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, ...newAttrs } : item)),
+      );
+    }
   };
 
-  const handleFurnitureDragEnd = (id: string) => {
+  // const handleFurnitureDragEnd = (id: string) => {
+  //   setHelperLines([]);
+  // };
+
+  const handleFurnitureDragEnd = (id: string): void => {
     setHelperLines([]);
+    if (selectedItemIds.length > 1) {
+      groupDragStartRef.current = {};
+    }
   };
 
   // Rescale Function
