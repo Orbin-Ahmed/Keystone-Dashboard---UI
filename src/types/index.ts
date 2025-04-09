@@ -228,20 +228,9 @@ export interface PlanEditorProps {
   wallItems: WallItems2D[];
   setWallItems: React.Dispatch<React.SetStateAction<WallItems2D[]>>;
   isSidebarOpen: boolean;
-  updateState: React.Dispatch<React.SetStateAction<DrawingState>>;
 }
 
 export type ViewType = "Top" | "Side" | "Default";
-
-export interface DrawingState {
-  shapes: ShapeType[];
-  lines: Line[];
-  floorPlanPoints: FloorPlanPoint[];
-  furnitureItems: FurnitureItem[];
-  ceilingItems: CeilingItem[];
-  wallItems: WallItems2D[];
-  roomNames: RoomName[];
-}
 
 export interface LineData {
   id: string;
