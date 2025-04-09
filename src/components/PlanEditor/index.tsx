@@ -134,7 +134,9 @@ const PlanEditor = ({
     setIsMounted(true);
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Shift") {
+      if ((event.ctrlKey || event.metaKey) && event.key === "z") {
+        console.log("Undo Pressed");
+      } else if (event.key === "Shift") {
         setIsShiftPressed(true);
       } else if (event.key === "Escape") {
         setTool(null);
@@ -1400,14 +1402,6 @@ const PlanEditor = ({
                   </>
                 )}
                 {drawWallLength(line, line.id)}
-                {/* <Text
-                  text={`ID: ${line.id}`}
-                  x={(line.points[0] + line.points[2]) / 2}
-                  y={(line.points[1] + line.points[3]) / 2 - 20}
-                  fontSize={14}
-                  fill="gray"
-                  align="center"
-                /> */}
               </React.Fragment>
             ))}
 
@@ -1417,8 +1411,8 @@ const PlanEditor = ({
                   image={shape.image}
                   x={shape.x}
                   y={shape.y}
-                  width={shape.type === "door" ? 40 : 70}
-                  // width={shape.width}
+                  // width={shape.type === "door" ? 40 : 70}
+                  width={shape.type === "door" ? 40 : shape.width}
                   height={shape.type === "door" ? 40 : 8}
                   rotation={shape.rotation}
                   onClick={() => {
@@ -1606,7 +1600,6 @@ const PlanEditor = ({
               />
             ))}
 
-            {/* Helper Distance Line  */}
             {helperLines.map((hl, index) => (
               <React.Fragment key={`helper-${index}`}>
                 <KonvaLine
@@ -1649,14 +1642,6 @@ const PlanEditor = ({
                   }
                 }}
                 onDragStart={(id) => handleDragStart(id, isShiftPressed)}
-                // onChange={(id, newAttrs) => {
-                //   const newPos = {
-                //     x: newAttrs.x || ci.x,
-                //     y: newAttrs.y || ci.y,
-                //     rotation: newAttrs.rotation || ci.rotation,
-                //   };
-                //   handleItemDragEnd(id, newPos, false, false);
-                // }}
                 onChange={(id, newAttrs) => {
                   setCeilingItems((prev) =>
                     prev.map((f) => (f.id === id ? { ...f, ...newAttrs } : f)),
@@ -1697,14 +1682,6 @@ const PlanEditor = ({
                   }
                 }}
                 onDragStart={(id) => handleDragStart(id, isShiftPressed)}
-                // onChange={(id, newAttrs) => {
-                //   const newPos = {
-                //     x: newAttrs.x || wi.x,
-                //     y: newAttrs.y || wi.y,
-                //     rotation: newAttrs.rotation || wi.rotation,
-                //   };
-                //   handleItemDragEnd(id, newPos, false, true);
-                // }}
                 onChange={(id, newAttrs) => {
                   setWallItems((prev) =>
                     prev.map((f) => (f.id === id ? { ...f, ...newAttrs } : f)),
