@@ -23,6 +23,7 @@ import {
 } from "@/types";
 import { uid } from "uid";
 import FurnitureItemComponent from "./FurnitureItemComponent";
+import { useUndoRedo } from "./undoRedo";
 
 const GRID_SIZE = 50;
 const PIXELS_PER_METER = 0.398;
@@ -130,12 +131,31 @@ const PlanEditor = ({
   const ceilingLayerListening = selectedPlane === "roof";
   const wallLayerListening = selectedPlane === "wall";
 
+  const { undo, redo } = useUndoRedo(
+    lines,
+    shapes,
+    roomNames,
+    floorPlanPoints,
+    furnitureItems,
+    ceilingItems,
+    wallItems,
+    setLines,
+    setShapes,
+    setRoomNames,
+    setFloorPlanPoints,
+    setFurnitureItems,
+    setCeilingItems,
+    setWallItems,
+  );
+
   useEffect(() => {
     setIsMounted(true);
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if ((event.ctrlKey || event.metaKey) && event.key === "z") {
-        console.log("Undo Pressed");
+        undo();
+      } else if ((event.ctrlKey || event.metaKey) && event.key === "y") {
+        redo();
       } else if (event.key === "Shift") {
         setIsShiftPressed(true);
       } else if (event.key === "Escape") {
@@ -201,6 +221,10 @@ const PlanEditor = ({
     selectedItemIds,
     selectedCeilingItemIds,
     selectedWallItemIds,
+    undo,
+    redo,
+    isDuplicating,
+    setDuplicateItemId,
   ]);
 
   const handleWheel = (e: any) => {
