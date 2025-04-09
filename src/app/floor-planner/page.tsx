@@ -1026,6 +1026,7 @@ const FloorPlanner = () => {
           wallItems={wallItems}
           setWallItems={setWallItems}
           isSidebarOpen={isSidebarVisible}
+          updateState={updateState}
         />
       )}
       {viewMode === "2D" && (

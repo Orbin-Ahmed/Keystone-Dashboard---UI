@@ -14,6 +14,8 @@ import { Text } from "react-konva";
 import Konva from "konva";
 import {
   CeilingItem,
+  DrawingState,
+  FloorPlanPoint,
   FurnitureItem,
   Line,
   PlanEditorProps,
@@ -78,6 +80,7 @@ const PlanEditor = ({
   deleteRoomName,
   isSidebarOpen,
   selectedPlane,
+  updateState,
 }: PlanEditorProps) => {
   const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(
     null,
@@ -828,8 +831,17 @@ const PlanEditor = ({
   };
 
   const deleteWall = (wallId: string) => {
-    setLines(lines.filter((line) => line.id !== wallId));
-    setShapes(shapes.filter((shape) => shape.wallId !== wallId));
+    updateState(
+      (prev: DrawingState): DrawingState => ({
+        ...prev,
+        lines: prev.lines.filter((line: Line) => line.id !== wallId),
+        shapes: prev.shapes.filter(
+          (shape: ShapeType) => shape.wallId !== wallId,
+        ),
+      }),
+    );
+    // setLines(lines.filter((line) => line.id !== wallId));
+    // setShapes(shapes.filter((shape) => shape.wallId !== wallId));
     setSelectedWall(null);
   };
 
@@ -851,7 +863,12 @@ const PlanEditor = ({
         if (newLengthStr) {
           const newLengthCm = parseFloat(newLengthStr);
           if (!isNaN(newLengthCm)) {
-            handleRescaleStructure(newLengthCm, closestLineId);
+            handleRescaleStructure(
+              newLengthCm,
+              closestLineId,
+              updateState,
+              lines,
+            );
           } else {
             alert("Please enter a valid number.");
           }
@@ -1211,57 +1228,134 @@ const PlanEditor = ({
   const scalePoint = (old: number, pivot: number, scaleFactor: number) =>
     pivot + (old - pivot) * scaleFactor;
 
+  // const handleRescaleStructure = (
+  //   desiredWallLengthCm: number,
+  //   referenceWallId: string,
+  // ) => {
+  //   const referenceWall = lines.find((line) => line.id === referenceWallId);
+  //   if (!referenceWall) return;
+
+  //   const [x1, y1, x2, y2] = referenceWall.points;
+  //   const currentLengthPixels = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+
+  //   const currentLengthCm = currentLengthPixels / PIXELS_PER_METER;
+
+  //   const scaleFactor = desiredWallLengthCm / currentLengthCm;
+
+  //   const allX = lines.flatMap((line) => [line.points[0], line.points[2]]);
+  //   const allY = lines.flatMap((line) => [line.points[1], line.points[3]]);
+  //   const pivot = {
+  //     x: (Math.min(...allX) + Math.max(...allX)) / 2,
+  //     y: (Math.min(...allY) + Math.max(...allY)) / 2,
+  //   };
+
+  //   setLines((prevLines) =>
+  //     prevLines.map((line) => ({
+  //       ...line,
+  //       points: line.points.map((p, i) =>
+  //         i % 2 === 0
+  //           ? scalePoint(p, pivot.x, scaleFactor)
+  //           : scalePoint(p, pivot.y, scaleFactor),
+  //       ) as [number, number, number, number],
+  //     })),
+  //   );
+
+  //   setShapes((prevShapes) =>
+  //     prevShapes.map((shape) => ({
+  //       ...shape,
+  //       x: scalePoint(shape.x, pivot.x, scaleFactor),
+  //       y: scalePoint(shape.y, pivot.y, scaleFactor),
+  //     })),
+  //   );
+
+  //   setFloorPlanPoints((prevPoints) =>
+  //     prevPoints.map((pt) => ({
+  //       ...pt,
+  //       x: scalePoint(pt.x, pivot.x, scaleFactor),
+  //       y: scalePoint(pt.y, pivot.y, scaleFactor),
+  //     })),
+  //   );
+
+  //   setFurnitureItems([]);
+  //   setCeilingItems([]);
+  //   setWallItems([]);
+  // };
+
   const handleRescaleStructure = (
     desiredWallLengthCm: number,
     referenceWallId: string,
-  ) => {
-    const referenceWall = lines.find((line) => line.id === referenceWallId);
+    updateState: React.Dispatch<React.SetStateAction<DrawingState>>,
+    currentLines: Line[],
+  ): void => {
+    const referenceWall = currentLines.find(
+      (line: Line) => line.id === referenceWallId,
+    );
     if (!referenceWall) return;
 
     const [x1, y1, x2, y2] = referenceWall.points;
-    const currentLengthPixels = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+    const currentLengthPixels: number = Math.sqrt(
+      (x2 - x1) ** 2 + (y2 - y1) ** 2,
+    );
+    const currentLengthCm: number = currentLengthPixels / PIXELS_PER_METER;
+    const scaleFactor: number = desiredWallLengthCm / currentLengthCm;
 
-    const currentLengthCm = currentLengthPixels / PIXELS_PER_METER;
-
-    const scaleFactor = desiredWallLengthCm / currentLengthCm;
-
-    const allX = lines.flatMap((line) => [line.points[0], line.points[2]]);
-    const allY = lines.flatMap((line) => [line.points[1], line.points[3]]);
+    const allX: number[] = currentLines.flatMap((line: Line) => [
+      line.points[0],
+      line.points[2],
+    ]);
+    const allY: number[] = currentLines.flatMap((line: Line) => [
+      line.points[1],
+      line.points[3],
+    ]);
     const pivot = {
       x: (Math.min(...allX) + Math.max(...allX)) / 2,
       y: (Math.min(...allY) + Math.max(...allY)) / 2,
     };
 
-    setLines((prevLines) =>
-      prevLines.map((line) => ({
-        ...line,
-        points: line.points.map((p, i) =>
-          i % 2 === 0
-            ? scalePoint(p, pivot.x, scaleFactor)
-            : scalePoint(p, pivot.y, scaleFactor),
-        ) as [number, number, number, number],
-      })),
-    );
+    const scalePoint = (
+      old: number,
+      pivot: number,
+      scaleFactor: number,
+    ): number => pivot + (old - pivot) * scaleFactor;
 
-    setShapes((prevShapes) =>
-      prevShapes.map((shape) => ({
-        ...shape,
-        x: scalePoint(shape.x, pivot.x, scaleFactor),
-        y: scalePoint(shape.y, pivot.y, scaleFactor),
-      })),
-    );
+    updateState((prev: DrawingState): DrawingState => {
+      const newLines: Line[] = prev.lines.map(
+        (line: Line): Line => ({
+          ...line,
+          points: line.points.map((p, i) =>
+            i % 2 === 0
+              ? scalePoint(p, pivot.x, scaleFactor)
+              : scalePoint(p, pivot.y, scaleFactor),
+          ) as [number, number, number, number],
+        }),
+      );
 
-    setFloorPlanPoints((prevPoints) =>
-      prevPoints.map((pt) => ({
-        ...pt,
-        x: scalePoint(pt.x, pivot.x, scaleFactor),
-        y: scalePoint(pt.y, pivot.y, scaleFactor),
-      })),
-    );
+      const newShapes: ShapeType[] = prev.shapes.map(
+        (shape: ShapeType): ShapeType => ({
+          ...shape,
+          x: scalePoint(shape.x, pivot.x, scaleFactor),
+          y: scalePoint(shape.y, pivot.y, scaleFactor),
+        }),
+      );
 
-    setFurnitureItems([]);
-    setCeilingItems([]);
-    setWallItems([]);
+      const newFloorPlanPoints: FloorPlanPoint[] = prev.floorPlanPoints.map(
+        (pt: FloorPlanPoint): FloorPlanPoint => ({
+          ...pt,
+          x: scalePoint(pt.x, pivot.x, scaleFactor),
+          y: scalePoint(pt.y, pivot.y, scaleFactor),
+        }),
+      );
+
+      return {
+        ...prev,
+        lines: newLines,
+        shapes: newShapes,
+        floorPlanPoints: newFloorPlanPoints,
+        furnitureItems: [],
+        ceilingItems: [],
+        wallItems: [],
+      };
+    });
   };
 
   return (
