@@ -58,15 +58,6 @@ const FloorPlanner = () => {
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
   const [windowHeight, setWindowHeight] = useState(0);
 
-  // Single Floor Data
-  // const [lines, setLines] = useState<Line[]>([]);
-  // const [shapes, setShapes] = useState<ShapeType[]>([]);
-  // const [roomNames, setRoomNames] = useState<RoomName[]>([]);
-  // const [floorPlanPoints, setFloorPlanPoints] = useState<FloorPlanPoint[]>([]);
-  // const [furnitureItems, setFurnitureItems] = useState<FurnitureItem[]>([]);
-  // const [ceilingItems, setCeilingItems] = useState<CeilingItem[]>([]);
-  // const [wallItems, setWallItems] = useState<WallItems2D[]>([]);
-
   // Hidden Item State
   const [hiddenFloorItems, setHiddenFloorItems] = useState<PlacedItemType[]>(
     [],
@@ -107,6 +98,15 @@ const FloorPlanner = () => {
     wallItems: [],
     roomNames: [],
   };
+
+  // Single Floor Data
+  // const [lines, setLines] = useState<Line[]>([]);
+  // const [shapes, setShapes] = useState<ShapeType[]>([]);
+  // const [roomNames, setRoomNames] = useState<RoomName[]>([]);
+  // const [floorPlanPoints, setFloorPlanPoints] = useState<FloorPlanPoint[]>([]);
+  // const [furnitureItems, setFurnitureItems] = useState<FurnitureItem[]>([]);
+  // const [ceilingItems, setCeilingItems] = useState<CeilingItem[]>([]);
+  // const [wallItems, setWallItems] = useState<WallItems2D[]>([]);
 
   const { state, updateState, undo, redo, canUndo, canRedo } =
     useHistoryManager<DrawingState>(initialState);
