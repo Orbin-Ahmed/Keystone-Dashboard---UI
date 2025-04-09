@@ -61,6 +61,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   setHiddenWallItems,
   windowHeight,
   setWindowHeight,
+  localSceneImages,
+  setLocalSceneImages,
 }) => {
   const [activeTourPoint, setActiveTourPoint] = useState<TourPoint | null>(
     null,
@@ -74,9 +76,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const sceneRef = useRef<Scene | null>(null);
   // const statsRef = useRef<Stats | null>(null);
   const [isDesignOpen, setIsDesignOpen] = useState(false);
-  const [localSceneImages, setLocalSceneImages] = useState<
-    { id: string; url: string; finalUrl?: string; loading: boolean }[]
-  >([]);
   const [isTourOpen, setIsTourOpen] = useState(false);
 
   // Window and Door Shape Data

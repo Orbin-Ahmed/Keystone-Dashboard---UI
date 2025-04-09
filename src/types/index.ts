@@ -232,6 +232,13 @@ export interface PlanEditorProps {
 
 export type ViewType = "Top" | "Side" | "Default";
 
+export type SceneImage = {
+  id: string;
+  url: string;
+  finalUrl?: string;
+  loading: boolean;
+};
+
 export interface LineData {
   id: string;
   points: number[];
@@ -523,6 +530,8 @@ export interface Plan3DViewerProps {
   setHiddenCeilingItems: React.Dispatch<React.SetStateAction<PlacedItemType[]>>;
   windowHeight: number;
   setWindowHeight: (value: number) => void;
+  localSceneImages: SceneImage[];
+  setLocalSceneImages: React.Dispatch<React.SetStateAction<SceneImage[]>>;
 }
 
 export interface SceneContentProps {

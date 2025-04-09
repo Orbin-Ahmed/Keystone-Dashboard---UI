@@ -95,6 +95,10 @@ const FloorPlanner = () => {
   const [ceilingItems, setCeilingItems] = useState<CeilingItem[]>([]);
   const [wallItems, setWallItems] = useState<WallItems2D[]>([]);
 
+  const [localSceneImages, setLocalSceneImages] = useState<
+    { id: string; url: string; finalUrl?: string; loading: boolean }[]
+  >([]);
+
   // Upload download function
   const handleDownload = () => {
     const floorsToSave = Object.entries(floors).reduce(
@@ -833,6 +837,8 @@ const FloorPlanner = () => {
           setHiddenCeilingItems={setHiddenCeilingItems}
           windowHeight={windowHeight}
           setWindowHeight={setWindowHeight}
+          localSceneImages={localSceneImages}
+          setLocalSceneImages={setLocalSceneImages}
         />
       ) : (
         <PlanEditor
