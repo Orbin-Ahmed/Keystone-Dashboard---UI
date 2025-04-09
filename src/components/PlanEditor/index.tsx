@@ -477,8 +477,8 @@ const PlanEditor = ({
           };
           const newLines = [...lines, newLine];
           const joinedLines = autoJoinLines(newLines);
-          // setLines([...lines, newLine]);
-          setLines(joinedLines);
+          setLines([...lines, newLine]);
+          // setLines(joinedLines);
         }
 
         setStartPoint(null);
