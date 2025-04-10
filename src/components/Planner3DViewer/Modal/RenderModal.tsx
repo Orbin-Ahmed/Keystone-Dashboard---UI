@@ -142,8 +142,19 @@ const RenderModal: React.FC<RenderModalProps> = ({
   };
 
   // Check render status from backend
-  const checkRenderStatus = (requestId: string, delay: number) => {
+  const checkRenderStatus = (
+    requestId: string,
+    delay: number,
+    startTime = Date.now(),
+  ) => {
     setTimeout(async () => {
+      if (Date.now() - startTime >= 600000) {
+        console.warn(
+          `Polling timed out for request ${requestId} after 10 minutes.`,
+        );
+        return;
+      }
+
       try {
         const statusResponse = await fetch(
           `${process.env.NEXT_PUBLIC_API_BASE_URL}api/render_request/get_image/?request_id=${requestId}`,
@@ -166,11 +177,11 @@ const RenderModal: React.FC<RenderModalProps> = ({
           );
           onRenderComplete(statusData.image_url);
         } else if (statusData.status === "pending") {
-          checkRenderStatus(requestId, 20000);
+          checkRenderStatus(requestId, 20000, startTime);
         }
       } catch (err: any) {
         console.error("Error checking render status:", err);
-        checkRenderStatus(requestId, 20000);
+        checkRenderStatus(requestId, 20000, startTime);
       }
     }, delay);
   };
