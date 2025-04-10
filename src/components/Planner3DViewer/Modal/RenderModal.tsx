@@ -148,7 +148,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
     startTime = Date.now(),
   ) => {
     setTimeout(async () => {
-      if (Date.now() - startTime >= 600000) {
+      if (Date.now() - startTime >= 720000) {
         console.warn(
           `Polling timed out for request ${requestId} after 10 minutes.`,
         );
