@@ -69,7 +69,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
   const [renderResolutionPercentage, setRenderResolutionPercentage] =
     useState("100");
   const [sampling, setSampling] = useState("512");
-  const [sampleContrast, setSampleContrast] = useState("Midium");
+  const [sampleContrast, setSampleContrast] = useState("Medium");
   const [lightPath, setLightPath] = useState("Default");
   const [theme, setTheme] = useState("day");
 
