@@ -141,7 +141,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
     });
   };
 
-  // Check render status from backend
+  // Check render status from backend for 15 mins
   const checkRenderStatus = (
     requestId: string,
     delay: number,
