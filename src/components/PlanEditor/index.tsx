@@ -1008,7 +1008,8 @@ const PlanEditor = ({
             id: newId,
           };
           setCeilingItems((prev) => [...prev, newItem]);
-          setSelectedCeilingItemIds((prev) => [...prev, newId]);
+          // setSelectedCeilingItemIds((prev) => [...prev, newId]);
+          setSelectedCeilingItemIds([newId]);
         } else if (
           selectedPlane === "wall" &&
           wallItems.some((item) => item.id === id)
@@ -1018,14 +1019,16 @@ const PlanEditor = ({
             id: newId,
           };
           setWallItems((prev) => [...prev, newItem]);
-          setSelectedWallItemIds((prev) => [...prev, newId]);
+          // setSelectedWallItemIds((prev) => [...prev, newId]);
+          setSelectedWallItemIds([newId]);
         } else {
           const newItem: FurnitureItem = {
             ...(itemToDuplicate as FurnitureItem),
             id: newId,
           };
           setFurnitureItems((prev) => [...prev, newItem]);
-          setSelectedItemIds((prev) => [...prev, newId]);
+          // setSelectedItemIds((prev) => [...prev, newId]);
+          setSelectedItemIds([newId]);
         }
       }
     }
