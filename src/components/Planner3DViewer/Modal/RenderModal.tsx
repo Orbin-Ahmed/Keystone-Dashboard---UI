@@ -1,6 +1,6 @@
 "use client";
 import CustomButton from "@/components/CustomButton";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { GLTFExporter } from "three-stdlib";
 import { Scene, Camera, Vector3 } from "three";
 import { TourPoint } from "@/types";
@@ -96,10 +96,6 @@ const RenderModal: React.FC<RenderModalProps> = ({
     z: 0,
   });
 
-  const activeTimeoutsRef = useRef<{ [requestId: string]: NodeJS.Timeout }>({});
-
-  const isMountedRef = useRef<boolean>(true);
-
   useEffect(() => {
     if (isOpen && camera) {
       const threeCamPos = camera.position;
@@ -145,37 +141,17 @@ const RenderModal: React.FC<RenderModalProps> = ({
     });
   };
 
-  useEffect(() => {
-    return () => {
-      isMountedRef.current = false;
-      Object.values(activeTimeoutsRef.current).forEach((timeout) => {
-        clearTimeout(timeout);
-      });
-      activeTimeoutsRef.current = {};
-    };
-  }, []);
-
-  // Check render status from backend for 12 mins
+  // Check render status from backend for 15 mins
   const checkRenderStatus = (
     requestId: string,
     delay: number,
     startTime = Date.now(),
   ) => {
-    if (activeTimeoutsRef.current[requestId]) {
-      clearTimeout(activeTimeoutsRef.current[requestId]);
-    }
-
-    activeTimeoutsRef.current[requestId] = setTimeout(async () => {
-      if (!isMountedRef.current) {
-        delete activeTimeoutsRef.current[requestId];
-        return;
-      }
-
+    setTimeout(async () => {
       if (Date.now() - startTime >= 720000) {
         console.warn(
-          `Polling timed out for request ${requestId} after 12 minutes.`,
+          `Polling timed out for request ${requestId} after 10 minutes.`,
         );
-        delete activeTimeoutsRef.current[requestId];
         return;
       }
 
@@ -183,23 +159,10 @@ const RenderModal: React.FC<RenderModalProps> = ({
         const statusResponse = await fetch(
           `${process.env.NEXT_PUBLIC_API_BASE_URL}api/render_request/get_image/?request_id=${requestId}`,
         );
-
-        if (!isMountedRef.current) {
-          delete activeTimeoutsRef.current[requestId];
-          return;
-        }
-
         if (!statusResponse.ok) {
           throw new Error(`Status check error: ${statusResponse.statusText}`);
         }
-
         const statusData = await statusResponse.json();
-
-        if (!isMountedRef.current) {
-          delete activeTimeoutsRef.current[requestId];
-          return;
-        }
-
         if (statusData.image_url) {
           setRenderTasks((prev) =>
             prev.map((task) =>
@@ -213,19 +176,12 @@ const RenderModal: React.FC<RenderModalProps> = ({
             ),
           );
           onRenderComplete(statusData.image_url);
-          delete activeTimeoutsRef.current[requestId];
         } else if (statusData.status === "pending") {
           checkRenderStatus(requestId, 20000, startTime);
-        } else {
-          delete activeTimeoutsRef.current[requestId];
         }
       } catch (err: any) {
-        if (isMountedRef.current) {
-          console.error("Error checking render status:", err);
-          checkRenderStatus(requestId, 20000, startTime);
-        } else {
-          delete activeTimeoutsRef.current[requestId];
-        }
+        console.error("Error checking render status:", err);
+        checkRenderStatus(requestId, 20000, startTime);
       }
     }, delay);
   };
@@ -234,13 +190,8 @@ const RenderModal: React.FC<RenderModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
     setLoading(true);
-
-    Object.values(activeTimeoutsRef.current).forEach((timeout) => {
-      clearTimeout(timeout);
-    });
-    activeTimeoutsRef.current = {};
-
     try {
       const glbBlob = await exportGLTF();
       const formData = new FormData();
