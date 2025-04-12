@@ -15,6 +15,7 @@ interface RenderModalProps {
   camera: Camera;
   activeTourPoint?: TourPoint | null;
   zoomLevel?: number;
+  cameraHeight: number;
 }
 
 interface RenderTask {
@@ -36,7 +37,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
   scene,
   camera,
   activeTourPoint,
-  zoomLevel = 3,
+  cameraHeight,
 }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -75,12 +76,10 @@ const RenderModal: React.FC<RenderModalProps> = ({
 
   // camera settings
 
-  const EYE_LEVEL = 60;
-
   const target = activeTourPoint
     ? new Vector3(
         activeTourPoint.position[0],
-        EYE_LEVEL,
+        cameraHeight,
         activeTourPoint.position[2],
       )
     : new Vector3(0, 0, 0);

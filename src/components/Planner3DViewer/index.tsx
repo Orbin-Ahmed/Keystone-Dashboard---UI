@@ -1484,6 +1484,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         camera={cameraRef.current!}
         activeTourPoint={activeTourPoint}
         zoomLevel={zoomLevel}
+        cameraHeight={cameraHeight}
       />
 
       {!selectedShape && (
