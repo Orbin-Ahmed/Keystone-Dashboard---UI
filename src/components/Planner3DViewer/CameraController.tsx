@@ -55,7 +55,7 @@ const CameraController: React.FC<CameraControllerProps> = ({
   return (
     <OrbitControls
       ref={controlsRef}
-      enableZoom={true}
+      enableZoom={false}
       minPolarAngle={0}
       maxPolarAngle={Math.PI}
       maxDistance={1000}

@@ -259,6 +259,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     }
   };
 
+  // Zooming Function
   const handleZoomIn = () => {
     if (cameraRef.current) {
       cameraRef.current.zoom = Math.min(cameraRef.current.zoom + 0.1, 5);
@@ -277,7 +278,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
   useEffect(() => {
     const handleWheel = (event: WheelEvent) => {
-      if (activeTourPoint && !isRenderModalOpen) {
+      if (!activeTourPoint && !isRenderModalOpen && !isDesignOpen) {
         if (event.deltaY < 0) {
           handleZoomIn();
         } else if (event.deltaY > 0) {
@@ -291,7 +292,9 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     return () => {
       window.removeEventListener("wheel", handleWheel);
     };
-  }, [activeTourPoint, isRenderModalOpen]);
+  }, [activeTourPoint, isRenderModalOpen, isDesignOpen]);
+
+  // Zooming Function end
 
   const toggleTourList = () => {
     setIsSettingsOpen(false);
