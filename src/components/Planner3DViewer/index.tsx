@@ -1151,7 +1151,13 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     }
   };
 
-  // Wall Item Control end
+  useEffect(() => {
+    if (cameraRef.current) {
+      cameraRef.current.fov = fov;
+      cameraRef.current.updateProjectionMatrix();
+    }
+  }, [fov]);
+  // camera Control end
 
   // Hidden Item Function
 
