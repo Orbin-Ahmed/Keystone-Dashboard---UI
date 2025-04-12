@@ -773,25 +773,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
     );
   }, [floorShape, showRoof, textures.roof, shouldExport, wallHeight]);
 
-  // const Roof = useMemo(() => {
-  //   if ((!showRoof && !shouldExport) || !floorShape) return null;
-
-  //   const geometry = new ExtrudeGeometry(floorShape, {
-  //     depth: 1,
-  //     bevelEnabled: false,
-  //     UVGenerator: customUVGenerator,
-  //   });
-
-  //   geometry.rotateX(Math.PI / 2);
-  //   geometry.translate(0, wallHeight + 1, 0);
-
-  //   return (
-  //     <mesh geometry={geometry} position={[0, 0, 0]}>
-  //       <meshStandardMaterial map={textures.roof} side={DoubleSide} />
-  //     </mesh>
-  //   );
-  // }, [floorShape, showRoof, textures.roof, shouldExport]);
-
   const handlePointerDown = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation();
     if (!placingItemRef.current) return;
@@ -1024,15 +1005,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
     });
     setPlacedItems((prev) => [...prev, ...newCeilingPlaced]);
   }, []);
-
-  // useEffect(() => {
-  //   if (envMap && showRoof && !shouldExport) {
-  //     scene.background = envMap;
-  //   }
-  //   return () => {
-  //     scene.background = null;
-  //   };
-  // }, [envMap, showRoof, shouldExport]);
 
   useEffect(() => {
     if (envMap && (showRoof || shouldExport) && !shouldExport) {
@@ -1365,56 +1337,6 @@ const SceneContent: React.FC<SceneContentProps> = ({
           onPointerOut={handlePointerOut}
         />
       )}
-
-      {/* Only Floor Placed items */}
-      {/* {!activeTourPoint && */}
-      {/* {(!activeTourPoint || shouldExport) &&
-        placedItems
-          .filter(
-            (item) =>
-              !ceilingItems.some((ceilingItem) => ceilingItem.id === item.id) ||
-              shouldExport,
-          )
-          .map((item) => (
-            <ItemModel
-              key={item.id}
-              path={item.path}
-              position={item.position || [0, 0, 0]}
-              rotation={item.rotation || [0, 0, 0]}
-              dimensions={{
-                width: item.width,
-                height: item.height,
-                depth: item.depth,
-              }}
-              onClick={() => handlePlacedItemClick(item)}
-              selected={selectedItem?.id === item.id}
-            />
-          ))} */}
-
-      {/* Roof Item and Floor Placed Item Together  */}
-      {/* {activeTourPoint &&
-        placedItems.map((item) => {
-          const isCeilingItem = ceilingItems.some((ci) => ci.id === item.id);
-          const itemClick = isCeilingItem
-            ? () => handlePlacedItemClick(item)
-            : () => handlePlacedItemClick(item);
-
-          return (
-            <ItemModel
-              key={item.id}
-              path={item.path}
-              position={item.position || [0, 0, 0]}
-              rotation={item.rotation || [0, 0, 0]}
-              dimensions={{
-                width: item.width,
-                height: item.height,
-                depth: item.depth,
-              }}
-              onClick={itemClick}
-              selected={selectedItem?.id === item.id}
-            />
-          );
-        })} */}
 
       {placedItems
         .filter((item) => {
