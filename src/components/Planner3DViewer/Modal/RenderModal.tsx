@@ -363,7 +363,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
       sampling: parseInt(sampling),
       sample_contrast: `${sampleContrast} Contrast`,
       time_of_day: theme,
-      fov: fov,
+      camera_fov: fov,
 
       // Light path settings
       light_path: (() => {
