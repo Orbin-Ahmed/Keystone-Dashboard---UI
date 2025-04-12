@@ -131,6 +131,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
   lightIntensity,
   cameraHeight,
   windowHeight,
+  controlsRef,
 }) => {
   const { scene, camera, gl } = useThree();
   const raycaster = new Raycaster();
@@ -1150,10 +1151,9 @@ const SceneContent: React.FC<SceneContentProps> = ({
         setIsTransitioning={setIsTransitioning}
         isAutoRotating={isAutoRotating}
         setIsAutoRotating={setIsAutoRotating}
-        disableControls={
-          !!placingItem || !!placingWallItem || !!selectedWallItem
-        }
+        disableControls={!!placingItem || !!placingWallItem}
         cameraHeight={cameraHeight}
+        controlsRef={controlsRef}
       />
       {/* Lights */}
       <ambientLight intensity={0.9 * lightIntensity} />

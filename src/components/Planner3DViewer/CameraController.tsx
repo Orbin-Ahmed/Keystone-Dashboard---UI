@@ -10,10 +10,10 @@ const CameraController: React.FC<CameraControllerProps> = ({
   disableControls = false,
   setIsAutoRotating,
   cameraHeight,
+  controlsRef,
 }) => {
   const { camera } = useThree();
   const targetPosition = useRef(new Vector3());
-  const controlsRef = useRef<any>();
 
   const ROTATION_RADIUS = 50;
   const ROTATION_SPEED = 0.2;

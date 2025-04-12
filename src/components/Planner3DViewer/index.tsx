@@ -11,7 +11,7 @@ import {
   ViewType,
   WallItem,
 } from "@/types";
-import { PerspectiveCamera, Scene, WebGLRenderer } from "three";
+import { PerspectiveCamera, Scene, Vector3, WebGLRenderer } from "three";
 import CustomButton from "@/components/CustomButton";
 import SceneContent, {
   ensureWallPoints,
@@ -146,6 +146,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [placementType, setPlacementType] = useState<
     "Wall" | "Ceiling" | "Floor"
   >("Floor");
+  const controlsRef = useRef<any>();
 
   const fetchDoorAndWindowOptions = async () => {
     try {
@@ -260,8 +261,47 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   };
 
   // Zooming Function
+
   const handleZoomIn = () => {
-    if (cameraRef.current) {
+    if (cameraRef.current && (selectedItem || selectedWallItem)) {
+      const focusItem = selectedItem ?? selectedWallItem;
+      if (!focusItem) return;
+
+      const targetPosition = new Vector3(
+        focusItem.position[0],
+        cameraHeight,
+        focusItem.position[2],
+      );
+
+      const currentPosition = cameraRef.current.position.clone();
+      const direction = new Vector3()
+        .subVectors(targetPosition, currentPosition)
+        .normalize();
+      const zoomStep = 2.0;
+
+      const newPosition = currentPosition
+        .clone()
+        .add(direction.multiplyScalar(zoomStep));
+
+      cameraRef.current.position.copy(newPosition);
+      cameraRef.current.lookAt(targetPosition);
+
+      if (controlsRef.current) {
+        controlsRef.current.target.copy(targetPosition);
+        controlsRef.current.update();
+      }
+
+      cameraRef.current.zoom = Math.min(cameraRef.current.zoom + 0.1, 5);
+      cameraRef.current.updateProjectionMatrix();
+      setZoomLevel((prev) => prev + 1);
+    } else if (cameraRef.current) {
+      cameraRef.current.lookAt(0, 0, 0);
+
+      if (controlsRef.current) {
+        controlsRef.current.target.set(0, 0, 0);
+        controlsRef.current.update();
+      }
+
       cameraRef.current.zoom = Math.min(cameraRef.current.zoom + 0.1, 5);
       cameraRef.current.updateProjectionMatrix();
       setZoomLevel((prev) => prev + 1);
@@ -269,7 +309,45 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   };
 
   const handleZoomOut = () => {
-    if (cameraRef.current) {
+    if (cameraRef.current && (selectedItem || selectedWallItem)) {
+      const focusItem = selectedItem ?? selectedWallItem;
+      if (!focusItem) return;
+
+      const targetPosition = new Vector3(
+        focusItem.position[0],
+        cameraHeight,
+        focusItem.position[2],
+      );
+
+      const currentPosition = cameraRef.current.position.clone();
+      const direction = new Vector3()
+        .subVectors(targetPosition, currentPosition)
+        .normalize();
+      const zoomStep = 2.0;
+
+      const newPosition = currentPosition
+        .clone()
+        .sub(direction.multiplyScalar(zoomStep));
+
+      cameraRef.current.position.copy(newPosition);
+      cameraRef.current.lookAt(targetPosition);
+
+      if (controlsRef.current) {
+        controlsRef.current.target.copy(targetPosition);
+        controlsRef.current.update();
+      }
+
+      cameraRef.current.zoom = Math.max(cameraRef.current.zoom - 0.1, 0.5);
+      cameraRef.current.updateProjectionMatrix();
+      setZoomLevel((prev) => prev - 1);
+    } else if (cameraRef.current) {
+      cameraRef.current.lookAt(0, 0, 0);
+
+      if (controlsRef.current) {
+        controlsRef.current.target.set(0, 0, 0);
+        controlsRef.current.update();
+      }
+
       cameraRef.current.zoom = Math.max(cameraRef.current.zoom - 0.1, 0.5);
       cameraRef.current.updateProjectionMatrix();
       setZoomLevel((prev) => prev - 1);
@@ -292,7 +370,13 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     return () => {
       window.removeEventListener("wheel", handleWheel);
     };
-  }, [activeTourPoint, isRenderModalOpen, isDesignOpen]);
+  }, [
+    activeTourPoint,
+    isRenderModalOpen,
+    isDesignOpen,
+    selectedItem,
+    selectedWallItem,
+  ]);
 
   // Zooming Function end
 
@@ -1303,6 +1387,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           lightIntensity={lightIntensity}
           cameraHeight={cameraHeight}
           windowHeight={windowHeight}
+          controlsRef={controlsRef}
         />
       </Canvas>
 

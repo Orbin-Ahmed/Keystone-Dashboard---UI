@@ -1,3 +1,4 @@
+import { RefObject } from "react";
 import { Plane, Vector3 } from "three";
 
 export interface ImageFile {
@@ -305,6 +306,7 @@ export interface CameraControllerProps {
   setIsAutoRotating: (value: boolean) => void;
   disableControls?: boolean;
   cameraHeight: number;
+  controlsRef: RefObject<any>;
 }
 
 export interface WallClassification {
@@ -590,6 +592,7 @@ export interface SceneContentProps {
   lightIntensity: number;
   cameraHeight: number;
   windowHeight: number;
+  controlsRef: RefObject<any>;
 }
 
 export interface WallItem {
