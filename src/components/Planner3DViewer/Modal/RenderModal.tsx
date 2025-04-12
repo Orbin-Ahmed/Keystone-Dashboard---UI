@@ -16,6 +16,7 @@ interface RenderModalProps {
   activeTourPoint?: TourPoint | null;
   zoomLevel?: number;
   cameraHeight: number;
+  fov: number;
 }
 
 interface RenderTask {
@@ -38,6 +39,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
   camera,
   activeTourPoint,
   cameraHeight,
+  fov,
 }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -248,6 +250,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
         blenderCamTarget,
         finalGlbUrl,
         request_id,
+        fov,
       );
 
       const backendPayload = {
@@ -325,6 +328,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
     blenderCamTarget: { x: number; y: number; z: number },
     glbUrl: string,
     requestId: string,
+    fov: number,
   ) => {
     return {
       // Spot settings
@@ -359,6 +363,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
       sampling: parseInt(sampling),
       sample_contrast: `${sampleContrast} Contrast`,
       time_of_day: theme,
+      fov: fov,
 
       // Light path settings
       light_path: (() => {

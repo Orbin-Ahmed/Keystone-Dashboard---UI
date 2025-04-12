@@ -141,6 +141,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [isRenderModalOpen, setIsRenderModalOpen] = useState(false);
 
   const [currentView, setCurrentView] = useState<ViewType>("Default");
+  const [fov, setFov] = useState<number>(55);
 
   const [zoomLevel, setZoomLevel] = useState(3);
   const [placementType, setPlacementType] = useState<
@@ -208,8 +209,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     window: { width: 70, height: 8 },
   };
 
-  const EYE_LEVEL = 70;
-
   const tourPoints = useMemo(
     () =>
       roomNames.map((room) => ({
@@ -220,7 +219,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
             (Math.min(...lines.flatMap((l) => [l.points[0], l.points[2]])) +
               Math.max(...lines.flatMap((l) => [l.points[0], l.points[2]]))) /
               2,
-          EYE_LEVEL,
+          cameraHeight,
           room.y -
             (Math.min(...lines.flatMap((l) => [l.points[1], l.points[3]])) +
               Math.max(...lines.flatMap((l) => [l.points[1], l.points[3]]))) /
@@ -231,7 +230,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
             (Math.min(...lines.flatMap((l) => [l.points[0], l.points[2]])) +
               Math.max(...lines.flatMap((l) => [l.points[0], l.points[2]]))) /
               2,
-          EYE_LEVEL - 10,
+          cameraHeight,
           room.y -
             (Math.min(...lines.flatMap((l) => [l.points[1], l.points[3]])) +
               Math.max(...lines.flatMap((l) => [l.points[1], l.points[3]]))) /
@@ -1317,7 +1316,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   return (
     <>
       <Canvas
-        camera={{ position: [0, 300, 500], fov: 65, near: 1, far: 2000 }}
+        camera={{ position: [0, 300, 500], fov: fov, near: 1, far: 2000 }}
         onCreated={({ camera, gl, scene }) => {
           if (camera instanceof PerspectiveCamera) {
             cameraRef.current = camera;
@@ -1485,6 +1484,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         activeTourPoint={activeTourPoint}
         zoomLevel={zoomLevel}
         cameraHeight={cameraHeight}
+        fov={fov}
       />
 
       {!selectedShape && (
@@ -1696,6 +1696,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           onShowHiddenItems={handleShowHiddenItems}
           windowHeight={windowHeight}
           onWindowHeightChange={setWindowHeight}
+          fov={fov}
+          onfovChange={setFov}
         />
       )}
     </>

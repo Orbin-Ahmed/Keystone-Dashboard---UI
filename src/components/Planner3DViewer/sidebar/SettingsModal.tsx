@@ -16,7 +16,9 @@ interface SettingsModalProps {
   ceilingTexture: string;
   lightIntensity: number;
   windowHeight: number;
+  fov: number;
   onWindowHeightChange: (value: number) => void;
+  onfovChange: (value: number) => void;
   onWallHeightChange: (value: number) => void;
   onWallThicknessChange: (value: number) => void;
   onWallTextureChange: (value: string) => void;
@@ -44,6 +46,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   onShowHiddenItems,
   onWindowHeightChange,
   windowHeight,
+  fov,
+  onfovChange,
 }) => {
   const [textures, setTextures] = useState<TextureData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -141,6 +145,25 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             placeholder="Window Height"
             value={windowHeight}
             onChange={(e) => onWindowHeightChange(Number(e.target.value))}
+          />
+        </div>
+
+        {/* Field of view Input */}
+        <div className="mb-4">
+          <label
+            htmlFor="fov"
+            className="text-gray-700 block text-sm font-medium"
+          >
+            FOV
+          </label>
+          <InputField
+            className="border-gray-300 mt-2 w-full rounded border px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+            name="fov"
+            id="fov"
+            type="number"
+            placeholder="FOV"
+            value={fov}
+            onChange={(e) => onfovChange(Number(e.target.value))}
           />
         </div>
 
