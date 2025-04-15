@@ -1137,6 +1137,25 @@ const SceneContent: React.FC<SceneContentProps> = ({
     gl.domElement.style.cursor = "default";
   };
 
+  // Wall Item Placing Handler
+
+  const handleWallGroupClick = (e: ThreeEvent<MouseEvent>, angle: number) => {
+    if (!placingWallItem) return;
+
+    e.stopPropagation();
+
+    const intersectPoint = e.point;
+
+    const newWallItem: WallItem = {
+      ...placingWallItem,
+      position: [intersectPoint.x, intersectPoint.y, intersectPoint.z],
+      rotation: [0, -angle, 0],
+    };
+
+    setWallItems((prevItems) => [...prevItems, newWallItem]);
+    setPlacingWallItem(null);
+  };
+
   useEffect(() => {
     return () => {
       updateWallItemPosition.cancel();
@@ -1257,6 +1276,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
             key={line.id}
             position={wallPosition}
             rotation={[0, -angle, 0]}
+            onClick={(e) => handleWallGroupClick(e, angle)}
           >
             <primitive object={wallMesh} />
             {shapesOnWall.map((shape) => {

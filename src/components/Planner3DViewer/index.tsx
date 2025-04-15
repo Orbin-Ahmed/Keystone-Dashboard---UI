@@ -401,14 +401,33 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     setSelectedShape(null);
   };
 
+  // const handleItemClick = (item: PlacingItemType) => {
+  //   setIsSettingsOpen(false);
+  //   setPlacingItem((prev) => ({
+  //     ...item,
+  //     position: prev?.position || [0, 0, 0],
+  //     rotation: prev?.rotation || [0, 0, 0],
+  //   }));
+  //   setIsItemsOpen(false);
+  // };
+
   const handleItemClick = (item: PlacingItemType) => {
     setIsSettingsOpen(false);
-    setPlacingItem((prev) => ({
-      ...item,
-      position: prev?.position || [0, 0, 0],
-      rotation: prev?.rotation || [0, 0, 0],
-    }));
     setIsItemsOpen(false);
+
+    if (item.type === "Wall") {
+      if (!item.id) return;
+      setPlacingWallItem({
+        ...item,
+        id: item.id,
+      } as WallItem);
+    } else {
+      setPlacingItem({
+        ...item,
+        position: [0, 0, 0],
+        rotation: [0, 0, 0],
+      });
+    }
   };
 
   const confirmPlacement = () => {
