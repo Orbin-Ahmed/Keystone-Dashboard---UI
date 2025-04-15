@@ -386,6 +386,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     isDesignOpen,
     selectedItem,
     selectedWallItem,
+    isCustomizeModalOpen,
   ]);
 
   // Zooming Function end
