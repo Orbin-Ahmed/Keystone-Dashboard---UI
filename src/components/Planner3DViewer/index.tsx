@@ -416,10 +416,9 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     setIsItemsOpen(false);
 
     if (item.type === "Wall") {
-      if (!item.id) return;
       setPlacingWallItem({
         ...item,
-        id: item.id,
+        id: item.id || uid(),
       } as WallItem);
     } else {
       setPlacingItem({
