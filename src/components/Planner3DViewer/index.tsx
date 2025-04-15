@@ -33,6 +33,7 @@ import CustomizeItemModal from "./Modal/CustomizeItemModal";
 import RenderModal from "./Modal/RenderModal";
 import ItemSettingsSidebar from "./sidebar/ItemSettingsSidebar";
 import ViewControls from "./sidebar/ViewControls";
+import DoorCustomizeModal from "./Modal/DoorCustomizeModal";
 
 const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   lines,
@@ -1706,6 +1707,36 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
             console.log("Customizations applied:", customizations);
           }}
           item={selectedWallItem}
+        />
+      )}
+
+      {/* Custom Door  */}
+      {isCustomizeModalOpen && selectedShape && (
+        <DoorCustomizeModal
+          modelPath={
+            selectedShape.variant ||
+            `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/glass_door.glb`
+          }
+          onClose={() => setIsCustomizeModalOpen(false)}
+          onApply={(customizations, newItemName) => {
+            if (newItemName && selectedShape.id) {
+              setShapes((prevShapes) =>
+                prevShapes.map((shape) =>
+                  shape.id === selectedShape.id
+                    ? {
+                        ...shape,
+                        newItemName,
+                        variant:
+                          `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/${newItemName.toLowerCase().replace(/[-\s]/g, "_")}.glb` ||
+                          "default",
+                      }
+                    : shape,
+                ),
+              );
+            }
+            console.log("Customizations applied:", customizations);
+          }}
+          item={selectedShape}
         />
       )}
 
