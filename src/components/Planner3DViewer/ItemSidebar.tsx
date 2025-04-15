@@ -30,6 +30,10 @@ const ItemSidebar: React.FC<ItemSidebarProps> = ({
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const isTourActive = !!activeTourPoint;
 
+  const excludedTypes = isTourActive
+    ? ["Ceiling", "Door", "Window", "Floor"]
+    : ["Ceiling", "Door", "Window", "Wall"];
+
   const fetchItems = async () => {
     try {
       const response = await fetch(
@@ -88,22 +92,8 @@ const ItemSidebar: React.FC<ItemSidebarProps> = ({
       <h3 className="text-lg font-bold">Items</h3>
       <div className="flex flex-col gap-2">
         {categories
-          // .filter((category) =>
-          //   category.items.some(
-          //     (item) =>
-          //       item.type !== "Ceiling" &&
-          //       item.type !== "Wall" &&
-          //       item.type !== "Door" &&
-          //       item.type !== "Window",
-          //   ),
-          // )
           .filter((category) =>
-            category.items.some((item) => {
-              if (["Ceiling", "Door", "Window", "Floor"].includes(item.type))
-                return false;
-              if (item.type === "Wall") return isTourActive;
-              return true;
-            }),
+            category.items.some((item) => !excludedTypes.includes(item.type)),
           )
           .map((category) => (
             <div key={category.name}>
@@ -124,16 +114,7 @@ const ItemSidebar: React.FC<ItemSidebarProps> = ({
                     //     item.type !== "Door" &&
                     //     item.type !== "Window",
                     // )
-                    .filter((item) => {
-                      if (
-                        ["Ceiling", "Door", "Window", "Floor"].includes(
-                          item.type,
-                        )
-                      )
-                        return false;
-                      if (item.type === "Wall") return isTourActive;
-                      return true;
-                    })
+                    .filter((item) => !excludedTypes.includes(item.type))
                     .map((item) => (
                       <div
                         key={item.name}
