@@ -1528,15 +1528,22 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
             <CustomButton variant="tertiary" onClick={toggleTourList}>
               View Points
             </CustomButton>
-            {!activeTourPoint && (
+            {/* {!activeTourPoint && (
               <AddItemSidebar
-                onToggleItems={() => {
-                  setIsItemsOpen((prev) => !prev);
-                  setIsSettingsOpen(false);
-                  setIsTourOpen(false);
-                }}
-              />
-            )}
+              onToggleItems={() => {
+                setIsItemsOpen((prev) => !prev);
+                setIsSettingsOpen(false);
+                setIsTourOpen(false);
+              }}
+            />
+            )} */}
+            <AddItemSidebar
+              onToggleItems={() => {
+                setIsItemsOpen((prev) => !prev);
+                setIsSettingsOpen(false);
+                setIsTourOpen(false);
+              }}
+            />
           </div>
 
           {/* Tour Points List */}
