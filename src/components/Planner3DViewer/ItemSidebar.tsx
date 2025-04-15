@@ -1,3 +1,4 @@
+import { TourPoint } from "@/types";
 import React, { useState, useEffect } from "react";
 
 interface SidebarItem {
@@ -18,11 +19,16 @@ interface ItemCategory {
 
 interface ItemSidebarProps {
   onItemClick: (item: SidebarItem) => void;
+  activeTourPoint: TourPoint | null;
 }
 
-const ItemSidebar: React.FC<ItemSidebarProps> = ({ onItemClick }) => {
+const ItemSidebar: React.FC<ItemSidebarProps> = ({
+  onItemClick,
+  activeTourPoint,
+}) => {
   const [categories, setCategories] = useState<ItemCategory[]>([]);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const isTourActive = !!activeTourPoint;
 
   const fetchItems = async () => {
     try {
@@ -82,14 +88,22 @@ const ItemSidebar: React.FC<ItemSidebarProps> = ({ onItemClick }) => {
       <h3 className="text-lg font-bold">Items</h3>
       <div className="flex flex-col gap-2">
         {categories
+          // .filter((category) =>
+          //   category.items.some(
+          //     (item) =>
+          //       item.type !== "Ceiling" &&
+          //       item.type !== "Wall" &&
+          //       item.type !== "Door" &&
+          //       item.type !== "Window",
+          //   ),
+          // )
           .filter((category) =>
-            category.items.some(
-              (item) =>
-                item.type !== "Ceiling" &&
-                item.type !== "Wall" &&
-                item.type !== "Door" &&
-                item.type !== "Window",
-            ),
+            category.items.some((item) => {
+              if (["Ceiling", "Door", "Window", "Floor"].includes(item.type))
+                return false;
+              if (item.type === "Wall") return isTourActive;
+              return true;
+            }),
           )
           .map((category) => (
             <div key={category.name}>
@@ -103,13 +117,23 @@ const ItemSidebar: React.FC<ItemSidebarProps> = ({ onItemClick }) => {
               {expandedCategory === category.name && (
                 <div className="bg-gray-100 mt-2 grid grid-cols-2 gap-4 rounded-lg p-3">
                   {category.items
-                    .filter(
-                      (item) =>
-                        item.type !== "Ceiling" &&
-                        item.type !== "Wall" &&
-                        item.type !== "Door" &&
-                        item.type !== "Window",
-                    )
+                    // .filter(
+                    //   (item) =>
+                    //     item.type !== "Ceiling" &&
+                    //     item.type !== "Wall" &&
+                    //     item.type !== "Door" &&
+                    //     item.type !== "Window",
+                    // )
+                    .filter((item) => {
+                      if (
+                        ["Ceiling", "Door", "Window", "Floor"].includes(
+                          item.type,
+                        )
+                      )
+                        return false;
+                      if (item.type === "Wall") return isTourActive;
+                      return true;
+                    })
                     .map((item) => (
                       <div
                         key={item.name}
