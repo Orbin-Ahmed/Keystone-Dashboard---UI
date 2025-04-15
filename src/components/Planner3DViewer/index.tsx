@@ -361,7 +361,12 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
   useEffect(() => {
     const handleWheel = (event: WheelEvent) => {
-      if (!activeTourPoint && !isRenderModalOpen && !isDesignOpen) {
+      if (
+        !activeTourPoint &&
+        !isRenderModalOpen &&
+        !isDesignOpen &&
+        !isCustomizeModalOpen
+      ) {
         if (event.deltaY < 0) {
           handleZoomIn();
         } else if (event.deltaY > 0) {
@@ -1715,8 +1720,9 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       {isCustomizeModalOpen && selectedShape && (
         <DoorCustomizeModal
           modelPath={
-            selectedShape.variant ||
-            `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/glass_door.glb`
+            selectedShape.variant && selectedShape.variant !== "default"
+              ? selectedShape.variant
+              : `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/glass_door.glb`
           }
           onClose={() => setIsCustomizeModalOpen(false)}
           onApply={(customizations, newItemName) => {
