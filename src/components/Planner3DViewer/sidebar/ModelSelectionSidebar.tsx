@@ -2,6 +2,7 @@ import React from "react";
 import { ShapeData } from "@/types";
 import InputField from "@/components/InputField";
 import CustomButton from "@/components/CustomButton";
+import { FaArrowUpRightFromSquare } from "react-icons/fa6";
 
 interface ModelSelectionSidebarProps {
   selectedShape: ShapeData;
@@ -21,6 +22,7 @@ interface ModelSelectionSidebarProps {
   windowOptions: { label: string; value: string }[];
   onSaveChanges: () => void;
   onClose: () => void;
+  onCustomize: () => void;
 }
 
 const ModelSelectionSidebar: React.FC<ModelSelectionSidebarProps> = ({
@@ -41,12 +43,19 @@ const ModelSelectionSidebar: React.FC<ModelSelectionSidebarProps> = ({
   windowOptions,
   onSaveChanges,
   onClose,
+  onCustomize,
 }) => {
   return (
     <div className="border-gray-200 fixed right-4 top-4 z-50 w-64 rounded-lg border bg-white p-4 shadow-lg">
-      <h3 className="text-gray-800 mb-4 text-lg font-semibold">
-        {selectedShape.type.toUpperCase()} Model (Inch)
-      </h3>
+      <div className="flex items-center justify-between">
+        <h3 className="text-gray-800 text-lg font-semibold">
+          {selectedShape.type.toUpperCase()} Model (Inch)
+        </h3>
+        <FaArrowUpRightFromSquare
+          className="text-gray-600 cursor-pointer"
+          onClick={onCustomize}
+        />
+      </div>
       {/* Flip Checkbox */}
       <div className="my-3 flex items-center">
         <input

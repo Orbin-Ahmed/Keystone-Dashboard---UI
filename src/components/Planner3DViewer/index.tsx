@@ -1583,6 +1583,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           onClose={handleCloseSidebar}
           setNewWidth={handleWidthChange}
           setNewHeight={handleHeightChange}
+          onCustomize={handleCustomizeClick}
         />
       )}
 
