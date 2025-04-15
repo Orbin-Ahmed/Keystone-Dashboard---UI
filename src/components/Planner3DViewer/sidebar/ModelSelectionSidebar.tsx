@@ -11,6 +11,10 @@ interface ModelSelectionSidebarProps {
   setNewWidth: (value: number | "") => void;
   newHeight: number | "";
   setNewHeight: (value: number | "") => void;
+  newX: number | "";
+  setNewX: (value: number | "") => void;
+  newY: number | "";
+  setNewY: (value: number | "") => void;
   selectedModelPath: string | null;
   setSelectedModelPath: (value: string | null) => void;
   doorOptions: { label: string; value: string }[];
@@ -27,6 +31,10 @@ const ModelSelectionSidebar: React.FC<ModelSelectionSidebarProps> = ({
   setNewWidth,
   newHeight,
   setNewHeight,
+  newX,
+  newY,
+  setNewX,
+  setNewY,
   selectedModelPath,
   setSelectedModelPath,
   doorOptions,
@@ -69,6 +77,27 @@ const ModelSelectionSidebar: React.FC<ModelSelectionSidebarProps> = ({
           placeholder="Height"
           value={newHeight}
           onChange={(e) => setNewHeight(Number(e.target.value))}
+        />
+      </div>
+      {/* Position Inputs */}
+      <div className="my-3">
+        <InputField
+          className="my-2 px-3.5 py-2"
+          name="position_x"
+          id="position_x_id"
+          type="number"
+          placeholder="Position X"
+          value={newX}
+          onChange={(e) => setNewX(Number(e.target.value))}
+        />
+        <InputField
+          className="my-2 px-3.5 py-2"
+          name="position_y"
+          id="position_y_id"
+          type="number"
+          placeholder="Position Y"
+          value={newY}
+          onChange={(e) => setNewY(Number(e.target.value))}
         />
       </div>
       {/* Model Selection Dropdown */}

@@ -85,6 +85,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   >({});
   const [newWidth, setNewWidth] = useState<number | "">("");
   const [newHeight, setNewHeight] = useState<number | "">("");
+  const [newX, setNewX] = useState<number | "">("");
+  const [newY, setNewY] = useState<number | "">("");
   const [flipShape, setFlipShape] = useState<boolean>(false);
   const [shapeDimensionsById, setShapeDimensionsById] = useState<
     Record<string, { width: number; height: number }>
@@ -94,6 +96,9 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   );
   const [shapeFlipStatusById, setShapeFlipStatusById] = useState<
     Record<string, boolean>
+  >({});
+  const [shapePositionById, setPositionById] = useState<
+    Record<string, { x: number; y: number }>
   >({});
 
   // Item states
@@ -557,6 +562,10 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
     setNewHeight(savedDimensions?.height ?? shape.height ?? defaultDims.height);
 
+    setNewX(shape?.x ?? shape.x ?? 0);
+
+    setNewY(shape?.y ?? shape.y ?? 0);
+
     const currentModelPath =
       modelPathsByShapeId[shape.id] || shape.variant || "";
     setSelectedModelPath(currentModelPath);
@@ -603,6 +612,19 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
         shapeUpdates.width = newWidth;
         shapeUpdates.height = newHeight;
+      }
+
+      if (typeof newX === "number" && typeof newY === "number") {
+        setPositionById((prev) => ({
+          ...prev,
+          [selectedShape.id]: {
+            x: newX,
+            y: newY,
+          },
+        }));
+
+        shapeUpdates.x = newX;
+        shapeUpdates.y = newY;
       }
 
       if (selectedModelPath) {
@@ -1548,6 +1570,10 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           setFlipShape={setFlipShape}
           newWidth={newWidth}
           newHeight={newHeight}
+          newX={newX}
+          setNewX={setNewX}
+          newY={newY}
+          setNewY={setNewY}
           selectedModelPath={selectedModelPath}
           setSelectedModelPath={handleModelPathChange}
           doorOptions={doorOptions}
