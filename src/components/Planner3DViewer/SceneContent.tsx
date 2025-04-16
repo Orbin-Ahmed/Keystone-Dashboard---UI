@@ -10,6 +10,7 @@ import {
   ShapeData,
   WallClassification,
   WallItem,
+  WallItems2D,
 } from "@/types";
 import {
   Vector3,
@@ -1153,6 +1154,40 @@ const SceneContent: React.FC<SceneContentProps> = ({
     };
 
     setWallItems((prevItems) => [...prevItems, newWallItem]);
+
+    const rotationInRadians = newWallItem.rotation[1];
+    const adjustedRotation = -(rotationInRadians * 180) / Math.PI;
+    const adjustedX =
+      newWallItem.position[0] -
+      (Math.cos(rotationInRadians) * newWallItem.width) / 2 -
+      (Math.sin(rotationInRadians) * newWallItem.depth) / 2 +
+      centerX;
+    const adjustedY =
+      newWallItem.position[2] +
+      (Math.sin(rotationInRadians) * newWallItem.width) / 2 -
+      (Math.cos(rotationInRadians) * newWallItem.depth) / 2 +
+      centerY;
+
+    const newWallItem2D: WallItems2D = {
+      id: newWallItem.id,
+      name: newWallItem.name,
+      width: newWallItem.width,
+      height: newWallItem.height,
+      depth: newWallItem.depth,
+      x: adjustedX,
+      y: adjustedY,
+      z: newWallItem.position[1],
+      rotation: adjustedRotation,
+      rotationX: 0,
+      rotationZ: 0,
+      imageSrc: newWallItem.path
+        .replace("/glb_files/", "/viewer2d_images/")
+        .replace(".glb", ".png"),
+      category: "wall",
+    };
+
+    setWallItems2D((prevItems) => [...prevItems, newWallItem2D]);
+
     setPlacingWallItem(null);
   };
 
