@@ -1751,7 +1751,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           modelPath={
             selectedShape.variant && selectedShape.variant !== "default"
               ? selectedShape.variant
-              : `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/glass_door.glb`
+              : `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/${selectedShape.type === "window" ? "window_1.glb" : "glass_door.glb"}`
           }
           onClose={() => setIsCustomizeModalOpen(false)}
           onApply={(customizations, newItemName) => {
