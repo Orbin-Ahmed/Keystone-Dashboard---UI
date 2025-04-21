@@ -153,6 +153,9 @@ const DoorCustomizeModal: React.FC<CustomizeItemModalProps> = ({
     }
 
     const exporter = new GLTFExporter();
+    const isWindow = item?.type;
+    const viewer2DImage = isWindow ? "window_1.png" : "glass_door.png";
+    const viewer3DImage = isWindow ? "window_1.png" : "glass_door.png";
 
     return new Promise((resolve) => {
       exporter.parse(
@@ -170,11 +173,11 @@ const DoorCustomizeModal: React.FC<CustomizeItemModalProps> = ({
           formData.append("glb_file", blob, "modifiedModel.glb");
           formData.append(
             "viewer2d_url",
-            `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/glass_door.png`,
+            `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${viewer2DImage}`,
           );
           formData.append(
             "viewer3d_url",
-            `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer3d_images/glass_door.png`,
+            `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer3d_images/${viewer3DImage}`,
           );
 
           try {
