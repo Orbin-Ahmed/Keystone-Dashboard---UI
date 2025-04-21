@@ -702,7 +702,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       } else {
         initialDimensions[shape.id] = {
           width:
-            shape.width && shape.width > 49
+            shape.width && shape.width > 10
               ? shape.width
               : defaultDimensions[shape.type].width,
           height: shape.height || defaultDimensions[shape.type].height,
