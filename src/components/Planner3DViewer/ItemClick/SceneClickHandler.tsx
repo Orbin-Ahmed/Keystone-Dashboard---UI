@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { SelectionType } from "../Modal/ItemCustomizationViewer";
 import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { findTopmostNamedNode } from "./ModelViewer";
+import { findTopmostNamedNode } from "./ModelUtils";
 
 interface SceneClickHandlerProps {
   children: React.ReactNode;
@@ -15,6 +15,7 @@ const SceneClickHandler: React.FC<SceneClickHandlerProps> = ({
   setSelectedGroups,
 }) => {
   const { camera, gl, scene } = useThree();
+
   const handlePointerDown = (event: any) => {
     const rect = gl.domElement.getBoundingClientRect();
     const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
