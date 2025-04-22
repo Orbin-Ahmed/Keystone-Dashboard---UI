@@ -27,6 +27,8 @@ interface SettingsModalProps {
   onLightIntensityChange: (value: number) => void;
   onClose: () => void;
   onShowHiddenItems: () => void;
+  floorTextureScale: number;
+  onFloorTextureScaleChange: (value: number) => void;
 }
 
 const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -48,6 +50,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   windowHeight,
   fov,
   onfovChange,
+  floorTextureScale,
+  onFloorTextureScaleChange,
 }) => {
   const [textures, setTextures] = useState<TextureData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -107,84 +111,82 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-      <div className="w-72 rounded-lg border bg-white p-6 shadow-lg">
+      <div className="w-98 rounded-lg border bg-white p-6 shadow-lg">
         <h3 className="text-gray-800 mb-4 text-lg font-semibold">Settings</h3>
 
-        {/* Wall Height Input */}
-        <div className="mb-4">
-          <label
-            htmlFor="wall_height"
-            className="text-gray-700 block text-sm font-medium"
-          >
-            Wall Height (Inch)
-          </label>
-          <InputField
-            className="border-gray-300 mt-2 w-full rounded border px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
-            name="wall_height"
-            id="wall_height"
-            type="number"
-            placeholder="Wall Height"
-            value={wallHeight}
-            onChange={(e) => onWallHeightChange(Number(e.target.value))}
-          />
+        {/* Wall Height and Wall Thickness  */}
+        <div className="flex space-x-4">
+          <div className="flex-1">
+            <label
+              htmlFor="wall_height"
+              className="text-gray-700 block text-sm font-medium"
+            >
+              Wall Height (Inch)
+            </label>
+            <InputField
+              name="wall_height"
+              id="wall_height"
+              type="number"
+              value={wallHeight}
+              onChange={(e) => onWallHeightChange(Number(e.target.value))}
+              className="border-gray-300 mt-1 w-full rounded border px-3 py-2"
+            />
+          </div>
+          <div className="flex-1">
+            <label
+              htmlFor="wall_thickness"
+              className="text-gray-700 block text-sm font-medium"
+            >
+              Wall Thickness (Inch)
+            </label>
+            <InputField
+              name="wall_thickness"
+              id="wall_thickness"
+              type="number"
+              value={wallThickness}
+              onChange={(e) => onWallThicknessChange(Number(e.target.value))}
+              className="border-gray-300 mt-1 w-full rounded border px-3 py-2"
+            />
+          </div>
         </div>
+        {/* Wall Height and Wall Thickness end */}
 
-        {/* Window Height Input */}
-        <div className="mb-4">
-          <label
-            htmlFor="window_height"
-            className="text-gray-700 block text-sm font-medium"
-          >
-            Window Height (Center - 0)
-          </label>
-          <InputField
-            className="border-gray-300 mt-2 w-full rounded border px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
-            name="window_height"
-            id="window_height"
-            type="number"
-            placeholder="Window Height"
-            value={windowHeight}
-            onChange={(e) => onWindowHeightChange(Number(e.target.value))}
-          />
+        {/* FOV & Window Height */}
+        <div className="flex space-x-4">
+          <div className="flex-1">
+            <label
+              htmlFor="fov"
+              className="text-gray-700 block text-sm font-medium"
+            >
+              FOV
+            </label>
+            <InputField
+              name="fov"
+              id="fov"
+              type="number"
+              value={fov}
+              onChange={(e) => onfovChange(Number(e.target.value))}
+              className="border-gray-300 mt-1 w-full rounded border px-3 py-2"
+            />
+          </div>
+          <div className="flex-1">
+            <label
+              htmlFor="window_height"
+              className="text-gray-700 block text-sm font-medium"
+            >
+              Window Height (Center - 0)
+            </label>
+            <InputField
+              name="window_height"
+              id="window_height"
+              type="number"
+              value={windowHeight}
+              onChange={(e) => onWindowHeightChange(Number(e.target.value))}
+              className="border-gray-300 mt-1 w-full rounded border px-3 py-2"
+            />
+          </div>
         </div>
-
-        {/* Field of view Input */}
-        <div className="mb-4">
-          <label
-            htmlFor="fov"
-            className="text-gray-700 block text-sm font-medium"
-          >
-            FOV
-          </label>
-          <InputField
-            className="border-gray-300 mt-2 w-full rounded border px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
-            name="fov"
-            id="fov"
-            type="number"
-            placeholder="FOV"
-            value={fov}
-            onChange={(e) => onfovChange(Number(e.target.value))}
-          />
-        </div>
-
-        {/* Wall Thickness Input */}
-        <div className="mb-4">
-          <label
-            htmlFor="wall_thickness"
-            className="text-gray-700 block text-sm font-medium"
-          >
-            Wall Thickness (Inch)
-          </label>
-          <InputField
-            className="border-gray-300 mt-2 w-full rounded border px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
-            name="wall_thickness"
-            id="wall_thickness"
-            type="number"
-            placeholder="Wall Thickness"
-            value={wallThickness}
-            onChange={(e) => onWallThicknessChange(Number(e.target.value))}
-          />
-        </div>
+        {/* FOV & Window Height end */}
 
         {/* Wall Texture Selection */}
         <div className="mb-4">
@@ -259,6 +261,29 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               </option>
             ))}
           </select>
+        </div>
+
+        {/* Floor Texture Scale Slider */}
+        <div className="mb-4">
+          <label
+            htmlFor="floor_texture_scale"
+            className="text-gray-700 block text-sm font-medium"
+          >
+            Floor Texture Scale
+          </label>
+          <input
+            type="range"
+            id="floor_texture_scale"
+            min="10000"
+            max="500000"
+            step="1000"
+            value={floorTextureScale}
+            onChange={(e) => onFloorTextureScaleChange(Number(e.target.value))}
+            className="mt-2 w-full"
+          />
+          <div className="text-gray-600 mt-1 text-center text-sm">
+            {floorTextureScale.toLocaleString()} units
+          </div>
         </div>
 
         {/* Light Intensity Slider */}

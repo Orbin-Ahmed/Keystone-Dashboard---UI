@@ -133,6 +133,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
   cameraHeight,
   windowHeight,
   controlsRef,
+  floorTextureScale,
 }) => {
   const { scene, camera, gl } = useThree();
   const raycaster = new Raycaster();
@@ -670,9 +671,11 @@ const SceneContent: React.FC<SceneContentProps> = ({
 
     geometry.rotateX(Math.PI / 2);
 
+    const textureUnitSize = floorTextureScale;
+
     const floorTexture = textures.floor;
     floorTexture.wrapS = floorTexture.wrapT = RepeatWrapping;
-    const textureUnitSize = 200000;
+
     const floorWidth = maxX - minX;
     const floorHeight = maxY - minY;
     const textureRepeatX = floorWidth / textureUnitSize;
@@ -694,7 +697,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
         />
       </mesh>
     );
-  }, [floorShape, textures.floor]);
+  }, [floorShape, textures.floor, floorTextureScale]);
 
   const createCustomUVGenerator = () => {
     return {

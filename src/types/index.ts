@@ -593,6 +593,7 @@ export interface SceneContentProps {
   cameraHeight: number;
   windowHeight: number;
   controlsRef: RefObject<any>;
+  floorTextureScale: number;
 }
 
 export interface WallItem {

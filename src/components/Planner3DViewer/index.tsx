@@ -143,6 +143,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [windowOptions, setWindowOptions] = useState<ItemOption[]>([]);
 
   const [lightIntensity, setLightIntensity] = useState(1);
+  const [floorTextureScale, setFloorTextureScale] = useState<number>(10000);
 
   const [isRenderModalOpen, setIsRenderModalOpen] = useState(false);
 
@@ -1440,6 +1441,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           cameraHeight={cameraHeight}
           windowHeight={windowHeight}
           controlsRef={controlsRef}
+          floorTextureScale={floorTextureScale}
         />
       </Canvas>
 
@@ -1797,6 +1799,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           onWindowHeightChange={setWindowHeight}
           fov={fov}
           onfovChange={setFov}
+          floorTextureScale={floorTextureScale}
+          onFloorTextureScaleChange={setFloorTextureScale}
         />
       )}
     </>
