@@ -49,6 +49,11 @@ interface HelperLine {
   type: "item" | "wall";
 }
 
+interface Point {
+  x: number;
+  y: number;
+}
+
 const PlanEditor = ({
   tool,
   setTool,
@@ -1088,6 +1093,79 @@ const PlanEditor = ({
       groupDragStartRef.current = {};
     }
   };
+
+  // Snapping Furniture Function
+  // const getWallSnapPosition = (pos: Point): Point | null => {
+  //   let best: Point | null = null;
+
+  //   for (const line of lines) {
+  //     const { x, y } = findClosestPointOnLine(line, pos);
+  //     const d = distance(pos, { x, y });
+  //     if (d < SNAP_THRESHOLD) {
+  //       best = { x, y };
+  //       break;
+  //     }
+  //   }
+  //   return best;
+  // };
+
+  // const getFurnitureSnapPosition = (
+  //   pos: Point,
+  //   moving: FurnitureItem,
+  // ): Point | null => {
+  //   for (const item of furnitureItems) {
+  //     if (item.id === moving.id) continue;
+
+  //     if (Math.abs(item.height - moving.height) < 1e-6) {
+  //       if (Math.abs(pos.x - (item.x + item.width)) < SNAP_THRESHOLD) {
+  //         return { x: item.x + item.width, y: item.y };
+  //       }
+  //       if (Math.abs(pos.x + moving.width - item.x) < SNAP_THRESHOLD) {
+  //         return { x: item.x - moving.width, y: item.y };
+  //       }
+  //     }
+
+  //     if (Math.abs(item.width - moving.width) < 1e-6) {
+  //       if (Math.abs(pos.y - (item.y + item.height)) < SNAP_THRESHOLD) {
+  //         return { x: item.x, y: item.y + item.height };
+  //       }
+  //       if (Math.abs(pos.y + moving.height - item.y) < SNAP_THRESHOLD) {
+  //         return { x: item.x, y: item.y - moving.height };
+  //       }
+  //     }
+  //   }
+  //   return null;
+  // };
+
+  // const updateFurniturePosition = (id: string, x: number, y: number) => {
+  //   setFurnitureItems((prev) =>
+  //     prev.map((f) => (f.id === id ? { ...f, x, y } : f)),
+  //   );
+  // };
+
+  // const handleFurnitureDragEnd = (id: string): void => {
+  //   setHelperLines([]);
+
+  //   const moved = furnitureItems.find((f) => f.id === id);
+  //   if (!moved) return;
+
+  //   const wallSnap = getWallSnapPosition({ x: moved.x, y: moved.y });
+  //   if (wallSnap) {
+  //     updateFurniturePosition(id, wallSnap.x, wallSnap.y);
+  //   } else {
+  //     const furnSnap = getFurnitureSnapPosition(
+  //       { x: moved.x, y: moved.y },
+  //       moved,
+  //     );
+  //     if (furnSnap) {
+  //       updateFurniturePosition(id, furnSnap.x, furnSnap.y);
+  //     }
+  //   }
+
+  //   if (selectedItemIds.length > 1) {
+  //     groupDragStartRef.current = {};
+  //   }
+  // };
 
   // Rescale Function
   const scalePoint = (old: number, pivot: number, scaleFactor: number) =>
