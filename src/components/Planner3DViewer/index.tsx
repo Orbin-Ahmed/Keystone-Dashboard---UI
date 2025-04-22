@@ -60,10 +60,26 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   setHiddenCeilingItems,
   setHiddenFloorItems,
   setHiddenWallItems,
-  windowHeight,
-  setWindowHeight,
   localSceneImages,
   setLocalSceneImages,
+  wallHeightSetting,
+  setWallHeightSetting,
+  wallThicknessSetting,
+  setWallThicknessSetting,
+  windowHeight,
+  setWindowHeight,
+  wallTextureSetting,
+  setWallTextureSetting,
+  floorTextureSetting,
+  setFloorTextureSetting,
+  ceilingTextureSetting,
+  setCeilingTextureSetting,
+  floorTextureScale,
+  setFloorTextureScale,
+  lightIntensity,
+  setLightIntensity,
+  fov,
+  setFov,
 }) => {
   const [activeTourPoint, setActiveTourPoint] = useState<TourPoint | null>(
     null,
@@ -102,6 +118,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     Record<string, { x: number; y: number }>
   >({});
 
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
   // Item states
   const [isItemsOpen, setIsItemsOpen] = useState(false);
   const [lastPlacedItemId, setLastPlacedItemId] = useState(0);
@@ -125,30 +143,12 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [isCustomizeModalOpen, setIsCustomizeModalOpen] = useState(false);
   const [cameraHeight, setCameraHeight] = useState(60);
 
-  // settings State
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [wallHeightSetting, setWallHeightSetting] = useState<number>(120);
-  const [wallThicknessSetting, setWallThicknessSetting] = useState<number>(6);
-  const [wallTextureSetting, setWallTextureSetting] = useState<string>(
-    `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/textures/Yellow_Ceiling.png`,
-  );
-  const [floorTextureSetting, setFloorTextureSetting] = useState<string>(
-    `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/textures/Crema_Marfil_Marble.jpg`,
-  );
-  const [ceilingTextureSetting, setCeilingTextureSetting] = useState<string>(
-    `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/textures/Yellow_Wall.png`,
-  );
-
   const [doorOptions, setDoorOptions] = useState<ItemOption[]>([]);
   const [windowOptions, setWindowOptions] = useState<ItemOption[]>([]);
-
-  const [lightIntensity, setLightIntensity] = useState(1);
-  const [floorTextureScale, setFloorTextureScale] = useState<number>(10000);
 
   const [isRenderModalOpen, setIsRenderModalOpen] = useState(false);
 
   const [currentView, setCurrentView] = useState<ViewType>("Default");
-  const [fov, setFov] = useState<number>(55);
 
   const [zoomLevel, setZoomLevel] = useState(3);
   const [placementType, setPlacementType] = useState<

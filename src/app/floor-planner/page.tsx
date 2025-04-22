@@ -95,9 +95,26 @@ const FloorPlanner = () => {
   const [ceilingItems, setCeilingItems] = useState<CeilingItem[]>([]);
   const [wallItems, setWallItems] = useState<WallItems2D[]>([]);
 
+  // Rendered Result
   const [localSceneImages, setLocalSceneImages] = useState<
     { id: string; url: string; finalUrl?: string; loading: boolean }[]
   >([]);
+
+  // settings State
+  const [wallHeightSetting, setWallHeightSetting] = useState<number>(120);
+  const [wallThicknessSetting, setWallThicknessSetting] = useState<number>(6);
+  const [wallTextureSetting, setWallTextureSetting] = useState<string>(
+    `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/textures/Yellow_Ceiling.png`,
+  );
+  const [floorTextureSetting, setFloorTextureSetting] = useState<string>(
+    `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/textures/Crema_Marfil_Marble.jpg`,
+  );
+  const [ceilingTextureSetting, setCeilingTextureSetting] = useState<string>(
+    `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/textures/Yellow_Wall.png`,
+  );
+  const [lightIntensity, setLightIntensity] = useState(1);
+  const [floorTextureScale, setFloorTextureScale] = useState<number>(10000);
+  const [fov, setFov] = useState<number>(55);
 
   // Upload download function
   const handleDownload = () => {
@@ -839,6 +856,22 @@ const FloorPlanner = () => {
           setWindowHeight={setWindowHeight}
           localSceneImages={localSceneImages}
           setLocalSceneImages={setLocalSceneImages}
+          wallHeightSetting={wallHeightSetting}
+          setWallHeightSetting={setWallHeightSetting}
+          wallThicknessSetting={wallThicknessSetting}
+          setWallThicknessSetting={setWallThicknessSetting}
+          wallTextureSetting={wallTextureSetting}
+          setWallTextureSetting={setWallTextureSetting}
+          floorTextureSetting={floorTextureSetting}
+          setFloorTextureSetting={setFloorTextureSetting}
+          ceilingTextureSetting={ceilingTextureSetting}
+          setCeilingTextureSetting={setCeilingTextureSetting}
+          lightIntensity={lightIntensity}
+          setLightIntensity={setLightIntensity}
+          floorTextureScale={floorTextureScale}
+          setFloorTextureScale={setFloorTextureScale}
+          fov={fov}
+          setFov={setFov}
         />
       ) : (
         <PlanEditor

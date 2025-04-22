@@ -534,6 +534,22 @@ export interface Plan3DViewerProps {
   setWindowHeight: (value: number) => void;
   localSceneImages: SceneImage[];
   setLocalSceneImages: React.Dispatch<React.SetStateAction<SceneImage[]>>;
+  wallHeightSetting: number;
+  setWallHeightSetting: React.Dispatch<React.SetStateAction<number>>;
+  wallThicknessSetting: number;
+  setWallThicknessSetting: React.Dispatch<React.SetStateAction<number>>;
+  wallTextureSetting: string;
+  setWallTextureSetting: React.Dispatch<React.SetStateAction<string>>;
+  floorTextureSetting: string;
+  setFloorTextureSetting: React.Dispatch<React.SetStateAction<string>>;
+  ceilingTextureSetting: string;
+  setCeilingTextureSetting: React.Dispatch<React.SetStateAction<string>>;
+  lightIntensity: number;
+  setLightIntensity: React.Dispatch<React.SetStateAction<number>>;
+  floorTextureScale: number;
+  setFloorTextureScale: React.Dispatch<React.SetStateAction<number>>;
+  fov: number;
+  setFov: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export interface SceneContentProps {
