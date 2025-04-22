@@ -7,7 +7,7 @@ import ModelViewer from "../ItemClick/ModelViewer";
 
 export interface SelectionType {
   groupName: string;
-  meshes: string[];
+  meshes: THREE.Object3D[];
 }
 
 export interface Customization {
