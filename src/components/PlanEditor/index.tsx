@@ -234,39 +234,6 @@ const PlanEditor = ({
     setDuplicateItemId,
   ]);
 
-  // const handleWheel = (e: any) => {
-  //   e.evt.preventDefault();
-  //   const stage = stageRef.current;
-  //   if (!stage) return;
-
-  //   const oldScale = scale;
-  //   const pointer = stage.getPointerPosition();
-  //   if (!pointer) return;
-
-  //   const scaleBy = 1.05;
-  //   let newScale = oldScale;
-  //   if (e.evt.deltaY < 0) {
-  //     newScale = oldScale * scaleBy;
-  //   } else {
-  //     newScale = oldScale / scaleBy;
-  //   }
-  //   setScale(newScale);
-
-  //   const mousePointTo = {
-  //     x: (pointer.x - stage.x()) / oldScale,
-  //     y: (pointer.y - stage.y()) / oldScale,
-  //   };
-
-  //   stage.scale({ x: newScale, y: newScale });
-
-  //   const newPos = {
-  //     x: pointer.x - mousePointTo.x * newScale,
-  //     y: pointer.y - mousePointTo.y * newScale,
-  //   };
-  //   stage.position(newPos);
-  //   stage.batchDraw();
-  // };
-
   const handleWheel = (e: any) => {
     e.evt.preventDefault();
     const stage = stageRef.current!;
@@ -1064,7 +1031,6 @@ const PlanEditor = ({
   };
 
   // helper function from distance line
-
   const getRelativePointerPosition = (
     stage: Konva.Stage,
   ): { x: number; y: number } => {
@@ -1075,184 +1041,6 @@ const PlanEditor = ({
     const transform = stage.getAbsoluteTransform().copy().invert();
     return transform.point(pointerPos);
   };
-
-  const getRotatedBoundingBox = (
-    item: FurnitureItem,
-  ): { left: number; right: number; top: number; bottom: number } => {
-    const theta = (item.rotation * Math.PI) / 180;
-    const cos = Math.cos(theta);
-    const sin = Math.sin(theta);
-
-    const x = item.x;
-    const y = item.y;
-    const w = item.width;
-    const h = item.depth;
-
-    const p1 = { x, y };
-    const p2 = { x: x + w * cos, y: y + w * sin };
-    const p3 = { x: x - h * sin, y: y + h * cos };
-    const p4 = { x: x + w * cos - h * sin, y: y + w * sin + h * cos };
-
-    const xs = [p1.x, p2.x, p3.x, p4.x];
-    const ys = [p1.y, p2.y, p3.y, p4.y];
-    return {
-      left: Math.min(...xs),
-      right: Math.max(...xs),
-      top: Math.min(...ys),
-      bottom: Math.max(...ys),
-    };
-  };
-
-  const computeHelperLines = (
-    draggedItem: FurnitureItem,
-    otherItems: FurnitureItem[],
-    wallLines: Line[],
-  ): HelperLine[] => {
-    const helperLines: HelperLine[] = [];
-
-    const draggedBB = getRotatedBoundingBox(draggedItem);
-    const left = draggedBB.left;
-    const right = draggedBB.right;
-    const top = draggedBB.top;
-    const bottom = draggedBB.bottom;
-    const centerX = (left + right) / 2;
-    const centerY = (top + bottom) / 2;
-    const overlapTolerance = 10;
-
-    otherItems.forEach((item) => {
-      const otherBB = getRotatedBoundingBox(item);
-      const candidateTop = otherBB.top;
-      const candidateBottom = otherBB.bottom;
-      const candidateLeft = otherBB.left;
-      const candidateRight = otherBB.right;
-
-      const overlapHeight =
-        Math.min(bottom, candidateBottom) - Math.max(top, candidateTop);
-      if (overlapHeight >= overlapTolerance) {
-        if (candidateRight <= left) {
-          const gap = left - candidateRight;
-          helperLines.push({
-            start: {
-              x: candidateRight,
-              y: Math.max(top, candidateTop) + overlapHeight / 2,
-            },
-            end: { x: left, y: centerY },
-            distance: gap,
-            type: "item",
-          });
-        }
-
-        if (candidateLeft >= right) {
-          const gap = candidateLeft - right;
-          helperLines.push({
-            start: { x: right, y: centerY },
-            end: {
-              x: candidateLeft,
-              y: Math.max(top, candidateTop) + overlapHeight / 2,
-            },
-            distance: gap,
-            type: "item",
-          });
-        }
-      }
-
-      const overlapWidth =
-        Math.min(right, candidateRight) - Math.max(left, candidateLeft);
-      if (overlapWidth >= overlapTolerance) {
-        if (candidateBottom <= top) {
-          const gap = top - candidateBottom;
-          helperLines.push({
-            start: {
-              x: Math.max(left, candidateLeft) + overlapWidth / 2,
-              y: candidateBottom,
-            },
-            end: { x: centerX, y: top },
-            distance: gap,
-            type: "item",
-          });
-        }
-
-        if (candidateTop >= bottom) {
-          const gap = candidateTop - bottom;
-          helperLines.push({
-            start: { x: centerX, y: bottom },
-            end: {
-              x: Math.max(left, candidateLeft) + overlapWidth / 2,
-              y: candidateTop,
-            },
-            distance: gap,
-            type: "item",
-          });
-        }
-      }
-    });
-
-    wallLines.forEach((wall) => {
-      const [x1, y1, x2, y2] = wall.points;
-      if (Math.abs(x1 - x2) < 5) {
-        const wallX = x1;
-        if (wallX < left && !(y1 > bottom || y2 < top)) {
-          const gap = left - wallX;
-          helperLines.push({
-            start: { x: wallX, y: centerY },
-            end: { x: left, y: centerY },
-            distance: gap,
-            type: "wall",
-          });
-        }
-        if (wallX > right && !(y1 > bottom || y2 < top)) {
-          const gap = wallX - right;
-          helperLines.push({
-            start: { x: right, y: centerY },
-            end: { x: wallX, y: centerY },
-            distance: gap,
-            type: "wall",
-          });
-        }
-      }
-      if (Math.abs(y1 - y2) < 5) {
-        const wallY = y1;
-        if (wallY < top && !(x1 > right || x2 < left)) {
-          const gap = top - wallY;
-          helperLines.push({
-            start: { x: centerX, y: wallY },
-            end: { x: centerX, y: top },
-            distance: gap,
-            type: "wall",
-          });
-        }
-        if (wallY > bottom && !(x1 > right || x2 < left)) {
-          const gap = wallY - bottom;
-          helperLines.push({
-            start: { x: centerX, y: bottom },
-            end: { x: centerX, y: wallY },
-            distance: gap,
-            type: "wall",
-          });
-        }
-      }
-    });
-
-    return helperLines;
-  };
-
-  // const handleFurnitureDragMove = (
-  //   id: string,
-  //   newAttrs: { x: number; y: number },
-  // ) => {
-  //   const draggedItem = furnitureItems.find((f) => f.id === id);
-  //   if (!draggedItem) return;
-
-  //   const updatedItem = { ...draggedItem, ...newAttrs };
-
-  //   const otherItems = furnitureItems.filter((f) => f.id !== id);
-  //   const newHelperLines = computeHelperLines(updatedItem, otherItems, lines);
-  //   setHelperLines(newHelperLines);
-
-  //   setFurnitureItems((prev) =>
-  //     prev.map((f) => (f.id === id ? updatedItem : f)),
-  //   );
-  // };
 
   const handleFurnitureDragMove = (
     id: string,
@@ -1294,10 +1082,6 @@ const PlanEditor = ({
     }
   };
 
-  // const handleFurnitureDragEnd = (id: string) => {
-  //   setHelperLines([]);
-  // };
-
   const handleFurnitureDragEnd = (id: string): void => {
     setHelperLines([]);
     if (selectedItemIds.length > 1) {
@@ -1306,7 +1090,6 @@ const PlanEditor = ({
   };
 
   // Rescale Function
-
   const scalePoint = (old: number, pivot: number, scaleFactor: number) =>
     pivot + (old - pivot) * scaleFactor;
 
