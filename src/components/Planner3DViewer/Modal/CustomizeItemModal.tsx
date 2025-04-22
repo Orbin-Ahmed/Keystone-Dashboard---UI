@@ -9,6 +9,7 @@ import { GrClose } from "react-icons/gr";
 import { PlacedItemType } from "@/types";
 import * as THREE from "three";
 import { GLTFExporter } from "three-stdlib";
+import ItemControllerTab from "./ItemControllerTab";
 
 type CustomizationHistory = {
   customizations: Record<string, Customization>;
@@ -25,12 +26,15 @@ interface CustomizeItemModalProps {
   item?: PlacedItemType;
 }
 
+type TabType = "customize" | "control";
+
 const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
   modelPath,
   onClose,
   onApply,
   item,
 }) => {
+  const [activeTab, setActiveTab] = useState<TabType>("customize");
   const [customizations, setCustomizations] = useState<
     Record<string, Customization>
   >({});
@@ -218,6 +222,34 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
     setLocalOpacity(Number(e.target.value));
   };
 
+  const viewerRef = useRef<{
+    applyTranslation: (translation: {
+      x: number;
+      y: number;
+      z: number;
+    }) => void;
+    applyRotation: (rotation: { x: number; y: number; z: number }) => void;
+    removeSelectedGroups: () => void;
+  } | null>(null);
+
+  const handleMove = (translation: { x: number; y: number; z: number }) => {
+    if (viewerRef.current) {
+      viewerRef.current.applyTranslation(translation);
+    }
+  };
+
+  const handleRotate = (rotation: { x: number; y: number; z: number }) => {
+    if (viewerRef.current) {
+      viewerRef.current.applyRotation(rotation);
+    }
+  };
+
+  const handleRemove = () => {
+    if (viewerRef.current) {
+      viewerRef.current.removeSelectedGroups();
+    }
+  };
+
   const canRevert = currentHistoryIndex >= 0;
 
   return (
@@ -225,11 +257,41 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
       <div className="w-full max-w-6xl rounded-lg bg-white p-4">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <h2 className="text-xl font-bold">Customize Item (Group-Based)</h2>
+            <h2 className="text-xl font-bold">Customize Item</h2>
           </div>
           <button onClick={onClose}>
             <GrClose />
           </button>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="mb-4 border-b">
+          <ul className="flex flex-wrap">
+            <li className="mr-2">
+              <button
+                className={`inline-block p-4 ${
+                  activeTab === "customize"
+                    ? "border-b-2 border-blue-600 text-blue-600"
+                    : "hover:border-gray-300 hover:text-gray-600 hover:border-b-2"
+                }`}
+                onClick={() => setActiveTab("customize")}
+              >
+                Customize
+              </button>
+            </li>
+            <li className="mr-2">
+              <button
+                className={`inline-block p-4 ${
+                  activeTab === "control"
+                    ? "border-b-2 border-blue-600 text-blue-600"
+                    : "hover:border-gray-300 hover:text-gray-600 hover:border-b-2"
+                }`}
+                onClick={() => setActiveTab("control")}
+              >
+                Control
+              </button>
+            </li>
+          </ul>
         </div>
 
         <div className="flex flex-col md:flex-row">
@@ -244,256 +306,276 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
           </div>
 
           <div className="mt-4 w-full md:mt-0 md:w-1/3 md:pl-4">
-            {selectedGroups.length > 0 ? (
-              <div className="mb-4">
-                {selectedGroups.length === 1 ? (
-                  <>
-                    <p className="mb-1 font-semibold">
-                      Selected Group: {selectedGroups[0].groupName}
-                    </p>
-                    <p className="text-gray-500 text-sm">
-                      ({selectedGroups[0].meshes.length} mesh(es) in this group)
-                    </p>
-                  </>
+            {activeTab === "customize" ? (
+              <>
+                {selectedGroups.length > 0 ? (
+                  <div className="mb-4">
+                    {selectedGroups.length === 1 ? (
+                      <>
+                        <p className="mb-1 font-semibold">
+                          Selected Group: {selectedGroups[0].groupName}
+                        </p>
+                        <p className="text-gray-500 text-sm">
+                          ({selectedGroups[0].meshes.length} mesh(es) in this
+                          group)
+                        </p>
+                      </>
+                    ) : (
+                      <p className="mb-1 font-semibold">
+                        {selectedGroups.length} groups selected
+                      </p>
+                    )}
+                  </div>
                 ) : (
-                  <p className="mb-1 font-semibold">
-                    {selectedGroups.length} groups selected
+                  <p className="mb-4">
+                    Click a part in the 3D viewer to select a group (hold Ctrl
+                    for multiple selection).
                   </p>
                 )}
-              </div>
-            ) : (
-              <p className="mb-4">
-                Click a part in the 3D viewer to select a group (hold Ctrl for
-                multiple selection).
-              </p>
-            )}
 
-            <div className="mb-4">
-              <label className="mb-1 block">Color:</label>
-              <input
-                type="color"
-                value={localColor}
-                onChange={handleColorChange}
-                className="h-10 w-full"
-              />
-            </div>
+                <div className="mb-4">
+                  <label className="mb-1 block">Color:</label>
+                  <input
+                    type="color"
+                    value={localColor}
+                    onChange={handleColorChange}
+                    className="h-10 w-full"
+                  />
+                </div>
 
-            <div className="mb-4">
-              <label className="mb-1 block">
-                Brightness:{" "}
-                {localBrightness < 50
-                  ? "Darker"
-                  : localBrightness > 50
-                    ? "Lighter"
-                    : "Normal"}
-                ({localBrightness}%)
-              </label>
-              <input
-                type="range"
-                min={0}
-                max={100}
-                value={localBrightness}
-                onChange={handleBrightnessChange}
-                className="w-full"
-              />
-              <div className="text-gray-500 flex justify-between text-xs">
-                <span>Darker</span>
-                <span>Normal</span>
-                <span>Lighter</span>
-              </div>
-            </div>
-
-            {/* Opacity slider */}
-            <div className="mb-4">
-              <label className="mb-1 block">Opacity: {localOpacity}%</label>
-              <input
-                type="range"
-                min={0}
-                max={100}
-                step={1}
-                value={localOpacity}
-                onChange={handleOpacityChange}
-                className="w-full"
-              />
-            </div>
-
-            <div className="mb-4">
-              <label className="mb-1 block">Upload Texture:</label>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  if (e.target.files && e.target.files.length > 0) {
-                    setLocalTextureFile(e.target.files[0]);
-                    setLocalColor("#ffffff");
-                  }
-                }}
-              />
-              {texturePreview && (
-                <img
-                  src={texturePreview}
-                  alt="Texture Preview"
-                  className="mt-2 h-24 w-24 border object-cover"
-                />
-              )}
-            </div>
-
-            {/* Add this after the texture upload section */}
-            {localTextureFile && (
-              <>
-                <div className="mb-2">
+                <div className="mb-4">
                   <label className="mb-1 block">
-                    Texture Scale: {localTextureScale.toFixed(2)}
+                    Brightness:{" "}
+                    {localBrightness < 50
+                      ? "Darker"
+                      : localBrightness > 50
+                        ? "Lighter"
+                        : "Normal"}
+                    ({localBrightness}%)
                   </label>
                   <input
                     type="range"
-                    min={0.1}
-                    max={10}
-                    step={0.1}
-                    value={localTextureScale}
-                    onChange={(e) =>
-                      setLocalTextureScale(parseFloat(e.target.value))
-                    }
+                    min={0}
+                    max={100}
+                    value={localBrightness}
+                    onChange={handleBrightnessChange}
+                    className="w-full"
+                  />
+                  <div className="text-gray-500 flex justify-between text-xs">
+                    <span>Darker</span>
+                    <span>Normal</span>
+                    <span>Lighter</span>
+                  </div>
+                </div>
+
+                {/* Opacity slider */}
+                <div className="mb-4">
+                  <label className="mb-1 block">Opacity: {localOpacity}%</label>
+                  <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    step={1}
+                    value={localOpacity}
+                    onChange={handleOpacityChange}
                     className="w-full"
                   />
                 </div>
 
-                <div className="mb-1">
-                  <label className="mb-1 block">Texture Settings</label>
-                  <div className="flex gap-2">
-                    <div className="w-1/2">
-                      <label className="text-sm">
-                        X-Repeat: {localTextureRepeatX.toFixed(1)}
-                      </label>
-                      <input
-                        type="range"
-                        min={0.1}
-                        max={10}
-                        step={0.1}
-                        value={localTextureRepeatX}
-                        onChange={(e) =>
-                          setLocalTextureRepeatX(parseFloat(e.target.value))
-                        }
-                        className="w-full"
-                      />
-                    </div>
-                    <div className="w-1/2">
-                      <label className="text-sm">
-                        Y-Repeat: {localTextureRepeatY.toFixed(1)}
-                      </label>
-                      <input
-                        type="range"
-                        min={0.1}
-                        max={10}
-                        step={0.1}
-                        value={localTextureRepeatY}
-                        onChange={(e) =>
-                          setLocalTextureRepeatY(parseFloat(e.target.value))
-                        }
-                        className="w-full"
-                      />
-                    </div>
-                  </div>
+                <div className="mb-4">
+                  <label className="mb-1 block">Upload Texture:</label>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files.length > 0) {
+                        setLocalTextureFile(e.target.files[0]);
+                        setLocalColor("#ffffff");
+                      }
+                    }}
+                  />
+                  {texturePreview && (
+                    <img
+                      src={texturePreview}
+                      alt="Texture Preview"
+                      className="mt-2 h-24 w-24 border object-cover"
+                    />
+                  )}
                 </div>
 
-                <div className="mb-2">
-                  <div className="flex gap-2">
-                    <div className="w-1/2">
-                      <label className="text-sm">
-                        X-Offset: {localTextureOffsetX.toFixed(2)}
+                {/* Add this after the texture upload section */}
+                {localTextureFile && (
+                  <>
+                    <div className="mb-2">
+                      <label className="mb-1 block">
+                        Texture Scale: {localTextureScale.toFixed(2)}
                       </label>
                       <input
                         type="range"
-                        min={-1}
-                        max={1}
-                        step={0.01}
-                        value={localTextureOffsetX}
+                        min={0.1}
+                        max={10}
+                        step={0.1}
+                        value={localTextureScale}
                         onChange={(e) =>
-                          setLocalTextureOffsetX(parseFloat(e.target.value))
+                          setLocalTextureScale(parseFloat(e.target.value))
                         }
                         className="w-full"
                       />
                     </div>
-                    <div className="w-1/2">
-                      <label className="text-sm">
-                        Y-Offset: {localTextureOffsetY.toFixed(2)}
-                      </label>
-                      <input
-                        type="range"
-                        min={-1}
-                        max={1}
-                        step={0.01}
-                        value={localTextureOffsetY}
-                        onChange={(e) =>
-                          setLocalTextureOffsetY(parseFloat(e.target.value))
-                        }
-                        className="w-full"
-                      />
+
+                    <div className="mb-1">
+                      <label className="mb-1 block">Texture Settings</label>
+                      <div className="flex gap-2">
+                        <div className="w-1/2">
+                          <label className="text-sm">
+                            X-Repeat: {localTextureRepeatX.toFixed(1)}
+                          </label>
+                          <input
+                            type="range"
+                            min={0.1}
+                            max={10}
+                            step={0.1}
+                            value={localTextureRepeatX}
+                            onChange={(e) =>
+                              setLocalTextureRepeatX(parseFloat(e.target.value))
+                            }
+                            className="w-full"
+                          />
+                        </div>
+                        <div className="w-1/2">
+                          <label className="text-sm">
+                            Y-Repeat: {localTextureRepeatY.toFixed(1)}
+                          </label>
+                          <input
+                            type="range"
+                            min={0.1}
+                            max={10}
+                            step={0.1}
+                            value={localTextureRepeatY}
+                            onChange={(e) =>
+                              setLocalTextureRepeatY(parseFloat(e.target.value))
+                            }
+                            className="w-full"
+                          />
+                        </div>
+                      </div>
                     </div>
-                  </div>
+
+                    <div className="mb-2">
+                      <div className="flex gap-2">
+                        <div className="w-1/2">
+                          <label className="text-sm">
+                            X-Offset: {localTextureOffsetX.toFixed(2)}
+                          </label>
+                          <input
+                            type="range"
+                            min={-1}
+                            max={1}
+                            step={0.01}
+                            value={localTextureOffsetX}
+                            onChange={(e) =>
+                              setLocalTextureOffsetX(parseFloat(e.target.value))
+                            }
+                            className="w-full"
+                          />
+                        </div>
+                        <div className="w-1/2">
+                          <label className="text-sm">
+                            Y-Offset: {localTextureOffsetY.toFixed(2)}
+                          </label>
+                          <input
+                            type="range"
+                            min={-1}
+                            max={1}
+                            step={0.01}
+                            value={localTextureOffsetY}
+                            onChange={(e) =>
+                              setLocalTextureOffsetY(parseFloat(e.target.value))
+                            }
+                            className="w-full"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                <div className="mb-4 flex items-center justify-between gap-4">
+                  <CustomButton
+                    onClick={handleApplyToSelectedGroup}
+                    variant="secondary"
+                    disabled={selectedGroups.length === 0}
+                  >
+                    Preview
+                  </CustomButton>
+                  <CustomButton
+                    onClick={handleRevert}
+                    variant="secondary"
+                    disabled={!canRevert}
+                    className="flex items-center gap-2"
+                  >
+                    <FaUndo className="h-4 w-4" />
+                  </CustomButton>
+                </div>
+
+                {/* Fixed customization display area with animation */}
+                <div className="mt-4 h-24 overflow-hidden border p-2">
+                  <h3 className="mb-2 font-bold">Current Customizations:</h3>
+                  {displayedCustomizations.length > 0 ? (
+                    <div className="transition-opacity duration-500">
+                      {displayedCustomizations.length > 0 && (
+                        <div
+                          key={currentDisplayIndex}
+                          className="animate-fadeIn"
+                        >
+                          <strong>
+                            {
+                              displayedCustomizations[currentDisplayIndex]
+                                .groupName
+                            }
+                            :
+                          </strong>{" "}
+                          {displayedCustomizations[currentDisplayIndex].cust
+                            .textureFile
+                            ? "Custom Texture"
+                            : displayedCustomizations[currentDisplayIndex].cust
+                                  .color
+                              ? `Color: ${displayedCustomizations[currentDisplayIndex].cust.color}, 
+                               Brightness: ${displayedCustomizations[currentDisplayIndex].cust.brightness ?? 50}%`
+                              : "Default"}
+                        </div>
+                      )}
+                      {displayedCustomizations.length > 1 && (
+                        <div className="mt-2 flex">
+                          {displayedCustomizations.map((_, index) => (
+                            <div
+                              key={index}
+                              className={`mx-1 h-2 w-2 rounded-full ${
+                                index === currentDisplayIndex
+                                  ? "bg-blue-500"
+                                  : "bg-gray-300"
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500">
+                      No customizations applied yet
+                    </p>
+                  )}
                 </div>
               </>
+            ) : (
+              <ItemControllerTab
+                selectedGroups={selectedGroups}
+                onMove={handleMove}
+                onRotate={handleRotate}
+                onRemove={handleRemove}
+              />
             )}
-
-            <div className="mb-4 flex items-center justify-between gap-4">
-              <CustomButton
-                onClick={handleApplyToSelectedGroup}
-                variant="secondary"
-                disabled={selectedGroups.length === 0}
-              >
-                Preview
-              </CustomButton>
-              <CustomButton
-                onClick={handleRevert}
-                variant="secondary"
-                disabled={!canRevert}
-                className="flex items-center gap-2"
-              >
-                <FaUndo className="h-4 w-4" />
-              </CustomButton>
-            </div>
-
-            {/* Fixed customization display area with animation */}
-            <div className="mt-4 h-24 overflow-hidden border p-2">
-              <h3 className="mb-2 font-bold">Current Customizations:</h3>
-              {displayedCustomizations.length > 0 ? (
-                <div className="transition-opacity duration-500">
-                  {displayedCustomizations.length > 0 && (
-                    <div key={currentDisplayIndex} className="animate-fadeIn">
-                      <strong>
-                        {displayedCustomizations[currentDisplayIndex].groupName}
-                        :
-                      </strong>{" "}
-                      {displayedCustomizations[currentDisplayIndex].cust
-                        .textureFile
-                        ? "Custom Texture"
-                        : displayedCustomizations[currentDisplayIndex].cust
-                              .color
-                          ? `Color: ${displayedCustomizations[currentDisplayIndex].cust.color}, 
-                           Brightness: ${displayedCustomizations[currentDisplayIndex].cust.brightness ?? 50}%`
-                          : "Default"}
-                    </div>
-                  )}
-                  {displayedCustomizations.length > 1 && (
-                    <div className="mt-2 flex">
-                      {displayedCustomizations.map((_, index) => (
-                        <div
-                          key={index}
-                          className={`mx-1 h-2 w-2 rounded-full ${
-                            index === currentDisplayIndex
-                              ? "bg-blue-500"
-                              : "bg-gray-300"
-                          }`}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <p className="text-gray-500">No customizations applied yet</p>
-              )}
-            </div>
 
             <div className="mt-4">
               <CustomButton
