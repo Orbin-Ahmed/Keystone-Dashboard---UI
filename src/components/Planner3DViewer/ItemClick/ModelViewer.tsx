@@ -113,71 +113,6 @@ const ModelViewer = forwardRef<ModelViewerHandle, ModelViewerProps>(
       setSceneObjects(objectMap);
     }, [modifiedScene]);
 
-    // useEffect(() => {
-    //   const clone = scene.clone(true);
-    //   Object.entries(customizations).forEach(([groupName, cust]) => {
-    //     const groupObj = clone.getObjectByName(groupName);
-    //     if (!groupObj) return;
-    //     groupObj.traverse((child) => {
-    //       if (child instanceof THREE.Mesh) {
-    //         const hasCustomOpacity =
-    //           cust.opacity !== undefined && cust.opacity < 100;
-
-    //         if (cust.textureFile) {
-    //           const textureURL = URL.createObjectURL(cust.textureFile);
-    //           const loader = new THREE.TextureLoader();
-    //           loader.load(textureURL, (loadedTexture) => {
-    //             loadedTexture.wrapS = THREE.RepeatWrapping;
-    //             loadedTexture.wrapT = THREE.RepeatWrapping;
-
-    //             const scale = cust.textureScale || 1;
-
-    //             const repeatX = cust.textureRepeat?.x || 1;
-    //             const repeatY = cust.textureRepeat?.y || 1;
-    //             loadedTexture.repeat.set(repeatX * scale, repeatY * scale);
-
-    //             const offsetX = cust.textureOffset?.x || 0;
-    //             const offsetY = cust.textureOffset?.y || 0;
-    //             loadedTexture.offset.set(offsetX, offsetY);
-
-    //             const material = new THREE.MeshStandardMaterial({
-    //               map: loadedTexture,
-    //               transparent: hasCustomOpacity,
-    //               opacity: hasCustomOpacity ? cust.opacity! / 100 : 1.0,
-    //             });
-
-    //             child.material = material;
-    //           });
-    //         } else if (cust.color) {
-    //           const adjustedColor =
-    //             cust.brightness !== undefined
-    //               ? adjustBrightness(cust.color, cust.brightness)
-    //               : cust.color;
-
-    //           child.material = new THREE.MeshStandardMaterial({
-    //             color: adjustedColor,
-    //             transparent: hasCustomOpacity,
-    //             opacity: hasCustomOpacity ? cust.opacity! / 100 : 1.0,
-    //           });
-    //         } else {
-    //           const origMat = originalMaterials.get(child.uuid);
-    //           if (origMat) {
-    //             const clonedMat = origMat.clone();
-
-    //             if (hasCustomOpacity && clonedMat instanceof THREE.Material) {
-    //               clonedMat.transparent = true;
-    //               clonedMat.opacity = cust.opacity! / 100;
-    //             }
-
-    //             child.material = clonedMat;
-    //           }
-    //         }
-    //       }
-    //     });
-    //   });
-    //   setModifiedScene(clone);
-    // }, [scene, customizations, originalMaterials]);
-
     useEffect(() => {
       if (isInitialRender.current) {
         isInitialRender.current = false;
@@ -322,5 +257,7 @@ const ModelViewer = forwardRef<ModelViewerHandle, ModelViewerProps>(
     );
   },
 );
+
+ModelViewer.displayName = "ModelViewer";
 
 export default ModelViewer;
