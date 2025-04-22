@@ -1385,8 +1385,12 @@ const PlanEditor = ({
           onWheel={handleWheel}
           draggable={tool === null}
           onDragMove={(e) => {
-            const { x, y } = e.target.position();
-            setStagePos({ x, y });
+            //   const { x, y } = e.target.position();
+            //   setStagePos({ x, y });
+            if (e.target === stageRef.current) {
+              const { x, y } = e.target.position();
+              setStagePos({ x, y });
+            }
           }}
           onDragStart={(e) => {
             const container = stageRef.current?.container();
@@ -1395,8 +1399,12 @@ const PlanEditor = ({
             }
           }}
           onDragEnd={(e) => {
-            const { x, y } = e.target.position();
-            setStagePos({ x, y });
+            // const { x, y } = e.target.position();
+            // setStagePos({ x, y });
+            if (e.target === stageRef.current) {
+              const { x, y } = e.target.position();
+              setStagePos({ x, y });
+            }
             const container = stageRef.current?.container();
             if (container) {
               container.style.cursor = "grab";
