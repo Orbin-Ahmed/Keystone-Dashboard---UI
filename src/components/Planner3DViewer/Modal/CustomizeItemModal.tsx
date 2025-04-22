@@ -10,6 +10,7 @@ import { PlacedItemType } from "@/types";
 import * as THREE from "three";
 import { GLTFExporter } from "three-stdlib";
 import ItemControllerTab from "./ItemControllerTab";
+import { ModelViewerHandle } from "../ItemClick/ModelViewer";
 
 type CustomizationHistory = {
   customizations: Record<string, Customization>;
@@ -222,15 +223,7 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
     setLocalOpacity(Number(e.target.value));
   };
 
-  const viewerRef = useRef<{
-    applyTranslation: (translation: {
-      x: number;
-      y: number;
-      z: number;
-    }) => void;
-    applyRotation: (rotation: { x: number; y: number; z: number }) => void;
-    removeSelectedGroups: () => void;
-  } | null>(null);
+  const viewerRef = useRef<ModelViewerHandle | null>(null);
 
   const handleMove = (translation: { x: number; y: number; z: number }) => {
     if (viewerRef.current) {
@@ -302,6 +295,7 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
               selectedGroups={selectedGroups}
               setSelectedGroups={setSelectedGroups}
               onSceneReady={(scene) => setModifiedScene(scene)}
+              innerRef={viewerRef}
             />
           </div>
 

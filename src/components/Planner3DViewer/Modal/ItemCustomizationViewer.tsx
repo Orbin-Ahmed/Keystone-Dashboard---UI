@@ -3,7 +3,7 @@ import { Canvas, useThree } from "@react-three/fiber";
 import { OrbitControls, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import SceneClickHandler from "../ItemClick/SceneClickHandler";
-import ModelViewer from "../ItemClick/ModelViewer";
+import ModelViewer, { ModelViewerHandle } from "../ItemClick/ModelViewer";
 
 export interface SelectionType {
   groupName: string;
@@ -27,6 +27,7 @@ export interface ItemCustomizationViewerProps {
   setSelectedGroups?: React.Dispatch<React.SetStateAction<SelectionType[]>>;
   onApplyCustomizations?: (c: Record<string, Customization>) => void;
   onSceneReady?: (scene: THREE.Object3D) => void;
+  innerRef?: React.RefObject<ModelViewerHandle>;
 }
 
 const ItemCustomizationViewer: React.FC<ItemCustomizationViewerProps> = ({
@@ -36,12 +37,16 @@ const ItemCustomizationViewer: React.FC<ItemCustomizationViewerProps> = ({
   selectedGroups,
   setSelectedGroups,
   onSceneReady,
+  innerRef,
 }) => {
   const [localSelection, setLocalSelection] = useState<SelectionType[]>([]);
   const finalSelectedGroups = selectedGroups ?? localSelection;
   const finalSetSelectedGroups = setSelectedGroups ?? setLocalSelection;
   const canvasRef = React.useRef<HTMLDivElement>(null);
   const handleCanvasClick = (event: React.MouseEvent) => {};
+
+  const viewerRef = React.useRef(null);
+  const finalViewerRef = innerRef || viewerRef;
 
   return (
     <div
@@ -63,6 +68,7 @@ const ItemCustomizationViewer: React.FC<ItemCustomizationViewerProps> = ({
           setSelectedGroups={finalSetSelectedGroups}
         >
           <ModelViewer
+            ref={finalViewerRef}
             modelPath={modelPath}
             customizations={customizations}
             selectedGroups={finalSelectedGroups}
