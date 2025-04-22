@@ -79,8 +79,8 @@ const FurnitureItemComponent: FC<FurnitureItemComponentProps> = ({
     const scaleY = node.scaleY();
     node.scaleX(1);
     node.scaleY(1);
-    const newWidth = Math.max(5, node.width() * scaleX);
-    const newDepth = Math.max(5, node.height() * scaleY);
+    const newWidth = Math.max(0, node.width() * scaleX);
+    const newDepth = Math.max(0, node.height() * scaleY);
 
     onChange(item.id, {
       x: node.x(),
