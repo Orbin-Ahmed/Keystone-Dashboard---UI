@@ -1168,8 +1168,6 @@ const PlanEditor = ({
           onWheel={handleWheel}
           draggable={tool === null}
           onDragMove={(e) => {
-            //   const { x, y } = e.target.position();
-            //   setStagePos({ x, y });
             if (e.target === stageRef.current) {
               const { x, y } = e.target.position();
               setStagePos({ x, y });
@@ -1182,8 +1180,6 @@ const PlanEditor = ({
             }
           }}
           onDragEnd={(e) => {
-            // const { x, y } = e.target.position();
-            // setStagePos({ x, y });
             if (e.target === stageRef.current) {
               const { x, y } = e.target.position();
               setStagePos({ x, y });
