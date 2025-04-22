@@ -108,6 +108,9 @@ const PlanEditor = ({
   const [deleteIcon] = useImage("/icons/delete.svg");
   const [editIcon] = useImage("/icons/edit.svg");
 
+  const [stageScale, setStageScale] = useState(1);
+  const [stagePos, setStagePos] = useState({ x: 0, y: 0 });
+
   const stageRef = useRef<Konva.Stage>(null);
 
   const DIMMED_OPACITY = 0.3;
@@ -231,37 +234,59 @@ const PlanEditor = ({
     setDuplicateItemId,
   ]);
 
+  // const handleWheel = (e: any) => {
+  //   e.evt.preventDefault();
+  //   const stage = stageRef.current;
+  //   if (!stage) return;
+
+  //   const oldScale = scale;
+  //   const pointer = stage.getPointerPosition();
+  //   if (!pointer) return;
+
+  //   const scaleBy = 1.05;
+  //   let newScale = oldScale;
+  //   if (e.evt.deltaY < 0) {
+  //     newScale = oldScale * scaleBy;
+  //   } else {
+  //     newScale = oldScale / scaleBy;
+  //   }
+  //   setScale(newScale);
+
+  //   const mousePointTo = {
+  //     x: (pointer.x - stage.x()) / oldScale,
+  //     y: (pointer.y - stage.y()) / oldScale,
+  //   };
+
+  //   stage.scale({ x: newScale, y: newScale });
+
+  //   const newPos = {
+  //     x: pointer.x - mousePointTo.x * newScale,
+  //     y: pointer.y - mousePointTo.y * newScale,
+  //   };
+  //   stage.position(newPos);
+  //   stage.batchDraw();
+  // };
+
   const handleWheel = (e: any) => {
     e.evt.preventDefault();
-    const stage = stageRef.current;
-    if (!stage) return;
-
-    const oldScale = scale;
-    const pointer = stage.getPointerPosition();
-    if (!pointer) return;
-
+    const stage = stageRef.current!;
+    const oldScale = stageScale;
+    const pointer = stage.getPointerPosition()!;
     const scaleBy = 1.05;
-    let newScale = oldScale;
-    if (e.evt.deltaY < 0) {
-      newScale = oldScale * scaleBy;
-    } else {
-      newScale = oldScale / scaleBy;
-    }
-    setScale(newScale);
+    const newScale = oldScale * (e.evt.deltaY < 0 ? scaleBy : 1 / scaleBy);
 
     const mousePointTo = {
-      x: (pointer.x - stage.x()) / oldScale,
-      y: (pointer.y - stage.y()) / oldScale,
+      x: (pointer.x - stagePos.x) / oldScale,
+      y: (pointer.y - stagePos.y) / oldScale,
     };
-
-    stage.scale({ x: newScale, y: newScale });
 
     const newPos = {
       x: pointer.x - mousePointTo.x * newScale,
       y: pointer.y - mousePointTo.y * newScale,
     };
-    stage.position(newPos);
-    stage.batchDraw();
+
+    setStageScale(newScale);
+    setStagePos(newPos);
   };
 
   // Snap helper
@@ -397,7 +422,10 @@ const PlanEditor = ({
   const handleMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
     if (selectedPlane === "roof" || selectedPlane === "wall") return;
     if (tool === "wall" && startPoint) {
-      const pos = e.target.getStage()?.getPointerPosition();
+      // const pos = e.target.getStage()?.getPointerPosition();
+      const stage = e.target.getStage();
+      if (!stage || !startPoint) return;
+      const pos = getRelativePointerPosition(stage);
       if (pos) {
         const snappedPos = getSnappedPosition(pos);
         const constrainedPos = getDynamicConstrainedPosition(
@@ -453,7 +481,8 @@ const PlanEditor = ({
     if (!stage || !startPoint) return;
 
     if (tool === "wall") {
-      const pos = stage.getPointerPosition();
+      // const pos = stage.getPointerPosition();
+      const pos = getRelativePointerPosition(stage);
       if (pos) {
         const snappedPos = getSnappedPosition(pos);
         const constrainedPos = getDynamicConstrainedPosition(
@@ -1344,6 +1373,10 @@ const PlanEditor = ({
         <Stage
           width={width}
           height={height}
+          scaleX={stageScale}
+          scaleY={stageScale}
+          x={stagePos.x}
+          y={stagePos.y}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
@@ -1351,6 +1384,10 @@ const PlanEditor = ({
           ref={stageRef}
           onWheel={handleWheel}
           draggable={tool === null}
+          onDragMove={(e) => {
+            const { x, y } = e.target.position();
+            setStagePos({ x, y });
+          }}
           onDragStart={(e) => {
             const container = stageRef.current?.container();
             if (container) {
@@ -1358,6 +1395,8 @@ const PlanEditor = ({
             }
           }}
           onDragEnd={(e) => {
+            const { x, y } = e.target.position();
+            setStagePos({ x, y });
             const container = stageRef.current?.container();
             if (container) {
               container.style.cursor = "grab";
