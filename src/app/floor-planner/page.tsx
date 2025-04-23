@@ -159,11 +159,13 @@ const FloorPlanner = () => {
             rotationX: item.rotationX || 0,
             rotationZ: item.rotationZ || 0,
             category: item.category,
+            mirrorX: item.mirrorX || 1,
+            mirrorY: item.mirrorY || 1,
+            mirrorZ: item.mirrorZ || 1,
           }));
         }
 
         let ceilingItemsToSave = [] as SerializedceilingItem[];
-
         if (floorData.ceilingItems && floorData.ceilingItems.length > 0) {
           ceilingItemsToSave = floorData.ceilingItems.map((item) => ({
             id: item.id,
@@ -178,11 +180,13 @@ const FloorPlanner = () => {
             rotationX: item.rotationX || 0,
             rotationZ: item.rotationZ || 0,
             category: item.category,
+            mirrorX: item.mirrorX || 1,
+            mirrorY: item.mirrorY || 1,
+            mirrorZ: item.mirrorZ || 1,
           }));
         }
 
         let wallItemsToSave = [] as SerializedWallItem[];
-
         if (floorData.wallItems && floorData.wallItems.length > 0) {
           wallItemsToSave = floorData.wallItems.map((item) => ({
             id: item.id,
@@ -197,6 +201,9 @@ const FloorPlanner = () => {
             rotationX: item.rotationX || 0,
             rotationZ: item.rotationZ || 0,
             category: item.category,
+            mirrorX: item.mirrorX || 1,
+            mirrorY: item.mirrorY || 1,
+            mirrorZ: item.mirrorZ || 1,
           }));
         }
 

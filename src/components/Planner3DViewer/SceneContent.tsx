@@ -897,6 +897,12 @@ const SceneContent: React.FC<SceneContentProps> = ({
         item.rotationZ || 0,
       ];
 
+      const mirror: [number, number, number] = [
+        item.mirrorX || 1,
+        item.mirrorY || 1,
+        item.mirrorZ || 1,
+      ];
+
       return {
         id,
         name,
@@ -908,6 +914,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
         position,
         rotation,
         category: item.category,
+        mirror,
       };
     });
 
@@ -946,6 +953,12 @@ const SceneContent: React.FC<SceneContentProps> = ({
         item.rotationZ || 0,
       ];
 
+      const mirror: [number, number, number] = [
+        item.mirrorX || 1,
+        item.mirrorY || 1,
+        item.mirrorZ || 1,
+      ];
+
       return {
         id,
         name,
@@ -957,6 +970,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
         position,
         rotation,
         category: item.category,
+        mirror,
       };
     });
 
@@ -995,6 +1009,12 @@ const SceneContent: React.FC<SceneContentProps> = ({
         item.rotationZ || 0,
       ];
 
+      const mirror: [number, number, number] = [
+        item.mirrorX || 1,
+        item.mirrorY || 1,
+        item.mirrorZ || 1,
+      ];
+
       return {
         id,
         name,
@@ -1006,6 +1026,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
         position,
         rotation,
         category: item.category,
+        mirror,
       };
     });
     setPlacedItems((prev) => [...prev, ...newCeilingPlaced]);

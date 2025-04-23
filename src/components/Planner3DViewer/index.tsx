@@ -1087,6 +1087,9 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
               width: updatedItem.width,
               height: updatedItem.height,
               depth: updatedItem.depth,
+              mirrorX: updatedItem.mirror?.[0] || 1,
+              mirrorY: updatedItem.mirror?.[1] || 1,
+              mirrorZ: updatedItem.mirror?.[2] || 1,
             };
             return [
               ...prev.slice(0, index),
@@ -1112,6 +1115,9 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
               width: updatedItem.width,
               height: updatedItem.height,
               depth: updatedItem.depth,
+              mirrorX: updatedItem.mirror?.[0] || 1,
+              mirrorY: updatedItem.mirror?.[1] || 1,
+              mirrorZ: updatedItem.mirror?.[2] || 1,
             };
             return [
               ...prev.slice(0, index),
@@ -1137,6 +1143,9 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
               width: updatedItem.width,
               height: updatedItem.height,
               depth: updatedItem.depth,
+              mirrorX: updatedItem.mirror?.[0] || 1,
+              mirrorY: updatedItem.mirror?.[1] || 1,
+              mirrorZ: updatedItem.mirror?.[2] || 1,
             };
             return [
               ...prev.slice(0, index),

@@ -416,6 +416,9 @@ export interface SerializedFurnitureItem {
   rotationX: number;
   rotationZ: number;
   category: string;
+  mirrorX?: number;
+  mirrorY?: number;
+  mirrorZ?: number;
 }
 
 export interface SerializedceilingItem {
@@ -431,6 +434,9 @@ export interface SerializedceilingItem {
   rotationX: number;
   rotationZ: number;
   category: string;
+  mirrorX?: number;
+  mirrorY?: number;
+  mirrorZ?: number;
 }
 
 export interface SerializedWallItem {
@@ -446,6 +452,9 @@ export interface SerializedWallItem {
   rotationX: number;
   rotationZ: number;
   category: string;
+  mirrorX?: number;
+  mirrorY?: number;
+  mirrorZ?: number;
 }
 
 export interface FurnitureItem {
@@ -462,6 +471,9 @@ export interface FurnitureItem {
   rotationZ: number;
   imageSrc: string;
   category: string;
+  mirrorX?: number;
+  mirrorY?: number;
+  mirrorZ?: number;
 }
 
 export interface CeilingItem {
@@ -478,6 +490,9 @@ export interface CeilingItem {
   rotationZ: number;
   imageSrc: string;
   category: string;
+  mirrorX?: number;
+  mirrorY?: number;
+  mirrorZ?: number;
 }
 
 export interface WallItems2D {
@@ -494,6 +509,9 @@ export interface WallItems2D {
   rotationZ: number;
   imageSrc: string;
   category: string;
+  mirrorX?: number;
+  mirrorY?: number;
+  mirrorZ?: number;
 }
 
 export interface SidebarItem {
