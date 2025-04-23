@@ -58,6 +58,7 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
   });
   const [syncDimension, setSyncDimension] = useState<boolean>(false);
   const rotationData = Array.from({ length: 361 }, (_, i) => i.toString());
+  const [mirror, setMirror] = useState<Vector3>({ x: 1, y: 1, z: 1 });
 
   const originalPositionRef = useRef<Vector3>({ x: 0, y: 0, z: 0 });
   const originalRotationRef = useRef<Vector3>({ x: 0, y: 0, z: 0 });
@@ -66,6 +67,7 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
     height: 0,
     depth: 0,
   });
+  const originalMirrorRef = useRef<Vector3>({ x: 1, y: 1, z: 1 });
 
   useEffect(() => {
     if (!activeItem) return;
@@ -84,12 +86,19 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
       height: Math.round(activeItem.height * 100) / 100,
       depth: Math.round(activeItem.depth * 100) / 100,
     };
+    const mirrorValues = {
+      x: activeItem.mirror?.[0] ?? 1,
+      y: activeItem.mirror?.[1] ?? 1,
+      z: activeItem.mirror?.[2] ?? 1,
+    };
     setPosition(pos);
     setRotationDeg(rot);
     setDimension(dim);
+    setMirror(mirrorValues);
     originalPositionRef.current = pos;
     originalRotationRef.current = rot;
     originalDimensionRef.current = dim;
+    originalMirrorRef.current = mirrorValues;
   }, [activeItem?.id]);
 
   const updatePosition = (axis: keyof Vector3, value: number) => {
@@ -140,10 +149,20 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
     });
   };
 
+  const toggleMirror = (axis: keyof Vector3) => {
+    const newMirror = { ...mirror, [axis]: mirror[axis] * -1 };
+    setMirror(newMirror);
+    onUpdateItem({
+      ...activeItem!,
+      mirror: [newMirror.x, newMirror.y, newMirror.z],
+    });
+  };
+
   const resetItem = () => {
     setPosition(originalPositionRef.current);
     setRotationDeg(originalRotationRef.current);
     setDimension(originalDimensionRef.current);
+    setMirror(originalMirrorRef.current);
     onUpdateItem({
       ...activeItem!,
       position: [
@@ -159,6 +178,11 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
       width: originalDimensionRef.current.width,
       height: originalDimensionRef.current.height,
       depth: originalDimensionRef.current.depth,
+      mirror: [
+        originalMirrorRef.current.x,
+        originalMirrorRef.current.y,
+        originalMirrorRef.current.z,
+      ],
     });
   };
 
@@ -189,6 +213,45 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
           <option value="Ceiling">Ceiling</option>
           <option value="Floor">Floor</option>
         </select>
+      </div>
+
+      {/* Mirror Controls Section */}
+      <div className="space-y-5">
+        <div className="control-section bg-gray-50 rounded-md p-2">
+          <h4 className="text-gray-700 mb-2 font-medium">Mirror</h4>
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => toggleMirror("x")}
+              className={`rounded px-3 py-1 ${
+                mirror.x === -1
+                  ? "bg-green-500 text-white"
+                  : "bg-gray-200 text-gray-700"
+              }`}
+            >
+              X axis
+            </button>
+            <button
+              onClick={() => toggleMirror("y")}
+              className={`rounded px-3 py-1 ${
+                mirror.y === -1
+                  ? "bg-green-500 text-white"
+                  : "bg-gray-200 text-gray-700"
+              }`}
+            >
+              Y axis
+            </button>
+            <button
+              onClick={() => toggleMirror("z")}
+              className={`rounded px-3 py-1 ${
+                mirror.z === -1
+                  ? "bg-green-500 text-white"
+                  : "bg-gray-200 text-gray-700"
+              }`}
+            >
+              Z axis
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="space-y-5">

@@ -1416,6 +1416,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
               height: item.height,
               depth: item.depth,
             }}
+            scale={item.mirror ?? [1, 1, 1]}
             onClick={() => handlePlacedItemClick(item)}
             selected={selectedItem?.id === item.id}
           />
@@ -1450,6 +1451,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
             height: item.height,
             depth: item.depth,
           }}
+          scale={item.mirror ?? [1, 1, 1]}
           onPointerDown={(e) => handleWallItemPointerDown(e, item)}
           onPointerMove={(e) => handleWallItemPointerMove(e, item)}
           onPointerUp={handleWallItemPointerUp}

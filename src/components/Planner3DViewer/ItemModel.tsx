@@ -13,6 +13,7 @@ export interface ItemModelProps {
     height: number;
     depth: number;
   };
+  scale?: [number, number, number];
   onPointerDown?: (e: ThreeEvent<PointerEvent>) => void;
   onPointerMove?: (e: ThreeEvent<PointerEvent>) => void;
   onPointerUp?: (e: ThreeEvent<PointerEvent>) => void;
@@ -29,6 +30,7 @@ const ItemModelComponent = forwardRef<Object3D, ItemModelProps>(
       position,
       rotation,
       dimensions,
+      scale = [1, 1, 1],
       onPointerDown,
       onPointerMove,
       onPointerUp,
@@ -63,7 +65,12 @@ const ItemModelComponent = forwardRef<Object3D, ItemModelProps>(
       const scaleY = dimensions.height / size.y;
       const scaleZ = dimensions.depth / size.z;
 
-      const adjustedScale: [number, number, number] = [scaleX, scaleY, scaleZ];
+      //   const adjustedScale: [number, number, number] = [scaleX, scaleY, scaleZ];
+      const adjustedScale: [number, number, number] = [
+        scaleX * scale[0],
+        scaleY * scale[1],
+        scaleZ * scale[2],
+      ];
 
       const adjustedPosition: [number, number, number] = [
         position[0] - center.x * scaleX,
@@ -72,7 +79,7 @@ const ItemModelComponent = forwardRef<Object3D, ItemModelProps>(
       ];
 
       return [adjustedScale, adjustedPosition];
-    }, [initialBounds, dimensions, position]);
+    }, [initialBounds, dimensions, position, scale]);
 
     useHelper(
       selected ? (modelRef as React.MutableRefObject<Object3D>) : null,

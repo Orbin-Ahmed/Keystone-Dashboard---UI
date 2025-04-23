@@ -337,6 +337,7 @@ export interface PlacedItemType extends PlacingItemType {
   id: string;
   position: [number, number, number];
   rotation: [number, number, number];
+  mirror?: [number, number, number];
 }
 
 export interface ScheduleItem {

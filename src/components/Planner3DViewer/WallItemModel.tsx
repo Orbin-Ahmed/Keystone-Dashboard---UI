@@ -12,6 +12,7 @@ export interface ItemModelProps {
     height: number;
     depth: number;
   };
+  scale?: [number, number, number];
   onPointerDown?: (e: any) => void;
   onPointerMove?: (e: any) => void;
   onPointerUp?: (e: any) => void;
@@ -26,6 +27,7 @@ const WallItemModelComponent = forwardRef<Object3D, ItemModelProps>(
       position,
       rotation,
       dimensions,
+      scale = [1, 1, 1],
       onPointerDown,
       onPointerMove,
       onPointerUp,
@@ -58,7 +60,12 @@ const WallItemModelComponent = forwardRef<Object3D, ItemModelProps>(
       const scaleY = dimensions.height / size.y;
       const scaleZ = dimensions.depth / size.z;
 
-      const adjustedScale: [number, number, number] = [scaleX, scaleY, scaleZ];
+      // const adjustedScale: [number, number, number] = [scaleX, scaleY, scaleZ];
+      const adjustedScale: [number, number, number] = [
+        scaleX * scale[0],
+        scaleY * scale[1],
+        scaleZ * scale[2],
+      ];
 
       const adjustedPosition: [number, number, number] = [
         position[0] - center.x * scaleX,
