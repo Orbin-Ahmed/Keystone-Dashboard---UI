@@ -402,16 +402,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     setSelectedShape(null);
   };
 
-  // const handleItemClick = (item: PlacingItemType) => {
-  //   setIsSettingsOpen(false);
-  //   setPlacingItem((prev) => ({
-  //     ...item,
-  //     position: prev?.position || [0, 0, 0],
-  //     rotation: prev?.rotation || [0, 0, 0],
-  //   }));
-  //   setIsItemsOpen(false);
-  // };
-
   const handleItemClick = (item: PlacingItemType) => {
     setIsSettingsOpen(false);
     setIsItemsOpen(false);
@@ -1166,6 +1156,24 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       setPlacementType("Wall");
     }
   }, [selectedWallItem]);
+
+  useEffect(() => {
+    if (!selectedItem) return;
+
+    const matchingFurnitureItem = furnitureItems.find(
+      (item) => item.id === selectedItem.id,
+    );
+    if (matchingFurnitureItem) {
+      setPlacementType("Floor");
+    }
+
+    const matchingCeilingItem = ceilingItems.find(
+      (item) => item.id === selectedItem.id,
+    );
+    if (matchingCeilingItem) {
+      setPlacementType("Ceiling");
+    }
+  }, [selectedItem, furnitureItems, ceilingItems]);
 
   // camera Control Start
   const handleTopView = () => {

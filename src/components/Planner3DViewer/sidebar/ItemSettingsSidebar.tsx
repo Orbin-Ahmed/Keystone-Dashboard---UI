@@ -202,6 +202,7 @@ const ItemSettingsSidebar: React.FC<ItemSettingsSidebarProps> = ({
       <div className="control-section bg-gray-50 rounded-md p-2">
         <h4 className="text-gray-700 mb-2 font-medium">Placement Type</h4>
         <select
+          disabled
           value={placementType}
           onChange={(e) => {
             const newType = e.target.value as "Wall" | "Ceiling" | "Floor";
