@@ -49,6 +49,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
   const [preset, setPreset] = useState("Mid");
   const [sunEnergy, setSunEnergy] = useState("15");
   const [sunAngle, setSunAngle] = useState("0.1");
+  const [useReflection, setUseReflection] = useState(false);
 
   // area light settings
   const [areaLightSizeX, setAreaLightSizeX] = useState("50");
@@ -251,6 +252,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
         finalGlbUrl,
         request_id,
         fov,
+        useReflection,
       );
 
       const backendPayload = {
@@ -329,6 +331,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
     glbUrl: string,
     requestId: string,
     fov: number,
+    useReflection: boolean,
   ) => {
     return {
       // Spot settings
@@ -364,6 +367,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
       sample_contrast: `${sampleContrast} Contrast`,
       time_of_day: theme,
       camera_fov: fov,
+      reflection: useReflection,
 
       // Light path settings
       light_path: (() => {
@@ -617,6 +621,19 @@ const RenderModal: React.FC<RenderModalProps> = ({
                       <span className="text-gray-500 text-xs">1</span>
                     </div>
                   </div>
+                </div>
+                <div className="mt-4 flex items-center">
+                  <label className="inline-flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={useReflection}
+                      onChange={handleCheckboxChange(setUseReflection)}
+                      className="form-checkbox h-5 w-5 text-blue-600"
+                    />
+                    <span className="text-gray-600 ml-2 text-sm">
+                      Reflection
+                    </span>
+                  </label>
                 </div>
               </div>
 
