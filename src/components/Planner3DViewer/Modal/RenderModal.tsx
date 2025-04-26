@@ -218,7 +218,8 @@ const RenderModal: React.FC<RenderModalProps> = ({
       }
 
       // Format the GLB URL properly
-      const finalGlbUrl = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}${uploadResult.glb_url}`;
+      // const finalGlbUrl = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}${uploadResult.glb_url}`;
+      const finalGlbUrl = `${uploadResult.glb_url}`;
 
       console.log("GLB uploaded successfully:", finalGlbUrl);
       // Glb File upload end
