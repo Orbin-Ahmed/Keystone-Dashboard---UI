@@ -150,6 +150,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
   const [currentView, setCurrentView] = useState<ViewType>("Default");
 
+  const [glbUrl, setGlbUrl] = useState<string>("");
+
   const [zoomLevel, setZoomLevel] = useState(3);
   const [placementType, setPlacementType] = useState<
     "Wall" | "Ceiling" | "Floor"
@@ -1373,6 +1375,26 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     setHiddenWallItems([]);
   };
 
+  useEffect(() => {
+    setGlbUrl("");
+  }, [
+    lines,
+    shapes,
+    placedItems,
+    wallItems,
+    furnitureItems,
+    wallItems2D,
+    ceilingItems,
+    currentFloorIndex,
+    wallHeightSetting,
+    wallTextureSetting,
+    wallThicknessSetting,
+    windowHeight,
+    floorTextureScale,
+    floorTextureSetting,
+    ceilingTextureSetting,
+  ]);
+
   // useEffect(() => {
   //   const stats = new Stats();
   //   stats.showPanel(0);
@@ -1557,6 +1579,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         zoomLevel={zoomLevel}
         cameraHeight={cameraHeight}
         fov={fov}
+        glbUrl={glbUrl}
+        setGlbUrl={setGlbUrl}
       />
 
       {!selectedShape && (

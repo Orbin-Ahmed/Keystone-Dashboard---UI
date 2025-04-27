@@ -17,6 +17,8 @@ interface RenderModalProps {
   zoomLevel?: number;
   cameraHeight: number;
   fov: number;
+  glbUrl: string;
+  setGlbUrl: React.Dispatch<React.SetStateAction<string>>;
 }
 
 interface RenderTask {
@@ -40,6 +42,8 @@ const RenderModal: React.FC<RenderModalProps> = ({
   activeTourPoint,
   cameraHeight,
   fov,
+  glbUrl,
+  setGlbUrl,
 }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -195,50 +199,28 @@ const RenderModal: React.FC<RenderModalProps> = ({
 
     setLoading(true);
     try {
-      const glbBlob = await exportGLTF();
-      const formData = new FormData();
+      let finalGlbUrl = glbUrl;
 
-      const uniqueFilename = `${uid(16)}.glb`;
-      const minioUploadUrl = `https://bucket-production-a2df.up.railway.app:443/glbfile/glb_files/${uniqueFilename}`;
+      if (!finalGlbUrl) {
+        const glbBlob = await exportGLTF();
+        const uniqueFilename = `${uid(16)}.glb`;
+        finalGlbUrl = `${process.env.NEXT_PUBLIC_MINIO_SERVER}/glbfile/glb_files/${uniqueFilename}`;
 
-      const uploadResponse = await fetch(minioUploadUrl, {
-        method: "PUT",
-        body: glbBlob,
-        headers: {
-          "Content-Type": "application/octet-stream",
-        },
-      });
+        const uploadResponse = await fetch(finalGlbUrl, {
+          method: "PUT",
+          body: glbBlob,
+          headers: {
+            "Content-Type": "application/octet-stream",
+          },
+        });
 
-      if (!uploadResponse.ok) {
-        throw new Error(`File upload failed: ${uploadResponse.statusText}`);
+        if (!uploadResponse.ok) {
+          throw new Error(`File upload failed: ${uploadResponse.statusText}`);
+        }
+
+        console.log("GLB uploaded successfully:", finalGlbUrl);
+        setGlbUrl(finalGlbUrl);
       }
-
-      // formData.append("glb_file", glbBlob);
-
-      // Glb File upload
-      // const uploadResponse = await fetch(
-      //   `${process.env.NEXT_PUBLIC_API_BASE_URL}api/upload_glb/`,
-      //   {
-      //     method: "POST",
-      //     body: formData,
-      //   },
-      // );
-
-      // if (!uploadResponse.ok) {
-      //   throw new Error(`File upload error: ${uploadResponse.statusText}`);
-      // }
-
-      // const uploadResult = await uploadResponse.json();
-      // if (!uploadResult.glb_url) {
-      //   throw new Error("File upload failed: Invalid response format");
-      // }
-
-      // Format the GLB URL properly
-      // const finalGlbUrl = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}${uploadResult.glb_url}`;
-      // const finalGlbUrl = `${uploadResult.glb_url}`;
-      const finalGlbUrl = minioUploadUrl;
-
-      console.log("GLB uploaded successfully:", finalGlbUrl);
       // Glb File upload end
 
       // Posting request to backend
