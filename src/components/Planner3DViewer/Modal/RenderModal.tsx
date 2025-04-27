@@ -199,7 +199,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
       const formData = new FormData();
 
       const uniqueFilename = `${uid(16)}.glb`;
-      const minioUploadUrl = `https://bucket-production-9786.up.railway.app:443/glbfile/glb_files/${uniqueFilename}`;
+      const minioUploadUrl = `https://bucket-production-a2df.up.railway.app:443/glbfile/glb_files/${uniqueFilename}`;
 
       const uploadResponse = await fetch(minioUploadUrl, {
         method: "PUT",
