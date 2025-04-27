@@ -18,6 +18,8 @@ export interface Customization {
   textureRepeat?: { x: number; y: number };
   textureOffset?: { x: number; y: number };
   opacity?: number;
+  emissionColor?: string;
+  emissionStrength?: number;
 }
 
 export interface ItemCustomizationViewerProps {

@@ -197,16 +197,27 @@ const RenderModal: React.FC<RenderModalProps> = ({
     try {
       const glbBlob = await exportGLTF();
       const formData = new FormData();
-      formData.append("glb_file", glbBlob);
+
+      const uniqueFilename = `${uid(16)}.glb`;
+      const minioUploadUrl = `https://bucket-production-9786.up.railway.app/glb_uploads/${uniqueFilename}`;
+
+      const uploadResponse = await fetch(minioUploadUrl, {
+        method: "PUT",
+        body: glbBlob,
+        headers: {
+          "Content-Type": "application/octet-stream",
+        },
+      });
+      // formData.append("glb_file", glbBlob);
 
       // Glb File upload
-      const uploadResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}api/upload_glb/`,
-        {
-          method: "POST",
-          body: formData,
-        },
-      );
+      // const uploadResponse = await fetch(
+      //   `${process.env.NEXT_PUBLIC_API_BASE_URL}api/upload_glb/`,
+      //   {
+      //     method: "POST",
+      //     body: formData,
+      //   },
+      // );
 
       if (!uploadResponse.ok) {
         throw new Error(`File upload error: ${uploadResponse.statusText}`);
@@ -219,7 +230,8 @@ const RenderModal: React.FC<RenderModalProps> = ({
 
       // Format the GLB URL properly
       // const finalGlbUrl = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}${uploadResult.glb_url}`;
-      const finalGlbUrl = `${uploadResult.glb_url}`;
+      // const finalGlbUrl = `${uploadResult.glb_url}`;
+      const finalGlbUrl = minioUploadUrl;
 
       console.log("GLB uploaded successfully:", finalGlbUrl);
       // Glb File upload end

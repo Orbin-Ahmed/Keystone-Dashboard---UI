@@ -65,6 +65,10 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
   const [localTextureOffsetX, setLocalTextureOffsetX] = useState<number>(0);
   const [localTextureOffsetY, setLocalTextureOffsetY] = useState<number>(0);
 
+  const [localEmissionColor, setLocalEmissionColor] =
+    useState<string>("#000000");
+  const [localEmissionStrength, setLocalEmissionStrength] = useState<number>(0);
+
   useEffect(() => {
     if (localTextureFile) {
       const url = URL.createObjectURL(localTextureFile);
@@ -112,6 +116,11 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
         textureOffset: localTextureFile
           ? { x: localTextureOffsetX, y: localTextureOffsetY }
           : undefined,
+
+        emissionColor:
+          localEmissionColor !== "#000000" ? localEmissionColor : undefined,
+        emissionStrength:
+          localEmissionStrength > 0 ? localEmissionStrength : undefined,
       };
     });
 
@@ -375,6 +384,36 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
                     className="w-full"
                   />
                 </div>
+
+                {selectedGroups.length > 0 && (
+                  <>
+                    <div className="mb-4">
+                      <label className="mb-1 block">Emission Color:</label>
+                      <input
+                        type="color"
+                        value={localEmissionColor}
+                        onChange={(e) => setLocalEmissionColor(e.target.value)}
+                        className="h-10 w-full"
+                      />
+                    </div>
+                    <div className="mb-6">
+                      <label className="mb-1 block">
+                        Emission Strength: {localEmissionStrength}
+                      </label>
+                      <input
+                        type="range"
+                        min={0}
+                        max={5000}
+                        step={1}
+                        value={localEmissionStrength}
+                        onChange={(e) =>
+                          setLocalEmissionStrength(Number(e.target.value))
+                        }
+                        className="w-full"
+                      />
+                    </div>
+                  </>
+                )}
 
                 <div className="mb-4">
                   <label className="mb-1 block">Upload Texture:</label>

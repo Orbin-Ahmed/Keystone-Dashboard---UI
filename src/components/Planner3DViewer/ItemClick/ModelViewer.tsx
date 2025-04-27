@@ -158,6 +158,7 @@ const ModelViewer = forwardRef<ModelViewerHandle, ModelViewerProps>(
       Object.entries(customizations).forEach(([groupName, cust]) => {
         const groupObj = clone.getObjectByName(groupName);
         if (!groupObj) return;
+
         groupObj.traverse((child) => {
           if (child instanceof THREE.Mesh) {
             const hasCustomOpacity =
@@ -186,6 +187,14 @@ const ModelViewer = forwardRef<ModelViewerHandle, ModelViewerProps>(
                   opacity: hasCustomOpacity ? cust.opacity! / 100 : 1.0,
                 });
 
+                if (cust.emissionColor) {
+                  material.emissive = new THREE.Color(cust.emissionColor);
+                }
+                if (cust.emissionStrength !== undefined) {
+                  material.emissiveIntensity = cust.emissionStrength;
+                }
+                material.needsUpdate = true;
+
                 child.material = material;
               });
             } else if (cust.color) {
@@ -199,6 +208,12 @@ const ModelViewer = forwardRef<ModelViewerHandle, ModelViewerProps>(
                 transparent: hasCustomOpacity,
                 opacity: hasCustomOpacity ? cust.opacity! / 100 : 1.0,
               });
+              const mat = child.material as THREE.MeshStandardMaterial;
+              if (cust.emissionColor)
+                mat.emissive = new THREE.Color(cust.emissionColor);
+              if (cust.emissionStrength !== undefined)
+                mat.emissiveIntensity = cust.emissionStrength;
+              mat.needsUpdate = true;
             } else {
               const origMat = originalMaterials.get(child.uuid);
               if (origMat) {
@@ -212,6 +227,14 @@ const ModelViewer = forwardRef<ModelViewerHandle, ModelViewerProps>(
                 child.material = clonedMat;
               }
             }
+            const mat = child.material as THREE.MeshStandardMaterial;
+            if (cust.emissionColor !== undefined) {
+              mat.emissive = new THREE.Color(cust.emissionColor);
+            }
+            if (cust.emissionStrength !== undefined) {
+              mat.emissiveIntensity = cust.emissionStrength;
+            }
+            mat.needsUpdate = true;
           }
         });
       });
