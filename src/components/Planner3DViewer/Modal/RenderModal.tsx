@@ -185,11 +185,11 @@ const RenderModal: React.FC<RenderModalProps> = ({
           );
           onRenderComplete(statusData.image_url);
         } else if (statusData.status === "pending") {
-          checkRenderStatus(requestId, 20000, startTime);
+          checkRenderStatus(requestId, 10000, startTime);
         }
       } catch (err: any) {
         console.error("Error checking render status:", err);
-        checkRenderStatus(requestId, 20000, startTime);
+        checkRenderStatus(requestId, 10000, startTime);
       }
     }, delay);
   };
@@ -298,7 +298,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
       }
       // Posting request to runpod end
       setRenderTasks((prev) => [...prev, { request_id, status: "pending" }]);
-      checkRenderStatus(request_id, 60000);
+      checkRenderStatus(request_id, 20000);
     } catch (err: any) {
       console.error("Error:", err);
       setError(err.message || "An unexpected error occurred.");
