@@ -151,6 +151,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const [currentView, setCurrentView] = useState<ViewType>("Default");
 
   const [glbUrl, setGlbUrl] = useState<string>("");
+  const [sceneModified, setSceneModified] = useState(true);
 
   const [zoomLevel, setZoomLevel] = useState(3);
   const [placementType, setPlacementType] = useState<
@@ -1376,7 +1377,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   };
 
   useEffect(() => {
-    setGlbUrl("");
+    setSceneModified(true);
   }, [
     lines,
     shapes,
@@ -1581,6 +1582,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         fov={fov}
         glbUrl={glbUrl}
         setGlbUrl={setGlbUrl}
+        setSceneModified={setSceneModified}
       />
 
       {!selectedShape && (

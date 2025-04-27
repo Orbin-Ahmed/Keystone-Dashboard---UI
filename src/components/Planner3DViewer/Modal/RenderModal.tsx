@@ -19,6 +19,7 @@ interface RenderModalProps {
   fov: number;
   glbUrl: string;
   setGlbUrl: React.Dispatch<React.SetStateAction<string>>;
+  setSceneModified: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 interface RenderTask {
@@ -44,6 +45,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
   fov,
   glbUrl,
   setGlbUrl,
+  setSceneModified,
 }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -220,6 +222,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
 
         console.log("GLB uploaded successfully:", finalGlbUrl);
         setGlbUrl(finalGlbUrl);
+        setSceneModified(false);
       }
       // Glb File upload end
 
