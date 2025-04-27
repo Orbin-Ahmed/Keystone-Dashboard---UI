@@ -208,6 +208,11 @@ const RenderModal: React.FC<RenderModalProps> = ({
           "Content-Type": "application/octet-stream",
         },
       });
+
+      if (!uploadResponse.ok) {
+        throw new Error(`File upload failed: ${uploadResponse.statusText}`);
+      }
+
       // formData.append("glb_file", glbBlob);
 
       // Glb File upload
@@ -219,14 +224,14 @@ const RenderModal: React.FC<RenderModalProps> = ({
       //   },
       // );
 
-      if (!uploadResponse.ok) {
-        throw new Error(`File upload error: ${uploadResponse.statusText}`);
-      }
+      // if (!uploadResponse.ok) {
+      //   throw new Error(`File upload error: ${uploadResponse.statusText}`);
+      // }
 
-      const uploadResult = await uploadResponse.json();
-      if (!uploadResult.glb_url) {
-        throw new Error("File upload failed: Invalid response format");
-      }
+      // const uploadResult = await uploadResponse.json();
+      // if (!uploadResult.glb_url) {
+      //   throw new Error("File upload failed: Invalid response format");
+      // }
 
       // Format the GLB URL properly
       // const finalGlbUrl = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}${uploadResult.glb_url}`;
