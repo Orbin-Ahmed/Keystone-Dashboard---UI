@@ -1048,12 +1048,11 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   };
 
   const handleRenderComplete = (imageUrl: string) => {
-    const id = currentRenderImageID;
-    if (!id) return;
-
     setLocalSceneImages((prev) =>
       prev.map((img) =>
-        img.id === id ? { ...img, finalUrl: imageUrl, loading: false } : img,
+        img.id === currentRenderImageID
+          ? { ...img, finalUrl: imageUrl, loading: false }
+          : img,
       ),
     );
   };
