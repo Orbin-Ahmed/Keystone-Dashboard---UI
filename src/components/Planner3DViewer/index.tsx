@@ -1029,7 +1029,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     }
 
     const renderer = glRef.current;
-    renderer.render(sceneRef.current!, cameraRef.current!);
+    renderer.render(sceneRef.current, cameraRef.current);
     const dataURL = renderer.domElement.toDataURL("image/jpeg");
     const imageID = uid(16);
 
@@ -1038,23 +1038,25 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       { id: imageID, url: dataURL, loading: true },
     ]);
 
-    setCurrentRenderImageID(imageID);
     return imageID;
   };
 
   const onRenderStart = () => {
-    const id = handleRenderStart();
-    setCurrentRenderImageID(id);
+    handleRenderStart();
   };
 
   const handleRenderComplete = (imageUrl: string) => {
-    setLocalSceneImages((prev) =>
-      prev.map((img) =>
-        img.id === currentRenderImageID
+    setLocalSceneImages((prev) => {
+      const idx = prev.findIndex((img) => img.loading);
+      if (idx === -1) return prev;
+
+      const targetId = prev[idx].id;
+      return prev.map((img) =>
+        img.id === targetId
           ? { ...img, finalUrl: imageUrl, loading: false }
           : img,
-      ),
-    );
+      );
+    });
   };
 
   const handleUpdateItem = (updatedItem: PlacedItemType) => {
@@ -1603,8 +1605,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       <RenderModal
         isOpen={isRenderModalOpen}
         onClose={() => setIsRenderModalOpen(false)}
-        onRenderComplete={handleRenderComplete}
         onRenderStart={onRenderStart}
+        onRenderComplete={handleRenderComplete}
         scene={sceneRef.current!}
         camera={cameraRef.current!}
         activeTourPoint={activeTourPoint}
