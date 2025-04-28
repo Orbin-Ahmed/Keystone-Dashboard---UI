@@ -200,7 +200,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
+    onRenderStart();
     setLoading(true);
     try {
       let finalGlbUrl = glbUrl;
@@ -222,7 +222,6 @@ const RenderModal: React.FC<RenderModalProps> = ({
           throw new Error(`File upload failed: ${uploadResponse.statusText}`);
         }
 
-        onRenderStart();
         console.log("GLB uploaded successfully:", finalGlbUrl);
         setGlbUrl(finalGlbUrl);
         setSceneModified(false);
