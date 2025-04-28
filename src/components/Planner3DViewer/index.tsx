@@ -152,6 +152,9 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
   const [glbUrl, setGlbUrl] = useState<string>("");
   const [sceneModified, setSceneModified] = useState(true);
+  const [currentRenderImageID, setCurrentRenderImageID] = useState<
+    string | null
+  >(null);
 
   const [zoomLevel, setZoomLevel] = useState(3);
   const [placementType, setPlacementType] = useState<
@@ -1020,11 +1023,39 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     );
   };
 
-  const handleRenderComplete = (imageUrl: string) => {
+  const handleRenderStart = (): string => {
+    if (!glRef.current || !cameraRef.current || !sceneRef.current) {
+      throw new Error("GL context not ready");
+    }
+
+    const renderer = glRef.current;
+    renderer.render(sceneRef.current!, cameraRef.current!);
+    const dataURL = renderer.domElement.toDataURL("image/jpeg");
+    const imageID = uid(16);
+
     setLocalSceneImages((prev) => [
       ...prev,
-      { id: uid(), url: imageUrl, finalUrl: imageUrl, loading: false },
+      { id: imageID, url: dataURL, loading: true },
     ]);
+
+    setCurrentRenderImageID(imageID);
+    return imageID;
+  };
+
+  const onRenderStart = () => {
+    const id = handleRenderStart();
+    setCurrentRenderImageID(id);
+  };
+
+  const handleRenderComplete = (imageUrl: string) => {
+    const id = currentRenderImageID;
+    if (!id) return;
+
+    setLocalSceneImages((prev) =>
+      prev.map((img) =>
+        img.id === id ? { ...img, finalUrl: imageUrl, loading: false } : img,
+      ),
+    );
   };
 
   const handleUpdateItem = (updatedItem: PlacedItemType) => {
@@ -1574,6 +1605,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         isOpen={isRenderModalOpen}
         onClose={() => setIsRenderModalOpen(false)}
         onRenderComplete={handleRenderComplete}
+        onRenderStart={onRenderStart}
         scene={sceneRef.current!}
         camera={cameraRef.current!}
         activeTourPoint={activeTourPoint}

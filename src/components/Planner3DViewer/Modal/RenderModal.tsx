@@ -11,6 +11,7 @@ interface RenderModalProps {
   isOpen: boolean;
   onClose: () => void;
   onRenderComplete: (imageUrl: string) => void;
+  onRenderStart: () => void;
   scene: Scene;
   camera: Camera;
   activeTourPoint?: TourPoint | null;
@@ -38,6 +39,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
   isOpen,
   onClose,
   onRenderComplete,
+  onRenderStart,
   scene,
   camera,
   activeTourPoint,
@@ -220,6 +222,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
           throw new Error(`File upload failed: ${uploadResponse.statusText}`);
         }
 
+        onRenderStart();
         console.log("GLB uploaded successfully:", finalGlbUrl);
         setGlbUrl(finalGlbUrl);
         setSceneModified(false);
