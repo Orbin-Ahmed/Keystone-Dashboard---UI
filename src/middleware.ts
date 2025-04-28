@@ -12,7 +12,7 @@ export async function middleware(request: NextRequest) {
     const secret_key = "6595554882";
     role = role / Number(secret_key);
   } else {
-    role = 4; // Default to role 4 if no cookie is found
+    role = 4;
   }
 
   const commonRoutes = [
@@ -22,6 +22,7 @@ export async function middleware(request: NextRequest) {
     "/dashboard",
     "/dashboard/profile",
     "/dashboard/settings",
+    "/floor-planner",
   ];
 
   const designerRoutes = ["/dashboard/add-image", "/dashboard/edit-image"];
