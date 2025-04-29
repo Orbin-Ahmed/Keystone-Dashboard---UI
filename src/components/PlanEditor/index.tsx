@@ -28,7 +28,7 @@ import { useUndoRedo } from "./undoRedo";
 const GRID_SIZE = 50;
 const PIXELS_PER_METER = 0.398;
 const SNAP_THRESHOLD = 10;
-const MIN_WALL_LENGTH = 0.1 * PIXELS_PER_METER;
+const MIN_WALL_LENGTH = 0.0001 * PIXELS_PER_METER;
 const STRAIGHT_LINE_THRESHOLD = 10;
 const width = 5000;
 const height = 3000;
