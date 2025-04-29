@@ -28,8 +28,10 @@ import { useUndoRedo } from "./undoRedo";
 const GRID_SIZE = 50;
 const PIXELS_PER_METER = 0.398;
 const SNAP_THRESHOLD = 10;
-const MIN_WALL_LENGTH = 0.0001 * PIXELS_PER_METER;
+const SNAP_THRESHOLD_raw = 1;
+const MIN_WALL_LENGTH = 0.01 * PIXELS_PER_METER;
 const STRAIGHT_LINE_THRESHOLD = 10;
+const JOIN_THRESHOLD = 20;
 const width = 5000;
 const height = 3000;
 
@@ -264,7 +266,6 @@ const PlanEditor = ({
   // Snap helper
 
   const autoJoinLines = (lines: Line[]): Line[] => {
-    const JOIN_THRESHOLD = 20;
     const updatedLines = lines.map((line) => ({
       ...line,
       points: [...line.points],
@@ -453,7 +454,6 @@ const PlanEditor = ({
     if (!stage || !startPoint) return;
 
     if (tool === "wall") {
-      // const pos = stage.getPointerPosition();
       const pos = getRelativePointerPosition(stage);
       if (pos) {
         const snappedPos = getSnappedPosition(pos);
@@ -509,6 +509,19 @@ const PlanEditor = ({
         return { x: x1, y: y1 };
       }
       if (distance(pos, { x: x2, y: y2 }) < SNAP_THRESHOLD) {
+        return { x: x2, y: y2 };
+      }
+    }
+    return pos;
+  };
+
+  const getRawSnappedPosition = (pos: { x: number; y: number }) => {
+    for (let line of lines) {
+      const [x1, y1, x2, y2] = line.points;
+      if (distance(pos, { x: x1, y: y1 }) < SNAP_THRESHOLD_raw) {
+        return { x: x1, y: y1 };
+      }
+      if (distance(pos, { x: x2, y: y2 }) < SNAP_THRESHOLD_raw) {
         return { x: x2, y: y2 };
       }
     }
@@ -1352,22 +1365,37 @@ const PlanEditor = ({
                       radius={8}
                       fill="blue"
                       draggable
-                      onDragEnd={(e) => {
-                        const newPos = { x: e.target.x(), y: e.target.y() };
-                        const snapped = getSnappedPosition(newPos);
+                      onDragMove={(e) => {
+                        const snapped = getRawSnappedPosition({
+                          x: e.target.x(),
+                          y: e.target.y(),
+                        });
+                        const other = { x: line.points[2], y: line.points[3] };
                         const updatedLine = {
                           ...line,
-                          points: [
-                            snapped.x,
-                            snapped.y,
-                            line.points[2],
-                            line.points[3],
-                          ],
+                          points: [snapped.x, snapped.y, other.x, other.y],
                         };
-                        const updatedLines = lines.map((l) =>
-                          l.id === line.id ? updatedLine : l,
+                        setLines(
+                          lines.map((l) =>
+                            l.id === line.id ? updatedLine : l,
+                          ),
                         );
-                        setLines(autoJoinLines(updatedLines));
+                      }}
+                      onDragEnd={(e) => {
+                        const snapped = getRawSnappedPosition({
+                          x: e.target.x(),
+                          y: e.target.y(),
+                        });
+                        const other = { x: line.points[2], y: line.points[3] };
+                        const updatedLine = {
+                          ...line,
+                          points: [snapped.x, snapped.y, other.x, other.y],
+                        };
+                        setLines(
+                          lines.map((l) =>
+                            l.id === line.id ? updatedLine : l,
+                          ),
+                        );
                       }}
                     />
                     <Circle
@@ -1376,22 +1404,37 @@ const PlanEditor = ({
                       radius={8}
                       fill="blue"
                       draggable
-                      onDragEnd={(e) => {
-                        const newPos = { x: e.target.x(), y: e.target.y() };
-                        const snapped = getSnappedPosition(newPos);
+                      onDragMove={(e) => {
+                        const snapped = getRawSnappedPosition({
+                          x: e.target.x(),
+                          y: e.target.y(),
+                        });
+                        const other = { x: line.points[0], y: line.points[1] };
                         const updatedLine = {
                           ...line,
-                          points: [
-                            line.points[0],
-                            line.points[1],
-                            snapped.x,
-                            snapped.y,
-                          ],
+                          points: [other.x, other.y, snapped.x, snapped.y],
                         };
-                        const updatedLines = lines.map((l) =>
-                          l.id === line.id ? updatedLine : l,
+                        setLines(
+                          lines.map((l) =>
+                            l.id === line.id ? updatedLine : l,
+                          ),
                         );
-                        setLines(autoJoinLines(updatedLines));
+                      }}
+                      onDragEnd={(e) => {
+                        const snapped = getRawSnappedPosition({
+                          x: e.target.x(),
+                          y: e.target.y(),
+                        });
+                        const other = { x: line.points[0], y: line.points[1] };
+                        const updatedLine = {
+                          ...line,
+                          points: [other.x, other.y, snapped.x, snapped.y],
+                        };
+                        setLines(
+                          lines.map((l) =>
+                            l.id === line.id ? updatedLine : l,
+                          ),
+                        );
                       }}
                     />
                   </>
