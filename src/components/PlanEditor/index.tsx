@@ -34,6 +34,7 @@ const STRAIGHT_LINE_THRESHOLD = 10;
 const JOIN_THRESHOLD = 20;
 const width = 5000;
 const height = 3000;
+const FURNITURE_SNAP_THRESHOLD = 20;
 
 interface TempLine extends Line {
   length?: string;
@@ -1107,6 +1108,318 @@ const PlanEditor = ({
     }
   };
 
+  // Snapping Furniture Function
+
+  // const getWallSnapPosition = (pos: Point): Point | null => {
+  //   let best: Point | null = null;
+
+  //   for (const line of lines) {
+  //     const { x, y } = findClosestPointOnLine(line, pos);
+  //     const d = distance(pos, { x, y });
+  //     if (d < SNAP_THRESHOLD) {
+  //       best = { x, y };
+  //       break;
+  //     }
+  //   }
+  //   return best;
+  // };
+
+  // const getFurnitureSnapPosition = (
+  //   pos: Point,
+  //   moving: FurnitureItem,
+  // ): Point | null => {
+  //   for (const item of furnitureItems) {
+  //     if (item.id === moving.id) continue;
+
+  //     if (Math.abs(item.height - moving.height) < 1e-6) {
+  //       if (Math.abs(pos.x - (item.x + item.width)) < SNAP_THRESHOLD) {
+  //         return { x: item.x + item.width, y: item.y };
+  //       }
+  //       if (Math.abs(pos.x + moving.width - item.x) < SNAP_THRESHOLD) {
+  //         return { x: item.x - moving.width, y: item.y };
+  //       }
+  //     }
+
+  //     if (Math.abs(item.width - moving.width) < 1e-6) {
+  //       if (Math.abs(pos.y - (item.y + item.height)) < SNAP_THRESHOLD) {
+  //         return { x: item.x, y: item.y + item.height };
+  //       }
+  //       if (Math.abs(pos.y + moving.height - item.y) < SNAP_THRESHOLD) {
+  //         return { x: item.x, y: item.y - moving.height };
+  //       }
+  //     }
+  //   }
+  //   return null;
+  // };
+
+  // const updateFurniturePosition = (id: string, x: number, y: number) => {
+  //   setFurnitureItems((prev) =>
+  //     prev.map((f) => (f.id === id ? { ...f, x, y } : f)),
+  //   );
+  // };
+
+  // const handleFurnitureDragEnd = (id: string): void => {
+  //   setHelperLines([]);
+
+  //   const moved = furnitureItems.find((f) => f.id === id);
+  //   if (!moved) return;
+
+  //   // const wallSnap = getWallSnapPosition({ x: moved.x, y: moved.y });
+  //   // if (wallSnap) {
+  //   //   updateFurniturePosition(id, wallSnap.x, wallSnap.y);
+  //   // } else {
+  //   const furnSnap = getFurnitureSnapPosition(
+  //     { x: moved.x, y: moved.y },
+  //     moved,
+  //   );
+  //   if (furnSnap) {
+  //     updateFurniturePosition(id, furnSnap.x, furnSnap.y);
+  //   }
+  //   // }
+
+  //   if (selectedItemIds.length > 1) {
+  //     groupDragStartRef.current = {};
+  //   }
+  // };
+
+  // const getWallSnapPosition = (
+  //   pos: Point,
+  //   item: FurnitureItem,
+  // ): Point | null => {
+  //   let bestSnap: Point | null = null;
+  //   let minDistance = SNAP_THRESHOLD;
+
+  //   for (const line of lines) {
+  //     const closestPoint = findClosestPointOnLine(line, pos);
+  //     const d = distance(pos, closestPoint);
+
+  //     if (d < SNAP_THRESHOLD && d < minDistance) {
+  //       bestSnap = closestPoint;
+  //       minDistance = d;
+  //     }
+
+  //     const corners = [
+  //       pos,
+  //       { x: pos.x + item.width, y: pos.y },
+  //       { x: pos.x, y: pos.y + item.height },
+  //       { x: pos.x + item.width, y: pos.y + item.height },
+  //     ];
+
+  //     for (const corner of corners) {
+  //       const closestToCorner = findClosestPointOnLine(line, corner);
+  //       const cornerDist = distance(corner, closestToCorner);
+
+  //       if (cornerDist < SNAP_THRESHOLD && cornerDist < minDistance) {
+  //         bestSnap = {
+  //           x: closestToCorner.x - (corner.x - pos.x),
+  //           y: closestToCorner.y - (corner.y - pos.y),
+  //         };
+  //         minDistance = cornerDist;
+  //       }
+  //     }
+  //   }
+
+  //   return bestSnap;
+  // };
+
+  // const getFurnitureSnapPosition = (
+  //   pos: Point,
+  //   moving: FurnitureItem,
+  // ): Point | null => {
+  //   let bestSnap: Point | null = null;
+  //   let minDistance = SNAP_THRESHOLD;
+
+  //   for (const item of furnitureItems) {
+  //     if (item.id === moving.id) continue;
+
+  //     const movingEdges = {
+  //       left: pos.x,
+  //       right: pos.x + moving.width,
+  //       top: pos.y,
+  //       bottom: pos.y + moving.height,
+  //     };
+
+  //     const targetEdges = {
+  //       left: item.x,
+  //       right: item.x + item.width,
+  //       top: item.y,
+  //       bottom: item.y + item.height,
+  //     };
+
+  //     if (Math.abs(movingEdges.left - targetEdges.right) < SNAP_THRESHOLD) {
+  //       const snapDist = Math.abs(movingEdges.left - targetEdges.right);
+  //       if (snapDist < minDistance) {
+  //         bestSnap = { x: targetEdges.right, y: pos.y };
+  //         minDistance = snapDist;
+  //       }
+  //     }
+
+  //     if (Math.abs(movingEdges.right - targetEdges.left) < SNAP_THRESHOLD) {
+  //       const snapDist = Math.abs(movingEdges.right - targetEdges.left);
+  //       if (snapDist < minDistance) {
+  //         bestSnap = { x: targetEdges.left - moving.width, y: pos.y };
+  //         minDistance = snapDist;
+  //       }
+  //     }
+
+  //     if (Math.abs(movingEdges.top - targetEdges.bottom) < SNAP_THRESHOLD) {
+  //       const snapDist = Math.abs(movingEdges.top - targetEdges.bottom);
+  //       if (snapDist < minDistance) {
+  //         bestSnap = { x: pos.x, y: targetEdges.bottom };
+  //         minDistance = snapDist;
+  //       }
+  //     }
+
+  //     if (Math.abs(movingEdges.bottom - targetEdges.top) < SNAP_THRESHOLD) {
+  //       const snapDist = Math.abs(movingEdges.bottom - targetEdges.top);
+  //       if (snapDist < minDistance) {
+  //         bestSnap = { x: pos.x, y: targetEdges.top - moving.height };
+  //         minDistance = snapDist;
+  //       }
+  //     }
+
+  //     if (Math.abs(movingEdges.left - targetEdges.left) < SNAP_THRESHOLD) {
+  //       const snapDist = Math.abs(movingEdges.left - targetEdges.left);
+  //       if (snapDist < minDistance) {
+  //         bestSnap = { x: targetEdges.left, y: pos.y };
+  //         minDistance = snapDist;
+  //       }
+  //     }
+
+  //     if (Math.abs(movingEdges.right - targetEdges.right) < SNAP_THRESHOLD) {
+  //       const snapDist = Math.abs(movingEdges.right - targetEdges.right);
+  //       if (snapDist < minDistance) {
+  //         bestSnap = { x: targetEdges.right - moving.width, y: pos.y };
+  //         minDistance = snapDist;
+  //       }
+  //     }
+
+  //     if (Math.abs(movingEdges.top - targetEdges.top) < SNAP_THRESHOLD) {
+  //       const snapDist = Math.abs(movingEdges.top - targetEdges.top);
+  //       if (snapDist < minDistance) {
+  //         bestSnap = { x: pos.x, y: targetEdges.top };
+  //         minDistance = snapDist;
+  //       }
+  //     }
+
+  //     if (Math.abs(movingEdges.bottom - targetEdges.bottom) < SNAP_THRESHOLD) {
+  //       const snapDist = Math.abs(movingEdges.bottom - targetEdges.bottom);
+  //       if (snapDist < minDistance) {
+  //         bestSnap = { x: pos.x, y: targetEdges.bottom - moving.height };
+  //         minDistance = snapDist;
+  //       }
+  //     }
+  //   }
+
+  //   return bestSnap;
+  // };
+
+  // const showSnapHelperLines = (pos: Point, item: FurnitureItem): void => {
+  //   const newHelperLines: HelperLine[] = [];
+
+  //   for (const line of lines) {
+  //     const closestPoint = findClosestPointOnLine(line, pos);
+  //     const d = distance(pos, closestPoint);
+  //     if (d < SNAP_THRESHOLD) {
+  //       newHelperLines.push({
+  //         start: { x: pos.x, y: pos.y },
+  //         end: { x: closestPoint.x, y: closestPoint.y },
+  //         distance: d,
+  //         type: "wall",
+  //       });
+  //     }
+  //   }
+
+  //   for (const target of furnitureItems) {
+  //     if (target.id === item.id) continue;
+
+  //     const leftDist = Math.abs(pos.x - (target.x + target.width));
+  //     const rightDist = Math.abs(pos.x + item.width - target.x);
+  //     if (leftDist < FURNITURE_SNAP_THRESHOLD) {
+  //       newHelperLines.push({
+  //         start: { x: pos.x, y: pos.y },
+  //         end: { x: target.x + target.width, y: pos.y },
+  //         distance: leftDist,
+  //         type: "item",
+  //       });
+  //     }
+  //     if (rightDist < FURNITURE_SNAP_THRESHOLD) {
+  //       newHelperLines.push({
+  //         start: { x: pos.x + item.width, y: pos.y },
+  //         end: { x: target.x, y: pos.y },
+  //         distance: rightDist,
+  //         type: "item",
+  //       });
+  //     }
+
+  //     const topDist = Math.abs(pos.y - (target.y + target.height));
+  //     const bottomDist = Math.abs(pos.y + item.height - target.y);
+  //     if (topDist < FURNITURE_SNAP_THRESHOLD) {
+  //       newHelperLines.push({
+  //         start: { x: pos.x, y: pos.y },
+  //         end: { x: pos.x, y: target.y + target.height },
+  //         distance: topDist,
+  //         type: "item",
+  //       });
+  //     }
+  //     if (bottomDist < FURNITURE_SNAP_THRESHOLD) {
+  //       newHelperLines.push({
+  //         start: { x: pos.x, y: pos.y + item.height },
+  //         end: { x: pos.x, y: target.y },
+  //         distance: bottomDist,
+  //         type: "item",
+  //       });
+  //     }
+  //   }
+
+  //   setHelperLines(newHelperLines);
+  // };
+
+  // const updateFurniturePosition = (id: string, x: number, y: number) => {
+  //   setFurnitureItems((prev) =>
+  //     prev.map((f) => (f.id === id ? { ...f, x, y } : f)),
+  //   );
+  // };
+
+  // const handleFurnitureDrag = (id: string, newPos: Point): void => {
+  //   const moving = furnitureItems.find((f) => f.id === id);
+  //   if (!moving) return;
+
+  //   showSnapHelperLines(newPos, moving);
+  // };
+
+  // const handleFurnitureDragEnd = (id: string): void => {
+  //   const moved = furnitureItems.find((f) => f.id === id);
+  //   if (!moved) return;
+
+  //   const currentPos = { x: moved.x, y: moved.y };
+
+  //   const wallSnap = getWallSnapPosition(currentPos, moved);
+
+  //   const furnitureSnap = getFurnitureSnapPosition(currentPos, moved);
+
+  //   let bestSnap = null;
+
+  //   if (wallSnap && furnitureSnap) {
+  //     const wallDist = distance(currentPos, wallSnap);
+  //     const furnDist = distance(currentPos, furnitureSnap);
+
+  //     bestSnap = wallDist < furnDist ? wallSnap : furnitureSnap;
+  //   } else {
+  //     bestSnap = wallSnap || furnitureSnap;
+  //   }
+
+  //   if (bestSnap) {
+  //     updateFurniturePosition(id, bestSnap.x, bestSnap.y);
+  //   }
+
+  //   setHelperLines([]);
+
+  //   if (selectedItemIds.length > 1) {
+  //     groupDragStartRef.current = {};
+  //   }
+  // };
+
   // Rescale Function
   const scalePoint = (old: number, pivot: number, scaleFactor: number) =>
     pivot + (old - pivot) * scaleFactor;
@@ -1549,12 +1862,12 @@ const PlanEditor = ({
                   }
                 }}
                 onDragStart={(id) => handleDragStart(id, isShiftPressed)}
-                onDragMove={(e) =>
-                  handleFurnitureDragMove(item.id, {
-                    x: e.target.x(),
-                    y: e.target.y(),
-                  })
-                }
+                onDragMove={(e) => {
+                  const x = e.target.x();
+                  const y = e.target.y();
+                  handleFurnitureDragMove(item.id, { x, y });
+                  // handleFurnitureDrag(item.id, { x, y });
+                }}
                 onDragEnd={() => handleFurnitureDragEnd(item.id)}
                 onChange={(id, newAttrs) => {
                   setFurnitureItems((prev) =>
