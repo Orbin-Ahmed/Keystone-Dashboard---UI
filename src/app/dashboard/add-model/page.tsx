@@ -201,7 +201,8 @@ const AddModel = () => {
     const sanitizedItemName = formData.itemName
       .toLowerCase()
       .replace(/\s+/g, "-")
-      .replace(/-/g, "_");
+      .replace(/-/g, "_")
+      .trim();
 
     const formDataObj = new FormData();
 
