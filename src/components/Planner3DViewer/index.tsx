@@ -854,17 +854,17 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     }
   };
 
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     const hasPending = localSceneImages.some((img) => img.loading);
-  //     if (hasPending) {
-  //       pollForFinalImages();
-  //     } else {
-  //       clearInterval(interval);
-  //     }
-  //   }, 30000);
-  //   return () => clearInterval(interval);
-  // }, [localSceneImages]);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const hasPending = localSceneImages.some((img) => img.loading);
+      if (hasPending) {
+        pollForFinalImages();
+      } else {
+        clearInterval(interval);
+      }
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [localSceneImages]);
 
   // Wall Item Control
 
