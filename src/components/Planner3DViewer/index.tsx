@@ -722,149 +722,149 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       link.download = "scene.jpg";
       link.href = dataURL;
       link.click();
-      if (activeTourPoint) {
-        const imageID = uid(16);
-        setLocalSceneImages((prevImages) => [
-          ...prevImages,
-          { id: imageID, url: dataURL, loading: true },
-        ]);
-        const formData = new FormData();
-        const input = {
-          image: await fetch(dataURL)
-            .then((res) => res.blob())
-            .then(
-              (blob) => new File([blob], "scene.jpg", { type: "image/jpeg" }),
-            ),
-          prompt: `A ${activeTourPoint.title.toLowerCase()}`,
-          guidance_scale: 5,
-          prompt_strength: 0.9,
-          num_inference_steps: 60,
-          negative_prompt:
-            "lowres, watermark, banner, logo, watermark, contactinfo, text, deformed, blurry, blur, out of focus, out of frame, surreal, extra, ugly, upholstered walls, fabric walls, plush walls, mirror, mirrored, functional, realistic",
-        };
+      // if (activeTourPoint) {
+      //   const imageID = uid(16);
+      //   setLocalSceneImages((prevImages) => [
+      //     ...prevImages,
+      //     { id: imageID, url: dataURL, loading: true },
+      //   ]);
+      //   const formData = new FormData();
+      //   const input = {
+      //     image: await fetch(dataURL)
+      //       .then((res) => res.blob())
+      //       .then(
+      //         (blob) => new File([blob], "scene.jpg", { type: "image/jpeg" }),
+      //       ),
+      //     prompt: `A ${activeTourPoint.title.toLowerCase()}`,
+      //     guidance_scale: 5,
+      //     prompt_strength: 0.9,
+      //     num_inference_steps: 60,
+      //     negative_prompt:
+      //       "lowres, watermark, banner, logo, watermark, contactinfo, text, deformed, blurry, blur, out of focus, out of frame, surreal, extra, ugly, upholstered walls, fabric walls, plush walls, mirror, mirrored, functional, realistic",
+      //   };
 
-        formData.append("image", input.image);
-        formData.append("prompt", input.prompt);
-        formData.append("guidance_scale", input.guidance_scale.toString());
-        formData.append("prompt_strength", input.prompt_strength.toString());
-        formData.append(
-          "num_inference_steps",
-          input.num_inference_steps.toString(),
-        );
-        formData.append("negative_prompt", input.negative_prompt);
-        formData.append("imageID", imageID);
+      //   formData.append("image", input.image);
+      //   formData.append("prompt", input.prompt);
+      //   formData.append("guidance_scale", input.guidance_scale.toString());
+      //   formData.append("prompt_strength", input.prompt_strength.toString());
+      //   formData.append(
+      //     "num_inference_steps",
+      //     input.num_inference_steps.toString(),
+      //   );
+      //   formData.append("negative_prompt", input.negative_prompt);
+      //   formData.append("imageID", imageID);
 
-        // Send the API request
-        try {
-          const response = await fetch("/api/revampv2", {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
-            },
-            body: formData,
-          });
+      //   // Send the API request
+      //   try {
+      //     const response = await fetch("/api/revampv2", {
+      //       method: "POST",
+      //       headers: {
+      //         Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
+      //       },
+      //       body: formData,
+      //     });
 
-          if (response.ok) {
-            const data = await response.json();
-            console.log("API Response:", data);
-          } else {
-            console.error("API Error:", response.status, response.statusText);
-          }
-        } catch (error) {
-          console.error("Fetch Error:", error);
-        }
-      }
+      //     if (response.ok) {
+      //       const data = await response.json();
+      //       console.log("API Response:", data);
+      //     } else {
+      //       console.error("API Error:", response.status, response.statusText);
+      //     }
+      //   } catch (error) {
+      //     console.error("Fetch Error:", error);
+      //   }
+      // }
     }
   };
 
-  const pollForFinalImages = async () => {
-    try {
-      const pendingImages = localSceneImages.filter((img) => img.loading);
-      if (pendingImages.length === 0) {
-        return;
-      }
-      const updatedImages = await Promise.all(
-        pendingImages.map(async (img) => {
-          try {
-            const response = await fetch(
-              `${process.env.NEXT_PUBLIC_API_BASE_URL}api/get-image-url/?imageID=${img.id}`,
-              {
-                method: "GET",
-                headers: {
-                  Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
-                },
-              },
-            );
+  // const pollForFinalImages = async () => {
+  //   try {
+  //     const pendingImages = localSceneImages.filter((img) => img.loading);
+  //     if (pendingImages.length === 0) {
+  //       return;
+  //     }
+  //     const updatedImages = await Promise.all(
+  //       pendingImages.map(async (img) => {
+  //         try {
+  //           const response = await fetch(
+  //             `${process.env.NEXT_PUBLIC_API_BASE_URL}api/get-image-url/?imageID=${img.id}`,
+  //             {
+  //               method: "GET",
+  //               headers: {
+  //                 Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
+  //               },
+  //             },
+  //           );
 
-            if (!response.ok) {
-              console.error(
-                `Error fetching image URL for ID ${img.id}:`,
-                response.status,
-                response.statusText,
-              );
+  //           if (!response.ok) {
+  //             console.error(
+  //               `Error fetching image URL for ID ${img.id}:`,
+  //               response.status,
+  //               response.statusText,
+  //             );
 
-              // if (response.status === 404) {
-              //   return {
-              //     ...img,
-              //     loading: false,
-              //   };
-              // }
+  //             // if (response.status === 404) {
+  //             //   return {
+  //             //     ...img,
+  //             //     loading: false,
+  //             //   };
+  //             // }
 
-              return img;
-            }
+  //             return img;
+  //           }
 
-            const data = await response.json();
-            if (data.imageURL === "pending") {
-              return {
-                ...img,
-                loading: true,
-              };
-            }
+  //           const data = await response.json();
+  //           if (data.imageURL === "pending") {
+  //             return {
+  //               ...img,
+  //               loading: true,
+  //             };
+  //           }
 
-            const arrayString = data.imageURL.replace(/'/g, '"');
-            const urlArray = JSON.parse(arrayString);
-            const finalLink = urlArray[0];
+  //           const arrayString = data.imageURL.replace(/'/g, '"');
+  //           const urlArray = JSON.parse(arrayString);
+  //           const finalLink = urlArray[0];
 
-            return {
-              ...img,
-              finalUrl: finalLink,
-              loading: false,
-            };
-          } catch (error) {
-            console.error(`Error fetching image URL for ID ${img.id}:`, error);
-            return img;
-          }
-        }),
-      );
-      setLocalSceneImages((prevImages) => {
-        const updatedMap = new Map<string, (typeof updatedImages)[number]>();
-        for (const updatedImg of updatedImages) {
-          updatedMap.set(updatedImg.id, updatedImg);
-        }
+  //           return {
+  //             ...img,
+  //             finalUrl: finalLink,
+  //             loading: false,
+  //           };
+  //         } catch (error) {
+  //           console.error(`Error fetching image URL for ID ${img.id}:`, error);
+  //           return img;
+  //         }
+  //       }),
+  //     );
+  //     setLocalSceneImages((prevImages) => {
+  //       const updatedMap = new Map<string, (typeof updatedImages)[number]>();
+  //       for (const updatedImg of updatedImages) {
+  //         updatedMap.set(updatedImg.id, updatedImg);
+  //       }
 
-        return prevImages.map((origImg) => {
-          if (updatedMap.has(origImg.id)) {
-            return updatedMap.get(origImg.id)!;
-          }
-          return origImg;
-        });
-      });
-    } catch (error) {
-      console.error("Error in polling function:", error);
-    }
-  };
+  //       return prevImages.map((origImg) => {
+  //         if (updatedMap.has(origImg.id)) {
+  //           return updatedMap.get(origImg.id)!;
+  //         }
+  //         return origImg;
+  //       });
+  //     });
+  //   } catch (error) {
+  //     console.error("Error in polling function:", error);
+  //   }
+  // };
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const hasPending = localSceneImages.some((img) => img.loading);
-      if (hasPending) {
-        pollForFinalImages();
-      } else {
-        clearInterval(interval);
-      }
-    }, 30000);
-    return () => clearInterval(interval);
-  }, [localSceneImages]);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     const hasPending = localSceneImages.some((img) => img.loading);
+  //     if (hasPending) {
+  //       pollForFinalImages();
+  //     } else {
+  //       clearInterval(interval);
+  //     }
+  //   }, 30000);
+  //   return () => clearInterval(interval);
+  // }, [localSceneImages]);
 
   // Wall Item Control
 
