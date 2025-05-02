@@ -803,12 +803,12 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
                 response.statusText,
               );
 
-              if (response.status === 404) {
-                return {
-                  ...img,
-                  loading: false,
-                };
-              }
+              // if (response.status === 404) {
+              //   return {
+              //     ...img,
+              //     loading: false,
+              //   };
+              // }
 
               return img;
             }
