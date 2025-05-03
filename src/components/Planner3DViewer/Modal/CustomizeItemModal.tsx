@@ -120,10 +120,10 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
           ? { x: localTextureOffsetX, y: localTextureOffsetY }
           : undefined,
 
-        emissionColor:
-          localEmissionColor !== "#000000" ? localEmissionColor : undefined,
-        emissionStrength:
-          localEmissionStrength > 0 ? localEmissionStrength : undefined,
+        // emissionColor:
+        //   localEmissionColor !== "#000000" ? localEmissionColor : undefined,
+        // emissionStrength:
+        //   localEmissionStrength > 0 ? localEmissionStrength : undefined,
       };
     });
 
