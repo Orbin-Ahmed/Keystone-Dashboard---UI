@@ -144,6 +144,7 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
     const newCustomizations = { ...customizations };
     selectedGroups.forEach((group) => {
       newCustomizations[group.groupName] = {
+        ...newCustomizations[group.groupName],
         emissionColor:
           localEmissionColor !== "#000000" ? localEmissionColor : undefined,
         emissionStrength:
