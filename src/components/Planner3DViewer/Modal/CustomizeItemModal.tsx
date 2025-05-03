@@ -120,11 +120,6 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
         textureOffset: localTextureFile
           ? { x: localTextureOffsetX, y: localTextureOffsetY }
           : undefined,
-
-        // emissionColor:
-        //   localEmissionColor !== "#000000" ? localEmissionColor : undefined,
-        // emissionStrength:
-        //   localEmissionStrength > 0 ? localEmissionStrength : undefined,
       };
     });
 
@@ -285,6 +280,7 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
     setLightPreset("custom");
     setLocalEmissionColor("#000000");
     setLocalEmissionStrength(0);
+    handleApplyLight();
   };
 
   const canRevert = currentHistoryIndex >= 0;
