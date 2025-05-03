@@ -11,6 +11,7 @@ import * as THREE from "three";
 import { GLTFExporter } from "three-stdlib";
 import ItemControllerTab from "./ItemControllerTab";
 import { ModelViewerHandle } from "../ItemClick/ModelViewer";
+import LightPresetSelector, { LightPresetValue } from "./LightPanel";
 
 type CustomizationHistory = {
   customizations: Record<string, Customization>;
@@ -64,6 +65,8 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
   const [localTextureRepeatY, setLocalTextureRepeatY] = useState<number>(1);
   const [localTextureOffsetX, setLocalTextureOffsetX] = useState<number>(0);
   const [localTextureOffsetY, setLocalTextureOffsetY] = useState<number>(0);
+
+  const [lightPreset, setLightPreset] = useState<LightPresetValue>("custom");
 
   const [localEmissionColor, setLocalEmissionColor] =
     useState<string>("#000000");
@@ -311,6 +314,7 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
           </ul>
         </div>
 
+        {/* Item Viewer  */}
         <div className="flex flex-col md:flex-row">
           <div className="h-96 w-full md:w-2/3">
             <ItemCustomizationViewer
@@ -323,6 +327,7 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
             />
           </div>
 
+          {/* Customize Tab  */}
           <div className="mt-4 w-full md:mt-0 md:w-1/3 md:pl-4">
             {activeTab === "customize" && (
               <>
@@ -589,36 +594,52 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
               </>
             )}
 
+            {/* Light Tab  */}
             {activeTab === "light" && (
               <>
-                <div className="mb-4">
-                  <label className="mb-1 block">Emission Color:</label>
-                  <input
-                    type="color"
-                    value={localEmissionColor}
-                    onChange={(e) => setLocalEmissionColor(e.target.value)}
-                    className="h-10 w-full"
-                  />
-                </div>
-                <div className="mb-6">
-                  <label className="mb-1 block">
-                    Emission Strength: {localEmissionStrength}
-                  </label>
-                  <input
-                    type="range"
-                    min={0}
-                    max={5000}
-                    step={1}
-                    value={localEmissionStrength}
-                    onChange={(e) =>
-                      setLocalEmissionStrength(Number(e.target.value))
-                    }
-                    className="w-full"
-                  />
-                </div>
+                <LightPresetSelector
+                  manualColor={localEmissionColor}
+                  manualStrength={localEmissionStrength}
+                  onChange={(color, strength) => {
+                    setLocalEmissionColor(color);
+                    setLocalEmissionStrength(strength);
+                  }}
+                />
+
+                {/* Only show manual controls when in Custom mode */}
+                {lightPreset === "custom" && (
+                  <>
+                    <div className="mb-4">
+                      <label className="mb-1 block">Emission Color:</label>
+                      <input
+                        type="color"
+                        value={localEmissionColor}
+                        onChange={(e) => setLocalEmissionColor(e.target.value)}
+                        className="h-10 w-full"
+                      />
+                    </div>
+                    <div className="mb-6">
+                      <label className="mb-1 block">
+                        Emission Strength: {localEmissionStrength}
+                      </label>
+                      <input
+                        type="range"
+                        min={0}
+                        max={5000}
+                        step={1}
+                        value={localEmissionStrength}
+                        onChange={(e) =>
+                          setLocalEmissionStrength(Number(e.target.value))
+                        }
+                        className="w-full"
+                      />
+                    </div>
+                  </>
+                )}
               </>
             )}
 
+            {/* Controller Tab  */}
             {activeTab === "control" && (
               <ItemControllerTab
                 selectedGroups={selectedGroups}

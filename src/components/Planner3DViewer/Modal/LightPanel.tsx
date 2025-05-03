@@ -1,35 +1,41 @@
 import React, { useState, useEffect } from "react";
 import { SegmentedControl } from "@radix-ui/themes";
 
-export type LightCategory = "spot" | "wall" | "hidden";
-export type PresetName = "Low" | "Mid" | "High" | "Custom";
+export type LightCategory = "spotLight" | "wallLight" | "hiddenLight";
+export type SpotPreset = "Warm" | "Focus" | "Dramatic";
+export type WallPreset = "Cozy" | "Neutral" | "Cool";
+export type HiddenPreset = "Subtle" | "Accent" | "Vibrant";
+
 export type LightPresetValue =
-  | `${LightCategory}-${Exclude<PresetName, "Custom">}`
+  | `spotLight-${SpotPreset}`
+  | `wallLight-${WallPreset}`
+  | `hiddenLight-${HiddenPreset}`
   | "custom";
 
 export interface PresetConfig {
-  color: string;
-  strength: number;
+  emissionColor: string;
+  emissionStrength: number;
 }
 
-const LIGHT_PRESETS: Record<
-  LightCategory,
-  Record<Exclude<PresetName, "Custom">, PresetConfig>
-> = {
-  spot: {
-    Low: { color: "#FFD280", strength: 200 },
-    Mid: { color: "#FFC14D", strength: 800 },
-    High: { color: "#FFAA00", strength: 2000 },
+const LIGHT_PRESETS: {
+  spotLight: Record<SpotPreset, PresetConfig>;
+  wallLight: Record<WallPreset, PresetConfig>;
+  hiddenLight: Record<HiddenPreset, PresetConfig>;
+} = {
+  spotLight: {
+    Warm: { emissionColor: "#FFA500", emissionStrength: 100 },
+    Focus: { emissionColor: "#FF8C00", emissionStrength: 500 },
+    Dramatic: { emissionColor: "#FF4500", emissionStrength: 1000 },
   },
-  wall: {
-    Low: { color: "#80FFD2", strength: 150 },
-    Mid: { color: "#4DFFC1", strength: 600 },
-    High: { color: "#00FFA7", strength: 1500 },
+  wallLight: {
+    Cozy: { emissionColor: "#87CEEB", emissionStrength: 200 },
+    Neutral: { emissionColor: "#1E90FF", emissionStrength: 600 },
+    Cool: { emissionColor: "#0000FF", emissionStrength: 1200 },
   },
-  hidden: {
-    Low: { color: "#B280FF", strength: 100 },
-    Mid: { color: "#9F4DFF", strength: 400 },
-    High: { color: "#7A00FF", strength: 1000 },
+  hiddenLight: {
+    Subtle: { emissionColor: "#7FFF00", emissionStrength: 300 },
+    Accent: { emissionColor: "#00FF7F", emissionStrength: 700 },
+    Vibrant: { emissionColor: "#00FF00", emissionStrength: 1500 },
   },
 };
 
@@ -51,14 +57,12 @@ const LightPresetSelector: React.FC<LightPresetSelectorProps> = ({
       onChange(manualColor, manualStrength);
       return;
     }
-    const [category, level] = preset.split("-") as [
-      LightCategory,
-      Exclude<PresetName, "Custom">,
-    ];
-    const config = LIGHT_PRESETS[category][level];
-    onChange(config.color, config.strength);
-  }, [preset]);
+    const [category, name] = preset.split("-") as [LightCategory, any];
+    const config = (LIGHT_PRESETS[category] as any)[name];
+    if (config) onChange(config.emissionColor, config.emissionStrength);
+  }, [preset, manualColor, manualStrength]);
 
+  // Remove light (strength=0)
   const handleRemove = () => {
     setPreset("custom");
     onChange(manualColor, 0);
@@ -66,30 +70,36 @@ const LightPresetSelector: React.FC<LightPresetSelectorProps> = ({
 
   return (
     <div>
-      {(["spot", "wall", "hidden"] as LightCategory[]).map((category) => (
-        <div key={category} className="mb-4">
-          <h4 className="mb-1 font-semibold">
-            {category.charAt(0).toUpperCase() + category.slice(1)} Light Preset:
-          </h4>
-          <SegmentedControl.Root
-            value={preset.startsWith(category) ? preset : "custom"}
-            onValueChange={(value: LightPresetValue) => setPreset(value)}
-            className="w-full"
-          >
-            {(["Low", "Mid", "High"] as Exclude<PresetName, "Custom">[]).map(
-              (name) => (
-                <SegmentedControl.Item
-                  key={`${category}-${name}`}
-                  value={`${category}-${name}`}
-                >
-                  {name}
+      {(["spotLight", "wallLight", "hiddenLight"] as LightCategory[]).map(
+        (category) => {
+          // derive presets for this category
+          const names = Object.keys(LIGHT_PRESETS[category]) as string[];
+          return (
+            <div key={category} className="mb-4">
+              <h4 className="mb-1 font-semibold">
+                {category.replace(/([A-Z])/g, " $1").trim()} Presets:
+              </h4>
+              <SegmentedControl.Root
+                value={preset.startsWith(category) ? preset : "custom"}
+                onValueChange={(value: LightPresetValue) => setPreset(value)}
+                className="w-full"
+              >
+                {names.map((name) => (
+                  <SegmentedControl.Item
+                    key={`${category}-${name}`}
+                    value={`${category}-${name}` as LightPresetValue}
+                  >
+                    {name}
+                  </SegmentedControl.Item>
+                ))}
+                <SegmentedControl.Item value="custom">
+                  Custom
                 </SegmentedControl.Item>
-              ),
-            )}
-            <SegmentedControl.Item value="custom">Custom</SegmentedControl.Item>
-          </SegmentedControl.Root>
-        </div>
-      ))}
+              </SegmentedControl.Root>
+            </div>
+          );
+        },
+      )}
 
       <button
         type="button"
