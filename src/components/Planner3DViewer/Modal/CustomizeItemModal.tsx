@@ -138,6 +138,30 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
     setCustomizations(newCustomizations);
   };
 
+  const handleApplyLight = () => {
+    if (selectedGroups.length === 0) return;
+
+    const newCustomizations = { ...customizations };
+    selectedGroups.forEach((group) => {
+      newCustomizations[group.groupName] = {
+        emissionColor:
+          localEmissionColor !== "#000000" ? localEmissionColor : undefined,
+        emissionStrength:
+          localEmissionStrength > 0 ? localEmissionStrength : undefined,
+      };
+    });
+
+    const newHistory = history.slice(0, currentHistoryIndex + 1);
+    newHistory.push({
+      customizations: newCustomizations,
+      timestamp: Date.now(),
+    });
+
+    setHistory(newHistory);
+    setCurrentHistoryIndex(newHistory.length - 1);
+    setCustomizations(newCustomizations);
+  };
+
   const handleRevert = () => {
     if (currentHistoryIndex > 0) {
       const previousState = history[currentHistoryIndex - 1];
@@ -604,9 +628,11 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
                     setLocalEmissionColor(color);
                     setLocalEmissionStrength(strength);
                   }}
+                  preset={lightPreset}
+                  onPresetChange={setLightPreset}
                 />
 
-                {/* Only show manual controls when in Custom mode */}
+                {/* manual controls */}
                 {lightPreset === "custom" && (
                   <>
                     <div className="mb-4">
@@ -652,6 +678,9 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
             <div className="mt-4">
               <CustomButton
                 onClick={async () => {
+                  if (activeTab === "light") {
+                    handleApplyLight();
+                  }
                   let newItemName = "";
                   if (modifiedScene) {
                     newItemName = await handleSaveModifiedModel(modifiedScene);

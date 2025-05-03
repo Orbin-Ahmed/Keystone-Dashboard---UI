@@ -40,6 +40,8 @@ const LIGHT_PRESETS: {
 };
 
 interface LightPresetSelectorProps {
+  preset: LightPresetValue;
+  onPresetChange: (preset: LightPresetValue) => void;
   manualColor: string;
   manualStrength: number;
   onChange: (color: string, strength: number) => void;
@@ -49,9 +51,9 @@ const LightPresetSelector: React.FC<LightPresetSelectorProps> = ({
   manualColor,
   manualStrength,
   onChange,
+  preset,
+  onPresetChange,
 }) => {
-  const [preset, setPreset] = useState<LightPresetValue>("custom");
-
   useEffect(() => {
     if (preset === "custom") {
       onChange(manualColor, manualStrength);
@@ -62,9 +64,8 @@ const LightPresetSelector: React.FC<LightPresetSelectorProps> = ({
     if (config) onChange(config.emissionColor, config.emissionStrength);
   }, [preset, manualColor, manualStrength]);
 
-  // Remove light (strength=0)
   const handleRemove = () => {
-    setPreset("custom");
+    onPresetChange("custom");
     onChange(manualColor, 0);
   };
 
@@ -72,7 +73,6 @@ const LightPresetSelector: React.FC<LightPresetSelectorProps> = ({
     <div>
       {(["spotLight", "wallLight", "hiddenLight"] as LightCategory[]).map(
         (category) => {
-          // derive presets for this category
           const names = Object.keys(LIGHT_PRESETS[category]) as string[];
           return (
             <div key={category} className="mb-4">
@@ -81,7 +81,9 @@ const LightPresetSelector: React.FC<LightPresetSelectorProps> = ({
               </h4>
               <SegmentedControl.Root
                 value={preset.startsWith(category) ? preset : "custom"}
-                onValueChange={(value: LightPresetValue) => setPreset(value)}
+                onValueChange={(value: LightPresetValue) =>
+                  onPresetChange(value)
+                }
                 className="w-full"
               >
                 {names.map((name) => (
