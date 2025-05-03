@@ -141,12 +141,9 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
   const handleApplyLight = () => {
     if (selectedGroups.length === 0) return;
 
-    const newCust = { ...customizations };
+    const newCustomizations = { ...customizations };
     selectedGroups.forEach((group) => {
-      if (!newCust[group.groupName]) return;
-
-      newCust[group.groupName] = {
-        ...newCust[group.groupName],
+      newCustomizations[group.groupName] = {
         emissionColor:
           localEmissionColor !== "#000000" ? localEmissionColor : undefined,
         emissionStrength:
@@ -156,13 +153,13 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
 
     const newHistory = history.slice(0, currentHistoryIndex + 1);
     newHistory.push({
-      customizations: newCust,
+      customizations: newCustomizations,
       timestamp: Date.now(),
     });
 
     setHistory(newHistory);
     setCurrentHistoryIndex(newHistory.length - 1);
-    setCustomizations(newCust);
+    setCustomizations(newCustomizations);
   };
 
   const handleRevert = () => {
