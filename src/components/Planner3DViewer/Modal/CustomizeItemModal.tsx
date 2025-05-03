@@ -141,9 +141,12 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
   const handleApplyLight = () => {
     if (selectedGroups.length === 0) return;
 
-    const newCustomizations = { ...customizations };
+    const newCust = { ...customizations };
     selectedGroups.forEach((group) => {
-      newCustomizations[group.groupName] = {
+      if (!newCust[group.groupName]) return;
+
+      newCust[group.groupName] = {
+        ...newCust[group.groupName],
         emissionColor:
           localEmissionColor !== "#000000" ? localEmissionColor : undefined,
         emissionStrength:
@@ -153,13 +156,13 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
 
     const newHistory = history.slice(0, currentHistoryIndex + 1);
     newHistory.push({
-      customizations: newCustomizations,
+      customizations: newCust,
       timestamp: Date.now(),
     });
 
     setHistory(newHistory);
     setCurrentHistoryIndex(newHistory.length - 1);
-    setCustomizations(newCustomizations);
+    setCustomizations(newCust);
   };
 
   const handleRevert = () => {
@@ -278,6 +281,16 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
       viewerRef.current.removeSelectedGroups();
     }
   };
+
+  useEffect(() => {
+    if (
+      activeTab === "light" &&
+      selectedGroups.length > 0 &&
+      localEmissionStrength > 0
+    ) {
+      handleApplyLight();
+    }
+  }, [localEmissionColor, localEmissionStrength, activeTab, selectedGroups]);
 
   const canRevert = currentHistoryIndex >= 0;
 
@@ -633,35 +646,36 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
                 />
 
                 {/* manual controls */}
-                {lightPreset === "custom" && (
-                  <>
-                    <div className="mb-4">
-                      <label className="mb-1 block">Emission Color:</label>
-                      <input
-                        type="color"
-                        value={localEmissionColor}
-                        onChange={(e) => setLocalEmissionColor(e.target.value)}
-                        className="h-10 w-full"
-                      />
-                    </div>
-                    <div className="mb-6">
-                      <label className="mb-1 block">
-                        Emission Strength: {localEmissionStrength}
-                      </label>
-                      <input
-                        type="range"
-                        min={0}
-                        max={5000}
-                        step={1}
-                        value={localEmissionStrength}
-                        onChange={(e) =>
-                          setLocalEmissionStrength(Number(e.target.value))
-                        }
-                        className="w-full"
-                      />
-                    </div>
-                  </>
-                )}
+
+                <div className="mb-4">
+                  <label className="mb-1 block">Emission Color:</label>
+                  <input
+                    type="color"
+                    value={localEmissionColor}
+                    onChange={(e) => {
+                      setLightPreset("custom");
+                      setLocalEmissionColor(e.target.value);
+                    }}
+                    className="h-10 w-full"
+                  />
+                </div>
+                <div className="mb-6">
+                  <label className="mb-1 block">
+                    Emission Strength: {localEmissionStrength}
+                  </label>
+                  <input
+                    type="range"
+                    min={0}
+                    max={5000}
+                    step={1}
+                    value={localEmissionStrength}
+                    onChange={(e) => {
+                      setLightPreset("custom");
+                      setLocalEmissionStrength(Number(e.target.value));
+                    }}
+                    className="w-full"
+                  />
+                </div>
               </>
             )}
 

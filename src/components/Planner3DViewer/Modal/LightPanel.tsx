@@ -56,7 +56,6 @@ const LightPresetSelector: React.FC<LightPresetSelectorProps> = ({
 }) => {
   useEffect(() => {
     if (preset === "custom") {
-      onChange(manualColor, manualStrength);
       return;
     }
     const [category, name] = preset.split("-") as [LightCategory, any];
@@ -66,7 +65,7 @@ const LightPresetSelector: React.FC<LightPresetSelectorProps> = ({
 
   const handleRemove = () => {
     onPresetChange("custom");
-    onChange(manualColor, 0);
+    onChange("#000000", 0);
   };
 
   return (
