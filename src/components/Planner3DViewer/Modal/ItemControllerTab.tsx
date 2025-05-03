@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import CustomButton from "@/components/CustomButton";
 import { SelectionType } from "./ItemCustomizationViewer";
+import { RiDeleteBinLine } from "react-icons/ri";
+import { SiTicktick } from "react-icons/si";
+import { TbRotate360 } from "react-icons/tb";
 
 export interface ItemControllerTabProps {
   selectedGroups: SelectionType[];
@@ -40,12 +43,14 @@ const ItemControllerTab: React.FC<ItemControllerTabProps> = ({
         <h3 className="font-semibold">
           Move Selected (&nbsp;{selectedGroups.length}&nbsp;)
         </h3>
-        <div className="mt-2 flex gap-4">
+        <div className="mt-2 flex items-center gap-4">
           {(["x", "y", "z"] as const).map((axis) => (
             <div key={axis} className="flex flex-col items-center">
               <label className="text-sm uppercase">{axis}</label>
               <input
                 type="number"
+                min={-10}
+                max={10}
                 value={move[axis]}
                 onChange={(e) =>
                   handleMoveChange(axis, parseFloat(e.target.value))
@@ -54,26 +59,32 @@ const ItemControllerTab: React.FC<ItemControllerTabProps> = ({
               />
             </div>
           ))}
+
+          <CustomButton
+            onClick={() => {
+              onMove(move);
+              setMove({ x: 0, y: 0, z: 0 });
+            }}
+            variant="secondary"
+            className="mt-4"
+          >
+            <SiTicktick />
+          </CustomButton>
         </div>
-        <CustomButton
-          onClick={() => onMove(move)}
-          variant="secondary"
-          className="mt-3"
-        >
-          Apply Move
-        </CustomButton>
       </div>
 
       <div>
         <h3 className="font-semibold">
           Rotate Selected (&nbsp;{selectedGroups.length}&nbsp;)
         </h3>
-        <div className="mt-2 flex gap-4">
+        <div className="mt-2 flex items-center gap-4">
           {(["x", "y", "z"] as const).map((axis) => (
             <div key={axis} className="flex flex-col items-center">
               <label className="text-sm uppercase">{axis}</label>
               <input
                 type="number"
+                min={-360}
+                max={360}
                 value={rotate[axis]}
                 onChange={(e) =>
                   handleRotateChange(axis, parseFloat(e.target.value))
@@ -82,20 +93,28 @@ const ItemControllerTab: React.FC<ItemControllerTabProps> = ({
               />
             </div>
           ))}
+          <CustomButton
+            onClick={() => {
+              onRotate(rotate);
+              setRotate({ x: 0, y: 0, z: 0 });
+            }}
+            variant="secondary"
+            className="mt-4"
+          >
+            <TbRotate360 />
+          </CustomButton>
         </div>
-        <CustomButton
-          onClick={() => onRotate(rotate)}
-          variant="secondary"
-          className="mt-3"
-        >
-          Apply Rotation
-        </CustomButton>
       </div>
 
       <div>
-        <CustomButton onClick={onRemove} variant="secondary">
-          Remove Selected (&nbsp;{selectedGroups.length}&nbsp;)
-        </CustomButton>
+        <h3 className="font-semibold">
+          Delete Selected (&nbsp;{selectedGroups.length}&nbsp;)
+        </h3>
+        <div>
+          <CustomButton onClick={onRemove} variant="secondary" className="mt-4">
+            <RiDeleteBinLine />
+          </CustomButton>
+        </div>
       </div>
     </div>
   );
