@@ -61,12 +61,7 @@ const LightPresetSelector: React.FC<LightPresetSelectorProps> = ({
     const [category, name] = preset.split("-") as [LightCategory, any];
     const config = (LIGHT_PRESETS[category] as any)[name];
     if (config) onChange(config.emissionColor, config.emissionStrength);
-  }, [preset, manualColor, manualStrength]);
-
-  const handleRemove = () => {
-    onPresetChange("custom");
-    onChange("#000000", 0);
-  };
+  }, [preset]);
 
   return (
     <div>
@@ -101,14 +96,6 @@ const LightPresetSelector: React.FC<LightPresetSelectorProps> = ({
           );
         },
       )}
-
-      <button
-        type="button"
-        className="hover:bg-gray-100 mt-2 rounded border px-4 py-2"
-        onClick={handleRemove}
-      >
-        Remove Light
-      </button>
     </div>
   );
 };

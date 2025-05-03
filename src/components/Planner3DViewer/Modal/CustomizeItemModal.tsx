@@ -282,15 +282,11 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
     }
   };
 
-  useEffect(() => {
-    if (
-      activeTab === "light" &&
-      selectedGroups.length > 0 &&
-      localEmissionStrength > 0
-    ) {
-      handleApplyLight();
-    }
-  }, [localEmissionColor, localEmissionStrength, activeTab, selectedGroups]);
+  const handleLightRemove = () => {
+    setLightPreset("custom");
+    setLocalEmissionColor("#000000");
+    setLocalEmissionStrength(0);
+  };
 
   const canRevert = currentHistoryIndex >= 0;
 
@@ -676,6 +672,20 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
                     className="w-full"
                   />
                 </div>
+                <div className="flex items-center justify-between">
+                  <CustomButton
+                    variant="tertiary"
+                    onClick={handleApplyLight}
+                    disabled={
+                      selectedGroups.length === 0 || localEmissionStrength === 0
+                    }
+                  >
+                    Preview Light
+                  </CustomButton>
+                  <CustomButton variant="tertiary" onClick={handleLightRemove}>
+                    Remove Light
+                  </CustomButton>
+                </div>
               </>
             )}
 
@@ -692,9 +702,6 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
             <div className="mt-4">
               <CustomButton
                 onClick={async () => {
-                  if (activeTab === "light") {
-                    handleApplyLight();
-                  }
                   let newItemName = "";
                   if (modifiedScene) {
                     newItemName = await handleSaveModifiedModel(modifiedScene);
