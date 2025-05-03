@@ -29,12 +29,6 @@ const ItemControllerTab: React.FC<ItemControllerTabProps> = ({
     y: 0,
     z: 0,
   });
-  const [moveHistory, setMoveHistory] = useState<
-    { x: number; y: number; z: number }[]
-  >([]);
-  const [rotateHistory, setRotateHistory] = useState<
-    { x: number; y: number; z: number }[]
-  >([]);
 
   const handleMoveChange = (axis: keyof typeof move, value: number) => {
     setMove((prev) => ({ ...prev, [axis]: value }));
@@ -46,30 +40,12 @@ const ItemControllerTab: React.FC<ItemControllerTabProps> = ({
 
   const applyMove = () => {
     onMove(move);
-    setMoveHistory((h) => [...h, move]);
     setMove({ x: 0, y: 0, z: 0 });
   };
 
   const applyRotate = () => {
     onRotate(rotate);
-    setRotateHistory((h) => [...h, rotate]);
     setRotate({ x: 0, y: 0, z: 0 });
-  };
-
-  const revertMove = () => {
-    if (moveHistory.length === 0) return;
-    const last = moveHistory[moveHistory.length - 1];
-    const inv = { x: -last.x, y: -last.y, z: -last.z };
-    onMove(inv);
-    setMoveHistory((h) => h.slice(0, -1));
-  };
-
-  const revertRotate = () => {
-    if (rotateHistory.length === 0) return;
-    const last = rotateHistory[rotateHistory.length - 1];
-    const inv = { x: -last.x, y: -last.y, z: -last.z };
-    onRotate(inv);
-    setRotateHistory((h) => h.slice(0, -1));
   };
 
   return (
@@ -77,14 +53,6 @@ const ItemControllerTab: React.FC<ItemControllerTabProps> = ({
       <div>
         <h3 className="flex items-center gap-2 font-semibold">
           Move Selected (&nbsp;{selectedGroups.length}&nbsp;)
-          <CustomButton
-            onClick={revertMove}
-            variant="tertiary"
-            disabled={history.length === 0}
-            className="px-2 py-1.5"
-          >
-            <FaUndo />
-          </CustomButton>
         </h3>
         <div className="mt-2 flex items-center gap-4">
           {(["x", "y", "z"] as const).map((axis) => (
@@ -116,14 +84,6 @@ const ItemControllerTab: React.FC<ItemControllerTabProps> = ({
       <div>
         <h3 className="flex items-center gap-2 font-semibold">
           Rotate Selected (&nbsp;{selectedGroups.length}&nbsp;)
-          <CustomButton
-            onClick={revertRotate}
-            variant="tertiary"
-            disabled={history.length === 0}
-            className="px-2 py-1.5"
-          >
-            <FaUndo />
-          </CustomButton>
         </h3>
         <div className="mt-2 flex items-center gap-4">
           {(["x", "y", "z"] as const).map((axis) => (
