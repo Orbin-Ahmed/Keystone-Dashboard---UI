@@ -265,7 +265,10 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
             <GrClose />
           </button>
         </div>
-
+        <p className="float-right">
+          Click a part in the 3D viewer to select a group (hold <b>Ctrl</b> for
+          multiple selection).
+        </p>
         {/* Tab Navigation */}
         <div className="mb-4 border-b">
           <ul className="flex flex-wrap">
@@ -343,8 +346,8 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
                   </div>
                 ) : (
                   <p className="mb-4">
-                    Click a part in the 3D viewer to select a group (hold Ctrl
-                    for multiple selection).
+                    {/* Click a part in the 3D viewer to select a group (hold Ctrl
+                    for multiple selection). */}
                   </p>
                 )}
 
