@@ -27,7 +27,7 @@ interface CustomizeItemModalProps {
   item?: PlacedItemType;
 }
 
-type TabType = "customize" | "control";
+type TabType = "customize" | "control" | "light";
 
 const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
   modelPath,
@@ -273,7 +273,7 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
               <button
                 className={`inline-block p-4 ${
                   activeTab === "customize"
-                    ? "border-b-2 border-blue-600 text-blue-600"
+                    ? "border-b-2 border-primary text-primary"
                     : "hover:border-gray-300 hover:text-gray-600 hover:border-b-2"
                 }`}
                 onClick={() => setActiveTab("customize")}
@@ -284,8 +284,20 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
             <li className="mr-2">
               <button
                 className={`inline-block p-4 ${
+                  activeTab === "light"
+                    ? "border-b-2 border-primary text-primary"
+                    : "hover:border-gray-300 hover:text-gray-600 hover:border-b-2"
+                }`}
+                onClick={() => setActiveTab("light")}
+              >
+                Light
+              </button>
+            </li>
+            <li className="mr-2">
+              <button
+                className={`inline-block p-4 ${
                   activeTab === "control"
-                    ? "border-b-2 border-blue-600 text-blue-600"
+                    ? "border-b-2 border-primary text-primary"
                     : "hover:border-gray-300 hover:text-gray-600 hover:border-b-2"
                 }`}
                 onClick={() => setActiveTab("control")}
@@ -309,7 +321,7 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
           </div>
 
           <div className="mt-4 w-full md:mt-0 md:w-1/3 md:pl-4">
-            {activeTab === "customize" ? (
+            {activeTab === "customize" && (
               <>
                 {selectedGroups.length > 0 ? (
                   <div className="mb-4">
@@ -385,36 +397,7 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
                   />
                 </div>
 
-                {selectedGroups.length > 0 && (
-                  <>
-                    <div className="mb-4">
-                      <label className="mb-1 block">Emission Color:</label>
-                      <input
-                        type="color"
-                        value={localEmissionColor}
-                        onChange={(e) => setLocalEmissionColor(e.target.value)}
-                        className="h-10 w-full"
-                      />
-                    </div>
-                    <div className="mb-6">
-                      <label className="mb-1 block">
-                        Emission Strength: {localEmissionStrength}
-                      </label>
-                      <input
-                        type="range"
-                        min={0}
-                        max={5000}
-                        step={1}
-                        value={localEmissionStrength}
-                        onChange={(e) =>
-                          setLocalEmissionStrength(Number(e.target.value))
-                        }
-                        className="w-full"
-                      />
-                    </div>
-                  </>
-                )}
-
+                {/* Texuture area  */}
                 <div className="mb-4">
                   <label className="mb-1 block">Upload Texture:</label>
                   <input
@@ -601,7 +584,39 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
                   )}
                 </div>
               </>
-            ) : (
+            )}
+
+            {activeTab === "light" && (
+              <>
+                <div className="mb-4">
+                  <label className="mb-1 block">Emission Color:</label>
+                  <input
+                    type="color"
+                    value={localEmissionColor}
+                    onChange={(e) => setLocalEmissionColor(e.target.value)}
+                    className="h-10 w-full"
+                  />
+                </div>
+                <div className="mb-6">
+                  <label className="mb-1 block">
+                    Emission Strength: {localEmissionStrength}
+                  </label>
+                  <input
+                    type="range"
+                    min={0}
+                    max={5000}
+                    step={1}
+                    value={localEmissionStrength}
+                    onChange={(e) =>
+                      setLocalEmissionStrength(Number(e.target.value))
+                    }
+                    className="w-full"
+                  />
+                </div>
+              </>
+            )}
+
+            {activeTab === "control" && (
               <ItemControllerTab
                 selectedGroups={selectedGroups}
                 onMove={handleMove}
