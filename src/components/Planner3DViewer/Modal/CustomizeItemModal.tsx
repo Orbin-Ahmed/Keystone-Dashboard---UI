@@ -277,10 +277,34 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
   };
 
   const handleLightRemove = () => {
+    if (selectedGroups.length === 0) return;
+
     setLightPreset("custom");
     setLocalEmissionColor("#000000");
     setLocalEmissionStrength(0);
-    handleApplyLight();
+
+    const newCustomizations = { ...customizations };
+
+    selectedGroups.forEach((group) => {
+      if (newCustomizations[group.groupName]) {
+        const groupCustomization = { ...newCustomizations[group.groupName] };
+
+        delete groupCustomization.emissionColor;
+        delete groupCustomization.emissionStrength;
+
+        newCustomizations[group.groupName] = groupCustomization;
+      }
+    });
+
+    const newHistory = history.slice(0, currentHistoryIndex + 1);
+    newHistory.push({
+      customizations: newCustomizations,
+      timestamp: Date.now(),
+    });
+
+    setHistory(newHistory);
+    setCurrentHistoryIndex(newHistory.length - 1);
+    setCustomizations(newCustomizations);
   };
 
   const canRevert = currentHistoryIndex >= 0;
