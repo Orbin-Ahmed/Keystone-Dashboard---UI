@@ -1454,128 +1454,128 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   //   };
   // }, []);
 
-  const convert2DTo3D = useCallback(
-    (item: any, isWallItem = false, isCeilingItem = false) => {
-      const id = item.id;
-      const name = item.name;
-      const type = name.toLowerCase().replace(/[-\s]/g, "_");
-      const path = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/${type}.glb`;
-      const rotationInRadians = -(item.rotation * Math.PI) / 180;
+  // const convert2DTo3D = useCallback(
+  //   (item: any, isWallItem = false, isCeilingItem = false) => {
+  //     const id = item.id;
+  //     const name = item.name;
+  //     const type = name.toLowerCase().replace(/[-\s]/g, "_");
+  //     const path = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/${type}.glb`;
+  //     const rotationInRadians = -(item.rotation * Math.PI) / 180;
 
-      const adjustedX =
-        item.x -
-        centerX +
-        (Math.cos(rotationInRadians) * item.width) / 2 +
-        (Math.sin(rotationInRadians) * item.depth) / 2;
+  //     const adjustedX =
+  //       item.x -
+  //       centerX +
+  //       (Math.cos(rotationInRadians) * item.width) / 2 +
+  //       (Math.sin(rotationInRadians) * item.depth) / 2;
 
-      const adjustedZ =
-        item.y -
-        centerY -
-        (Math.sin(rotationInRadians) * item.width) / 2 +
-        (Math.cos(rotationInRadians) * item.depth) / 2;
+  //     const adjustedZ =
+  //       item.y -
+  //       centerY -
+  //       (Math.sin(rotationInRadians) * item.width) / 2 +
+  //       (Math.cos(rotationInRadians) * item.depth) / 2;
 
-      let zPosition = item.z || 0;
+  //     let zPosition = item.z || 0;
 
-      if (isCeilingItem) {
-        zPosition = item.z || wallHeightSetting - item.height - 0.01;
-      }
+  //     if (isCeilingItem) {
+  //       zPosition = item.z || wallHeightSetting - item.height - 0.01;
+  //     }
 
-      const position = [adjustedX, zPosition, adjustedZ];
+  //     const position = [adjustedX, zPosition, adjustedZ];
 
-      const rotation = [
-        item.rotationX || 0,
-        rotationInRadians,
-        item.rotationZ || 0,
-      ];
+  //     const rotation = [
+  //       item.rotationX || 0,
+  //       rotationInRadians,
+  //       item.rotationZ || 0,
+  //     ];
 
-      const mirror = [item.mirrorX || 1, item.mirrorY || 1, item.mirrorZ || 1];
+  //     const mirror = [item.mirrorX || 1, item.mirrorY || 1, item.mirrorZ || 1];
 
-      return {
-        id,
-        name,
-        type,
-        path,
-        width: item.width,
-        height: item.height,
-        depth: item.depth,
-        position,
-        rotation,
-        category: item.category,
-        mirror,
-      };
-    },
-    [centerX, centerY, wallHeightSetting],
-  );
+  //     return {
+  //       id,
+  //       name,
+  //       type,
+  //       path,
+  //       width: item.width,
+  //       height: item.height,
+  //       depth: item.depth,
+  //       position,
+  //       rotation,
+  //       category: item.category,
+  //       mirror,
+  //     };
+  //   },
+  //   [centerX, centerY, wallHeightSetting],
+  // );
 
-  useEffect(() => {
-    const existingIds = new Set(placedItems.map((item) => item.id));
+  // useEffect(() => {
+  //   const existingIds = new Set(placedItems.map((item) => item.id));
 
-    const newPlacedItems = furnitureItems
-      .filter((item) => !existingIds.has(item.id))
-      .map((item) => convert2DTo3D(item)) as PlacedItemType[];
+  //   const newPlacedItems = furnitureItems
+  //     .filter((item) => !existingIds.has(item.id))
+  //     .map((item) => convert2DTo3D(item)) as PlacedItemType[];
 
-    if (newPlacedItems.length > 0) {
-      setPlacedItems((prev) => [...prev, ...newPlacedItems]);
-    }
-  }, [furnitureItems, convert2DTo3D]);
+  //   if (newPlacedItems.length > 0) {
+  //     setPlacedItems((prev) => [...prev, ...newPlacedItems]);
+  //   }
+  // }, [furnitureItems, convert2DTo3D]);
 
-  useEffect(() => {
-    const existingIds = new Set(wallItems.map((item) => item.id));
+  // useEffect(() => {
+  //   const existingIds = new Set(wallItems.map((item) => item.id));
 
-    const newWallItems = wallItems2D
-      .filter((item) => !existingIds.has(item.id))
-      .map((item) => convert2DTo3D(item, true)) as unknown as WallItem[];
+  //   const newWallItems = wallItems2D
+  //     .filter((item) => !existingIds.has(item.id))
+  //     .map((item) => convert2DTo3D(item, true)) as unknown as WallItem[];
 
-    if (newWallItems.length > 0) {
-      setWallItems((prev) => [...prev, ...newWallItems]);
-    }
-  }, [wallItems2D, convert2DTo3D]);
+  //   if (newWallItems.length > 0) {
+  //     setWallItems((prev) => [...prev, ...newWallItems]);
+  //   }
+  // }, [wallItems2D, convert2DTo3D]);
 
-  useEffect(() => {
-    const existingIds = new Set(placedItems.map((item) => item.id));
+  // useEffect(() => {
+  //   const existingIds = new Set(placedItems.map((item) => item.id));
 
-    const newCeilingPlaced = ceilingItems
-      .filter((item) => !existingIds.has(item.id))
-      .map((item) => convert2DTo3D(item, false, true)) as PlacedItemType[];
+  //   const newCeilingPlaced = ceilingItems
+  //     .filter((item) => !existingIds.has(item.id))
+  //     .map((item) => convert2DTo3D(item, false, true)) as PlacedItemType[];
 
-    if (newCeilingPlaced.length > 0) {
-      setPlacedItems((prev) => [...prev, ...newCeilingPlaced]);
-    }
-  }, [ceilingItems, convert2DTo3D]);
+  //   if (newCeilingPlaced.length > 0) {
+  //     setPlacedItems((prev) => [...prev, ...newCeilingPlaced]);
+  //   }
+  // }, [ceilingItems, convert2DTo3D]);
 
-  const handleItemUpdate = useCallback((itemId: string, newName: any) => {
-    setPlacedItems((prev) =>
-      prev.map((p) => {
-        if (p.id === itemId) {
-          const updatedType = newName.toLowerCase().replace(/[-\s]/g, "_");
-          const updatedPath = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/${updatedType}.glb`;
-          return {
-            ...p,
-            name: newName,
-            type: updatedType,
-            path: updatedPath,
-          };
-        }
-        return p;
-      }),
-    );
+  // const handleItemUpdate = useCallback((itemId: string, newName: any) => {
+  //   setPlacedItems((prev) =>
+  //     prev.map((p) => {
+  //       if (p.id === itemId) {
+  //         const updatedType = newName.toLowerCase().replace(/[-\s]/g, "_");
+  //         const updatedPath = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/${updatedType}.glb`;
+  //         return {
+  //           ...p,
+  //           name: newName,
+  //           type: updatedType,
+  //           path: updatedPath,
+  //         };
+  //       }
+  //       return p;
+  //     }),
+  //   );
 
-    setWallItems((prev) =>
-      prev.map((p) => {
-        if (p.id === itemId) {
-          const updatedType = newName.toLowerCase().replace(/[-\s]/g, "_");
-          const updatedPath = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/${updatedType}.glb`;
-          return {
-            ...p,
-            name: newName,
-            type: updatedType,
-            path: updatedPath,
-          };
-        }
-        return p;
-      }),
-    );
-  }, []);
+  //   setWallItems((prev) =>
+  //     prev.map((p) => {
+  //       if (p.id === itemId) {
+  //         const updatedType = newName.toLowerCase().replace(/[-\s]/g, "_");
+  //         const updatedPath = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/${updatedType}.glb`;
+  //         return {
+  //           ...p,
+  //           name: newName,
+  //           type: updatedType,
+  //           path: updatedPath,
+  //         };
+  //       }
+  //       return p;
+  //     }),
+  //   );
+  // }, []);
 
   return (
     <>
@@ -1904,7 +1904,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
                   c.id === selectedItem.id ? { ...c, name: newItemName } : c,
                 ),
               );
-              handleItemUpdate(selectedItem.id, newItemName);
+              // handleItemUpdate(selectedItem.id, newItemName);
             }
             console.log("Customizations applied:", customizations);
           }}
@@ -1955,7 +1955,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
                     : w,
                 ),
               );
-              handleItemUpdate(selectedWallItem.id, newItemName);
+              // handleItemUpdate(selectedWallItem.id, newItemName);
             }
             console.log("Customizations applied:", customizations);
           }}
