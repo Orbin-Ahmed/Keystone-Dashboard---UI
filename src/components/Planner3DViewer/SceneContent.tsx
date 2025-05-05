@@ -866,171 +866,171 @@ const SceneContent: React.FC<SceneContentProps> = ({
   );
 
   // Floor Item Placement
-  useEffect(() => {
-    const newPlacedItems = furnitureItems.map((item) => {
-      const id = item.id;
-      const name = item.name;
-      const type = name.toLowerCase().replace(/[-\s]/g, "_");
-      const path = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/${type}.glb`;
-      const rotationInRadians = -(item.rotation * Math.PI) / 180;
+  // useEffect(() => {
+  //   const newPlacedItems = furnitureItems.map((item) => {
+  //     const id = item.id;
+  //     const name = item.name;
+  //     const type = name.toLowerCase().replace(/[-\s]/g, "_");
+  //     const path = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/${type}.glb`;
+  //     const rotationInRadians = -(item.rotation * Math.PI) / 180;
 
-      const adjustedX =
-        item.x -
-        centerX +
-        (Math.cos(rotationInRadians) * item.width) / 2 +
-        (Math.sin(rotationInRadians) * item.depth) / 2;
+  //     const adjustedX =
+  //       item.x -
+  //       centerX +
+  //       (Math.cos(rotationInRadians) * item.width) / 2 +
+  //       (Math.sin(rotationInRadians) * item.depth) / 2;
 
-      const adjustedZ =
-        item.y -
-        centerY -
-        (Math.sin(rotationInRadians) * item.width) / 2 +
-        (Math.cos(rotationInRadians) * item.depth) / 2;
+  //     const adjustedZ =
+  //       item.y -
+  //       centerY -
+  //       (Math.sin(rotationInRadians) * item.width) / 2 +
+  //       (Math.cos(rotationInRadians) * item.depth) / 2;
 
-      const position: [number, number, number] = [
-        adjustedX,
-        item.z || 0,
-        adjustedZ,
-      ];
-      const rotation: [number, number, number] = [
-        item.rotationX || 0,
-        rotationInRadians,
-        item.rotationZ || 0,
-      ];
+  //     const position: [number, number, number] = [
+  //       adjustedX,
+  //       item.z || 0,
+  //       adjustedZ,
+  //     ];
+  //     const rotation: [number, number, number] = [
+  //       item.rotationX || 0,
+  //       rotationInRadians,
+  //       item.rotationZ || 0,
+  //     ];
 
-      const mirror: [number, number, number] = [
-        item.mirrorX || 1,
-        item.mirrorY || 1,
-        item.mirrorZ || 1,
-      ];
+  //     const mirror: [number, number, number] = [
+  //       item.mirrorX || 1,
+  //       item.mirrorY || 1,
+  //       item.mirrorZ || 1,
+  //     ];
 
-      return {
-        id,
-        name,
-        type,
-        path,
-        width: item.width,
-        height: item.height,
-        depth: item.depth,
-        position,
-        rotation,
-        category: item.category,
-        mirror,
-      };
-    });
+  //     return {
+  //       id,
+  //       name,
+  //       type,
+  //       path,
+  //       width: item.width,
+  //       height: item.height,
+  //       depth: item.depth,
+  //       position,
+  //       rotation,
+  //       category: item.category,
+  //       mirror,
+  //     };
+  //   });
 
-    setPlacedItems((prevPlacedItems) => [
-      ...prevPlacedItems,
-      ...newPlacedItems,
-    ]);
-  }, []);
+  //   setPlacedItems((prevPlacedItems) => [
+  //     ...prevPlacedItems,
+  //     ...newPlacedItems,
+  //   ]);
+  // }, []);
 
   // Wall Items Placment
-  useEffect(() => {
-    const newWallItems = wallItems2D.map((item) => {
-      const id = item.id;
-      const name = item.name;
-      const type = name.toLowerCase().replace(/[-\s]/g, "_");
-      const path = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/${type}.glb`;
-      const rotationInRadians = -(item.rotation * Math.PI) / 180;
+  // useEffect(() => {
+  //   const newWallItems = wallItems2D.map((item) => {
+  //     const id = item.id;
+  //     const name = item.name;
+  //     const type = name.toLowerCase().replace(/[-\s]/g, "_");
+  //     const path = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/${type}.glb`;
+  //     const rotationInRadians = -(item.rotation * Math.PI) / 180;
 
-      const adjustedX =
-        item.x -
-        centerX +
-        (Math.cos(rotationInRadians) * item.width) / 2 +
-        (Math.sin(rotationInRadians) * item.depth) / 2;
+  //     const adjustedX =
+  //       item.x -
+  //       centerX +
+  //       (Math.cos(rotationInRadians) * item.width) / 2 +
+  //       (Math.sin(rotationInRadians) * item.depth) / 2;
 
-      const adjustedZ =
-        item.y -
-        centerY -
-        (Math.sin(rotationInRadians) * item.width) / 2 +
-        (Math.cos(rotationInRadians) * item.depth) / 2;
+  //     const adjustedZ =
+  //       item.y -
+  //       centerY -
+  //       (Math.sin(rotationInRadians) * item.width) / 2 +
+  //       (Math.cos(rotationInRadians) * item.depth) / 2;
 
-      const position: [number, number, number] = [adjustedX, item.z, adjustedZ];
+  //     const position: [number, number, number] = [adjustedX, item.z, adjustedZ];
 
-      const rotation: [number, number, number] = [
-        item.rotationX || 0,
-        rotationInRadians,
-        item.rotationZ || 0,
-      ];
+  //     const rotation: [number, number, number] = [
+  //       item.rotationX || 0,
+  //       rotationInRadians,
+  //       item.rotationZ || 0,
+  //     ];
 
-      const mirror: [number, number, number] = [
-        item.mirrorX || 1,
-        item.mirrorY || 1,
-        item.mirrorZ || 1,
-      ];
+  //     const mirror: [number, number, number] = [
+  //       item.mirrorX || 1,
+  //       item.mirrorY || 1,
+  //       item.mirrorZ || 1,
+  //     ];
 
-      return {
-        id,
-        name,
-        type,
-        path,
-        width: item.width,
-        height: item.height,
-        depth: item.depth,
-        position,
-        rotation,
-        category: item.category,
-        mirror,
-      };
-    });
+  //     return {
+  //       id,
+  //       name,
+  //       type,
+  //       path,
+  //       width: item.width,
+  //       height: item.height,
+  //       depth: item.depth,
+  //       position,
+  //       rotation,
+  //       category: item.category,
+  //       mirror,
+  //     };
+  //   });
 
-    setWallItems((prevPlacedItems) => [...prevPlacedItems, ...newWallItems]);
-  }, []);
+  //   setWallItems((prevPlacedItems) => [...prevPlacedItems, ...newWallItems]);
+  // }, []);
 
   // Ceiling Item Placement
-  useEffect(() => {
-    const newCeilingPlaced = ceilingItems.map((item) => {
-      const id = item.id;
-      const name = item.name;
-      const type = name.toLowerCase().replace(/[-\s]/g, "_");
-      const path = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/${type}.glb`;
+  // useEffect(() => {
+  //   const newCeilingPlaced = ceilingItems.map((item) => {
+  //     const id = item.id;
+  //     const name = item.name;
+  //     const type = name.toLowerCase().replace(/[-\s]/g, "_");
+  //     const path = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/${type}.glb`;
 
-      const rotationInRadians = -(item.rotation * Math.PI) / 180;
-      const adjustedX =
-        item.x -
-        centerX +
-        (Math.cos(rotationInRadians) * item.width) / 2 +
-        (Math.sin(rotationInRadians) * item.depth) / 2;
+  //     const rotationInRadians = -(item.rotation * Math.PI) / 180;
+  //     const adjustedX =
+  //       item.x -
+  //       centerX +
+  //       (Math.cos(rotationInRadians) * item.width) / 2 +
+  //       (Math.sin(rotationInRadians) * item.depth) / 2;
 
-      const adjustedZ =
-        item.y -
-        centerY -
-        (Math.sin(rotationInRadians) * item.width) / 2 +
-        (Math.cos(rotationInRadians) * item.depth) / 2;
+  //     const adjustedZ =
+  //       item.y -
+  //       centerY -
+  //       (Math.sin(rotationInRadians) * item.width) / 2 +
+  //       (Math.cos(rotationInRadians) * item.depth) / 2;
 
-      const position: [number, number, number] = [
-        adjustedX,
-        item.z || wallHeight - item.height - 0.01,
-        adjustedZ,
-      ];
-      const rotation: [number, number, number] = [
-        item.rotationX || 0,
-        rotationInRadians,
-        item.rotationZ || 0,
-      ];
+  //     const position: [number, number, number] = [
+  //       adjustedX,
+  //       item.z || wallHeight - item.height - 0.01,
+  //       adjustedZ,
+  //     ];
+  //     const rotation: [number, number, number] = [
+  //       item.rotationX || 0,
+  //       rotationInRadians,
+  //       item.rotationZ || 0,
+  //     ];
 
-      const mirror: [number, number, number] = [
-        item.mirrorX || 1,
-        item.mirrorY || 1,
-        item.mirrorZ || 1,
-      ];
+  //     const mirror: [number, number, number] = [
+  //       item.mirrorX || 1,
+  //       item.mirrorY || 1,
+  //       item.mirrorZ || 1,
+  //     ];
 
-      return {
-        id,
-        name,
-        type,
-        path,
-        width: item.width,
-        height: item.height,
-        depth: item.depth,
-        position,
-        rotation,
-        category: item.category,
-        mirror,
-      };
-    });
-    setPlacedItems((prev) => [...prev, ...newCeilingPlaced]);
-  }, []);
+  //     return {
+  //       id,
+  //       name,
+  //       type,
+  //       path,
+  //       width: item.width,
+  //       height: item.height,
+  //       depth: item.depth,
+  //       position,
+  //       rotation,
+  //       category: item.category,
+  //       mirror,
+  //     };
+  //   });
+  //   setPlacedItems((prev) => [...prev, ...newCeilingPlaced]);
+  // }, []);
 
   useEffect(() => {
     if (envMap && (showRoof || shouldExport) && !shouldExport) {
