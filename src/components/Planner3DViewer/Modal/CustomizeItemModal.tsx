@@ -701,9 +701,9 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
                   >
                     Preview Light
                   </CustomButton>
-                  <CustomButton variant="tertiary" onClick={handleLightRemove}>
+                  {/* <CustomButton variant="tertiary" onClick={handleLightRemove}>
                     Remove Light
-                  </CustomButton>
+                  </CustomButton> */}
                 </div>
               </>
             )}
