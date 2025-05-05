@@ -203,17 +203,21 @@ const ModelViewer = forwardRef<ModelViewerHandle, ModelViewerProps>(
                   ? adjustBrightness(cust.color, cust.brightness)
                   : cust.color;
 
-              child.material = new THREE.MeshStandardMaterial({
+              const material = new THREE.MeshStandardMaterial({
                 color: adjustedColor,
                 transparent: hasCustomOpacity,
                 opacity: hasCustomOpacity ? cust.opacity! / 100 : 1.0,
               });
-              const mat = child.material as THREE.MeshStandardMaterial;
-              if (cust.emissionColor)
-                mat.emissive = new THREE.Color(cust.emissionColor);
-              if (cust.emissionStrength !== undefined)
-                mat.emissiveIntensity = cust.emissionStrength;
-              mat.needsUpdate = true;
+
+              if (cust.emissionColor) {
+                material.emissive = new THREE.Color(cust.emissionColor);
+              }
+              if (cust.emissionStrength !== undefined) {
+                material.emissiveIntensity = cust.emissionStrength;
+              }
+              material.needsUpdate = true;
+
+              child.material = material;
             } else {
               const origMat = originalMaterials.get(child.uuid);
               if (origMat) {
@@ -223,18 +227,19 @@ const ModelViewer = forwardRef<ModelViewerHandle, ModelViewerProps>(
                   clonedMat.transparent = true;
                   clonedMat.opacity = cust.opacity! / 100;
                 }
+                if (clonedMat instanceof THREE.MeshStandardMaterial) {
+                  if (cust.emissionColor !== undefined) {
+                    clonedMat.emissive = new THREE.Color(cust.emissionColor);
+                  }
+                  if (cust.emissionStrength !== undefined) {
+                    clonedMat.emissiveIntensity = cust.emissionStrength;
+                  }
+                }
+                clonedMat.needsUpdate = true;
 
                 child.material = clonedMat;
               }
             }
-            const mat = child.material as THREE.MeshStandardMaterial;
-            if (cust.emissionColor !== undefined) {
-              mat.emissive = new THREE.Color(cust.emissionColor);
-            }
-            if (cust.emissionStrength !== undefined) {
-              mat.emissiveIntensity = cust.emissionStrength;
-            }
-            mat.needsUpdate = true;
           }
         });
       });
