@@ -32,7 +32,9 @@ const Register = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    toast.error("Registration Is Not Allowed, Please Contact Admin!");
+    toast.error(
+      "Registration is not available at this time. Please reach out to the administrator for further support.",
+    );
     return;
     // const { username, email, password, re_password } = formData;
 
