@@ -32,22 +32,24 @@ const Register = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const { username, email, password, re_password } = formData;
+    toast.error("Registration Is Not Allowed, Please Contact Admin!");
+    return;
+    // const { username, email, password, re_password } = formData;
 
-    if (password !== re_password) {
-      toast.error("Passwords do not match!");
-      return;
-    }
+    // if (password !== re_password) {
+    //   toast.error("Passwords do not match!");
+    //   return;
+    // }
 
-    setIsLoading(true);
-    setError(null);
-    const data = await register({ username, email, password });
+    // setIsLoading(true);
+    // setError(null);
+    // const data = await register({ username, email, password });
 
-    if (data?.error) {
-      setError(data.error);
-    }
+    // if (data?.error) {
+    //   setError(data.error);
+    // }
 
-    setIsLoading(false);
+    // setIsLoading(false);
   };
 
   useEffect(() => {
