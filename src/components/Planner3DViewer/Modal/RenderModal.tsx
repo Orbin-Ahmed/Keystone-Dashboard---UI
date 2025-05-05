@@ -20,6 +20,7 @@ interface RenderModalProps {
   fov: number;
   glbUrl: string;
   setGlbUrl: React.Dispatch<React.SetStateAction<string>>;
+  sceneModified: boolean;
   setSceneModified: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -47,6 +48,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
   fov,
   glbUrl,
   setGlbUrl,
+  sceneModified,
   setSceneModified,
 }) => {
   const [loading, setLoading] = useState(false);
@@ -205,7 +207,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
     try {
       let finalGlbUrl = glbUrl;
 
-      if (!finalGlbUrl) {
+      if (!finalGlbUrl || sceneModified) {
         const glbBlob = await exportGLTF();
         const uniqueFilename = `${uid(16)}.glb`;
         finalGlbUrl = `${process.env.NEXT_PUBLIC_MINIO_SERVER}/glbfile/glb_files/${uniqueFilename}`;

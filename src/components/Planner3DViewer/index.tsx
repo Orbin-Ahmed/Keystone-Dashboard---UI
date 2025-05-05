@@ -1877,6 +1877,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         cameraHeight={cameraHeight}
         fov={fov}
         glbUrl={glbUrl}
+        sceneModified={sceneModified}
         setGlbUrl={setGlbUrl}
         setSceneModified={setSceneModified}
       />
