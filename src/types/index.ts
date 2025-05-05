@@ -631,10 +631,42 @@ export interface SceneContentProps {
   floorTextureScale: number;
 }
 
+export interface Item2D {
+  id: string;
+  name: string;
+  x: number;
+  y: number;
+  z: number;
+  width: number;
+  height: number;
+  depth: number;
+  rotation: number;
+  rotationX?: number;
+  rotationZ?: number;
+  category: string;
+  mirrorX?: number;
+  mirrorY?: number;
+  mirrorZ?: number;
+}
+
+export interface Item3D {
+  id: string;
+  name: string;
+  type: string;
+  path: string;
+  width: number;
+  height: number;
+  depth: number;
+  position: [number, number, number];
+  rotation: [number, number, number];
+  category: string;
+  mirror: [number, number, number];
+}
+
 export interface WallItem {
   id: string;
   path: string;
-  type: "wall";
+  type: "wall" | string;
   position: [number, number, number];
   rotation: [number, number, number];
   width: number;
