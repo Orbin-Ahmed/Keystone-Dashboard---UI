@@ -401,8 +401,8 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
                   </div>
                 ) : (
                   <p className="mb-4">
-                    {/* Click a part in the 3D viewer to select a group (hold Ctrl
-                    for multiple selection). */}
+                    Click a part in the 3D viewer to select a group (hold Ctrl
+                    for multiple selection).
                   </p>
                 )}
 
@@ -647,6 +647,30 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
             {/* Light Tab  */}
             {activeTab === "light" && (
               <>
+                {selectedGroups.length > 0 ? (
+                  <div className="mb-4">
+                    {selectedGroups.length === 1 ? (
+                      <>
+                        <p className="mb-1 font-semibold">
+                          Selected Group: {selectedGroups[0].groupName}
+                        </p>
+                        <p className="text-gray-500 text-sm">
+                          ({selectedGroups[0].meshes.length} mesh(es) in this
+                          group)
+                        </p>
+                      </>
+                    ) : (
+                      <p className="mb-1 font-semibold">
+                        {selectedGroups.length} groups selected
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="mb-4">
+                    Click a part in the 3D viewer to select a group (hold Ctrl
+                    for multiple selection).
+                  </p>
+                )}
                 <LightPresetSelector
                   manualColor={localEmissionColor}
                   manualStrength={localEmissionStrength}
