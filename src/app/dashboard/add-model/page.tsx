@@ -155,7 +155,6 @@ const AddModel = () => {
     }
     else if (name === "itemName") {
     let sanitized = value.replace(/[^a-zA-Z0-9 ]/g, "");
-    sanitized = sanitized.trim();
     setFormData(prev => ({ ...prev, itemName: sanitized }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
@@ -205,9 +204,9 @@ const AddModel = () => {
 
     const sanitizedItemName = formData.itemName
       .toLowerCase()
+      .trim()
       .replace(/\s+/g, "-")
-      .replace(/-/g, "_")
-      .trim();
+      .replace(/-/g, "_");
 
     const formDataObj = new FormData();
 
