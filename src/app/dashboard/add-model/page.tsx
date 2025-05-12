@@ -144,7 +144,7 @@ const AddModel = () => {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
-    const { name, value } = e.target;
+    let { name, value } = e.target;
     if (["width", "height", "depth"].includes(name)) {
       const numericValue = Number(value);
       if (name === "height" && numericValue > 2842) {
@@ -152,11 +152,16 @@ const AddModel = () => {
         return;
       }
       setFormData((prev) => ({ ...prev, [name]: numericValue }));
+    }
+    else if (name === "itemName") {
+    let sanitized = value.replace(/[^a-zA-Z0-9 ]/g, "");
+    sanitized = sanitized.trim();
+    setFormData(prev => ({ ...prev, itemName: sanitized }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
-
+ 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name } = e.target;
     const file = e.target.files?.[0] || null;
