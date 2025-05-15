@@ -69,7 +69,7 @@ const ItemModelComponent = forwardRef<Object3D, ItemModelProps>(
             }
             return;
           } catch {
-            console.warn(`Failed to load GLB from ${url}, trying next…`);
+            console.warn(`Failed to load Model from ${url}, trying next…`);
           }
         }
         if (!cancelled) {
