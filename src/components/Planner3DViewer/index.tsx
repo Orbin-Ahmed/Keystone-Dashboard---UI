@@ -1591,10 +1591,11 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   async function getGlbUrl(type: string): Promise<string> {
     const primary = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/${type}.glb`;
     const fallback = `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/${type}.glb`;
+    const placeholder = `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/placeholder.glb`;
 
     if (await urlExists(primary)) return primary;
     if (await urlExists(fallback)) return fallback;
-    return primary;
+    return placeholder;
   }
 
   useEffect(() => {
