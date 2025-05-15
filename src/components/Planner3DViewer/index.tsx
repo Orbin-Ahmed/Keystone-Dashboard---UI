@@ -1579,54 +1579,52 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   //   );
   // }, []);
 
+  async function urlExists(url: string): Promise<boolean> {
+    try {
+      const res = await fetch(url, { method: "HEAD" });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  }
+
+  async function getGlbUrl(type: string): Promise<string> {
+    const primary = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/${type}.glb`;
+    const fallback = `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/${type}.glb`;
+
+    if (await urlExists(primary)) return primary;
+    if (await urlExists(fallback)) return fallback;
+    return primary;
+  }
+
   useEffect(() => {
-    const convertTo3DFormat = (
+    async function convertTo3DFormat(
       item: Item2D,
       centerX: number,
       centerY: number,
       wallHeight: number,
-    ): Item3D => {
+    ): Promise<Item3D> {
       const id = item.id;
       const name = item.name;
       const type = name.toLowerCase().replace(/[-\s]/g, "_");
-      const path = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/${type}.glb`;
-      const rotationInRadians = -(item.rotation * Math.PI) / 180;
+      const path = await getGlbUrl(type);
 
+      const rotRad = -(item.rotation * Math.PI) / 180;
       const adjustedX =
         item.x -
         centerX +
-        (Math.cos(rotationInRadians) * item.width) / 2 +
-        (Math.sin(rotationInRadians) * item.depth) / 2;
-
+        (Math.cos(rotRad) * item.width) / 2 +
+        (Math.sin(rotRad) * item.depth) / 2;
       const adjustedZ =
         item.y -
         centerY -
-        (Math.sin(rotationInRadians) * item.width) / 2 +
-        (Math.cos(rotationInRadians) * item.depth) / 2;
+        (Math.sin(rotRad) * item.width) / 2 +
+        (Math.cos(rotRad) * item.depth) / 2;
 
-      let heightPosition = item.z || 0;
-
+      let heightPosition = item.z ?? 0;
       if (item.category === "ceiling") {
-        heightPosition = item.z || wallHeight - item.height - 0.01;
+        heightPosition = (item.z ?? wallHeight) - item.height - 0.01;
       }
-
-      const position: [number, number, number] = [
-        adjustedX,
-        heightPosition,
-        adjustedZ,
-      ];
-
-      const rotation: [number, number, number] = [
-        item.rotationX || 0,
-        rotationInRadians,
-        item.rotationZ || 0,
-      ];
-
-      const mirror: [number, number, number] = [
-        item.mirrorX || 1,
-        item.mirrorY || 1,
-        item.mirrorZ || 1,
-      ];
 
       return {
         id,
@@ -1636,71 +1634,62 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         width: item.width,
         height: item.height,
         depth: item.depth,
-        position,
-        rotation,
+        position: [adjustedX, heightPosition, adjustedZ],
+        rotation: [item.rotationX ?? 0, rotRad, item.rotationZ ?? 0],
         category: item.category,
-        mirror,
+        mirror: [item.mirrorX ?? 1, item.mirrorY ?? 1, item.mirrorZ ?? 1],
       };
-    };
+    }
 
-    const allFloorItems3D = furnitureItems.map((item) =>
-      convertTo3DFormat(item, centerX, centerY, wallHeightSetting),
-    );
+    async function load3DItems() {
+      const [floor3D, wall3D, ceiling3D] = await Promise.all([
+        Promise.all(
+          furnitureItems.map((it) =>
+            convertTo3DFormat(it, centerX, centerY, wallHeightSetting),
+          ),
+        ),
+        Promise.all(
+          wallItems2D.map((it) =>
+            convertTo3DFormat(it, centerX, centerY, wallHeightSetting),
+          ),
+        ),
+        Promise.all(
+          ceilingItems.map((it) =>
+            convertTo3DFormat(it, centerX, centerY, wallHeightSetting),
+          ),
+        ),
+      ]);
 
-    const allWallItems3D = wallItems2D.map((item) =>
-      convertTo3DFormat(item, centerX, centerY, wallHeightSetting),
-    );
-
-    const allCeilingItems3D = ceilingItems.map((item) =>
-      convertTo3DFormat(item, centerX, centerY, wallHeightSetting),
-    );
-
-    setPlacedItems((prevItems) => {
-      const existingItemsMap = new Map<string, Item3D>();
-      prevItems.forEach((item) =>
-        existingItemsMap.set(item.id, {
-          ...item,
-          category: item.category ?? "default-category",
-        } as Item3D),
-      );
-
-      const combinedItems = [...allFloorItems3D, ...allCeilingItems3D];
-
-      const result = [...prevItems];
-
-      combinedItems.forEach((newItem) => {
-        const existingItemIndex = result.findIndex(
-          (item) => item.id === newItem.id,
-        );
-
-        if (existingItemIndex !== -1) {
-          result[existingItemIndex] = newItem;
-        } else {
-          result.push(newItem);
-        }
+      setPlacedItems((prev) => {
+        const merged = [...prev];
+        [...floor3D, ...ceiling3D].forEach((newItem) => {
+          const idx = merged.findIndex((i) => i.id === newItem.id);
+          if (idx >= 0) merged[idx] = newItem;
+          else merged.push(newItem);
+        });
+        return merged;
       });
 
-      return result;
-    });
-
-    setWallItems((prevWallItems) => {
-      const result = [...prevWallItems];
-
-      allWallItems3D.forEach((newItem) => {
-        const existingItemIndex = result.findIndex(
-          (item) => item.id === newItem.id,
-        );
-
-        if (existingItemIndex !== -1) {
-          result[existingItemIndex] = newItem;
-        } else {
-          result.push(newItem);
-        }
+      setWallItems((prev) => {
+        const merged = [...prev];
+        wall3D.forEach((newItem) => {
+          const idx = merged.findIndex((i) => i.id === newItem.id);
+          if (idx >= 0) merged[idx] = newItem;
+          else merged.push(newItem);
+        });
+        return merged;
       });
+    }
 
-      return result;
-    });
-  }, [furnitureItems, wallItems2D, ceilingItems, wallHeightSetting]);
+    load3DItems();
+  }, [
+    furnitureItems,
+    wallItems2D,
+    ceilingItems,
+    centerX,
+    centerY,
+    wallHeightSetting,
+  ]);
 
   return (
     <>

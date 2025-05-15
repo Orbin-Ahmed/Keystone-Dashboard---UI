@@ -15,6 +15,7 @@ import { Text } from "@react-three/drei";
 import { DimensionBoxProps } from "@/types";
 import * as THREE from "three";
 import { ModelViewer } from "@/components/ModelViewer";
+import { Spinner } from "@radix-ui/themes";
 
 const DimensionLine = ({
   start,
@@ -140,6 +141,7 @@ const AddModel = () => {
   const [glbUrl, setGlbUrl] = useState("");
   const [viewer2DPreview, setViewer2DPreview] = useState("");
   const [viewer3DPreview, setViewer3DPreview] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -200,6 +202,7 @@ const AddModel = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsLoading(true);
 
     const sanitizedItemName = formData.itemName
       .toLowerCase()
@@ -217,11 +220,13 @@ const AddModel = () => {
         alert(
           `“${formData.itemName}” is already taken. Please choose another.`,
         );
+        setIsLoading(false);
         return;
       }
     } catch (err) {
       console.error("Name-check error:", err);
       alert("Could not verify item name. Try again.");
+      setIsLoading(false);
       return;
     }
 
@@ -241,15 +246,16 @@ const AddModel = () => {
           body: formData.glbFile,
         });
         if (!putResp.ok) {
+          setIsLoading(false);
           throw new Error(`MinIO upload failed: ${putResp.statusText}`);
         }
       } catch (err) {
+        setIsLoading(false);
         console.error("Error uploading GLB to MinIO:", err);
         alert("Failed to upload 3D model. Try again.");
         return;
       }
 
-      // now append the URL instead of the file
       formDataObj.append("glb_url", minioUploadUrl);
     }
 
@@ -297,6 +303,7 @@ const AddModel = () => {
           .join("\n");
 
         alert(`Error:\n${errorMessages}`);
+        setIsLoading(false);
         return;
       }
 
@@ -315,6 +322,8 @@ const AddModel = () => {
     } catch (error) {
       console.error("Error:", error);
       alert("An error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -484,8 +493,11 @@ const AddModel = () => {
               </div>
             </div>
 
-            <CustomButton type="submit" variant="primary">
-              Submit
+            <CustomButton type="submit" variant="primary" disabled={isLoading}>
+              <div className="flex items-center justify-center">
+                <span className="mr-2">Submit</span>
+                <Spinner loading={isLoading}></Spinner>
+              </div>
             </CustomButton>
           </div>
 
