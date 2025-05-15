@@ -28,6 +28,7 @@ import { useUndoRedo } from "./undoRedo";
 const GRID_SIZE = 50;
 const PIXELS_PER_METER = 0.398;
 const SNAP_THRESHOLD = 10;
+const FLOOR_POINTS_SNAP_THRESHOLD = 30;
 const SNAP_THRESHOLD_raw = 1;
 const MIN_WALL_LENGTH = 0.01 * PIXELS_PER_METER;
 const STRAIGHT_LINE_THRESHOLD = 10;
@@ -389,7 +390,9 @@ const PlanEditor = ({
         }
       }
     } else if (tool === "floorPoint") {
-      addFloorPlanPoint(pos.x, pos.y);
+      // addFloorPlanPoint(pos.x, pos.y);
+      const snapped = getSnappedToJoint(pos);
+      addFloorPlanPoint(snapped.x, snapped.y);
     }
   };
 
@@ -1419,6 +1422,40 @@ const PlanEditor = ({
   //     groupDragStartRef.current = {};
   //   }
   // };
+
+  // Floor Points auto joins
+  const getAllEndpoints = () => {
+    return lines.flatMap((line) => [
+      { x: line.points[0], y: line.points[1] },
+      { x: line.points[2], y: line.points[3] },
+    ]);
+  };
+
+  const getJointPoints = () => {
+    const counts: Record<string, { x: number; y: number; count: number }> = {};
+    for (const pt of getAllEndpoints()) {
+      const key = `${pt.x.toFixed(2)}_${pt.y.toFixed(2)}`;
+      if (!counts[key]) counts[key] = { ...pt, count: 0 };
+      counts[key].count++;
+    }
+    return Object.values(counts)
+      .filter((entry) => entry.count > 1)
+      .map((entry) => ({ x: entry.x, y: entry.y }));
+  };
+
+  const getSnappedToJoint = (pos: { x: number; y: number }) => {
+    const joints = getJointPoints();
+    let closest = pos;
+    let minDist = Infinity;
+    for (const j of joints) {
+      const d = Math.hypot(pos.x - j.x, pos.y - j.y);
+      if (d < minDist) {
+        minDist = d;
+        closest = j;
+      }
+    }
+    return minDist < FLOOR_POINTS_SNAP_THRESHOLD ? closest : pos;
+  };
 
   // Rescale Function
   const scalePoint = (old: number, pivot: number, scaleFactor: number) =>
