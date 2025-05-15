@@ -59,7 +59,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
   const [preset, setPreset] = useState("Mid");
   const [sunEnergy, setSunEnergy] = useState("15");
   const [sunAngle, setSunAngle] = useState("0.1");
-  const [useReflection, setUseReflection] = useState(true);
+  const [useReflection, setUseReflection] = useState(false);
 
   // area light settings
   const [areaLightSizeX, setAreaLightSizeX] = useState("50");
@@ -987,9 +987,9 @@ const RenderModal: React.FC<RenderModalProps> = ({
                     Camera Settings
                   </div>
                 </h3> */}
-                {/* <div className="space-y-4"> */}
-                  {/* Blender Camera Position */}
-                  {/* <div>
+              {/* <div className="space-y-4"> */}
+              {/* Blender Camera Position */}
+              {/* <div>
                     <label className="text-gray-600 mb-2 block text-sm font-medium">
                       Blender Camera Position
                     </label>
@@ -1045,8 +1045,8 @@ const RenderModal: React.FC<RenderModalProps> = ({
                     </div>
                   </div> */}
 
-                  {/* Blender Camera Target */}
-                  {/* <div>
+              {/* Blender Camera Target */}
+              {/* <div>
                     <label className="text-gray-600 mb-2 block text-sm font-medium">
                       Blender Camera Target
                     </label>
