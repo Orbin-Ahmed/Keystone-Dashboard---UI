@@ -1682,14 +1682,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
     }
 
     load3DItems();
-  }, [
-    furnitureItems,
-    wallItems2D,
-    ceilingItems,
-    centerX,
-    centerY,
-    wallHeightSetting,
-  ]);
+  }, [furnitureItems, wallItems2D, ceilingItems, wallHeightSetting]);
 
   return (
     <>
