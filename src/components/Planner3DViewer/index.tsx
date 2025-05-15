@@ -171,6 +171,8 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   >("Floor");
   const controlsRef = useRef<any>();
 
+  const glbUrlCache = new Map<string, Promise<string>>();
+
   const fetchDoorAndWindowOptions = async () => {
     try {
       const doorResponse = await fetch(
@@ -1589,13 +1591,21 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   }
 
   async function getGlbUrl(type: string): Promise<string> {
-    const primary = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/${type}.glb`;
-    const fallback = `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/${type}.glb`;
-    const placeholder = `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/placeholder.glb`;
+    if (glbUrlCache.has(type)) {
+      return glbUrlCache.get(type)!;
+    }
+    const lookupPromise = (async (): Promise<string> => {
+      const primary = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/${type}.glb`;
+      const fallback = `https://bucket-production-a2df.up.railway.app:443/items/items/${type}.glb`;
+      const placeholder = `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/placeholder.glb`;
 
-    if (await urlExists(primary)) return primary;
-    if (await urlExists(fallback)) return fallback;
-    return placeholder;
+      if (await urlExists(primary)) return primary;
+      if (await urlExists(fallback)) return fallback;
+      return placeholder;
+    })();
+
+    glbUrlCache.set(type, lookupPromise);
+    return lookupPromise;
   }
 
   useEffect(() => {
