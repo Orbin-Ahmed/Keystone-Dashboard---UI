@@ -645,7 +645,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
               </div>
 
               {/* Area Light Settings */}
-              <div className="bg-gray-50 mt-4 rounded-lg p-4 shadow-sm">
+              {/* <div className="bg-gray-50 mt-4 rounded-lg p-4 shadow-sm">
                 <h3 className="text-gray-700 mb-3 font-medium">
                   <div className="flex items-center">
                     <svg
@@ -703,10 +703,10 @@ const RenderModal: React.FC<RenderModalProps> = ({
                     />
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Spot Light Settings */}
-              <div className="bg-gray-50 col-span-2 rounded-lg p-4 shadow-sm">
+              {/* <div className="bg-gray-50 col-span-2 rounded-lg p-4 shadow-sm">
                 <h3 className="text-gray-700 mb-3 font-medium">
                   <div className="flex items-center">
                     <svg
@@ -823,7 +823,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                     />
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Render Settings Panel */}
               <div className="bg-gray-50 col-span-2 rounded-lg p-4 shadow-sm">
@@ -961,7 +961,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
               </div>
 
               {/* Camera Settings Panel */}
-              <div className="bg-gray-50 col-span-2 mt-4 rounded-lg p-4 shadow-sm">
+              {/* <div className="bg-gray-50 col-span-2 mt-4 rounded-lg p-4 shadow-sm">
                 <h3 className="text-gray-700 mb-3 font-medium">
                   <div className="flex items-center">
                     <svg
@@ -986,10 +986,10 @@ const RenderModal: React.FC<RenderModalProps> = ({
                     </svg>
                     Camera Settings
                   </div>
-                </h3>
-                <div className="space-y-4">
+                </h3> */}
+                {/* <div className="space-y-4"> */}
                   {/* Blender Camera Position */}
-                  <div>
+                  {/* <div>
                     <label className="text-gray-600 mb-2 block text-sm font-medium">
                       Blender Camera Position
                     </label>
@@ -1043,10 +1043,10 @@ const RenderModal: React.FC<RenderModalProps> = ({
                         />
                       </div>
                     </div>
-                  </div>
+                  </div> */}
 
                   {/* Blender Camera Target */}
-                  <div>
+                  {/* <div>
                     <label className="text-gray-600 mb-2 block text-sm font-medium">
                       Blender Camera Target
                     </label>
@@ -1102,7 +1102,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Status and Submit Section */}
               <div className="bg-gray-50 col-span-2 mb-8 mt-4 rounded-lg p-4 shadow-sm">
