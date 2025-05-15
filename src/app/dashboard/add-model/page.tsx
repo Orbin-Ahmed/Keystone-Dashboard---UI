@@ -207,6 +207,24 @@ const AddModel = () => {
       .replace(/\s+/g, "-")
       .replace(/-/g, "_");
 
+    try {
+      const check = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}api/items/check-name/?item_name=${encodeURIComponent(sanitizedItemName)}`,
+      );
+      if (!check.ok) throw new Error("Name-check failed");
+      const { exists } = await check.json();
+      if (exists) {
+        alert(
+          `“${formData.itemName}” is already taken. Please choose another.`,
+        );
+        return;
+      }
+    } catch (err) {
+      console.error("Name-check error:", err);
+      alert("Could not verify item name. Try again.");
+      return;
+    }
+
     const formDataObj = new FormData();
 
     if (formData.glbFile) {

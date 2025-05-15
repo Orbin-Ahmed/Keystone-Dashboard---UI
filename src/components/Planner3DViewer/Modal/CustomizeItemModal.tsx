@@ -12,6 +12,7 @@ import { GLTFExporter } from "three-stdlib";
 import ItemControllerTab from "./ItemControllerTab";
 import { ModelViewerHandle } from "../ItemClick/ModelViewer";
 import LightPresetSelector, { LightPresetValue } from "./LightPanel";
+import { uid } from "uid";
 
 type CustomizationHistory = {
   customizations: Record<string, Customization>;
@@ -204,7 +205,7 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
           }
 
           const baseName = item?.name.toLowerCase().replaceAll(" ", "_");
-          const minioItemName = `${baseName}.glb`;
+          const minioItemName = `${baseName}_${uid(16)}.glb`;
           const minioUploadUrl = `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/${minioItemName}`;
 
           try {
