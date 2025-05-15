@@ -22,7 +22,7 @@ export async function middleware(request: NextRequest) {
     "/dashboard",
     "/dashboard/profile",
     "/dashboard/settings",
-    // "/floor-planner",
+    "/floor-planner",
   ];
 
   const designerRoutes = ["/dashboard/add-image", "/dashboard/edit-image"];

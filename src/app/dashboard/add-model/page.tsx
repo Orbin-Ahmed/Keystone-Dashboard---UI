@@ -152,15 +152,14 @@ const AddModel = () => {
         return;
       }
       setFormData((prev) => ({ ...prev, [name]: numericValue }));
-    }
-    else if (name === "itemName") {
-    let sanitized = value.replace(/[^a-zA-Z0-9 ]/g, "");
-    setFormData(prev => ({ ...prev, itemName: sanitized }));
+    } else if (name === "itemName") {
+      let sanitized = value.replace(/[^a-zA-Z0-9 ]/g, "");
+      setFormData((prev) => ({ ...prev, itemName: sanitized }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
- 
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name } = e.target;
     const file = e.target.files?.[0] || null;
@@ -211,12 +210,29 @@ const AddModel = () => {
     const formDataObj = new FormData();
 
     if (formData.glbFile) {
-      const glbFileExtension = formData.glbFile.name.split(".").pop();
-      const glbFileName = `${sanitizedItemName}.${glbFileExtension}`;
-      const glbFile = new File([formData.glbFile], glbFileName, {
-        type: formData.glbFile.type,
-      });
-      formDataObj.append("glb_file", glbFile);
+      const ext = formData.glbFile.name.split(".").pop();
+      const glbFileName = `${sanitizedItemName}.${ext}`;
+      const minioUploadUrl = `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/${glbFileName}`;
+
+      try {
+        const putResp = await fetch(minioUploadUrl, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/octet-stream",
+          },
+          body: formData.glbFile,
+        });
+        if (!putResp.ok) {
+          throw new Error(`MinIO upload failed: ${putResp.statusText}`);
+        }
+      } catch (err) {
+        console.error("Error uploading GLB to MinIO:", err);
+        alert("Failed to upload 3D model. Try again.");
+        return;
+      }
+
+      // now append the URL instead of the file
+      formDataObj.append("glb_url", minioUploadUrl);
     }
 
     if (formData.viewer3D) {

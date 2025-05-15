@@ -203,27 +203,42 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
             blob = new Blob([output], { type: "application/json" });
           }
 
-          const formData = new FormData();
-          formData.append("glb_file", blob, "modifiedModel.glb");
+          const baseName = item?.name.toLowerCase().replaceAll(" ", "_");
+          const minioItemName = `${baseName}.glb`;
+          const minioUploadUrl = `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/${minioItemName}`;
 
-          if (item?.name) {
-            const baseName = item.name.toLowerCase().replaceAll(" ", "_");
-            formData.append(
-              "viewer2d_url",
-              `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${baseName}.png`,
-            );
-            formData.append(
-              "viewer3d_url",
-              `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer3d_images/${baseName}.png`,
-            );
+          try {
+            const putResp = await fetch(minioUploadUrl, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "model/gltf-binary",
+              },
+              body: blob,
+            });
+            if (!putResp.ok) {
+              throw new Error(`MinIO upload failed: ${putResp.statusText}`);
+            }
+          } catch (err) {
+            console.error("Error uploading to MinIO:", err);
+            resolve("");
+            return;
           }
+
+          const payload = {
+            glb_url: minioUploadUrl,
+            viewer2d_url: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${baseName}.png`,
+            viewer3d_url: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer3d_images/${baseName}.png`,
+          };
 
           try {
             const response = await fetch(
               `${process.env.NEXT_PUBLIC_API_BASE_URL}api/create-custom-item/`,
               {
                 method: "POST",
-                body: formData,
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
               },
             );
 
