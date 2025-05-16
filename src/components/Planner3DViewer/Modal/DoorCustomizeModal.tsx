@@ -9,6 +9,7 @@ import { GrClose } from "react-icons/gr";
 import { PlacedItemType, ShapeData } from "@/types";
 import * as THREE from "three";
 import { GLTFExporter } from "three-stdlib";
+import { uid } from "uid";
 
 type CustomizationHistory = {
   customizations: Record<string, Customization>;
@@ -169,23 +170,38 @@ const DoorCustomizeModal: React.FC<CustomizeItemModalProps> = ({
             blob = new Blob([output], { type: "application/json" });
           }
 
-          const formData = new FormData();
-          formData.append("glb_file", blob, "modifiedModel.glb");
-          formData.append(
-            "viewer2d_url",
-            `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${viewer2DImage}`,
-          );
-          formData.append(
-            "viewer3d_url",
-            `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer3d_images/${viewer3DImage}`,
-          );
+          const minioItemName = `modifiedItem_${uid(16)}.glb`;
+          const minioUploadUrl = `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/${minioItemName}`;
+
+          try {
+            const putResp = await fetch(minioUploadUrl, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "model/gltf-binary",
+              },
+              body: blob,
+            });
+            if (!putResp.ok) {
+              throw new Error(`MinIO upload failed: ${putResp.statusText}`);
+            }
+          } catch (err) {
+            console.error("Error uploading to MinIO:", err);
+            resolve("");
+            return;
+          }
+
+          const payload = {
+            glb_url: minioUploadUrl,
+            viewer2d_url: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${viewer2DImage}`,
+            viewer3d_url: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer3d_images/${viewer3DImage}`,
+          };
 
           try {
             const response = await fetch(
               `${process.env.NEXT_PUBLIC_API_BASE_URL}api/create-custom-item/`,
               {
                 method: "POST",
-                body: formData,
+                body: JSON.stringify(payload),
               },
             );
 
