@@ -194,7 +194,7 @@ const Revamp = ({}: RevampProps) => {
                         id="images"
                         className="w-full cursor-pointer rounded border border-stroke bg-white text-sm font-medium text-graydark file:mr-4 file:cursor-pointer file:border-0 file:bg-primary file:px-4 file:py-1.5 file:text-white file:hover:bg-primary"
                         type="file"
-                        accept=".jpg,image/jpeg"
+                        accept=".jpg"
                         onChange={handleImageChange}
                         required
                       />
