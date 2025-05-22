@@ -50,7 +50,7 @@ export async function POST(req: Request) {
 
     const prediction = await replicate.predictions.create({
       version:
-        "849928498334534cfbfaaf004cc6d3d56bb4f546075c4a682eafed3fd1dd49ba",
+        "82889ab45063cf4fdaf7cf386fc739da0b5ddc4b6a6b0f8ff31a2951b0c1ca4d",
       input,
       webhook: callbackURL,
       webhook_events_filter: ["completed"],
