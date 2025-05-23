@@ -970,7 +970,7 @@ const FloorPlanner = () => {
             className="rounded-full px-4 py-2 shadow-xl"
             onClick={() => handlePlaneChange("floor")}
             style={{
-              backgroundColor: selectedPlane === "floor" ? "#C2D605" : "#FFF",
+              backgroundColor: selectedPlane === "floor" ? "#57b7c0" : "#FFF",
               color: selectedPlane === "floor" ? "#FFF" : "#000",
             }}
           >
@@ -980,7 +980,7 @@ const FloorPlanner = () => {
             className="rounded-full px-4 py-2 shadow-xl"
             onClick={() => handlePlaneChange("roof")}
             style={{
-              backgroundColor: selectedPlane === "roof" ? "#C2D605" : "#FFF",
+              backgroundColor: selectedPlane === "roof" ? "#57b7c0" : "#FFF",
               color: selectedPlane === "roof" ? "#FFF" : "#000",
             }}
           >
@@ -990,7 +990,7 @@ const FloorPlanner = () => {
             className="rounded-full px-4 py-2 shadow-xl"
             onClick={() => handlePlaneChange("wall")}
             style={{
-              backgroundColor: selectedPlane === "wall" ? "#C2D605" : "#FFF",
+              backgroundColor: selectedPlane === "wall" ? "#57b7c0" : "#FFF",
               color: selectedPlane === "wall" ? "#FFF" : "#000",
             }}
           >
