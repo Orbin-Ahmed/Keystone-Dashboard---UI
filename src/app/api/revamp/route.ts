@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     }
 
     const output = await replicate.run(
-      "orbin-ahmed/interior:849928498334534cfbfaaf004cc6d3d56bb4f546075c4a682eafed3fd1dd49ba",
+      "adirik/interior-design:76604baddc85b1b4616e1c6475eca080da339c8875bd4996705440484a6eac38",
       { input },
     );
 
