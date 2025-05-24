@@ -204,51 +204,69 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
             blob = new Blob([output], { type: "application/json" });
           }
 
-          const baseName = item?.name.toLowerCase().replaceAll(" ", "_");
-          const minioItemName = `${baseName}_${uid(16)}.glb`;
-          const minioUploadUrl = `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/${minioItemName}`;
+          const originalBase = item?.name.toLowerCase().replaceAll(" ", "_");
+          const randomId = uid(16);
+          const rootName = `${originalBase}_${randomId}`;
+          const glbFilename = `${rootName}.glb`;
+          const minioUploadUrl = `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/${glbFilename}`;
 
           try {
             const putResp = await fetch(minioUploadUrl, {
               method: "PUT",
-              headers: {
-                "Content-Type": "model/gltf-binary",
-              },
+              headers: { "Content-Type": "model/gltf-binary" },
               body: blob,
             });
             if (!putResp.ok) {
               throw new Error(`MinIO upload failed: ${putResp.statusText}`);
             }
           } catch (err) {
-            console.error("Error uploading to MinIO:", err);
+            console.error("Error uploading GLB to MinIO:", err);
             resolve("");
             return;
           }
 
-          const payload = {
-            glb_url: minioUploadUrl,
-            viewer2d_url: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${baseName}.png`,
-            viewer3d_url: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer3d_images/${baseName}.png`,
-          };
+          const viewer2dUrl = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${originalBase}.png`;
+          const viewer3dUrl = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer3d_images/${originalBase}.png`;
+
+          let v2Blob: Blob;
+          let v3Blob: Blob;
+          try {
+            const [v2Res, v3Res] = await Promise.all([
+              fetch(viewer2dUrl),
+              fetch(viewer3dUrl),
+            ]);
+            if (!v2Res.ok || !v3Res.ok) {
+              throw new Error(
+                `Failed fetching viewer images: ${v2Res.status}, ${v3Res.status}`,
+              );
+            }
+            v2Blob = await v2Res.blob();
+            v3Blob = await v3Res.blob();
+          } catch (err) {
+            console.error("Error fetching viewer files:", err);
+            resolve("");
+            return;
+          }
+
+          const form = new FormData();
+          form.append("item_name", rootName);
+          form.append("glb_url", minioUploadUrl);
+          form.append("viewer2d", v2Blob, `${rootName}.png`);
+          form.append("viewer3d", v3Blob, `${rootName}.png`);
 
           try {
             const response = await fetch(
               `${process.env.NEXT_PUBLIC_API_BASE_URL}api/create-custom-item/`,
               {
                 method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(payload),
+                body: form,
               },
             );
 
             if (response.ok) {
               const data = await response.json();
-              const newItemName = data.item_name;
-              console.log("Model uploaded successfully!", newItemName);
-
-              resolve(newItemName);
+              console.log("Model uploaded successfully!", data.item_name);
+              resolve(data.item_name);
             } else {
               console.error("Upload failed:", response.statusText);
               resolve("");
