@@ -29,8 +29,8 @@ export async function POST(req: Request) {
       files.map(async (file) => {
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
-        return `data:${file.type};base64,${buffer.toString('base64')}`;
-      })
+        return `data:${file.type};base64,${buffer.toString("base64")}`;
+      }),
     );
 
     const input = {
@@ -44,7 +44,8 @@ export async function POST(req: Request) {
     const callbackURL = `${process.env.NEXT_PUBLIC_FRONTEND_URL}api/webhooks/three-d-model`;
 
     const prediction = await replicate.predictions.create({
-      version: "4876f2a8da1c544772dffa32e8889da4a1bab3a1f5c1937bfcfccb99ae347251",
+      version:
+        "e8f6c45206993f297372f5436b90350817bd9b4a0d52d2a76df50c1c8afa2b3c",
       input: input,
       webhook: callbackURL,
       webhook_events_filter: ["completed"],
@@ -70,10 +71,9 @@ export async function POST(req: Request) {
       console.error("Error during API call:", apiError);
     }
 
-    return new Response(
-      JSON.stringify({ detail: "Rendering started" }),
-      { status: 200 },
-    );
+    return new Response(JSON.stringify({ detail: "Rendering started" }), {
+      status: 200,
+    });
   } catch (error) {
     console.error("Error processing request:", error);
     return new Response(JSON.stringify({ detail: "Internal Server Error" }), {
