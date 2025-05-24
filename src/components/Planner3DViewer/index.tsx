@@ -187,7 +187,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
       const doorOptions = doorData.map((item: any) => ({
         label: item.item_name,
-        value: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}${item.glb_url}`,
+        value: `${item.glb_url}`,
         height: item.height,
         width: item.width,
       }));
@@ -206,7 +206,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
 
       const windowOptions = windowData.map((item: any) => ({
         label: item.item_name,
-        value: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}${item.glb_url}`,
+        value: `${item.glb_url}`,
         height: item.height,
         width: item.width,
       }));
