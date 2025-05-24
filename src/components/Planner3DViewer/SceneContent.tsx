@@ -306,10 +306,10 @@ const SceneContent: React.FC<SceneContentProps> = ({
 
       const defaultModelPath =
         type === "window"
-          ? `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/window_1.glb`
+          ? `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/window_1.glb`
           : isOuter
-            ? `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/glass_door.glb`
-            : `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/wooden_door.glb`;
+            ? `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/glass_door.glb`
+            : `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/wooden_door.glb`;
       const modelPath = modelPathsByShapeId[shapeId] || defaultModelPath;
       const modelName = modelPath.split("/").pop()?.split(".").shift() || "";
       const name = modelName.replace("_", " ").toUpperCase();
@@ -1342,10 +1342,10 @@ const SceneContent: React.FC<SceneContentProps> = ({
               const { type, x, y, id, variant } = shape;
               const defaultModelPath =
                 type === "window"
-                  ? `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/window_1.glb`
+                  ? `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/window_1.glb`
                   : isOuter
-                    ? `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/glass_door.glb`
-                    : `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/wooden_door.glb`;
+                    ? `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/glass_door.glb`
+                    : `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/wooden_door.glb`;
               const modelPath =
                 variant === "default"
                   ? defaultModelPath
