@@ -1581,33 +1581,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   //   );
   // }, []);
 
-  async function urlExists(url: string): Promise<boolean> {
-    try {
-      const res = await fetch(url, { method: "HEAD" });
-      return res.ok;
-    } catch {
-      return false;
-    }
-  }
-
-  async function getGlbUrl(type: string): Promise<string> {
-    if (glbUrlCache.has(type)) {
-      return glbUrlCache.get(type)!;
-    }
-    const lookupPromise = (async (): Promise<string> => {
-      const primary = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/glb_files/${type}.glb`;
-      const fallback = `https://bucket-production-a2df.up.railway.app:443/items/items/${type}.glb`;
-      const placeholder = `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/placeholder.glb`;
-
-      if (await urlExists(primary)) return primary;
-      if (await urlExists(fallback)) return fallback;
-      return placeholder;
-    })();
-
-    glbUrlCache.set(type, lookupPromise);
-    return lookupPromise;
-  }
-
   useEffect(() => {
     async function convertTo3DFormat(
       item: Item2D,
@@ -1618,7 +1591,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       const id = item.id;
       const name = item.name;
       const type = name.toLowerCase().replace(/[-\s]/g, "_");
-      const path = await getGlbUrl(type);
+      const path = `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/${type}.glb`;
 
       const rotRad = -(item.rotation * Math.PI) / 180;
       const adjustedX =

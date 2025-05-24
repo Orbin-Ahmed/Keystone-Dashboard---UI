@@ -1,7 +1,6 @@
-import React, { useEffect, useMemo, forwardRef, useRef, useState } from "react";
-import { useHelper } from "@react-three/drei";
+import React, { useEffect, useMemo, forwardRef, useRef } from "react";
+import { useGLTF, useHelper } from "@react-three/drei";
 import { Box3, BoxHelper, Mesh, Object3D, Vector3 } from "three";
-import { GLTFLoader } from "three-stdlib";
 
 export interface ItemModelProps {
   path: string;
@@ -36,60 +35,23 @@ const WallItemModelComponent = forwardRef<Object3D, ItemModelProps>(
     },
     ref,
   ) => {
+    const { scene } = useGLTF(`${path}`);
     const modelRef = useRef<Object3D | null>(null);
-    const loader = useMemo(() => new GLTFLoader(), []);
-    const [gltfScene, setGltfScene] = useState<Object3D | null>(null);
-
-    // Fallback url
-    const modelFilename = useMemo(() => {
-      const parts = path.split("/");
-      return parts[parts.length - 1];
-    }, [path]);
-
-    const fallbackUrl = useMemo(() => {
-      return `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/${modelFilename}`;
-    }, [modelFilename]);
-
-    useEffect(() => {
-      let cancelled = false;
-      (async () => {
-        for (const url of [path, fallbackUrl]) {
-          try {
-            const gltf = await new Promise<any>((res, rej) =>
-              loader.load(url, res, undefined, rej),
-            );
-            if (!cancelled) setGltfScene(gltf.scene);
-            return;
-          } catch {
-            console.warn(`Failed to load Model from ${url}; trying next…`);
-          }
-        }
-        if (!cancelled) {
-          console.error("Both primary and fallback GLB paths failed.");
-        }
-      })();
-      return () => {
-        cancelled = true;
-      };
-    }, [path, fallbackUrl, loader]);
-    // Fallback url end
 
     // Calculate initial bounding box data from the original scene
     const initialBounds = useMemo(() => {
-      if (!gltfScene) return { size: new Vector3(), center: new Vector3() };
-      const bbox = new Box3().setFromObject(gltfScene);
+      const bbox = new Box3().setFromObject(scene);
       const size = new Vector3();
       const center = new Vector3();
       bbox.getSize(size);
       bbox.getCenter(center);
       return { size, center };
-    }, [gltfScene]);
+    }, [scene]);
 
     // Clone the scene to avoid mutating the original
-    const clonedScene = useMemo(
-      () => (gltfScene ? gltfScene.clone(true) : null),
-      [gltfScene],
-    );
+    const clonedScene = useMemo(() => {
+      return scene.clone(true);
+    }, [scene]);
 
     const [adjustedScale, adjustedPosition] = useMemo(() => {
       const { size, center } = initialBounds;
@@ -131,7 +93,6 @@ const WallItemModelComponent = forwardRef<Object3D, ItemModelProps>(
     // Clean up cloned scene geometry/materials on unmount
     useEffect(() => {
       const currentScene = clonedScene;
-      if (!currentScene) return;
       return () => {
         currentScene.traverse((object) => {
           if (object instanceof Mesh) {
@@ -145,8 +106,6 @@ const WallItemModelComponent = forwardRef<Object3D, ItemModelProps>(
         });
       };
     }, [clonedScene]);
-
-    if (!clonedScene) return null;
 
     return (
       <>

@@ -1,8 +1,7 @@
-import React, { useEffect, useMemo, forwardRef, useRef, useState } from "react";
-import { useHelper } from "@react-three/drei";
+import React, { useEffect, useMemo, forwardRef, useRef } from "react";
+import { useGLTF, useHelper } from "@react-three/drei";
 import { Box3, Mesh, Object3D, Vector3, BoxHelper } from "three";
 import { ThreeEvent } from "@react-three/fiber";
-import { GLTFLoader } from "three-stdlib";
 
 export interface ItemModelProps {
   path: string;
@@ -41,81 +40,45 @@ const ItemModelComponent = forwardRef<Object3D, ItemModelProps>(
     },
     ref,
   ) => {
+    const { scene } = useGLTF(`${path}`);
     const modelRef = useRef<Object3D | null>(null);
-    const loader = useMemo(() => new GLTFLoader(), []);
-    const [gltfScene, setGltfScene] = useState<Object3D | null>(null);
-
-    // Fallback code
-    const modelFilename = useMemo(() => {
-      const parts = path.split("/");
-      return parts[parts.length - 1];
-    }, [path]);
-
-    const fallbackUrl = useMemo(() => {
-      return `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/${modelFilename}`;
-    }, [modelFilename]);
-
-    useEffect(() => {
-      let cancelled = false;
-      (async () => {
-        const urls = [path, fallbackUrl];
-        for (const url of urls) {
-          try {
-            const gltf = await new Promise<any>((res, rej) =>
-              loader.load(url, res, undefined, rej),
-            );
-            if (!cancelled) {
-              setGltfScene(gltf.scene);
-            }
-            return;
-          } catch {
-            console.warn(`Failed to load Model from ${url}, trying next…`);
-          }
-        }
-        if (!cancelled) {
-          console.error("Both primary and fallback GLB paths failed.");
-        }
-      })();
-      return () => {
-        cancelled = true;
-      };
-    }, [path, fallbackUrl, loader]);
-    // Fallback code end
 
     // Calculate initial bounding box data from the original scene
     const initialBounds = useMemo(() => {
-      if (!gltfScene) return { size: new Vector3(), center: new Vector3() };
-      const bbox = new Box3().setFromObject(gltfScene);
-      const size = new Vector3(),
-        center = new Vector3();
+      const bbox = new Box3().setFromObject(scene);
+      const size = new Vector3();
+      const center = new Vector3();
       bbox.getSize(size);
       bbox.getCenter(center);
       return { size, center };
-    }, [gltfScene]);
+    }, [scene]);
 
     // Clone the scene to avoid mutating the original
-    const clonedScene = useMemo(
-      () => (gltfScene ? gltfScene.clone(true) : null),
-      [gltfScene],
-    );
+    const clonedScene = useMemo(() => {
+      return scene.clone(true);
+    }, [scene]);
 
     const [adjustedScale, adjustedPosition] = useMemo(() => {
       const { size, center } = initialBounds;
-      const scaleX = dimensions.width / size.x || 1;
-      const scaleY = dimensions.height / size.y || 1;
-      const scaleZ = dimensions.depth / size.z || 1;
 
-      const s: [number, number, number] = [
+      const scaleX = dimensions.width / size.x;
+      const scaleY = dimensions.height / size.y;
+      const scaleZ = dimensions.depth / size.z;
+
+      //   const adjustedScale: [number, number, number] = [scaleX, scaleY, scaleZ];
+      const adjustedScale: [number, number, number] = [
         scaleX * scale[0],
         scaleY * scale[1],
         scaleZ * scale[2],
       ];
-      const p: [number, number, number] = [
+
+      const adjustedPosition: [number, number, number] = [
         position[0] - center.x * scaleX,
         position[1] - center.y * scaleY + dimensions.height / 2,
         position[2] - center.z * scaleZ,
       ];
-      return [s, p];
+
+      return [adjustedScale, adjustedPosition];
     }, [initialBounds, dimensions, position, scale]);
 
     useHelper(
@@ -135,7 +98,6 @@ const ItemModelComponent = forwardRef<Object3D, ItemModelProps>(
     // Clean up cloned scene geometry/materials on unmount
     useEffect(() => {
       const currentScene = clonedScene;
-      if (!currentScene) return;
       return () => {
         currentScene.traverse((object) => {
           if (object instanceof Mesh) {
@@ -149,8 +111,6 @@ const ItemModelComponent = forwardRef<Object3D, ItemModelProps>(
         });
       };
     }, [clonedScene]);
-
-    if (!clonedScene) return null;
 
     return (
       <>
