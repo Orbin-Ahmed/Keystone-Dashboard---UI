@@ -214,7 +214,7 @@ const DoorCustomizeModal: React.FC<CustomizeItemModalProps> = ({
           resolve("");
           return;
         }
-
+// Test 
         const form = new FormData();
         form.append("item_name", rootName);
         form.append("glb_url", minioUploadUrl);
