@@ -211,7 +211,7 @@ const DoorCustomizeModal: React.FC<CustomizeItemModalProps> = ({
 
         const form = new FormData();
         form.append("item_name", rootName);
-        form.append("glb_file", glbBlob, glbFilename);
+        form.append("glb_url", minioUploadUrl);
         form.append("viewer2d", v2Blob, `${rootName}.png`);
         form.append("viewer3d", v3Blob, `${rootName}.png`);
 
