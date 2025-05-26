@@ -192,14 +192,20 @@ const DoorCustomizeModal: React.FC<CustomizeItemModalProps> = ({
         const viewer2DImage = isWindow ? "window_1.png" : "glass_door.png";
         const viewer3DImage = viewer2DImage;
 
-        let v2Blob: Blob, v3Blob: Blob;
+        const viewer2dUrl = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${viewer2DImage}`;
+        const viewer3dUrl = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer3d_images/${viewer3DImage}`;
+
+        let v2Blob: Blob;
+        let v3Blob: Blob;
         try {
           const [v2Res, v3Res] = await Promise.all([
-            fetch(`${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${viewer2DImage}`),
-            fetch(`${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer3d_images/${viewer3DImage}`)
+            fetch(viewer2dUrl),
+            fetch(viewer3dUrl),
           ]);
           if (!v2Res.ok || !v3Res.ok) {
-            throw new Error(`Failed fetching viewer images: ${v2Res.status}, ${v3Res.status}`);
+            throw new Error(
+              `Failed fetching viewer images: ${v2Res.status}, ${v3Res.status}`,
+            );
           }
           v2Blob = await v2Res.blob();
           v3Blob = await v3Res.blob();
@@ -220,12 +226,13 @@ const DoorCustomizeModal: React.FC<CustomizeItemModalProps> = ({
             `${process.env.NEXT_PUBLIC_API_BASE_URL}api/create-custom-item/`,
             {
               method: "POST",
-              body: form,  
-            }
+              body: form,
+            },
           );
+
           if (response.ok) {
             const data = await response.json();
-            console.log("Model + viewers uploaded successfully!", data.item_name);
+            console.log("Model uploaded successfully!", data.item_name);
             resolve(data.item_name);
           } else {
             console.error("Upload failed:", response.statusText);
@@ -240,7 +247,7 @@ const DoorCustomizeModal: React.FC<CustomizeItemModalProps> = ({
         console.error("Error exporting model:", error);
         resolve("");
       },
-      { binary: true }
+      { binary: true },
     );
   });
 };
