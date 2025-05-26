@@ -168,7 +168,7 @@ const DoorCustomizeModal: React.FC<CustomizeItemModalProps> = ({
         }
 
         const randomId = uid(16);
-        const rootName = `modified_Shape_${randomId}`;
+        const rootName = `modified_shape_${randomId}`;
 
         const glbFilename = `${rootName}.glb`;
         const minioUploadUrl = `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/${glbFilename}`;
@@ -214,7 +214,7 @@ const DoorCustomizeModal: React.FC<CustomizeItemModalProps> = ({
           resolve("");
           return;
         }
-// Test 
+
         const form = new FormData();
         form.append("item_name", rootName);
         form.append("glb_url", minioUploadUrl);
