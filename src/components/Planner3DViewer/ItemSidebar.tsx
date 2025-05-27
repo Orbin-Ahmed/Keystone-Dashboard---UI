@@ -54,7 +54,7 @@ const ItemSidebar: React.FC<ItemSidebarProps> = ({
 
         categoryMap[category].push({
           name: item.item_name,
-          path: `${item.glb_file}`,
+          path: `${item.glb_url}`,
           typeM: item.item_name.toLowerCase().replace(/[-\s]/g, "_"),
           viewer3d: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}${item.viewer3d}`,
           width: item.width,
