@@ -236,7 +236,6 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
   const tourPoints = useMemo(
     () =>
       roomNames.map((room) => ({
-        // id: room.name.toLowerCase().replace(/\s+/g, "-"),
         id: uid(16),
         position: [
           room.x -
@@ -481,7 +480,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         rotationX: newItem.rotation[0] || 0,
         rotationZ: newItem.rotation[2] || 0,
         category: placingItem.category || "Uncategorized",
-        imageSrc: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${placingItem.name
+        imageSrc: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/viewer2d_images/${placingItem.name
           .toLowerCase()
           .replace(/[-\s]/g, "_")}.png`,
       };
@@ -1334,7 +1333,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         const rotationInDegreesX = item.rotation[0];
         const rotationInDegreesY = -(item.rotation[1] * 180) / Math.PI;
         const rotationInDegreesZ = item.rotation[2];
-        const imageSrc = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${item.name
+        const imageSrc = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/viewer2d_images/${item.name
           .toLowerCase()
           .replace(/[-\s]/g, "_")}.png`;
 
@@ -1371,7 +1370,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         const rotationInDegreesX = item.rotation[0];
         const rotationInDegreesY = -(item.rotation[1] * 180) / Math.PI;
         const rotationInDegreesZ = item.rotation[2];
-        const imageSrc = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${item.name
+        const imageSrc = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/viewer2d_images/${item.name
           .toLowerCase()
           .replace(/[-\s]/g, "_")}.png`;
 
@@ -1407,7 +1406,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
         const rotationInDegreesX = item.rotation[0];
         const rotationInDegreesY = -(item.rotation[1] * 180) / Math.PI;
         const rotationInDegreesZ = item.rotation[2];
-        const imageSrc = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${item.name
+        const imageSrc = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/viewer2d_images/${item.name
           .toLowerCase()
           .replace(/[-\s]/g, "_")}.png`;
 
@@ -1591,7 +1590,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
       const id = item.id;
       const name = item.name;
       const type = name.toLowerCase().replace(/[-\s]/g, "_");
-      const path = `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/${type}.glb`;
+      const path = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/items/${type}.glb`;
 
       const rotRad = -(item.rotation * Math.PI) / 180;
       const adjustedX =
@@ -2061,7 +2060,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
           modelPath={
             selectedShape.variant && selectedShape.variant !== "default"
               ? selectedShape.variant
-              : `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/${selectedShape.type === "window" ? "window_1.glb" : "glass_door.glb"}`
+              : `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/items/${selectedShape.type === "window" ? "window_1.glb" : "glass_door.glb"}`
           }
           onClose={() => setIsCustomizeModalOpen(false)}
           onApply={(customizations, newItemName) => {
@@ -2073,7 +2072,7 @@ const Plan3DViewer: React.FC<Plan3DViewerProps> = ({
                         ...shape,
                         newItemName,
                         variant:
-                          `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/${newItemName.toLowerCase().replace(/[-\s]/g, "_")}.glb` ||
+                          `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/items/${newItemName.toLowerCase().replace(/[-\s]/g, "_")}.glb` ||
                           "default",
                       }
                     : shape,

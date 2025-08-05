@@ -146,111 +146,111 @@ const DoorCustomizeModal: React.FC<CustomizeItemModalProps> = ({
   };
 
   const handleSaveModifiedModel = async (
-  sceneToExport: THREE.Object3D
-): Promise<string> => {
-  if (!sceneToExport) {
-    console.error("No modified scene available.");
-    return "";
-  }
+    sceneToExport: THREE.Object3D,
+  ): Promise<string> => {
+    if (!sceneToExport) {
+      console.error("No modified scene available.");
+      return "";
+    }
 
-  const exporter = new GLTFExporter();
+    const exporter = new GLTFExporter();
 
-  return new Promise((resolve) => {
-    exporter.parse(
-      sceneToExport,
-      async (result) => {
-        let glbBlob: Blob;
-        if (result instanceof ArrayBuffer) {
-          glbBlob = new Blob([result], { type: "model/gltf-binary" });
-        } else {
-          const jsonOutput = JSON.stringify(result, null, 2);
-          glbBlob = new Blob([jsonOutput], { type: "application/json" });
-        }
-
-        const randomId = uid(16);
-        const rootName = `modified_shape_${randomId}`;
-
-        const glbFilename = `${rootName}.glb`;
-        const minioUploadUrl = `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/${glbFilename}`;
-        try {
-          const putResp = await fetch(minioUploadUrl, {
-            method: "PUT",
-            headers: { "Content-Type": "model/gltf-binary" },
-            body: glbBlob,
-          });
-          if (!putResp.ok) {
-            throw new Error(`MinIO upload failed: ${putResp.statusText}`);
-          }
-          console.log("GLB uploaded:", minioUploadUrl);
-        } catch (err) {
-          console.error("Error uploading GLB to MinIO:", err);
-          resolve("");
-          return;
-        }
-
-        const isWindow = item?.type === "window";
-        const viewer2DImage = isWindow ? "window_1.png" : "glass_door.png";
-        const viewer3DImage = viewer2DImage;
-
-        const viewer2dUrl = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${viewer2DImage}`;
-        const viewer3dUrl = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer3d_images/${viewer3DImage}`;
-
-        let v2Blob: Blob;
-        let v3Blob: Blob;
-        try {
-          const [v2Res, v3Res] = await Promise.all([
-            fetch(viewer2dUrl),
-            fetch(viewer3dUrl),
-          ]);
-          if (!v2Res.ok || !v3Res.ok) {
-            throw new Error(
-              `Failed fetching viewer images: ${v2Res.status}, ${v3Res.status}`,
-            );
-          }
-          v2Blob = await v2Res.blob();
-          v3Blob = await v3Res.blob();
-        } catch (err) {
-          console.error("Error fetching viewer files:", err);
-          resolve("");
-          return;
-        }
-
-        const form = new FormData();
-        form.append("item_name", rootName);
-        form.append("glb_url", minioUploadUrl);
-        form.append("viewer2d", v2Blob, `${rootName}.png`);
-        form.append("viewer3d", v3Blob, `${rootName}.png`);
-
-        try {
-          const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}api/create-custom-item/`,
-            {
-              method: "POST",
-              body: form,
-            },
-          );
-
-          if (response.ok) {
-            const data = await response.json();
-            console.log("Model uploaded successfully!", data.item_name);
-            resolve(data.item_name);
+    return new Promise((resolve) => {
+      exporter.parse(
+        sceneToExport,
+        async (result) => {
+          let glbBlob: Blob;
+          if (result instanceof ArrayBuffer) {
+            glbBlob = new Blob([result], { type: "model/gltf-binary" });
           } else {
-            console.error("Upload failed:", response.statusText);
+            const jsonOutput = JSON.stringify(result, null, 2);
+            glbBlob = new Blob([jsonOutput], { type: "application/json" });
+          }
+
+          const randomId = uid(16);
+          const rootName = `modified_shape_${randomId}`;
+
+          const glbFilename = `${rootName}.glb`;
+          const minioUploadUrl = `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/${glbFilename}`;
+          try {
+            const putResp = await fetch(minioUploadUrl, {
+              method: "PUT",
+              headers: { "Content-Type": "model/gltf-binary" },
+              body: glbBlob,
+            });
+            if (!putResp.ok) {
+              throw new Error(`MinIO upload failed: ${putResp.statusText}`);
+            }
+            console.log("GLB uploaded:", minioUploadUrl);
+          } catch (err) {
+            console.error("Error uploading GLB to MinIO:", err);
+            resolve("");
+            return;
+          }
+
+          const isWindow = item?.type === "window";
+          const viewer2DImage = isWindow ? "window_1.png" : "glass_door.png";
+          const viewer3DImage = viewer2DImage;
+
+          const viewer2dUrl = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/viewer2d_images/${viewer2DImage}`;
+          const viewer3dUrl = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/viewer3d_images/${viewer3DImage}`;
+
+          let v2Blob: Blob;
+          let v3Blob: Blob;
+          try {
+            const [v2Res, v3Res] = await Promise.all([
+              fetch(viewer2dUrl),
+              fetch(viewer3dUrl),
+            ]);
+            if (!v2Res.ok || !v3Res.ok) {
+              throw new Error(
+                `Failed fetching viewer images: ${v2Res.status}, ${v3Res.status}`,
+              );
+            }
+            v2Blob = await v2Res.blob();
+            v3Blob = await v3Res.blob();
+          } catch (err) {
+            console.error("Error fetching viewer files:", err);
+            resolve("");
+            return;
+          }
+
+          const form = new FormData();
+          form.append("item_name", rootName);
+          form.append("glb_url", minioUploadUrl);
+          form.append("viewer2d", v2Blob, `${rootName}.png`);
+          form.append("viewer3d", v3Blob, `${rootName}.png`);
+
+          try {
+            const response = await fetch(
+              `${process.env.NEXT_PUBLIC_API_BASE_URL}api/create-custom-item/`,
+              {
+                method: "POST",
+                body: form,
+              },
+            );
+
+            if (response.ok) {
+              const data = await response.json();
+              console.log("Model uploaded successfully!", data.item_name);
+              resolve(data.item_name);
+            } else {
+              console.error("Upload failed:", response.statusText);
+              resolve("");
+            }
+          } catch (err) {
+            console.error("Error uploading model:", err);
             resolve("");
           }
-        } catch (err) {
-          console.error("Error uploading model:", err);
+        },
+        (error) => {
+          console.error("Error exporting model:", error);
           resolve("");
-        }
-      },
-      (error) => {
-        console.error("Error exporting model:", error);
-        resolve("");
-      },
-      { binary: true },
-    );
-  });
-};
+        },
+        { binary: true },
+      );
+    });
+  };
 
   const handleOpacityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLocalOpacity(Number(e.target.value));

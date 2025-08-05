@@ -208,7 +208,7 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
           const randomId = uid(16);
           const rootName = `${originalBase}_${randomId}`;
           const glbFilename = `${rootName}.glb`;
-          const minioUploadUrl = `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/${glbFilename}`;
+          const minioUploadUrl = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/items/${glbFilename}`;
 
           try {
             const putResp = await fetch(minioUploadUrl, {
@@ -225,8 +225,8 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
             return;
           }
 
-          const viewer2dUrl = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${originalBase}.png`;
-          const viewer3dUrl = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer3d_images/${originalBase}.png`;
+          const viewer2dUrl = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/viewer2d_images/${originalBase}.png`;
+          const viewer3dUrl = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/viewer3d_images/${originalBase}.png`;
 
           let v2Blob: Blob;
           let v3Blob: Blob;

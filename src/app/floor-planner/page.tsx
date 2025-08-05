@@ -104,13 +104,13 @@ const FloorPlanner = () => {
   const [wallHeightSetting, setWallHeightSetting] = useState<number>(120);
   const [wallThicknessSetting, setWallThicknessSetting] = useState<number>(6);
   const [wallTextureSetting, setWallTextureSetting] = useState<string>(
-    `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/textures/Yellow_Ceiling.png`,
+    `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/textures/Yellow_Ceiling.png`,
   );
   const [floorTextureSetting, setFloorTextureSetting] = useState<string>(
-    `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/textures/Crema_Marfil_Marble.jpg`,
+    `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/textures/Crema_Marfil_Marble.jpg`,
   );
   const [ceilingTextureSetting, setCeilingTextureSetting] = useState<string>(
-    `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/textures/Yellow_Wall.png`,
+    `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/textures/Yellow_Wall.png`,
   );
   const [lightIntensity, setLightIntensity] = useState(1);
   const [floorTextureScale, setFloorTextureScale] = useState<number>(10000);
@@ -695,7 +695,7 @@ const FloorPlanner = () => {
       processedFurnitureItems = floorData.furniture.map(
         (item: SerializedFurnitureItem) => ({
           ...item,
-          imageSrc: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${item.name.toLowerCase().replace(/[-\s]/g, "_")}.png`,
+          imageSrc: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/viewer2d_images/${item.name.toLowerCase().replace(/[-\s]/g, "_")}.png`,
         }),
       );
     }
@@ -706,7 +706,7 @@ const FloorPlanner = () => {
       processedCeilingItems = floorData.ceilingItems.map(
         (item: SerializedceilingItem) => ({
           ...item,
-          imageSrc: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${item.name.toLowerCase().replace(/[-\s]/g, "_")}.png`,
+          imageSrc: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/viewer2d_images/${item.name.toLowerCase().replace(/[-\s]/g, "_")}.png`,
         }),
       );
     }
@@ -717,7 +717,7 @@ const FloorPlanner = () => {
       processedWallItems = floorData.wallItems.map(
         (item: SerializedWallItem) => ({
           ...item,
-          imageSrc: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer2d_images/${item.name.toLowerCase().replace(/[-\s]/g, "_")}.png`,
+          imageSrc: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/viewer2d_images/${item.name.toLowerCase().replace(/[-\s]/g, "_")}.png`,
         }),
       );
     }

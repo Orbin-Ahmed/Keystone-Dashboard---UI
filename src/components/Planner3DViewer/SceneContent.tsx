@@ -306,16 +306,16 @@ const SceneContent: React.FC<SceneContentProps> = ({
 
       const defaultModelPath =
         type === "window"
-          ? `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/window_1.glb`
+          ? `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/items/window_1.glb`
           : isOuter
-            ? `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/glass_door.glb`
-            : `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/wooden_door.glb`;
+            ? `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/items/glass_door.glb`
+            : `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/items/wooden_door.glb`;
       const modelPath = modelPathsByShapeId[shapeId] || defaultModelPath;
       const modelName = modelPath.split("/").pop()?.split(".").shift() || "";
       const name = modelName.replace("_", " ").toUpperCase();
       const typeName = name || type;
       const area = width * height;
-      const imagePath = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer3d_images/${modelName}.png`;
+      const imagePath = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/viewer3d_images/${modelName}.png`;
       const key = `${type}-${modelName}-${width}-${height}`;
 
       if (scheduleMap.has(key)) {
@@ -355,7 +355,7 @@ const SceneContent: React.FC<SceneContentProps> = ({
 
       const area = width * height;
       const image_name = name.toLowerCase().replace(/[-\s]/g, "_");
-      const imagePath = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/media/viewer3d_images/${image_name}.png`;
+      const imagePath = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/viewer3d_images/${image_name}.png`;
       const key = `${image_name}-${width}-${height}-${depth}`;
 
       if (itemMap.has(key)) {
@@ -1342,10 +1342,10 @@ const SceneContent: React.FC<SceneContentProps> = ({
               const { type, x, y, id, variant } = shape;
               const defaultModelPath =
                 type === "window"
-                  ? `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/window_1.glb`
+                  ? `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/items/window_1.glb`
                   : isOuter
-                    ? `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/glass_door.glb`
-                    : `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/wooden_door.glb`;
+                    ? `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/items/glass_door.glb`
+                    : `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/items/wooden_door.glb`;
               const modelPath =
                 variant === "default"
                   ? defaultModelPath
