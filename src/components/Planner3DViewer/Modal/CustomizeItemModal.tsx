@@ -210,7 +210,7 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
           const filename = `${rootName}.glb`;
 
           const presignRes = await fetch(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/presign/`,
+            `${process.env.NEXT_PUBLIC_API_BASE_URL}api/presign/`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
