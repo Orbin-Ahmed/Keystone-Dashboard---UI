@@ -31,7 +31,7 @@ const ItemSidebar: React.FC<ItemSidebarProps> = ({ selectedPlane }) => {
         }
         categorizedItems[category].push({
           name: item.item_name,
-          imageSrc: `${process.env.NEXT_PUBLIC_API_MEDIA_URL + item.viewer2d}`,
+          imageSrc: `${item.viewer2d}`,
           category: item.category,
           width: item.width,
           height: item.height,
