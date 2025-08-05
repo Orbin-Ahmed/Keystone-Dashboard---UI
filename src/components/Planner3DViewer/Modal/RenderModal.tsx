@@ -210,21 +210,41 @@ const RenderModal: React.FC<RenderModalProps> = ({
       if (!finalGlbUrl || sceneModified) {
         const glbBlob = await exportGLTF();
         const uniqueFilename = `${uid(16)}.glb`;
-        finalGlbUrl = `${process.env.NEXT_PUBLIC_MINIO_SERVER}/glbfile/glb_files/${uniqueFilename}`;
-
-        const uploadResponse = await fetch(finalGlbUrl, {
-          method: "PUT",
-          body: glbBlob,
-          headers: {
-            "Content-Type": "application/octet-stream",
+        const presignRes = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/presign/`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              uniqueFilename,
+              folder: "items",
+              content_type: "model/gltf-binary",
+            }),
           },
+        );
+
+        if (!presignRes.ok) {
+          throw new Error(`Presign failed: ${await presignRes.text()}`);
+        }
+        const { url: s3Url, fields, key } = await presignRes.json();
+
+        const s3form = new FormData();
+        Object.entries(fields).forEach(([k, v]) => {
+          s3form.append(k, v as string);
         });
 
-        if (!uploadResponse.ok) {
-          throw new Error(`File upload failed: ${uploadResponse.statusText}`);
-        }
+        s3form.append("file", glbBlob, uniqueFilename);
 
-        console.log("GLB uploaded successfully:", finalGlbUrl);
+        const uploadResp = await fetch(s3Url, {
+          method: "POST",
+          body: s3form,
+        });
+
+        if (!uploadResp.ok) {
+          throw new Error(`S3 upload failed: ${uploadResp.statusText}`);
+        }
+        const finalGlbUrl = `https://${process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN}/${key}`;
+
         setGlbUrl(finalGlbUrl);
         setSceneModified(false);
       }

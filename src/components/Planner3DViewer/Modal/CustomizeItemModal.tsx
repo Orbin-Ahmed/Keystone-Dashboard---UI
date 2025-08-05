@@ -207,23 +207,42 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
           const originalBase = item?.name.toLowerCase().replaceAll(" ", "_");
           const randomId = uid(16);
           const rootName = `${originalBase}_${randomId}`;
-          const glbFilename = `${rootName}.glb`;
-          const minioUploadUrl = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/items/${glbFilename}`;
+          const filename = `${rootName}.glb`;
 
-          try {
-            const putResp = await fetch(minioUploadUrl, {
-              method: "PUT",
-              headers: { "Content-Type": "model/gltf-binary" },
-              body: blob,
-            });
-            if (!putResp.ok) {
-              throw new Error(`MinIO upload failed: ${putResp.statusText}`);
-            }
-          } catch (err) {
-            console.error("Error uploading GLB to MinIO:", err);
-            resolve("");
-            return;
+          const presignRes = await fetch(
+            `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/presign/`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                filename,
+                folder: "items",
+                content_type: "model/gltf-binary",
+              }),
+            },
+          );
+
+          if (!presignRes.ok) {
+            throw new Error(`Presign failed: ${await presignRes.text()}`);
           }
+          const { url: s3Url, fields, key } = await presignRes.json();
+
+          const s3form = new FormData();
+          Object.entries(fields).forEach(([k, v]) => {
+            s3form.append(k, v as string);
+          });
+
+          s3form.append("file", blob, filename);
+
+          const uploadResp = await fetch(s3Url, {
+            method: "POST",
+            body: s3form,
+          });
+
+          if (!uploadResp.ok) {
+            throw new Error(`S3 upload failed: ${uploadResp.statusText}`);
+          }
+          const publicUrl = `https://${process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN}/${key}`;
 
           const viewer2dUrl = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/viewer2d_images/${originalBase}.png`;
           const viewer3dUrl = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/viewer3d_images/${originalBase}.png`;
@@ -250,7 +269,7 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
 
           const form = new FormData();
           form.append("item_name", rootName);
-          form.append("glb_url", minioUploadUrl);
+          form.append("glb_url", publicUrl);
           form.append("viewer2d", v2Blob, `${rootName}.png`);
           form.append("viewer3d", v3Blob, `${rootName}.png`);
 

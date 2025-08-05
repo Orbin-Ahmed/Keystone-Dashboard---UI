@@ -4,7 +4,6 @@ import {
   ImageData,
   ImageFile,
   ImageFiles,
-  InteriorDesignInput,
   RegisterLoginFormData,
   UpdateSocialLinkParams,
   User,
@@ -173,7 +172,6 @@ export const pixabayImageData = async (searchTerm: string, page: Number) => {
     encodeURIComponent(
       `https://pixabay.com/api/?key=${access_key}&q=${searchTerm}&image_type=photo&page=${page}&per_page=20`,
     );
-  // const url = `https://pixabay.com/api/?key=${access_key}&q=${searchTerm}&image_type=photo&page=${page}&per_page=30`;
 
   try {
     const response = await fetch(url);
@@ -1057,6 +1055,7 @@ function getToken() {
   }
   return token;
 }
+
 export function getCookie(name: string) {
   const decodedCookie = decodeURIComponent(document.cookie);
   const cookieParts = decodedCookie.split(";");

@@ -204,18 +204,18 @@ const AddModel = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    const sanitizedItemName = formData.itemName
+    const sanitized = formData.itemName
       .toLowerCase()
       .trim()
       .replace(/\s+/g, "-")
       .replace(/-/g, "_");
 
     try {
-      const check = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}api/items/check-name/?item_name=${encodeURIComponent(sanitizedItemName)}`,
+      const checkRes = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/items/check-name/?item_name=${encodeURIComponent(sanitized)}`,
       );
-      if (!check.ok) throw new Error("Name-check failed");
-      const { exists } = await check.json();
+      if (!checkRes.ok) throw new Error("Name check failed");
+      const { exists } = await checkRes.json();
       if (exists) {
         alert(
           `“${formData.itemName}” is already taken. Please choose another.`,
@@ -230,98 +230,90 @@ const AddModel = () => {
       return;
     }
 
-    const formDataObj = new FormData();
+    async function uploadToS3(file: File, folder: string): Promise<string> {
+      const ext = file.name.split(".").pop();
+      const filename = `${sanitized}.${ext}`;
 
-    if (formData.glbFile) {
-      const ext = formData.glbFile.name.split(".").pop();
-      const glbFileName = `${sanitizedItemName}.${ext}`;
-      const minioUploadUrl = `${process.env.NEXT_PUBLIC_MINIO_SERVER}/items/items/${glbFileName}`;
-
-      try {
-        const putResp = await fetch(minioUploadUrl, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/octet-stream",
-          },
-          body: formData.glbFile,
-        });
-        if (!putResp.ok) {
-          setIsLoading(false);
-          throw new Error(`MinIO upload failed: ${putResp.statusText}`);
-        }
-      } catch (err) {
-        setIsLoading(false);
-        console.error("Error uploading GLB to MinIO:", err);
-        alert("Failed to upload 3D model. Try again.");
-        return;
-      }
-
-      formDataObj.append("glb_url", minioUploadUrl);
-    }
-
-    if (formData.viewer3D) {
-      const viewer3DExtension = formData.viewer3D.name.split(".").pop();
-      const viewer3DFileName = `${sanitizedItemName}.${viewer3DExtension}`;
-      const viewer3DFile = new File([formData.viewer3D], viewer3DFileName, {
-        type: formData.viewer3D.type,
-      });
-      formDataObj.append("viewer3d", viewer3DFile);
-    }
-
-    if (formData.viewer2D) {
-      const viewer2DExtension = formData.viewer2D.name.split(".").pop();
-      const viewer2DFileName = `${sanitizedItemName}.${viewer2DExtension}`;
-      const viewer2DFile = new File([formData.viewer2D], viewer2DFileName, {
-        type: formData.viewer2D.type,
-      });
-      formDataObj.append("viewer2d", viewer2DFile);
-    }
-    const conversionFactor = 0.393701;
-    formDataObj.append("item_name", formData.itemName.toLowerCase().trim());
-    formDataObj.append("category", formData.category.toLowerCase().trim());
-    formDataObj.append("type", formData.type);
-    formDataObj.append("width", (formData.width * conversionFactor).toString());
-    formDataObj.append(
-      "height",
-      (formData.height * conversionFactor).toString(),
-    );
-    formDataObj.append("depth", (formData.depth * conversionFactor).toString());
-
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}api/items/`,
+      const presignRes = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/presign/`,
         {
           method: "POST",
-          body: formDataObj,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            filename,
+            folder,
+            content_type: file.type,
+          }),
         },
       );
+      if (!presignRes.ok) {
+        const err = await presignRes.text();
+        throw new Error(`Presign failed: ${err}`);
+      }
+      const { url, fields, key } = await presignRes.json();
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        const errorMessages = Object.entries(errorData)
-          .map(([key, value]: [string, any]) => `${value.join(", ")}`)
-          .join("\n");
+      const s3form = new FormData();
+      Object.entries(fields).forEach(([k, v]) => {
+        s3form.append(k, v as string);
+      });
+      s3form.append("file", file, filename);
 
-        alert(`Error:\n${errorMessages}`);
+      const uploadRes = await fetch(url, {
+        method: "POST",
+        body: s3form,
+      });
+      if (!uploadRes.ok) {
+        throw new Error(`S3 upload failed: ${uploadRes.statusText}`);
+      }
+
+      return `https://${process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN}/${key}`;
+    }
+
+    const out = new FormData();
+    out.append("item_name", sanitized);
+    out.append("category", formData.category.toLowerCase().trim());
+    out.append("type", formData.type);
+    const conv = 0.393701;
+    out.append("width", (formData.width * conv).toString());
+    out.append("height", (formData.height * conv).toString());
+    out.append("depth", (formData.depth * conv).toString());
+
+    try {
+      if (formData.glbFile) {
+        const glbUrl = await uploadToS3(formData.glbFile, "items");
+        out.append("glb_url", glbUrl);
+        console.log("GLB uploaded →", glbUrl);
+      }
+      if (formData.viewer3D) {
+        const url3d = await uploadToS3(formData.viewer3D, "viewer3d");
+        out.append("viewer3d_url", url3d);
+        console.log("3D viewer uploaded →", url3d);
+      }
+      if (formData.viewer2D) {
+        const url2d = await uploadToS3(formData.viewer2D, "viewer2d");
+        out.append("viewer2d_url", url2d);
+        console.log("2D viewer uploaded →", url2d);
+      }
+
+      const resp = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/items/`,
+        {
+          method: "POST",
+          body: out,
+        },
+      );
+      if (!resp.ok) {
+        const errors = await resp.json();
+        const messages = Object.values(errors).flat().join("\n");
+        alert(`Error saving item:\n${messages}`);
         setIsLoading(false);
         return;
       }
 
-      const data = await response.json();
-      const formDataEntries: { [key: string]: string } = {};
-      formDataObj.forEach((value, key) => {
-        if (value instanceof File) {
-          formDataEntries[key] = `File: ${value.name}`;
-        } else {
-          formDataEntries[key] = value.toString();
-        }
-      });
-
-      console.log("FormData Contents:", formDataEntries);
       alert("Item submitted successfully!");
-    } catch (error) {
-      console.error("Error:", error);
-      alert("An error occurred. Please try again.");
+    } catch (err) {
+      console.error("Upload error:", err);
+      alert("There was a problem uploading your files. Please try again.");
     } finally {
       setIsLoading(false);
     }
