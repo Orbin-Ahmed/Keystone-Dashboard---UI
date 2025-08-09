@@ -244,8 +244,11 @@ const CustomizeItemModal: React.FC<CustomizeItemModalProps> = ({
           }
           const publicUrl = `https://${process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN}/${key}`;
 
-          const viewer2dUrl = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/viewer2d_images/${originalBase}.png`;
-          const viewer3dUrl = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/viewer3d_images/${originalBase}.png`;
+          const viewer2DImage = originalBase + ".png";
+          const viewer3DImage = viewer2DImage;
+
+          const viewer2dUrl = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/viewer2d_images/${viewer2DImage}`;
+          const viewer3dUrl = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/viewer3d_images/${viewer3DImage}`;
 
           let v2Blob: Blob;
           let v3Blob: Blob;
