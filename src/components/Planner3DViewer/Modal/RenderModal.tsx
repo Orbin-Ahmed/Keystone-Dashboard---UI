@@ -216,7 +216,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              uniqueFilename,
+              filename: uniqueFilename,
               folder: "glb_files",
               content_type: "model/gltf-binary",
             }),
