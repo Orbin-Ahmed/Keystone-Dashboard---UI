@@ -276,7 +276,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
         lightPath,
         blenderCamPos,
         blenderCamTarget,
-        finalGlbUrl,
+        glbUrl,
         request_id,
         fov,
         useReflection,
@@ -286,7 +286,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
         request_id,
         theme: theme,
         params: renderParams,
-        glb_url: finalGlbUrl,
+        glb_url: glbUrl,
       };
       const backendResponse = await fetch(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}api/render_request/`,
