@@ -212,7 +212,7 @@ const AddModel = () => {
 
     try {
       const checkRes = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/items/check-name/?item_name=${encodeURIComponent(sanitized)}`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}api/items/check-name/?item_name=${encodeURIComponent(sanitized)}`,
       );
       if (!checkRes.ok) throw new Error("Name check failed");
       const { exists } = await checkRes.json();
