@@ -235,7 +235,7 @@ const AddModel = () => {
       const filename = `${sanitized}.${ext}`;
 
       const presignRes = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/presign/`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}api/presign/`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -296,7 +296,7 @@ const AddModel = () => {
       }
 
       const resp = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/items/`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}api/items/`,
         {
           method: "POST",
           body: out,
