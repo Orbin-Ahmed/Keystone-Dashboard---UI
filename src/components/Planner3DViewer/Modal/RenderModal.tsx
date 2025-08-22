@@ -243,7 +243,8 @@ const RenderModal: React.FC<RenderModalProps> = ({
         if (!uploadResp.ok) {
           throw new Error(`S3 upload failed: ${uploadResp.statusText}`);
         }
-        const finalGlbUrl = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/glb_files/${uniqueFilename}`;
+
+        finalGlbUrl = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/glb_files/${uniqueFilename}`;
 
         setGlbUrl(finalGlbUrl);
         setSceneModified(false);
@@ -276,7 +277,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
         lightPath,
         blenderCamPos,
         blenderCamTarget,
-        glbUrl,
+        finalGlbUrl,
         request_id,
         fov,
         useReflection,
@@ -286,7 +287,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
         request_id,
         theme: theme,
         params: renderParams,
-        glb_url: glbUrl,
+        glb_url: finalGlbUrl,
       };
       const backendResponse = await fetch(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}api/render_request/`,
