@@ -106,7 +106,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 
   const logoSrc =
     companyData && companyData.logo
-      ? getImageUrl(companyData.logo)
+      ? companyData.logo
       : "/images/logo/logo.png";
 
   return (

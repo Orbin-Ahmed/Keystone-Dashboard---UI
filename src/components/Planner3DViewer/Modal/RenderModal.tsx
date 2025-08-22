@@ -243,7 +243,7 @@ const RenderModal: React.FC<RenderModalProps> = ({
         if (!uploadResp.ok) {
           throw new Error(`S3 upload failed: ${uploadResp.statusText}`);
         }
-        const finalGlbUrl = `https://${process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN}/${key}`;
+        const finalGlbUrl = `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/glb_files/${uniqueFilename}`;
 
         setGlbUrl(finalGlbUrl);
         setSceneModified(false);

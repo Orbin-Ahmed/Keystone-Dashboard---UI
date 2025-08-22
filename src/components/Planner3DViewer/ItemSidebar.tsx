@@ -56,7 +56,7 @@ const ItemSidebar: React.FC<ItemSidebarProps> = ({
           name: item.item_name,
           path: `${item.glb_url}`,
           typeM: item.item_name.toLowerCase().replace(/[-\s]/g, "_"),
-          viewer3d: `${process.env.NEXT_PUBLIC_API_MEDIA_URL}${item.viewer3d}`,
+          viewer3d: `${item.viewer3d}`,
           width: item.width,
           height: item.height,
           depth: item.depth,
@@ -107,13 +107,6 @@ const ItemSidebar: React.FC<ItemSidebarProps> = ({
               {expandedCategory === category.name && (
                 <div className="bg-gray-100 mt-2 grid grid-cols-2 gap-4 rounded-lg p-3">
                   {category.items
-                    // .filter(
-                    //   (item) =>
-                    //     item.type !== "Ceiling" &&
-                    //     item.type !== "Wall" &&
-                    //     item.type !== "Door" &&
-                    //     item.type !== "Window",
-                    // )
                     .filter((item) => !excludedTypes.includes(item.type))
                     .map((item) => (
                       <div

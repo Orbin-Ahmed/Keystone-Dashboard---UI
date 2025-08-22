@@ -58,97 +58,92 @@ const Login = () => {
 
   const logoSrc =
     companyData && companyData.logo
-      ? getImageUrl(companyData.logo)
+      ? companyData.logo
       : "/images/logo/logo.png";
 
   const companyName = companyData?.name ?? "Keystone Engineering Consultant";
 
   return (
-    <div className="m-auto h-full">
-      <div className="flex flex-col items-center justify-center py-8">
-        <div className="px-4 md:px-0 lg:w-6/12">
-          <div className="rounded-lg bg-white p-6 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] md:mx-6 md:p-12">
-            {/* Logo and company name */}
-            <div className="text-center">
-              <Link href="/" className="flex justify-center">
-                <Image
-                  width={54}
-                  height={32}
-                  src={logoSrc}
-                  alt="Logo"
-                  priority
-                />
-              </Link>
-              <h4 className="mb-8 mt-1 pb-1 text-xl font-semibold">
-                {companyName}
-              </h4>
-            </div>
-            {/* Form input  */}
-            <form onSubmit={handleSubmit}>
-              <p className="mb-4">Please login to your account</p>
-              {/* <!--Username input--> */}
-              <div className="mb-4">
-                <InputField
-                  className="px-4.5 py-3"
-                  type="text"
-                  name="username"
-                  id="username"
-                  placeholder="Username"
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              {/* <!--Password input--> */}
-              <div className="mb-4">
-                <InputField
-                  className="px-4.5 py-3"
-                  type="password"
-                  name="password"
-                  id="password"
-                  placeholder="Password"
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              {/* <!--Submit button--> */}
-              <div className="mb-8 mt-6 text-center">
-                <CustomButton
-                  type="submit"
-                  variant="primary"
-                  className="w-full uppercase"
-                  disabled={isLoading}
-                >
-                  <div className="flex items-center justify-center">
-                    <span className="mr-2">Log in</span>
-                    <Spinner loading={isLoading}></Spinner>
-                  </div>
-                </CustomButton>
-
-                {/* <!--Forgot password link--> */}
-                {/* <a href="#!">Forgot password?</a> */}
-              </div>
-
-              {/* <!--Register button--> */}
-              <div className="flex items-center justify-between pb-6">
-                <p className="mb-0 mr-2">Do not have an account?</p>
-                <Link href="/auth/register">
-                  <CustomButton variant="secondary">Register</CustomButton>
-                </Link>
-              </div>
-            </form>
-            {/* Form input end*/}
+    <div className="grid min-h-screen place-items-center px-4">
+      <div className="w-full max-w-3xl px-4 md:px-0 lg:w-6/12 ">
+        <div className="rounded-lg bg-white p-6 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] md:mx-6 md:p-12">
+          {/* Logo and company name */}
+          <div className="text-center">
+            <Link href="/" className="mb-6 flex justify-center">
+              <Image
+                width={200}
+                height={32}
+                src={logoSrc}
+                alt="Logo"
+                priority
+              />
+            </Link>
           </div>
+          {/* Form input  */}
+          <form onSubmit={handleSubmit}>
+            <p className="mb-4">Please login to your account</p>
+            {/* <!--Username input--> */}
+            <div className="mb-4">
+              <InputField
+                className="px-4.5 py-3"
+                type="text"
+                name="username"
+                id="username"
+                placeholder="Username"
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            {/* <!--Password input--> */}
+            <div className="mb-4">
+              <InputField
+                className="px-4.5 py-3"
+                type="password"
+                name="password"
+                id="password"
+                placeholder="Password"
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            {/* <!--Submit button--> */}
+            <div className="mb-8 mt-6 text-center">
+              <CustomButton
+                type="submit"
+                variant="primary"
+                className="w-full uppercase"
+                disabled={isLoading}
+              >
+                <div className="flex items-center justify-center">
+                  <span className="mr-2">Log in</span>
+                  <Spinner loading={isLoading}></Spinner>
+                </div>
+              </CustomButton>
+
+              {/* <!--Forgot password link--> */}
+              {/* <a href="#!">Forgot password?</a> */}
+            </div>
+
+            {/* <!--Register button--> */}
+            {/* <div className="flex items-center justify-between pb-6">
+              <p className="mb-0 mr-2">Do not have an account?</p>
+              <Link href="/auth/register">
+                <CustomButton variant="secondary">Register</CustomButton>
+              </Link>
+            </div> */}
+          </form>
+          {/* Form input end*/}
         </div>
-        {/* Toast area start */}
-        <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          theme="light"
-        />{" "}
-        {/* Toast area end */}
       </div>
+      {/* Toast area start */}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        theme="light"
+      />{" "}
+      {/* Toast area end */}
     </div>
   );
 };
