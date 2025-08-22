@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     }
 
     const beamResponse = await fetch(
-      "https://blender-beam-api-81a270f-v6.app.beam.cloud",
+      "https://blender-beam-api-81a270f-v7.app.beam.cloud",
       {
         method: "POST",
         headers: {
