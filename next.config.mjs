@@ -4,40 +4,36 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "**",
-        port: "",
-        pathname: "**",
+        hostname: "d2ajyyavf56otu.cloudfront.net",
+        pathname: "/**",
       },
-      {
-        protocol: "http",
-        hostname: "**",
-        port: "",
-        pathname: "**",
-      },
-      {
-        protocol: "http",
-        hostname: "127.0.0.1",
-        port: "8000",
-        pathname: "/media/photo/**",
-      },
-      {
-        protocol: "http",
-        hostname: "127.0.0.1",
-        port: "8000",
-        pathname: "/media/pin/**",
-      },
+
+      { protocol: "https", hostname: "avatar.iran.liara.run", pathname: "/**" },
+      { protocol: "https", hostname: "replicate.com", pathname: "/**" },
+      { protocol: "https", hostname: "replicate.delivery", pathname: "/**" },
+
       {
         protocol: "https",
-        hostname: "replicate.com",
+        hostname: "backend.idealhomeuae.com",
+        pathname: "/**",
       },
-      {
-        protocol: "https",
-        hostname: "replicate.delivery",
-      },
+
+      // Local dev API
+      // {
+      //   protocol: "http",
+      //   hostname: "127.0.0.1",
+      //   port: "8000",
+      //   pathname: "/media/**",
+      // },
+      // {
+      //   protocol: "http",
+      //   hostname: "localhost",
+      //   port: "8000",
+      //   pathname: "/media/**",
+      // },
     ],
   },
 
-  // Extend webpack configuration to resolve 'canvas' alias
   webpack(config, { nextRuntime }) {
     if (nextRuntime === "nodejs") {
       config.resolve.alias.canvas = false;
