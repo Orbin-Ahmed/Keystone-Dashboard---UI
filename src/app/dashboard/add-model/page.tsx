@@ -285,12 +285,12 @@ const AddModel = () => {
         console.log("GLB uploaded →", glbUrl);
       }
       if (formData.viewer3D) {
-        const url3d = await uploadToS3(formData.viewer3D, "viewer3d");
+        const url3d = await uploadToS3(formData.viewer3D, "viewer3d_images");
         out.append("viewer3d_url", url3d);
         console.log("3D viewer uploaded →", url3d);
       }
       if (formData.viewer2D) {
-        const url2d = await uploadToS3(formData.viewer2D, "viewer2d");
+        const url2d = await uploadToS3(formData.viewer2D, "viewer2d_images");
         out.append("viewer2d_url", url2d);
         console.log("2D viewer uploaded →", url2d);
       }
