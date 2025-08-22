@@ -106,7 +106,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 
   const logoSrc =
     companyData && companyData.logo
-      ? companyData.logo
+      ? `${process.env.NEXT_PUBLIC_API_MEDIA_URL}/photo/Ideal_factory-02.png`
       : "/images/logo/logo.png";
 
   return (
